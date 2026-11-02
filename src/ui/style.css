@@ -127,3 +127,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .shroom:focus-visible svg { filter: drop-shadow(0 0 0.5px #000); }
 @media (max-width: 760px) { .shroom { top: calc(var(--pad) + var(--sat) - 12px); right: calc(var(--pad) + var(--sar) - 12px); opacity: .24; } }
 @media (max-height: 500px) and (orientation: landscape) { .shroom { top: calc(var(--pad) + var(--sat) + 30px); } }
+/* tablet portrait: the masthead fills the top row, so the hint moves down above the readouts */
+@media (min-width: 761px) and (max-width: 1100px) and (orientation: portrait) {
+  .hint { top: auto; bottom: calc(var(--pad) + var(--sab) + 92px); left: 50%; transform: translateX(-50%); flex-direction: column; align-items: center; gap: 3px; }
+}

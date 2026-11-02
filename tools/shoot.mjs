@@ -65,6 +65,12 @@ for (const s of steps) {
   } else if (s === 'bait') {
     for (let i = 0; i < 6; i++) { await page.click('#bait'); await tsleep(250); }
     await tsleep(2500); await snap('bait');
+  } else if (s === 'lifthead') {
+    const [px, py] = await proj(0.44, 0.05, 0);
+    await page.mouse.move(px, py); await page.mouse.down(); console.log('pointer mode:', await page.evaluate(() => window.__jelly.mode));
+    for (let i = 1; i <= 14; i++) { await page.mouse.move(px, py - i * 13); await tsleep(120); }
+    await tsleep(1200); await snap('lifthead-hold');
+    await page.mouse.up(); await tsleep(600);
   } else if (s === 'egg') {
     await page.evaluate(() => window.__jelly?.debugFreeze(true));
     await page.hover('#shroom'); await sleep(600); await page.screenshot({ path: `${out}-${String(n++).padStart(2, '0')}-egg-hover.png` });
