@@ -1,4 +1,4 @@
-import{a as e,c as t,i as n,l as r,n as i,o as a,r as o,s,t as c,u as l}from"./index-DArqiuhQ.js";var u,d,f=l((()=>{u=`
+import{a as e,c as t,i as n,l as r,n as i,o as a,r as o,s,t as c,u as l}from"./index-ChkDNmcP.js";var u,d,f=l((()=>{u=`
 struct Sim {
   h: f32, gravity: f32, damp: f32, muBody: f32,
   muFin: f32, lambdaRatio: f32, fs: f32, fk: f32,

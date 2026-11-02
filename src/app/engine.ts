@@ -55,7 +55,18 @@ export class Engine {
     this.dpr = Math.min(window.devicePixelRatio || 1, this.dprCap);
     this.W = Math.max(2, Math.round(r.width * this.dpr)); this.H = Math.max(2, Math.round(r.height * this.dpr));
     this.path.resize(this.W, this.H);
+    // free band between the top and bottom UI (portrait layouts frame the jelly inside it)
+    const H = r.height || 1; let top = 0, bot = H;
+    for (const el of document.querySelectorAll('.masthead, .characters')) { const b = el.getBoundingClientRect(); if (b.height && b.bottom < H * 0.5) top = Math.max(top, b.bottom - r.top); }
+    for (const el of document.querySelectorAll('.readouts, .controls')) { const b = el.getBoundingClientRect(); if (b.height && b.top > H * 0.5) bot = Math.min(bot, b.top - r.top); }
+    this.band = [1 - 2 * (bot - 4) / H, 1 - 2 * (top + 4) / H];
+    if (!this.rest) {
+      const n = this.path.asset.nodes; const lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9];
+      for (let i = 0; i < n.length; i += 3) for (let k = 0; k < 3; k++) { lo[k] = Math.min(lo[k], n[i + k]); hi[k] = Math.max(hi[k], n[i + k]); }
+      this.rest = { lo, hi };
+    }
   }
+  band = [-1, 1]; rest: { lo: number[]; hi: number[] } | null = null;
 
   dropBait() {
     const r = 0.016 + Math.random() * 0.008;
@@ -115,11 +126,26 @@ export class Engine {
     const halfLen = 0.60, halfH = 0.24;
     const seenLen = halfLen * Math.abs(Math.cos(c.yaw)) + 0.24 * Math.abs(Math.sin(c.yaw));
     let R = Math.max(seenLen / th, halfH / tv) * 1.32 + 0.2;
-    R *= c.zoom;
     const tgt = [c.target[0], c.target[1] + (portrait ? 0.02 : 0), c.target[2]];
+    let shiftY = 0;
+    if (portrait && this.rest) {
+      // fit the rest-pose bounding box into the free band with an off-centre (lens-shifted) projection
+      const [y0, y1] = this.band; shiftY = (y0 + y1) / 2; const hy = Math.max(0.2, (y1 - y0) / 2);
+      const bx = [Math.sin(c.yaw) * Math.cos(c.pitch), Math.sin(c.pitch), Math.cos(c.yaw) * Math.cos(c.pitch)];
+      const rt = [bx[2], 0, -bx[0]]; const rl = Math.hypot(rt[0], rt[2]); rt[0] /= rl; rt[2] /= rl;
+      const up = [bx[1] * rt[2] - bx[2] * rt[1], bx[2] * rt[0] - bx[0] * rt[2], bx[0] * rt[1] - bx[1] * rt[0]];
+      const { lo, hi } = this.rest; const m = 0.86; R = 0;
+      for (let i = 0; i < 8; i++) {
+        const p = [(i & 1 ? hi[0] : lo[0]) - tgt[0], (i & 2 ? hi[1] : lo[1]) - tgt[1], (i & 4 ? hi[2] : lo[2]) - tgt[2]];
+        const xr = p[0] * rt[0] + p[2] * rt[2], yu = p[0] * up[0] + p[1] * up[1] + p[2] * up[2], zb = p[0] * bx[0] + p[1] * bx[1] + p[2] * bx[2];
+        R = Math.max(R, zb + Math.abs(xr) / (th * m), zb + Math.abs(yu) / (tv * hy * m));
+      }
+    }
+    R *= c.zoom;
     c.eye = [tgt[0] + R * Math.sin(c.yaw) * Math.cos(c.pitch), tgt[1] + R * Math.sin(c.pitch), tgt[2] + R * Math.cos(c.yaw) * Math.cos(c.pitch)];
     m4.lookAt(this.view, c.eye, tgt, [0, 1, 0]);
     m4.perspective(this.proj, c.fov, aspect, 0.05, 40, this.zeroToOne);
+    this.proj[9] = -shiftY; // lens shift: NDC y += shiftY
     m4.mul(this.vp, this.proj, this.view);
     m4.invert(this.ivp, this.vp);
     // key light: ortho box around the jelly
