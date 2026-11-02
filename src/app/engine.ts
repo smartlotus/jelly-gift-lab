@@ -47,8 +47,9 @@ export class Engine {
     return { ...c, absorb: L(p.absorb, c.absorb), back: L(p.back, c.back), finTip: L(p.finTip, c.finTip), belly: L(p.belly, c.belly), glow: L(p.glow, c.glow), bead: L(p.bead, c.bead), bgTop: L(p.bgTop, c.bgTop), bgBot: L(p.bgBot, c.bgBot), floor: L(p.floor, c.floor) };
   }
 
-  start() { this.running = true; this.last = performance.now(); requestAnimationFrame(this.loop); }
-  stop() { this.running = false; }
+  private raf = 0;
+  start() { if (this.running) return; this.running = true; this.last = performance.now(); cancelAnimationFrame(this.raf); this.raf = requestAnimationFrame(this.loop); }
+  stop() { this.running = false; cancelAnimationFrame(this.raf); }
 
   resize() {
     const r = this.canvas.getBoundingClientRect();
@@ -80,7 +81,7 @@ export class Engine {
 
   private loop = (t: number) => {
     if (!this.running) return;
-    requestAnimationFrame(this.loop);
+    this.raf = requestAnimationFrame(this.loop);
     const t0 = performance.now();
     // lockstep (self-check only): advance exactly one 60 Hz frame per completed sim step,
     // so slow software GPUs reproduce real-time behaviour frame for frame
@@ -330,6 +331,11 @@ export class Engine {
   }
 
   /** Self-check helper: paint the last WebGPU frame into a 2D overlay so page screenshots include it. */
+  /** Self-check helper: freeze the loop and let the GPU drain so a page screenshot can't starve. */
+  async debugFreeze(on: boolean) {
+    if (on) { await this.debugCapture(); this.stop(); await (this.path as any).idle?.(); }
+    else { await this.debugCapture(false); this.start(); }
+  }
   async debugCapture(on = true) {
     document.getElementById('gpushot')?.remove();
     const p = this.path as any; if (!on || !p.capture) return false;

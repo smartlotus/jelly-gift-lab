@@ -335,4 +335,5 @@ export class GPUPath implements Path {
   reset() { this.writeInitialState(); }
   simMs() { return this.cost; }
   busy() { return this.inflight >= 2; }
+  idle() { return this.dev.queue.onSubmittedWorkDone(); }
 }

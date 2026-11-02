@@ -7,7 +7,7 @@ const qs = [args.q, args.lock ? 'lockstep=1' : ''].filter(Boolean).join('&');
 const url = `http://localhost:${args.port || 8800}/${qs ? '?' + qs : ''}`;
 const out = args.out || '/tmp/shot';
 const browser = await puppeteer.launch({
-  executablePath: '/usr/bin/google-chrome', headless: 'new',
+  executablePath: '/usr/bin/google-chrome', headless: 'new', protocolTimeout: 900000,
   args: ['--no-sandbox', '--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-webgpu-adapter=swiftshader', '--disable-vulkan-surface', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', `--window-size=${W},${H}`],
 });
 const page = await browser.newPage();
@@ -32,7 +32,7 @@ const tsleep = async ms => {
 const stat = async () => page.evaluate(() => { const e = window.__jelly; return e ? { fps: +e.fps.toFixed(1), simHz: +e.simHz.toFixed(1), raf: +e.rafFps.toFixed(1), backend: e.path.kind, frameMs: +e.frameMs.toFixed(2), simMs: +e.path.simMs().toFixed(2), substeps: e.path.substeps, simTime: +e.simTime.toFixed(2), ro: e.readouts } : null; });
 await tsleep(+(args.wait || 4000));
 let n = 0;
-const snap = async (tag) => { const f = `${out}-${String(n++).padStart(2, '0')}-${tag}.png`; await page.evaluate(() => window.__jelly?.debugCapture()); await page.screenshot({ path: f }); await page.evaluate(() => window.__jelly?.debugCapture(false)); console.log('shot', f, JSON.stringify(await stat())); };
+const snap = async (tag) => { const f = `${out}-${String(n++).padStart(2, '0')}-${tag}.png`; await page.evaluate(() => window.__jelly?.debugFreeze(true)); await page.screenshot({ path: f }); await page.evaluate(() => window.__jelly?.debugFreeze(false)); console.log('shot', f, JSON.stringify(await stat())); };
 await snap('initial');
 const steps = (args.steps || '').split(',').filter(Boolean);
 const proj = async (x, y, z) => page.evaluate((x, y, z) => { const e = window.__jelly; const m = e.vp; const r = e.canvas.getBoundingClientRect();

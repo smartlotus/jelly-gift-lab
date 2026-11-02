@@ -222,7 +222,7 @@ fn toUv(P: vec3f) -> vec2f { return ndcToUv(fr.viewProj * vec4f(P, 1.0)); }
   let ior = fr.absorb.a;
   let thick0 = clamp(min(zb, sc.a) - zf, 0.0, 0.5);
   var col = vec3f(0.0); var Tsum = vec3f(0.0);
-  let sig = fr.absorb.rgb * (1.0 + back * 0.9 + tip * 2.5) + vec3f(slit * 30.0 + groove * 6.0);
+  let sig = fr.absorb.rgb * (1.0 + back * 0.9 + tip * 2.5) + vec3f(slit * 13.0 + groove * 6.0);
   for (var c = 0; c < 3; c++) {
     let e = ior + (f32(c) - 1.0) * 0.018;
     let rd = refract(-V, N, 1.0 / e);
@@ -236,7 +236,7 @@ fn toUv(P: vec3f) -> vec2f { return ndcToUv(fr.viewProj * vec4f(P, 1.0)); }
     col[c] = s[c] * T[c]; Tsum[c] = T[c];
   }
   var filt = mix(vec3f(1.0), fr.backCol.rgb, back) * mix(vec3f(1.0), fr.finTipCol.rgb, tip);
-  filt *= 1.0 - 0.5 * slit;
+  filt *= 1.0 - 0.32 * slit;
   col *= filt;
   let thin = exp(-thick0 / 0.035);
   let L = lightKey(); let Lr = lightRim();

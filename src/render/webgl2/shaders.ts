@@ -245,7 +245,7 @@ void main(){
   float ior = fr.absorb.a;
   float thick0 = clamp(min(zb, sc.a) - zf, 0.0, 0.5);
   vec3 col = vec3(0.0); vec3 Tsum = vec3(0.0);
-  vec3 sig = fr.absorb.rgb * (1.0 + back * 0.9 + tip * 2.5) + vec3(slit * 30.0 + groove * 6.0);
+  vec3 sig = fr.absorb.rgb * (1.0 + back * 0.9 + tip * 2.5) + vec3(slit * 13.0 + groove * 6.0);
   for (int c = 0; c < 3; c++) {
     float e = ior + (float(c) - 1.0) * 0.018;
     vec3 rd = refract(-V, N, 1.0 / e);
@@ -263,7 +263,7 @@ void main(){
   }
   // surface pigment: darker back, dusky fin tips, slits
   vec3 filt = mix(vec3(1.0), fr.backCol.rgb, back) * mix(vec3(1.0), fr.finTipCol.rgb, tip);
-  filt *= 1.0 - 0.5 * slit;
+  filt *= 1.0 - 0.32 * slit;
   col *= filt;
   // back-lit glow in the thin parts
   float thin = exp(-thick0 / 0.035);
