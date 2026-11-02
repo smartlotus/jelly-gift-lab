@@ -34,7 +34,7 @@ async function tryWebGPU(): Promise<{ adapter: GPUAdapter; device: GPUDevice } |
 }
 
 async function boot() {
-  const canvas = document.getElementById('gl') as HTMLCanvasElement;
+  let canvas = document.getElementById('gl') as HTMLCanvasElement;
   const ch = CHARACTERS[0];
   let prog = 0.05; UI.setProgress(prog);
   const gpu = await tryWebGPU();
@@ -49,7 +49,12 @@ async function boot() {
       const gp = new GPUPath(canvas, asset, gpu.device, isMobile ? 4 : 4);
       await gp.ready;
       path = gp as unknown as Path;
-    } catch (e) { console.warn('WebGPU path failed, falling back to WebGL2:', e); path = null; }
+    } catch (e) {
+      console.warn('WebGPU path failed, falling back to WebGL2:', e); path = null;
+      // a canvas keeps its first context type: swap in a fresh element for WebGL2
+      const fresh = canvas.cloneNode(false) as HTMLCanvasElement; canvas.replaceWith(fresh); canvas = fresh;
+      try { gpu.device.destroy(); } catch { /* ignore */ }
+    }
   }
   if (!path) {
     level = params.get('q') || 'lo';
