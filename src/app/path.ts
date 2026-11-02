@@ -22,4 +22,6 @@ export interface Path {
   presented: number; simSteps: number;
   /** true when the next step() would be dropped because the sim is still busy */
   busy(): boolean;
+  /** free GPU resources / workers before a character switch */
+  dispose(): void;
 }

@@ -2,6 +2,7 @@ import * as S from './shaders';
 import { FRAME_FLOATS } from '../frame';
 import type { TetAsset } from '../../sim/mesh';
 import type { Backend, FrameInput } from '../backend';
+import type { Look } from '../../core/look';
 
 function compile(gl: WebGL2RenderingContext, vs: string, fs: string, name: string) {
   const mk = (type: number, src: string) => {
@@ -34,7 +35,10 @@ export class WebGL2Backend implements Backend {
   shadow!: Target; scene?: Target; back?: Target; shell?: Target;
   W = 1; H = 1; samples = 4;
   halfFloat = true;
-  constructor(public canvas: HTMLCanvasElement, public asset: TetAsset, opts: { msaa: number }) {
+  look: Look;
+  private bufs: WebGLBuffer[] = [];
+  constructor(public canvas: HTMLCanvasElement, public asset: TetAsset, opts: { msaa: number; look: Look }) {
+    this.look = opts.look;
     const gl = canvas.getContext('webgl2', { antialias: false, alpha: false, depth: false, stencil: false, premultipliedAlpha: false, powerPreference: 'high-performance' });
     if (!gl) throw new Error('WebGL2 unavailable');
     this.gl = gl;
@@ -51,8 +55,8 @@ export class WebGL2Backend implements Backend {
     const P = this.progs;
     P.shadow = compile(gl, S.MESH_VS, S.SHADOW_FS, 'shadow');
     P.back = compile(gl, S.MESH_VS, S.BACK_FS, 'back');
-    P.inner = compile(gl, S.MESH_VS, S.INNER_FS, 'inner');
-    P.shell = compile(gl, S.MESH_VS, S.SHELL_FS, 'shell');
+    P.inner = compile(gl, S.MESH_VS, S.innerFS(this.look.shellGLSL, this.look.innerGLSL), 'inner');
+    P.shell = compile(gl, S.MESH_VS, S.shellFS(this.look.shellGLSL), 'shell');
     P.backdrop = compile(gl, S.FULL_VS, S.BACKDROP_FS, 'backdrop');
     P.bubble = compile(gl, S.BUBBLE_VS, S.BUBBLE_FS, 'bubble');
     P.bead = compile(gl, S.BEAD_VS, S.BEAD_FS, 'bead');
@@ -74,7 +78,7 @@ export class WebGL2Backend implements Backend {
     const mkVao = (pfx: string) => {
       const vao = gl.createVertexArray()!; gl.bindVertexArray(vao);
       const buf = (data: ArrayBufferView, loc: number, size: number, type: number, norm: boolean, int = false) => {
-        const b = gl.createBuffer()!; gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        const b = gl.createBuffer()!; this.bufs.push(b); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
         gl.enableVertexAttribArray(loc);
         if (int) gl.vertexAttribIPointer(loc, size, type, 0, 0); else gl.vertexAttribPointer(loc, size, type, norm, 0, 0);
       };
@@ -83,7 +87,7 @@ export class WebGL2Backend implements Backend {
       buf(s[pfx + 'attr'], 2, 4, gl.UNSIGNED_BYTE, true);
       buf(s[pfx + 'nodes'], 3, 4, gl.UNSIGNED_SHORT, false, true);
       buf(s[pfx + 'wts'], 4, 4, gl.SHORT, true);
-      const ib = gl.createBuffer()!; gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, s[pfx + 'idx'], gl.STATIC_DRAW);
+      const ib = gl.createBuffer()!; this.bufs.push(ib); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, s[pfx + 'idx'], gl.STATIC_DRAW);
       gl.bindVertexArray(null);
       return vao;
     };
@@ -92,7 +96,7 @@ export class WebGL2Backend implements Backend {
     // bubbles
     this.vaoBub = gl.createVertexArray()!; gl.bindVertexArray(this.vaoBub);
     const ib = (data: ArrayBufferView, loc: number, size: number, type: number, int: boolean) => {
-      const b = gl.createBuffer()!; gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+      const b = gl.createBuffer()!; this.bufs.push(b); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
       gl.enableVertexAttribArray(loc);
       if (int) gl.vertexAttribIPointer(loc, size, type, 0, 0); else gl.vertexAttribPointer(loc, size, type, false, 0, 0);
       gl.vertexAttribDivisor(loc, 1);
@@ -166,6 +170,15 @@ export class WebGL2Backend implements Backend {
     gl.deleteFramebuffer(t.fbo); gl.deleteTexture(t.tex); if (t.msFbo) gl.deleteFramebuffer(t.msFbo); t.rbs.forEach(r => gl.deleteRenderbuffer(r));
   }
 
+  dispose() {
+    const gl = this.gl;
+    for (const p of Object.values(this.progs)) gl.deleteProgram(p);
+    for (const b of this.bufs) gl.deleteBuffer(b);
+    gl.deleteBuffer(this.ubo); gl.deleteTexture(this.nodeTex); gl.deleteTexture(this.restTex);
+    for (const v of [this.vaoOuter, this.vaoInner, this.vaoBub, this.vaoEmpty]) gl.deleteVertexArray(v);
+    this.freeTarget(this.shadow); this.freeTarget(this.scene); this.freeTarget(this.back); this.freeTarget(this.shell);
+    this.scene = this.back = this.shell = undefined;
+  }
   resize(w: number, h: number) {
     if (w === this.W && h === this.H && this.scene) return;
     this.W = w; this.H = h; this.canvas.width = w; this.canvas.height = h;

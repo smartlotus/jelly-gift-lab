@@ -1,15 +1,6 @@
 // Shark look: colourways + rest-space pattern shaders (GLSL + WGSL twins).
-export interface Colourway {
-  id: string; label: string; zh: string;
-  absorb: [number, number, number];   // Beer-Lambert sigma per unit length
-  back: [number, number, number, number]; // dark back pigment rgb + strength
-  finTip: [number, number, number, number];
-  belly: [number, number, number, number];
-  glow: [number, number, number, number];
-  bead: [number, number, number, number];
-  swatch: string;
-  bgTop: [number, number, number]; bgBot: [number, number, number]; floor: [number, number, number];
-}
+import type { Colourway, Look } from '../../core/look';
+export type { Colourway };
 export const COLOURWAYS: Colourway[] = [
   { id: 'steel', label: 'Steel', zh: '钢灰', absorb: [5.0, 3.0, 1.9], back: [0.42, 0.50, 0.58, 0.6], finTip: [0.20, 0.24, 0.30, 0.8], belly: [0.93, 0.935, 0.93, 1], glow: [0.62, 0.78, 0.92, 1], bead: [0.95, 0.45, 0.32, 1], swatch: '#7d8b97',
     bgTop: [0.50, 0.50, 0.495], bgBot: [0.36, 0.36, 0.355], floor: [0.66, 0.655, 0.645] },
@@ -132,3 +123,9 @@ fn innerPattern(X: vec3f, Nr: vec3f) -> vec4f {
   return vec4f(alb, eye);
 }
 `;
+
+export const sharkLook: Look = {
+  colourways: COLOURWAYS,
+  shellGLSL: SHELL_PATTERN_GLSL, innerGLSL: INNER_PATTERN_GLSL,
+  shellWGSL: SHELL_PATTERN_WGSL, innerWGSL: INNER_PATTERN_WGSL,
+};

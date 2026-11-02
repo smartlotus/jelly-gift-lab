@@ -114,3 +114,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .readouts { bottom: calc(var(--pad) + var(--sab)); }
 }
 .fail[hidden] { display: none; }
+
+/* character change veil: a soft studio-coloured fade */
+.veil { position: absolute; inset: 0; background: var(--veil, #a3a29e); opacity: 0; pointer-events: none; transition: opacity .38s ease; }
+.veil.on { opacity: 1; }
+.char:not(.soon) { cursor: pointer; }
+.char:not(.soon):not(.active):hover { color: var(--ink-2, #444); }

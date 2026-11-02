@@ -3,7 +3,7 @@
 import { decodeAsset } from './mesh';
 import { CpuSolver, makeGrab } from './cpu';
 import { DEFAULT_PARAMS, MAX_GRAB } from './params';
-import { actuationFor } from '../characters/registry';
+import { actuationFor } from '../characters/actuations';
 
 let solver: CpuSolver | null = null;
 const grab = makeGrab(MAX_GRAB);

@@ -4,6 +4,7 @@ import { DEFAULT_PARAMS, MAX_BEADS, MAX_GRAB } from '../sim/params';
 import { SIM_WGSL, NODEF_WGSL } from '../sim/gpu.wgsl';
 import { FRAME_FLOATS } from '../render/frame';
 import * as W from '../render/webgpu/shaders';
+import type { Look } from '../core/look';
 
 const U = GPUBufferUsage, T = GPUTextureUsage, SS = GPUShaderStage;
 const SIM_BYTES = 464; // see Sim struct in gpu.wgsl.ts
@@ -37,7 +38,7 @@ export class GPUPath implements Path {
   /** Debug/self-check only: read back the next presented frame (headless WebGPU canvases don't reach screenshots). */
   capture(): Promise<ImageData> { return new Promise(r => { this.captureReq = r; }); }
 
-  constructor(private canvas: HTMLCanvasElement, public asset: TetAsset, private dev: GPUDevice, private samples = 4) {
+  constructor(private canvas: HTMLCanvasElement, public asset: TetAsset, private dev: GPUDevice, private samples: number, private look: Look) {
     const a = asset; this.N = a.nodes.length / 3; this.T = a.tets.length / 4;
     const ctx = canvas.getContext('webgpu'); if (!ctx) throw new Error('no webgpu canvas context');
     this.ctx = ctx; this.fmt = navigator.gpu.getPreferredCanvasFormat();
@@ -139,7 +140,7 @@ export class GPUPath implements Path {
       { arrayStride: 16, stepMode: 'instance', attributes: [{ shaderLocation: 2, offset: 0, format: 'float32x4' }] },
     ];
     const mod = (code: string, label: string) => d.createShaderModule({ code, label });
-    const mMesh = mod(W.SHADOW_WGSL, 'shadow'), mBack = mod(W.BACK_WGSL, 'back'), mInner = mod(W.INNER_WGSL, 'inner'), mShell = mod(W.SHELL_WGSL, 'shell');
+    const mMesh = mod(W.SHADOW_WGSL, 'shadow'), mBack = mod(W.BACK_WGSL, 'back'), mInner = mod(W.innerWGSL(this.look.shellWGSL, this.look.innerWGSL), 'inner'), mShell = mod(W.shellWGSL(this.look.shellWGSL), 'shell');
     const mBackdrop = mod(W.BACKDROP_WGSL, 'backdrop'), mBub = mod(W.BUBBLE_WGSL, 'bubble'), mBead = mod(W.BEAD_WGSL, 'bead'), mComp = mod(W.COMPOSITE_WGSL, 'composite');
     const lay3 = d.createPipelineLayout({ bindGroupLayouts: [L.frame, L.mesh, L.shadowS] });
     const layShell = d.createPipelineLayout({ bindGroupLayouts: [L.frame, L.mesh, L.shell] });
@@ -232,6 +233,11 @@ export class GPUPath implements Path {
     this.pendingEnc = enc; this.pendingRead = read ? si : -1;
   }
 
+  dispose() {
+    this.lost = true; // stops step/render
+    const d = () => { for (const b of Object.values(this.b)) b.destroy(); for (const b of this.staging) { try { b.destroy(); } catch { /* mapped */ } } for (const t of Object.values(this.tg)) t?.destroy(); this.shadowTex?.destroy(); };
+    this.dev.queue.onSubmittedWorkDone().then(d, d);
+  }
   private submit(enc: GPUCommandEncoder) {
     const q = this.dev.queue; const t0 = performance.now();
     q.submit([enc.finish()]);

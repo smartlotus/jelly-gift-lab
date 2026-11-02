@@ -1,6 +1,6 @@
 import './ui/style.css';
 import { decodeAsset } from './sim/mesh';
-import { CHARACTERS } from './characters/registry';
+import { CHARACTERS, type CharacterEntry } from './characters/registry';
 import { Engine } from './app/engine';
 import { GLPath } from './app/glpath';
 import type { Path } from './app/path';
@@ -33,51 +33,89 @@ async function tryWebGPU(): Promise<{ adapter: GPUAdapter; device: GPUDevice } |
   } catch (e) { console.info('WebGPU unavailable:', e); return null; }
 }
 
+const assetCache = new Map<string, ArrayBuffer>();
+async function loadAsset(id: string, level: string, onP: (p: number) => void) {
+  const key = `${id}/${level}`;
+  if (!assetCache.has(key)) assetCache.set(key, await fetchWithProgress(`${import.meta.env.BASE_URL}assets/${key}.bin`, onP));
+  return assetCache.get(key)!;
+}
+
 async function boot() {
   let canvas = document.getElementById('gl') as HTMLCanvasElement;
-  const ch = CHARACTERS[0];
+  const ready = CHARACTERS.filter(c => c.ready);
+  let ch: CharacterEntry = ready.find(c => c.id === params.get('char')) ?? ready[0];
   let prog = 0.05; UI.setProgress(prog);
   const gpu = await tryWebGPU();
   let path: Path | null = null; let level = '';
   const dprCap = +(params.get('dpr') || (isMobile ? 2 : 2));
-  if (gpu) {
-    level = params.get('q') || (isMobile ? 'md' : 'hi');
-    try {
-      const buf = await fetchWithProgress(`${import.meta.env.BASE_URL}assets/${ch.id}/${level}.bin`, p => UI.setProgress(0.05 + p * 0.85));
-      const asset = decodeAsset(buf, ch.actuation!, 1);
+  let kind: 'webgpu' | 'webgl2' = 'webgl2';
+  const makePath = async (c: CharacterEntry, onP: (p: number) => void): Promise<Path> => {
+    if (kind === 'webgpu') {
+      const buf = await loadAsset(c.id, level, onP);
+      const asset = decodeAsset(buf, c.actuation, 1);
       const { GPUPath } = await import('./app/gpupath');
-      const gp = new GPUPath(canvas, asset, gpu.device, isMobile ? 4 : 4);
+      const gp = new GPUPath(canvas, asset, gpu!.device, 4, c.look);
       await gp.ready;
-      path = gp as unknown as Path;
-    } catch (e) {
+      return gp as unknown as Path;
+    }
+    const buf = await loadAsset(c.id, level, onP);
+    const asset = decodeAsset(buf, c.actuation, 1);
+    const gp = new GLPath(canvas, asset, buf, c.id, isMobile ? 0 : 4, c.look);
+    await gp.ready;
+    return gp;
+  };
+  const bootP = (p: number) => UI.setProgress(0.05 + p * 0.85);
+  if (gpu) {
+    level = params.get('q') || (isMobile ? 'md' : 'hi'); kind = 'webgpu';
+    try { path = await makePath(ch, bootP); } catch (e) {
       console.warn('WebGPU path failed, falling back to WebGL2:', e); path = null;
       // a canvas keeps its first context type: swap in a fresh element for WebGL2
       const fresh = canvas.cloneNode(false) as HTMLCanvasElement; canvas.replaceWith(fresh); canvas = fresh;
       try { gpu.device.destroy(); } catch { /* ignore */ }
     }
   }
-  if (!path) {
-    level = params.get('q') || 'lo';
-    const buf = await fetchWithProgress(`${import.meta.env.BASE_URL}assets/${ch.id}/${level}.bin`, p => UI.setProgress(0.05 + p * 0.85));
-    const asset = decodeAsset(buf, ch.actuation!, 1);
-    const gp = new GLPath(canvas, asset, buf, ch.id, isMobile ? 0 : 4);
-    await gp.ready;
-    path = gp;
-  }
+  if (!path) { level = params.get('q') || 'lo'; kind = 'webgl2'; path = await makePath(ch, bootP); }
   UI.setProgress(1);
   const zeroToOne = path.kind === 'webgpu';
-  const engine = new Engine(canvas, path, ch.actuation!, ch.colourways!, dprCap, zeroToOne);
+  const engine = new Engine(canvas, path, ch, dprCap, zeroToOne, isMobile && innerWidth < innerHeight);
   (window as any).__jelly = engine;
-  engine.idle = ch.idle ?? null;
-  if (isMobile && innerWidth < innerHeight) { engine.camGoal.yaw = engine.cam.yaw = 1.3; engine.camGoal.pitch = engine.cam.pitch = 0.6; }
   const camQ = params.get('cam');
-  if (camQ) { const [y, p, z] = camQ.split(',').map(Number); Object.assign(engine.camGoal, { yaw: y, pitch: p, zoom: z ?? 1 }); Object.assign(engine.cam, { yaw: y, pitch: p, zoom: z ?? 1 }); }
-  if (params.get('tgt')) engine.cam.target = params.get('tgt')!.split(',').map(Number);
-  UI.buildColourways(ch.colourways!, c => engine.setColour(c));
+  const applyCamQ = () => {
+    if (camQ) { const [y, p, z] = camQ.split(',').map(Number); Object.assign(engine.camGoal, { yaw: y, pitch: p, zoom: z ?? 1 }); Object.assign(engine.cam, { yaw: y, pitch: p, zoom: z ?? 1 }); }
+    if (params.get('tgt')) engine.cam.target = params.get('tgt')!.split(',').map(Number);
+  };
+  applyCamQ();
+  const colophon = () => {
+    const a = engine.path.asset;
+    UI.setColophon(`${kind === 'webgpu' ? 'WebGPU compute' : 'WebGL 2 · CPU worker'} · ${a.meta.tets.toLocaleString('en-US')} tetrahedra · ${(a.meta.outer.tris + a.meta.inner.tris).toLocaleString('en-US')} triangles`);
+  };
+  const dress = (c: CharacterEntry) => {
+    UI.setMasthead(c.name, c.subtitle, c.num); UI.setActiveCharacter(c.id); UI.buildReadouts(c.metrics);
+    UI.buildColourways(c.colourways, cw => { engine.setColour(cw); veilTone(); });
+    canvas.setAttribute('aria-label', `Interactive jelly ${c.name.toLowerCase()}`);
+    veilTone(); colophon();
+  };
+  const veilTone = () => { const b = engine.colour.bgBot, t = engine.colour.bgTop; const h = (v: number[]) => `rgb(${v.map(x => Math.round(255 * Math.pow(Math.min(1, x), 1 / 2.2))).join(',')})`; document.documentElement.style.setProperty('--veil', `linear-gradient(${h(t)}, ${h(b)})`); };
   engine.onReadouts = r => UI.updateReadouts(r);
   engine.onFirstInteract = () => UI.fadeHint();
-  const a = path.asset;
-  UI.setColophon(`${path.kind === 'webgpu' ? 'WebGPU compute' : 'WebGL 2 · CPU worker'} · ${a.meta.tets.toLocaleString('en-US')} tetrahedra · ${(a.meta.outer.tris + a.meta.inner.tris).toLocaleString('en-US')} triangles`);
+  dress(ch);
+  let switching = false;
+  const switchTo = async (id: string) => {
+    const next = CHARACTERS.find(c => c.id === id && c.ready);
+    if (!next || next === ch || switching) return;
+    switching = true; UI.setActiveCharacter(id);
+    try {
+      const [, p] = await Promise.all([UI.veil(true), makePath(next, () => {})]);
+      engine.stop(); const old = engine.path; engine.setCharacter(p, next); old.dispose(); ch = next;
+      dress(ch); engine.resize(); engine.start();
+      history.replaceState(null, '', `?${new URLSearchParams({ ...Object.fromEntries(params), char: id })}`);
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      await UI.veil(false);
+    } catch (e) { console.error('character switch failed', e); UI.setActiveCharacter(ch.id); await UI.veil(false); }
+    switching = false;
+  };
+  UI.enableCharacters(ready.map(c => c.id), switchTo);
+  (window as any).__switchTo = switchTo;
   const onResize = () => engine.resize();
   addEventListener('resize', onResize); new ResizeObserver(onResize).observe(canvas);
   engine.resize();
@@ -86,7 +124,7 @@ async function boot() {
   document.addEventListener('visibilitychange', () => { if (document.hidden) engine.stop(); else engine.start(); });
   engine.start();
   requestAnimationFrame(() => requestAnimationFrame(() => UI.hideLoader()));
-  (window as any).__jellyReady = { backend: path.kind, level, tets: a.meta.tets };
+  (window as any).__jellyReady = { backend: path.kind, level, tets: path.asset.meta.tets };
 }
 
 boot().catch((e) => { console.error(e); UI.showFail(); });

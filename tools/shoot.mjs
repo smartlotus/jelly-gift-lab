@@ -64,6 +64,9 @@ for (const s of steps) {
   } else if (s === 'bait') {
     for (let i = 0; i < 6; i++) { await page.click('#bait'); await tsleep(250); }
     await tsleep(2500); await snap('bait');
+  } else if (s.startsWith('switch')) {
+    const id = s.split(':')[1];
+    await page.evaluate((id) => window.__switchTo(id), id); await tsleep(+(s.split(':')[2] || 3000)); await snap('switch-' + id);
   } else if (s.startsWith('colour')) {
     const id = s.split(':')[1];
     await page.click(`.cw[data-id="${id}"]`); await tsleep(1600); await snap('colour-' + id);

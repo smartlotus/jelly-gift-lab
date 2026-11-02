@@ -1,6 +1,5 @@
 // WGSL twins of src/render/webgl2/shaders.ts (keep in sync).
 import { WGSL_FRAME } from '../frame';
-import { SHELL_PATTERN_WGSL, INNER_PATTERN_WGSL } from '../../characters/shark/look';
 
 const HDR = WGSL_FRAME + /* wgsl */`
 @group(0) @binding(0) var<uniform> fr: Frame;
@@ -130,7 +129,7 @@ export const BACKDROP_WGSL = HDR + SHADOW_SAMPLE + FULL_VS + /* wgsl */`
   return vec4f(col, depth);
 }`;
 
-export const INNER_WGSL = HDR + SKIN + SHADOW_SAMPLE + SHELL_PATTERN_WGSL + INNER_PATTERN_WGSL + /* wgsl */`
+export const innerWGSL = (shellPat: string, innerPat: string) => HDR + SKIN + SHADOW_SAMPLE + shellPat + innerPat + /* wgsl */`
 @fragment fn fsMain(i: VOut) -> @location(0) vec4f {
   let N = normalize(i.N); let V = normalize(fr.camPos.xyz - i.P);
   let pat = innerPattern(i.X, normalize(i.Nr));
@@ -202,7 +201,7 @@ struct FOut2 { @location(0) c: vec4f, @builtin(frag_depth) d: f32 };
   var o: FOut2; o.c = vec4f(col, linDepth(P)); o.d = cp.z / cp.w; return o;
 }`;
 
-export const SHELL_WGSL = HDR + SKIN + SHELL_PATTERN_WGSL + /* wgsl */`
+export const shellWGSL = (shellPat: string) => HDR + SKIN + shellPat + /* wgsl */`
 @group(2) @binding(0) var sceneTex: texture_2d<f32>;
 @group(2) @binding(1) var backTex: texture_2d<f32>;
 @group(2) @binding(2) var linSamp: sampler;
@@ -222,7 +221,7 @@ fn toUv(P: vec3f) -> vec2f { return ndcToUv(fr.viewProj * vec4f(P, 1.0)); }
   let ior = fr.absorb.a;
   let thick0 = clamp(min(zb, sc.a) - zf, 0.0, 0.5);
   var col = vec3f(0.0); var Tsum = vec3f(0.0);
-  let sig = fr.absorb.rgb * (1.0 + back * 0.9 + tip * 2.5) + vec3f(slit * 13.0 + groove * 6.0);
+  let sig = fr.absorb.rgb * (1.0 + back * 0.9 + tip * 2.5) + vec3f(slit * fr.extra.x + groove * 6.0);
   for (var c = 0; c < 3; c++) {
     let e = ior + (f32(c) - 1.0) * 0.018;
     let rd = refract(-V, N, 1.0 / e);
@@ -236,7 +235,7 @@ fn toUv(P: vec3f) -> vec2f { return ndcToUv(fr.viewProj * vec4f(P, 1.0)); }
     col[c] = s[c] * T[c]; Tsum[c] = T[c];
   }
   var filt = mix(vec3f(1.0), fr.backCol.rgb, back) * mix(vec3f(1.0), fr.finTipCol.rgb, tip);
-  filt *= 1.0 - 0.32 * slit;
+  filt *= 1.0 - fr.extra.y * slit;
   col *= filt;
   let thin = exp(-thick0 / 0.035);
   let L = lightKey(); let Lr = lightRim();

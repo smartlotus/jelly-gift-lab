@@ -1,5 +1,4 @@
 import { GLSL_FRAME } from '../frame';
-import { SHELL_PATTERN_GLSL, INNER_PATTERN_GLSL } from '../../characters/shark/look';
 
 const HDR = `#version 300 es
 precision highp float; precision highp int; precision highp sampler2D;
@@ -138,7 +137,7 @@ void main(){
 }`;
 
 // ---------------------------------------------------------------- inner milky layer + eyes
-export const INNER_FS = HDR + COMMON + SHADOW_SAMPLE + SHELL_PATTERN_GLSL + INNER_PATTERN_GLSL + /* glsl */`
+export const innerFS = (shellPat: string, innerPat: string) => HDR + COMMON + SHADOW_SAMPLE + shellPat + innerPat + /* glsl */`
 in vec3 vP; in vec3 vN; in vec3 vX; in vec3 vNr; in vec4 vA;
 out vec4 o;
 void main(){
@@ -226,7 +225,7 @@ void main(){
 }`;
 
 // ---------------------------------------------------------------- the clear jelly shell
-export const SHELL_FS = HDR + COMMON + SHELL_PATTERN_GLSL + /* glsl */`
+export const shellFS = (shellPat: string) => HDR + COMMON + shellPat + /* glsl */`
 uniform sampler2D uScene; uniform sampler2D uBack;
 in vec3 vP; in vec3 vN; in vec3 vX; in vec3 vNr; in vec4 vA;
 out vec4 o;
@@ -245,7 +244,7 @@ void main(){
   float ior = fr.absorb.a;
   float thick0 = clamp(min(zb, sc.a) - zf, 0.0, 0.5);
   vec3 col = vec3(0.0); vec3 Tsum = vec3(0.0);
-  vec3 sig = fr.absorb.rgb * (1.0 + back * 0.9 + tip * 2.5) + vec3(slit * 13.0 + groove * 6.0);
+  vec3 sig = fr.absorb.rgb * (1.0 + back * 0.9 + tip * 2.5) + vec3(slit * fr.extra.x + groove * 6.0);
   for (int c = 0; c < 3; c++) {
     float e = ior + (float(c) - 1.0) * 0.018;
     vec3 rd = refract(-V, N, 1.0 / e);
@@ -263,7 +262,7 @@ void main(){
   }
   // surface pigment: darker back, dusky fin tips, slits
   vec3 filt = mix(vec3(1.0), fr.backCol.rgb, back) * mix(vec3(1.0), fr.finTipCol.rgb, tip);
-  filt *= 1.0 - 0.32 * slit;
+  filt *= 1.0 - fr.extra.y * slit;
   col *= filt;
   // back-lit glow in the thin parts
   float thin = exp(-thick0 / 0.035);

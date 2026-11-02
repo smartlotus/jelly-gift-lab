@@ -6,10 +6,17 @@ import { MAX_GRAB, MAX_BEADS, DEFAULT_PARAMS } from '../sim/params';
 import { Beads } from './beads';
 import { Righting } from '../sim/righting';
 import type { Actuation } from '../core/character';
-import type { Colourway } from '../characters/shark/look';
+import type { Colourway } from '../core/look';
 
 const KEY = [-0.28, 1.0, -0.62];
-export interface Readouts { massG: number; volumeMl: number; forkCm: number; eyeCm: number }
+export interface Readouts { massG: number; volumeMl: number; metrics: number[] }
+/** a live measurement between two embedded landmarks (cm) */
+export interface Metric { id: string; label: string; zh: string; a: string; b: string; decimals?: number }
+export interface CharacterSetup {
+  id: string; actuation: Actuation; colourways: Colourway[]; metrics: Metric[];
+  camera: { target: number[]; yaw: number; pitch: number; mobileYaw?: number; mobilePitch?: number; legacyFit?: boolean };
+  idle?: Engine['idle'];
+}
 
 export class Engine {
   frame = new Float32Array(FRAME_FLOATS);
@@ -22,25 +29,39 @@ export class Engine {
   /** scripted idle gesture: an invisible hand gently lifts one spot now and then (e.g. the shark raising its head) */
   idle: { at: number[]; lift: number[]; period: number; duration: number; radius: number; offset?: number } | null = null;
   private idleT = 0; private autoGrab = false; private autoP0 = [0, 0, 0];
-  act: Float32Array;
+  act!: Float32Array; actuation!: Actuation;
   simTime = 0; last = 0; running = false; time = 0;
   colour!: Colourway; colourMix = 1; prevColour!: Colourway;
-  readouts: Readouts = { massG: 0, volumeMl: 0, forkCm: 0, eyeCm: 0 };
+  readouts: Readouts = { massG: 0, volumeMl: 0, metrics: [] };
+  metrics: Metric[] = []; character!: CharacterSetup;
   onReadouts?: (r: Readouts) => void;
   onFirstInteract?: () => void;
   lockstep = new URLSearchParams(location.search).has('lockstep');
   fps = 0; simHz = 0; rafFps = 0; frames = 0; fpsT = 0; frameMs = 0; private pres0 = 0; private sim0 = 0;
   W = 1; H = 1; dpr = 1;
-  volRatio: number; tetRestVol: number;
+  volRatio = 1; tetRestVol = 0;
   twistDecay = 0;
   wheelTimer = 0;
-  constructor(public canvas: HTMLCanvasElement, public path: Path, public actuation: Actuation, colours: Colourway[], public dprCap: number, public zeroToOne: boolean) {
-    this.act = new Float32Array(actuation.channels);
-    this.colour = this.prevColour = colours[0];
+  constructor(public canvas: HTMLCanvasElement, public path: Path, ch: CharacterSetup, public dprCap: number, public zeroToOne: boolean, public mobilePortrait = false) {
+    this.setCharacter(path, ch);
+    this.bindInput();
+  }
+
+  /** swap in another character's simulation path (the old one is disposed by the caller) */
+  setCharacter(path: Path, ch: CharacterSetup, colour?: Colourway) {
+    this.path = path; this.character = ch; this.actuation = ch.actuation; this.metrics = ch.metrics;
+    this.act = new Float32Array(ch.actuation.channels);
+    this.colour = this.prevColour = colour ?? ch.colourways[0]; this.colourMix = 1;
     const a = path.asset;
     this.tetRestVol = a.restVol.reduce((s, v) => s + v, 0);
     this.volRatio = a.meta.surfVolume / a.meta.tetVolume;
-    this.bindInput();
+    this.righting = null; this.rest = null; this.beads.clear(); this.grab.active = false; this.grab.twist = 0;
+    this.autoGrab = false; this.idleT = 0; this.idle = ch.idle ?? null; this.simTime = 0;
+    this.mode = 'none'; this.pointers.clear();
+    const c = ch.camera; const y = this.mobilePortrait ? c.mobileYaw ?? c.yaw : c.yaw, p = this.mobilePortrait ? c.mobilePitch ?? c.pitch : c.pitch;
+    this.cam.target = [...c.target]; this.cam.yaw = this.camGoal.yaw = y; this.cam.pitch = this.camGoal.pitch = p; this.cam.zoom = this.camGoal.zoom = 1;
+    this.readouts = { massG: 0, volumeMl: 0, metrics: ch.metrics.map(() => 0) };
+    if (this.W > 2) { this.W = 0; this.resize(); }
   }
 
   setColour(c: Colourway) { this.prevColour = this.colourNow(); this.colour = c; this.colourMix = 0; }
@@ -139,13 +160,14 @@ export class Engine {
     let R = Math.max(seenLen / th, halfH / tv) * 1.32 + 0.2;
     const tgt = [c.target[0], c.target[1] + (portrait ? 0.02 : 0), c.target[2]];
     let shiftY = 0;
-    if (portrait && this.rest) {
+    const generic = !this.character.camera.legacyFit;
+    if ((portrait || generic) && this.rest) {
       // fit the rest-pose bounding box into the free band with an off-centre (lens-shifted) projection
-      const [y0, y1] = this.band; shiftY = (y0 + y1) / 2; const hy = Math.max(0.2, (y1 - y0) / 2);
+      const [y0, y1] = portrait ? this.band : [-0.62, 0.5]; shiftY = (y0 + y1) / 2; const hy = Math.max(0.2, (y1 - y0) / 2);
       const bx = [Math.sin(c.yaw) * Math.cos(c.pitch), Math.sin(c.pitch), Math.cos(c.yaw) * Math.cos(c.pitch)];
       const rt = [bx[2], 0, -bx[0]]; const rl = Math.hypot(rt[0], rt[2]); rt[0] /= rl; rt[2] /= rl;
       const up = [bx[1] * rt[2] - bx[2] * rt[1], bx[2] * rt[0] - bx[0] * rt[2], bx[0] * rt[1] - bx[1] * rt[0]];
-      const { lo, hi } = this.rest; const m = 0.86; R = 0;
+      const { lo, hi } = this.rest; const m = portrait ? 0.86 : 0.8; R = 0;
       for (let i = 0; i < 8; i++) {
         const p = [(i & 1 ? hi[0] : lo[0]) - tgt[0], (i & 2 ? hi[1] : lo[1]) - tgt[1], (i & 4 ? hi[2] : lo[2]) - tgt[2]];
         const xr = p[0] * rt[0] + p[2] * rt[2], yu = p[0] * up[0] + p[1] * up[1] + p[2] * up[2], zb = p[0] * bx[0] + p[1] * bx[1] + p[2] * bx[2];
@@ -176,7 +198,8 @@ export class Engine {
     f.set([this.W, this.H, 1 / this.W, 1 / this.H], F.res);
     f.set([a.meta.qmin[0], a.meta.qmin[1], a.meta.qmin[2], a.meta.unitCm], F.qmin);
     f.set([a.meta.qext[0], a.meta.qext[1], a.meta.qext[2], 0], F.qext);
-    f.set([c.absorb[0], c.absorb[1], c.absorb[2], 1.36], F.absorb);
+    f.set([c.absorb[0], c.absorb[1], c.absorb[2], c.ior ?? 1.36], F.absorb);
+    f.set([c.ink?.[0] ?? 13, c.ink?.[1] ?? 0.32, 0, 0], F.extra);
     f.set(c.back, F.backCol); f.set(c.finTip, F.finTipCol); f.set(c.belly, F.bellyCol); f.set(c.glow, F.glowCol);
     f.set([c.floor[0], c.floor[1], c.floor[2], 1], F.studio);
     f.set([this.beads.count, this.grab.twist, 0.05, 40], F.misc);
@@ -209,12 +232,9 @@ export class Engine {
     }
     const u = a.meta.unitCm;
     const ml = v * this.volRatio * u * u * u;
-    const sn = this.landmark('snout', data, stride), fk = this.landmark('fork', data, stride);
-    const el = this.landmark('eyeL', data, stride), er = this.landmark('eyeR', data, stride);
     this.readouts = {
       volumeMl: ml, massG: ml * 1.04,
-      forkCm: Math.hypot(sn[0] - fk[0], sn[1] - fk[1], sn[2] - fk[2]) * u,
-      eyeCm: Math.hypot(el[0] - er[0], el[1] - er[1], el[2] - er[2]) * u,
+      metrics: this.metrics.map(m => { const p = this.landmark(m.a, data, stride), q = this.landmark(m.b, data, stride); return Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]) * u; }),
     };
     this.onReadouts?.(this.readouts);
   }

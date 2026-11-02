@@ -11,6 +11,7 @@
 <body>
 <main id="stage">
   <canvas id="gl" aria-label="Interactive jelly hammerhead shark"></canvas>
+  <div id="veil" class="veil" aria-hidden="true"></div>
 
   <header class="masthead">
     <div class="kicker"><span>Jelly Studies</span><span class="rule"></span><span class="num">No.&nbsp;1</span></div>
@@ -24,12 +25,7 @@
     <button class="char soon" data-char="cat" aria-disabled="true" title="Coming soon"><span class="en">Cat</span><span class="zh">猫</span><i>soon</i></button>
   </nav>
 
-  <section class="readouts" aria-live="off">
-    <div class="ro"><span class="lab">Mass <b class="zh">质量</b></span><span class="val"><span id="ro-mass">—</span><small>g</small></span></div>
-    <div class="ro"><span class="lab">Volume <b class="zh">体积</b></span><span class="val"><span id="ro-vol">—</span><small>ml</small></span></div>
-    <div class="ro"><span class="lab">Fork length <b class="zh">叉长</b></span><span class="val"><span id="ro-fork">—</span><small>cm</small></span></div>
-    <div class="ro"><span class="lab">Eye to eye <b class="zh">眼距</b></span><span class="val"><span id="ro-eye">—</span><small>cm</small></span></div>
-  </section>
+  <section class="readouts" aria-live="off"></section>
 
   <section class="controls">
     <div class="colourways" role="radiogroup" aria-label="Colourway"></div>

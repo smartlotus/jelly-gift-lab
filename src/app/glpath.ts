@@ -1,6 +1,7 @@
 import type { Path, SimInput } from './path';
 import type { TetAsset } from '../sim/mesh';
 import { WebGL2Backend } from '../render/webgl2/backend';
+import type { Look } from '../core/look';
 
 /** WebGL2 fallback: CPU XPBD in a worker, skinned + shaded on the GPU. */
 export class GLPath implements Path {
@@ -12,8 +13,8 @@ export class GLPath implements Path {
   inflight = 0; cost = 0; seq = 0;
   substeps = 8; presented = 0; simSteps = 0;
   ready: Promise<void>;
-  constructor(canvas: HTMLCanvasElement, public asset: TetAsset, buf: ArrayBuffer, character: string, msaa: number) {
-    this.gl = new WebGL2Backend(canvas, asset, { msaa });
+  constructor(canvas: HTMLCanvasElement, public asset: TetAsset, buf: ArrayBuffer, character: string, msaa: number, look: Look) {
+    this.gl = new WebGL2Backend(canvas, asset, { msaa, look });
     this.worker = new Worker(new URL('../sim/worker.ts', import.meta.url), { type: 'module' });
     this.ready = new Promise((res, rej) => {
       this.worker.onmessage = (e) => {
@@ -28,6 +29,7 @@ export class GLPath implements Path {
     });
     this.worker.postMessage({ type: 'init', buf: buf.slice(0), character, substeps: this.substeps });
   }
+  dispose() { this.worker.terminate(); this.gl.dispose(); }
   step(inp: SimInput) {
     if (this.inflight > 1) return; // worker is behind: skip, keeps latency bounded
     // adaptive substeps keep the worker within budget on slow phones
