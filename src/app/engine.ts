@@ -85,7 +85,7 @@ export class Engine {
     // free band between the top and bottom UI (portrait layouts frame the jelly inside it)
     const H = r.height || 1; let top = 0, bot = H;
     for (const el of document.querySelectorAll('.masthead, .characters')) { const b = el.getBoundingClientRect(); if (b.height && b.bottom < H * 0.5) top = Math.max(top, b.bottom - r.top); }
-    for (const el of document.querySelectorAll('.readouts, .controls')) { const b = el.getBoundingClientRect(); if (b.height && b.top > H * 0.5) bot = Math.min(bot, b.top - r.top); }
+    for (const el of document.querySelectorAll('.readouts, .controls, .hint')) { const b = el.getBoundingClientRect(); if (b.height && b.top > H * 0.5) bot = Math.min(bot, b.top - r.top); }
     this.band = [1 - 2 * (bot - 4) / H, 1 - 2 * (top + 4) / H];
     if (!this.rest) {
       const n = this.path.asset.nodes; const lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9];

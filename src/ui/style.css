@@ -120,3 +120,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .veil.on { opacity: 1; }
 .char:not(.soon) { cursor: pointer; }
 .char:not(.soon):not(.active):hover { color: var(--ink-2, #444); }
+
+/* the hidden mushroom: quiet line art, a full 44px target, a little warmer on hover */
+.shroom { position: absolute; top: calc(var(--pad) + var(--sat) + 40px); right: calc(var(--pad) + var(--sar) - 12px); width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: var(--ink); opacity: .2; cursor: pointer; transition: opacity .4s ease, transform .5s cubic-bezier(.2,.7,.2,1); -webkit-tap-highlight-color: transparent; }
+.shroom:hover, .shroom:focus-visible { opacity: .62; transform: translateY(-1px) rotate(-6deg); outline: none; }
+.shroom:focus-visible svg { filter: drop-shadow(0 0 0.5px #000); }
+@media (max-width: 760px) { .shroom { top: calc(var(--pad) + var(--sat) - 12px); right: calc(var(--pad) + var(--sar) - 12px); opacity: .24; } }
+@media (max-height: 500px) and (orientation: landscape) { .shroom { top: calc(var(--pad) + var(--sat) + 30px); } }

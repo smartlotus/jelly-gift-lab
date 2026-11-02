@@ -23,4 +23,9 @@ def run(src, dst, args):
 run('SourceSerif4.ttf', 'SourceSerif4-sub.woff2', [f'--unicodes={latin}'])
 run('SourceSerif4-Italic.ttf', 'SourceSerif4-Italic-sub.woff2', [f'--unicodes={latin}'])
 run('NotoSerifSC.ttf', 'NotoSerifSC-sub.woff2', [f'--text={cjk_txt}'])
-print('CJK glyphs:', len(cjk_txt))
+# Playfair Display (OFL) only carries the easter-egg card: subset to exactly the Latin it shows
+egg = (root / 'src/egg/egg.ts').read_text(encoding='utf-8')
+lat = ''.join(sorted(set(re.sub(r'[^\x20-\x7e·]', '', ' '.join(re.findall(r'>([^<]*)<', egg))) + '0123456789 ·')))
+run('PlayfairDisplay.ttf', 'PlayfairDisplay-sub.woff2', [f'--text={lat}'])
+run('PlayfairDisplay-Italic.ttf', 'PlayfairDisplay-Italic-sub.woff2', [f'--text={lat}'])
+print('CJK glyphs:', len(cjk_txt), 'Playfair glyphs:', len(lat))

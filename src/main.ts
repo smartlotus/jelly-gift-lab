@@ -119,6 +119,10 @@ async function boot() {
   const onResize = () => engine.resize();
   addEventListener('resize', onResize); new ResizeObserver(onResize).observe(canvas);
   engine.resize();
+  const shroom = document.getElementById('shroom')!;
+  const egg = () => import('./egg/egg');
+  shroom.addEventListener('pointerenter', () => { egg(); }, { once: true });
+  shroom.addEventListener('click', async () => { (await egg()).openEgg(shroom); });
   document.getElementById('bait')!.addEventListener('click', () => { engine.dropBait(); UI.fadeHint(); });
   document.getElementById('reset')!.addEventListener('click', () => engine.reset());
   document.addEventListener('visibilitychange', () => { if (document.hidden) engine.stop(); else engine.start(); });
