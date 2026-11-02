@@ -25,4 +25,10 @@ export interface Actuation {
   channels: number;
   weights(cx: number, cy: number, cz: number, out: Float32Array): void;
   activation(t: number, out: Float32Array): void;
+  /** optional per-tet stiffness multiplier (rest centroid) */
+  stiffness?(cx: number, cy: number, cz: number): number;
+  /** optional per-node floor friction multiplier (rest position) */
+  friction?(x: number, y: number, z: number): number;
+  /** optional per-node gravity multiplier (lets tall jelly fins stand) */
+  gravity?(x: number, y: number, z: number): number;
 }
