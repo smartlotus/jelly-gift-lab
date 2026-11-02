@@ -64,6 +64,14 @@ for (const s of steps) {
   } else if (s === 'bait') {
     for (let i = 0; i < 6; i++) { await page.click('#bait'); await tsleep(250); }
     await tsleep(2500); await snap('bait');
+  } else if (s === 'egg') {
+    await page.evaluate(() => window.__jelly?.debugFreeze(true));
+    await page.hover('#shroom'); await sleep(600); await page.screenshot({ path: `${out}-${String(n++).padStart(2, '0')}-egg-hover.png` });
+    const t0e = Date.now(); await page.click('#shroom');
+    for (const at of [450, 1000, 1700, 2600, 4200]) { await sleep(Math.max(0, at - (Date.now() - t0e))); const f = `${out}-${String(n++).padStart(2, '0')}-egg-${at}.png`; await page.screenshot({ path: f }); console.log('shot', f); }
+    await page.keyboard.press('Escape'); await sleep(900); await page.screenshot({ path: `${out}-${String(n++).padStart(2, '0')}-egg-closed.png` });
+    console.log('egg open after close:', await page.evaluate(() => !!document.querySelector('.egg')));
+    await page.evaluate(() => window.__jelly?.debugFreeze(false));
   } else if (s.startsWith('switch')) {
     const id = s.split(':')[1];
     await page.evaluate((id) => window.__switchTo(id), id); await tsleep(+(s.split(':')[2] || 3000)); await snap('switch-' + id);

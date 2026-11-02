@@ -18,7 +18,7 @@ function fireworks(cv: HTMLCanvasElement, done: () => void) {
     { t: 1.05, x: 0.40, y: 0.24 }, { t: 1.30, x: 0.62, y: 0.27 }, { t: 1.75, x: 0.52, y: 0.36 },
   ];
   const burst = (x: number, y: number, c: string) => {
-    const n = small ? 64 : 92; const sp = (small ? 2.6 : 3.4) * Math.min(1.25, Math.max(0.75, Math.min(W, H) / 700));
+    const n = small ? 64 : 92; const sp = (small ? 3.0 : 4.4) * Math.min(1.25, Math.max(0.75, Math.min(W, H) / 700));
     const c2 = PALETTE[(PALETTE.indexOf(c) + 2) % PALETTE.length];
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2 + Math.random() * 0.08; const s = sp * (0.55 + 0.45 * Math.sqrt(Math.random()));
@@ -36,8 +36,9 @@ function fireworks(cv: HTMLCanvasElement, done: () => void) {
     ctx.globalCompositeOperation = 'destination-out'; ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillRect(0, 0, W, H);
     ctx.globalCompositeOperation = 'lighter';
     for (let i = rockets.length - 1; i >= 0; i--) {
-      const r = rockets[i]; r.t += dt; r.x += r.vx * k; r.y += r.vy * k; r.vy *= Math.pow(0.985, k);
-      ctx.fillStyle = 'rgba(255,244,220,0.9)'; ctx.beginPath(); ctx.arc(r.x, r.y, 1.4, 0, 7); ctx.fill();
+      const r = rockets[i]; const ox = r.x, oy = r.y; r.t += dt; r.x += r.vx * k; r.y += r.vy * k; r.vy *= Math.pow(0.985, k);
+      const g = ctx.createLinearGradient(ox, oy - r.vy * 2.5, r.x, r.y); g.addColorStop(0, 'rgba(255,240,210,0)'); g.addColorStop(1, 'rgba(255,244,220,0.85)');
+      ctx.strokeStyle = g; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(ox, oy - r.vy * 2.5); ctx.lineTo(r.x, r.y); ctx.stroke();
       if (r.y <= r.ty || r.vy > -1.5) { burst(r.x, r.y, r.c); rockets.splice(i, 1); }
     }
     for (let i = parts.length - 1; i >= 0; i--) {
