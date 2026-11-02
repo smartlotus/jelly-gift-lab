@@ -1,20 +1,26 @@
 {
-  "name": "jelly-site",
+  "name": "jelly-studies",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "tsc --noEmit -p . && vite build",
+    "bake": "tsx tools/bake.ts",
+    "fonts": "python3 tools/fonts.py",
+    "serve": "node tools/serve.mjs",
+    "shoot": "node tools/shoot.mjs",
+    "record": "node tools/record.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "devDependencies": {
     "@webgpu/types": "^0.1.74",
     "puppeteer-core": "^25.16.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.5"
-  }
+  },
+  "private": true
 }
