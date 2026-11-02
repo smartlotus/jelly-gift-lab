@@ -108,5 +108,7 @@ export function sdFin(f: FinFrame, x: number, y: number, z: number, out?: Float6
   const th = Math.max(s0.t0 * spanThin * Math.min(prof, 1.0) * Math.min(1, chord / (0.35 * s0.C) + 0.35), s0.tmin);
   const dw = Math.abs(w) - th;
   if (out) { out[0] = s; out[1] = cn; }
-  return opExtrude(d2, dw);
+  // rounded rims: the edge becomes a bead of radius ~th (surface nets cannot hold knife edges)
+  const rr = Math.min(th * 0.95, 0.006);
+  return opExtrude(d2 + rr, dw + rr) - rr;
 }

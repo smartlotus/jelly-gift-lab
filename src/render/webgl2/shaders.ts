@@ -12,7 +12,7 @@ float rectMask(vec2 p, vec2 h, float s){ vec2 q = 1.0 - smoothstep(h - s, h + s,
 // Studio environment: dim walls + large overhead softbox + two strip lights + rim.
 vec3 envStudio(vec3 d){
   float up = d.y;
-  vec3 c = mix(vec3(0.16, 0.16, 0.165), vec3(0.46, 0.46, 0.45), smoothstep(-0.4, 0.9, up));
+  vec3 c = mix(vec3(0.035, 0.035, 0.038), vec3(0.16, 0.16, 0.158), smoothstep(-0.3, 0.9, up)) + vec3(0.22) * smoothstep(0.1, -0.25, up);
   if (d.y > 0.02) { vec2 p = d.xz * (2.2 / d.y) - vec2(0.25, 0.55); c += vec3(6.0, 5.9, 5.7) * rectMask(p, vec2(1.1, 0.75), 0.35); }
   if (d.z > 0.05) { vec2 p = vec2(d.x, d.y) * (2.4 / d.z) - vec2(-1.3, 0.9); c += vec3(2.6) * rectMask(p, vec2(0.22, 0.9), 0.12); }
   if (d.x > 0.05) { vec2 p = vec2(d.z, d.y) * (2.6 / d.x) - vec2(1.2, 0.8); c += vec3(2.0, 2.0, 2.05) * rectMask(p, vec2(0.25, 0.7), 0.15); }
@@ -129,7 +129,7 @@ void main(){
     vec3 key = vec3(0.70) * T * bs; vec3 amb = vec3(0.42) * ao;
     // jelly caustic: a little focused light inside the tinted shadow
     vec3 caustic = (1.0 - T) * T * fr.glowCol.rgb * 0.55;
-    vec3 floorC = fr.studio.rgb * (amb + key * (0.55 + 0.6 * pool) + caustic) * (0.82 + 0.25 * pool);
+    vec3 floorC = fr.studio.rgb * (amb * 0.8 + key * (0.42 + 0.30 * pool) + caustic) * (0.80 + 0.16 * pool);
     float fade = smoothstep(2.5, 7.0, t);
     col = mix(floorC, bg, fade);
     depth = linDepth(P);
@@ -238,14 +238,14 @@ void main(){
   float zf = linDepth(vP);
   vec4 sc = texture(uScene, uv);
   if (sc.a < zf - 0.004) discard;                       // something (a bead) is in front
-  float zb = texture(uBack, uv).r; if (zb < zf) zb = zf + 0.01;
+  float zb = texture(uBack, uv).r; if (zb < zf) zb = zf + 0.004; if (zb > 100.0) zb = zf + 0.004;
   vec4 pat = shellPattern(vX, normalize(vNr), vA);
   float back = pat.x * fr.backCol.a; float slit = pat.y; float tip = pat.z * fr.finTipCol.a; float groove = pat.w;
   // refraction through the jelly (chromatic)
   float ior = fr.absorb.a;
   float thick0 = clamp(min(zb, sc.a) - zf, 0.0, 0.5);
   vec3 col = vec3(0.0); vec3 Tsum = vec3(0.0);
-  vec3 sig = fr.absorb.rgb * (1.0 + back * 1.6 + tip * 2.5) + vec3(slit * 30.0 + groove * 6.0);
+  vec3 sig = fr.absorb.rgb * (1.0 + back * 0.9 + tip * 2.5) + vec3(slit * 30.0 + groove * 6.0);
   for (int c = 0; c < 3; c++) {
     float e = ior + (float(c) - 1.0) * 0.018;
     vec3 rd = refract(-V, N, 1.0 / e);

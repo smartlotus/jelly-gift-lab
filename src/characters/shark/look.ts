@@ -11,12 +11,12 @@ export interface Colourway {
   bgTop: [number, number, number]; bgBot: [number, number, number]; floor: [number, number, number];
 }
 export const COLOURWAYS: Colourway[] = [
-  { id: 'steel', label: 'Steel', zh: '钢灰', absorb: [7.5, 5.2, 3.9], back: [0.30, 0.36, 0.42, 0.85], finTip: [0.10, 0.12, 0.15, 0.9], belly: [0.93, 0.935, 0.93, 1], glow: [0.62, 0.78, 0.92, 1], bead: [0.95, 0.45, 0.32, 1], swatch: '#7d8b97',
-    bgTop: [0.80, 0.80, 0.79], bgBot: [0.62, 0.62, 0.61], floor: [0.80, 0.795, 0.78] },
-  { id: 'amber', label: 'Amber', zh: '琥珀', absorb: [1.1, 4.6, 13.0], back: [0.55, 0.30, 0.10, 0.75], finTip: [0.26, 0.12, 0.04, 0.9], belly: [0.98, 0.93, 0.82, 1], glow: [1.0, 0.70, 0.30, 1], bead: [0.85, 0.15, 0.20, 1], swatch: '#c98a2e',
-    bgTop: [0.82, 0.80, 0.77], bgBot: [0.64, 0.62, 0.59], floor: [0.82, 0.80, 0.765] },
-  { id: 'gummy', label: 'Gummy Blue', zh: '软糖蓝', absorb: [17.0, 6.0, 1.2], back: [0.06, 0.20, 0.62, 0.8], finTip: [0.02, 0.05, 0.25, 0.9], belly: [0.90, 0.94, 1.0, 1], glow: [0.35, 0.62, 1.0, 1], bead: [1.0, 0.55, 0.15, 1], swatch: '#2f63d6',
-    bgTop: [0.80, 0.805, 0.81], bgBot: [0.61, 0.62, 0.63], floor: [0.80, 0.80, 0.80] },
+  { id: 'steel', label: 'Steel', zh: '钢灰', absorb: [5.0, 3.0, 1.9], back: [0.42, 0.50, 0.58, 0.6], finTip: [0.20, 0.24, 0.30, 0.8], belly: [0.93, 0.935, 0.93, 1], glow: [0.62, 0.78, 0.92, 1], bead: [0.95, 0.45, 0.32, 1], swatch: '#7d8b97',
+    bgTop: [0.50, 0.50, 0.495], bgBot: [0.36, 0.36, 0.355], floor: [0.66, 0.655, 0.645] },
+  { id: 'amber', label: 'Amber', zh: '琥珀', absorb: [0.5, 2.8, 9.0], back: [0.62, 0.38, 0.14, 0.55], finTip: [0.35, 0.18, 0.06, 0.8], belly: [0.98, 0.93, 0.82, 1], glow: [1.0, 0.70, 0.30, 1], bead: [0.85, 0.15, 0.20, 1], swatch: '#c98a2e',
+    bgTop: [0.52, 0.505, 0.49], bgBot: [0.37, 0.36, 0.35], floor: [0.67, 0.655, 0.635] },
+  { id: 'gummy', label: 'Gummy Blue', zh: '软糖蓝', absorb: [13.0, 4.6, 0.8], back: [0.18, 0.33, 0.78, 0.6], finTip: [0.05, 0.10, 0.40, 0.8], belly: [0.90, 0.94, 1.0, 1], glow: [0.35, 0.62, 1.0, 1], bead: [1.0, 0.55, 0.15, 1], swatch: '#2f63d6',
+    bgTop: [0.50, 0.505, 0.51], bgBot: [0.355, 0.36, 0.365], floor: [0.655, 0.66, 0.665] },
 ];
 
 const HAMMER_FRONT_GLSL = `float hammerFront(float z){ float q = abs(z)/0.226; return 0.505 - 0.018*q*q - 0.0085*exp(-(z*z)/(0.011*0.011)); }`;

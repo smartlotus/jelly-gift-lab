@@ -295,8 +295,38 @@ function makeEmbedder(nodes: Float32Array, tets: Uint32Array, h: number) {
   };
 }
 
+/** Smooth (continuous) node embedding: 4 nearest mutually-visible nodes, weight -> 0 at the 5th neighbour's distance. */
+function makeNodeEmbedder(nodes: Float32Array, h: number, f: F) {
+  const N = nodes.length / 3; const cs = h; const grid = new Map<string, number[]>();
+  const key = (i: number, j: number, k: number) => i + ',' + j + ',' + k;
+  for (let n = 0; n < N; n++) { const kk = key(Math.floor(nodes[3 * n] / cs), Math.floor(nodes[3 * n + 1] / cs), Math.floor(nodes[3 * n + 2] / cs)); let l = grid.get(kk); if (!l) grid.set(kk, l = []); l.push(n); }
+  const visible = (x: number, y: number, z: number, n: number) => {
+    for (let q = 1; q < 6; q++) { const t = q / 6; const px = x + (nodes[3 * n] - x) * t, py = y + (nodes[3 * n + 1] - y) * t, pz = z + (nodes[3 * n + 2] - z) * t; if (f(px, py, pz) > 0.35 * h) return false; }
+    return true;
+  };
+  return (x: number, y: number, z: number) => {
+    const ci = Math.floor(x / cs), cj = Math.floor(y / cs), ck = Math.floor(z / cs);
+    let cand: [number, number][] = [];
+    for (let r = 1; r <= 4 && cand.length < 5; r++) {
+      cand = [];
+      for (let i = ci - r; i <= ci + r; i++) for (let j = cj - r; j <= cj + r; j++) for (let k = ck - r; k <= ck + r; k++) {
+        const l = grid.get(key(i, j, k)); if (!l) continue;
+        for (const n of l) cand.push([Math.hypot(nodes[3 * n] - x, nodes[3 * n + 1] - y, nodes[3 * n + 2] - z), n]);
+      }
+      cand.sort((a, b) => a[0] - b[0]);
+      cand = cand.filter(c => visible(x, y, z, c[1])).slice(0, 5);
+    }
+    if (cand.length < 2) throw new Error('embed: no nodes near ' + [x, y, z]);
+    const d5 = cand.length >= 5 ? cand[4][0] : cand[cand.length - 1][0] * 1.5 + 1e-4;
+    const ids = [0, 0, 0, 0], w = [0, 0, 0, 0]; let sum = 0;
+    for (let q = 0; q < Math.min(4, cand.length); q++) { const u = cand[q][0] / d5; const wq = Math.pow(Math.max(0, 1 - u * u), 2) + 1e-6; ids[q] = cand[q][1]; w[q] = wq; sum += wq; }
+    for (let q = 0; q < 4; q++) w[q] /= sum;
+    return { ids, w };
+  };
+}
+
 // ---------------------------------------------------------------- pack surfaces ----
-function packSurface(ch: CharacterShape, f: F, mesh: { pos: Float32Array; tris: Uint32Array }, tets: Uint32Array, embed: ReturnType<typeof makeEmbedder>, qb: { min: number[]; ext: number[] }, vs: number) {
+function packSurface(ch: CharacterShape, f: F, mesh: { pos: Float32Array; tris: Uint32Array }, embed: ReturnType<typeof makeNodeEmbedder>, qb: { min: number[]; ext: number[] }, vs: number) {
   const n = mesh.pos.length / 3;
   const qpos = new Uint16Array(n * 4), qnrm = new Int16Array(n * 4), attr = new Uint8Array(n * 4), nodes = new Uint16Array(n * 4), wts = new Int16Array(n * 4);
   const a = new Float32Array(4);
@@ -309,8 +339,8 @@ function packSurface(ch: CharacterShape, f: F, mesh: { pos: Float32Array; tris: 
     ch.attrs(x, y, z, a);
     attr[4 * v] = Math.round(Math.max(0, Math.min(1, (a[0] + 2) / 4)) * 255);
     for (let c = 1; c < 4; c++) attr[4 * v + c] = Math.round(Math.max(0, Math.min(1, a[c])) * 255);
-    const e = embed(x, y, z); worst = Math.min(worst, e.score);
-    for (let q = 0; q < 4; q++) { nodes[4 * v + q] = tets[4 * e.t + q]; wts[4 * v + q] = Math.round(Math.max(-1, Math.min(1, e.w[q] / 2)) * 32767); }
+    const e = embed(x, y, z);
+    for (let q = 0; q < 4; q++) { nodes[4 * v + q] = e.ids[q]; wts[4 * v + q] = Math.round(Math.max(-1, Math.min(1, e.w[q] / 2)) * 32767); }
   }
   return { qpos, qnrm, attr, nodes, wts, idx: mesh.tris, worst };
 }
@@ -332,8 +362,9 @@ function bake(ch: CharacterShape, level: string, opts: { vsOuter: number; vsInne
   for (let t = 0; t < col.tets.length; t += 4) tetVolSum += tetVol(tm.nodes, col.tets[t], col.tets[t + 1], col.tets[t + 2], col.tets[t + 3]);
   const embed = makeEmbedder(tm.nodes, col.tets, opts.h);
   const qb = { min: b.min as number[], ext: [b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]] };
-  const so = packSurface(ch, ch.outer, o2, col.tets, embed, qb, opts.vsOuter);
-  const si = packSurface(ch, ch.inner, inner0, col.tets, embed, qb, opts.vsInner);
+  const nemb = makeNodeEmbedder(tm.nodes, opts.h, ch.outer);
+  const so = packSurface(ch, ch.outer, o2, nemb, qb, opts.vsOuter);
+  const si = packSurface(ch, ch.inner, inner0, nemb, qb, opts.vsInner);
   // bubbles
   const rnd = mulberry(7);
   const bub: number[] = []; const bubN: number[] = []; const bubW: number[] = [];
@@ -378,13 +409,13 @@ function bake(ch: CharacterShape, level: string, opts: { vsOuter: number; vsInne
   });
   mkdirSync(`public/assets/${ch.id}`, { recursive: true });
   writeFileSync(`public/assets/${ch.id}/${level}.bin`, out);
-  console.log(level, JSON.stringify(meta), 'embedWorst', so.worst.toFixed(3), si.worst.toFixed(3), 'comps', o2.comps, tm.comps, 'bytes', out.length, 'ms', Date.now() - t0);
+  console.log(level, JSON.stringify(meta), 'comps', o2.comps, tm.comps, 'bytes', out.length, 'ms', Date.now() - t0);
 }
 
 const which = process.argv[2] || 'all';
 const LEVELS: Record<string, { vsOuter: number; vsInner: number; h: number; bubbles: number }> = {
   hi: { vsOuter: 0.0030, vsInner: 0.0040, h: 0.0165, bubbles: 90 },
   md: { vsOuter: 0.0036, vsInner: 0.0048, h: 0.021, bubbles: 70 },
-  lo: { vsOuter: 0.0042, vsInner: 0.0055, h: 0.034, bubbles: 50 },
+  lo: { vsOuter: 0.0034, vsInner: 0.0048, h: 0.034, bubbles: 60 },
 };
 for (const [k, v] of Object.entries(LEVELS)) if (which === 'all' || which === k) bake(shark, k, v);

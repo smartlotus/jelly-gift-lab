@@ -104,7 +104,7 @@ export class Engine {
     // fit the jelly: half-extents seen from this angle (length ~1.16, span ~0.46)
     const halfLen = 0.60, halfH = 0.24;
     const seenLen = halfLen * Math.abs(Math.cos(c.yaw)) + 0.24 * Math.abs(Math.sin(c.yaw));
-    let R = Math.max(seenLen / th, halfH / tv) * 1.08 + 0.25;
+    let R = Math.max(seenLen / th, halfH / tv) * 1.32 + 0.2;
     R *= c.zoom;
     const tgt = [c.target[0], c.target[1] + (portrait ? 0.02 : 0), c.target[2]];
     c.eye = [tgt[0] + R * Math.sin(c.yaw) * Math.cos(c.pitch), tgt[1] + R * Math.sin(c.pitch), tgt[2] + R * Math.cos(c.yaw) * Math.cos(c.pitch)];

@@ -1,0 +1,1 @@
+import{n as e,r as t,t as n}from"./index-CYVcYw_X.js";var r;t((()=>{e(),r=class{constructor(...e){n(this,`ready`,void 0),this.ready=Promise.reject(Error(`not yet`))}}}))();export{r as GPUPath};

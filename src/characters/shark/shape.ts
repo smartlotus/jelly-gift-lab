@@ -40,14 +40,15 @@ export function sdHammer(x: number, y: number, z: number) {
   const tip = smoothstep(HS - 0.03, HS, Math.abs(z));
   const t = Math.max(hammerT(z) * shape, 0.0035) * mix(1, 0.85, tip);
   const dy = Math.abs(y - hammerY(z)) - t;
-  return opExtrude(d2, dy);
+  const rr = Math.min(t * 0.95, 0.008);
+  return opExtrude(d2 + rr, dy + rr) - rr;
 }
 export const EYE_R = 0.0175;
 export const eyeC = (side: number): V3 => [hammerFront(HS) - 0.022, hammerY(HS) + 0.004, side * (HS - 0.008)];
 
 // ---- fins: seven kinds from one recipe ---------------------------------------------------------
 const fin = (s: Partial<FinSpec> & Pick<FinSpec, 'name' | 'o' | 'U' | 'V' | 'H' | 'C' | 'sweep' | 't0'>): FinSpec => ({
-  lePow: 2, falcate: 0, tmin: 0.0034, bury: 0.35, ...s,
+  lePow: 2, falcate: 0, tmin: 0.0042, bury: 0.35, ...s,
 });
 export const FINS: FinSpec[] = [
   fin({ name: 'dorsal1', o: [0.135, 0.150, 0], U: [-1, 0, 0], V: [-0.05, 1, 0], H: 0.25, C: 0.155, sweep: 0.155, falcate: 0.075, t0: 0.018, lePow: 2.1 }),
@@ -91,7 +92,7 @@ export function sdOuter(x: number, y: number, z: number) {
 
 export function bellyLine(x: number, z: number) {
   const xb = clamp(x, X0, X1);
-  const body = bodyC(xb) - 0.18 * bodyB(xb);
+  const body = bodyC(xb) - 0.40 * bodyB(xb);
   return mix(body, hammerY(z) + 0.001, smoothstep(0.36, 0.43, x));
 }
 export function sdInner(x: number, y: number, z: number) {
