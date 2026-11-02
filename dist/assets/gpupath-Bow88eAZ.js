@@ -1,4 +1,4 @@
-import{n as e,r as t,t as n}from"./index-DKSEg131.js";var r=`
+import{n as e,r as t,t as n}from"./index-Dppf_ECN.js";var r=`
 struct Sim {
   h: f32, gravity: f32, damp: f32, muBody: f32,
   muFin: f32, lambdaRatio: f32, fs: f32, fk: f32,
@@ -392,7 +392,8 @@ fn toUv(P: vec3f) -> vec2f { return ndcToUv(fr.viewProj * vec4f(P, 1.0)); }
   let thin = exp(-thick0 / 0.035);
   let L = lightKey(); let Lr = lightRim();
   let through = pow(sat(dot(-N, Lr) * 0.6 + 0.4), 1.5) * 1.1 + pow(sat(dot(-V, L) * 0.5 + 0.5), 2.0) * 0.4;
-  let glow = fr.glowCol.rgb * filt * thin * through * (1.0 - Tsum * 0.5) * 0.85;
+  let behind = mix(0.12, 1.0, smoothstep(0.02, 0.3, dot(sc.rgb, vec3f(0.3, 0.6, 0.1))));
+  let glow = fr.glowCol.rgb * filt * thin * through * (1.0 - Tsum * 0.5) * 0.85 * behind;
   let scatter = fr.glowCol.rgb * filt * (1.0 - Tsum) * 0.10 * (0.5 + 0.5 * sat(dot(N, L)));
   let R = reflect(-V, N);
   let ndv = sat(dot(N, V));

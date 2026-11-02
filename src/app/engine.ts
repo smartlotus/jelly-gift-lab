@@ -163,11 +163,11 @@ export class Engine {
     const generic = !this.character.camera.legacyFit;
     if ((portrait || generic) && this.rest) {
       // fit the rest-pose bounding box into the free band with an off-centre (lens-shifted) projection
-      const [y0, y1] = portrait ? this.band : [-0.62, 0.5]; shiftY = (y0 + y1) / 2; const hy = Math.max(0.2, (y1 - y0) / 2);
+      const [y0, y1] = portrait ? this.band : [-0.66, 0.6]; shiftY = (y0 + y1) / 2; const hy = Math.max(0.2, (y1 - y0) / 2);
       const bx = [Math.sin(c.yaw) * Math.cos(c.pitch), Math.sin(c.pitch), Math.cos(c.yaw) * Math.cos(c.pitch)];
       const rt = [bx[2], 0, -bx[0]]; const rl = Math.hypot(rt[0], rt[2]); rt[0] /= rl; rt[2] /= rl;
       const up = [bx[1] * rt[2] - bx[2] * rt[1], bx[2] * rt[0] - bx[0] * rt[2], bx[0] * rt[1] - bx[1] * rt[0]];
-      const { lo, hi } = this.rest; const m = portrait ? 0.86 : 0.8; R = 0;
+      const { lo, hi } = this.rest; const m = portrait ? 0.86 : 0.9; R = 0;
       for (let i = 0; i < 8; i++) {
         const p = [(i & 1 ? hi[0] : lo[0]) - tgt[0], (i & 2 ? hi[1] : lo[1]) - tgt[1], (i & 4 ? hi[2] : lo[2]) - tgt[2]];
         const xr = p[0] * rt[0] + p[2] * rt[2], yu = p[0] * up[0] + p[1] * up[1] + p[2] * up[2], zb = p[0] * bx[0] + p[1] * bx[1] + p[2] * bx[2];

@@ -18,6 +18,8 @@ export interface CharacterShape {
   bubbleOk(x: number, y: number, z: number): boolean;
   /** named rest-space landmarks embedded in the tet mesh for live measurements */
   landmarks: Record<string, V3>;
+  /** surface voxel size multiplier for smooth characters (default 1) */
+  surfScale?: number;
 }
 
 /** Muscle actuation: per-tet weights for N muscle channels and their activation over time. */

@@ -112,3 +112,49 @@ export function sdFin(f: FinFrame, x: number, y: number, z: number, out?: Float6
   const rr = Math.min(th * 0.95, 0.006);
   return opExtrude(d2 + rr, dw + rr) - rr;
 }
+
+// ---- extra primitives for the chibi characters --------------------------------------------------
+/** Approximate SDF of an axis-aligned ellipsoid (iq's k0/k1 bound, accurate near the surface). */
+export function sdEllipsoid(x: number, y: number, z: number, rx: number, ry: number, rz: number) {
+  const k0 = Math.hypot(x / rx, y / ry, z / rz);
+  if (k0 < 1e-9) return -Math.min(rx, ry, rz);
+  const k1 = Math.hypot(x / (rx * rx), y / (ry * ry), z / (rz * rz));
+  return (k0 * (k0 - 1)) / k1;
+}
+/** Exact SDF of a 2D triangle (iq). */
+export function sdTri2(px: number, py: number, ax: number, ay: number, bx: number, by: number, cx: number, cy: number) {
+  const e0x = bx - ax, e0y = by - ay, e1x = cx - bx, e1y = cy - by, e2x = ax - cx, e2y = ay - cy;
+  const v0x = px - ax, v0y = py - ay, v1x = px - bx, v1y = py - by, v2x = px - cx, v2y = py - cy;
+  const t0 = clamp((v0x * e0x + v0y * e0y) / (e0x * e0x + e0y * e0y), 0, 1);
+  const t1 = clamp((v1x * e1x + v1y * e1y) / (e1x * e1x + e1y * e1y), 0, 1);
+  const t2 = clamp((v2x * e2x + v2y * e2y) / (e2x * e2x + e2y * e2y), 0, 1);
+  const q0x = v0x - e0x * t0, q0y = v0y - e0y * t0, q1x = v1x - e1x * t1, q1y = v1y - e1y * t1, q2x = v2x - e2x * t2, q2y = v2y - e2y * t2;
+  const s = Math.sign(e0x * e2y - e0y * e2x);
+  let dx = q0x * q0x + q0y * q0y, dy = s * (v0x * e0y - v0y * e0x);
+  const ax1 = q1x * q1x + q1y * q1y, ay1 = s * (v1x * e1y - v1y * e1x);
+  const ax2 = q2x * q2x + q2y * q2y, ay2 = s * (v2x * e2y - v2y * e2x);
+  if (ax1 < dx) dx = ax1; if (ay1 < dy) dy = ay1;
+  if (ax2 < dx) dx = ax2; if (ay2 < dy) dy = ay2;
+  return -Math.sqrt(dx) * Math.sign(dy);
+}
+export function sdCapsule(x: number, y: number, z: number, a: V3, b: V3, r: number) {
+  const bax = b[0] - a[0], bay = b[1] - a[1], baz = b[2] - a[2];
+  const pax = x - a[0], pay = y - a[1], paz = z - a[2];
+  const h = clamp((pax * bax + pay * bay + paz * baz) / (bax * bax + bay * bay + baz * baz), 0, 1);
+  return Math.hypot(pax - bax * h, pay - bay * h, paz - baz * h) - r;
+}
+/** Orthonormal local frame: origin o, axes u (local x), v (local y), w (local z). */
+export interface Frame3 { o: V3; u: V3; v: V3; w: V3 }
+export const norm3 = (a: V3): V3 => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+export const cross3 = (a: V3, b: V3): V3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+/** frame whose v axis points along 'up' and w is as close as possible to 'fwd' */
+export function frameUp(o: V3, up: V3, fwd: V3): Frame3 {
+  const v = norm3(up); const u = norm3(cross3(v, fwd)); const w = cross3(u, v);
+  return { o, u, v, w };
+}
+export function toLocal(f: Frame3, x: number, y: number, z: number, out: Float64Array | number[]) {
+  const dx = x - f.o[0], dy = y - f.o[1], dz = z - f.o[2];
+  out[0] = dx * f.u[0] + dy * f.u[1] + dz * f.u[2];
+  out[1] = dx * f.v[0] + dy * f.v[1] + dz * f.v[2];
+  out[2] = dx * f.w[0] + dy * f.w[1] + dz * f.w[2];
+}

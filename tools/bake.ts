@@ -4,6 +4,9 @@ import { mkdirSync, writeFileSync } from 'fs';
 import { packSections } from '../src/core/pack';
 import type { CharacterShape } from '../src/core/character';
 import { shark } from '../src/characters/shark/shape';
+import { pig } from '../src/characters/pig/shape';
+import type { CharacterShape } from '../src/core/character';
+const SHAPES: Record<string, CharacterShape> = { shark, pig };
 
 type F = (x: number, y: number, z: number) => number;
 
@@ -370,7 +373,7 @@ function bake(ch: CharacterShape, level: string, opts: { vsOuter: number; vsInne
   const bub: number[] = []; const bubN: number[] = []; const bubW: number[] = [];
   let guard = 0;
   while (bub.length / 4 < opts.bubbles && guard++ < 400000) {
-    const x = b.min[0] + rnd() * (b.max[0] - b.min[0]), y = b.min[1] + rnd() * 0.25, z = (rnd() - 0.5) * 0.3;
+    const x = b.min[0] + rnd() * (b.max[0] - b.min[0]), y = b.min[1] + rnd() * (b.max[1] - b.min[1]), z = b.min[2] + rnd() * (b.max[2] - b.min[2]);
     const r = 0.0014 + 0.0062 * Math.pow(rnd(), 3.2);
     if (!ch.bubbleOk(x, y, z) || ch.outer(x, y, z) > -(r + 0.004) || ch.inner(x, y, z) < r + 0.002) continue;
     let ok = true; for (let q = 0; q < bub.length; q += 4) if (Math.hypot(bub[q] - x, bub[q + 1] - y, bub[q + 2] - z) < bub[q + 3] + r + 0.004) { ok = false; break; }
@@ -412,10 +415,11 @@ function bake(ch: CharacterShape, level: string, opts: { vsOuter: number; vsInne
   console.log(level, JSON.stringify(meta), 'comps', o2.comps, tm.comps, 'bytes', out.length, 'ms', Date.now() - t0);
 }
 
-const which = process.argv[2] || 'all';
+const which = process.argv[3] || 'all';
+const chars = (process.argv[2] || 'shark') === 'all' ? Object.keys(SHAPES) : [process.argv[2] || 'shark'];
 const LEVELS: Record<string, { vsOuter: number; vsInner: number; h: number; bubbles: number }> = {
   hi: { vsOuter: 0.0030, vsInner: 0.0040, h: 0.0165, bubbles: 90 },
   md: { vsOuter: 0.0036, vsInner: 0.0048, h: 0.021, bubbles: 70 },
   lo: { vsOuter: 0.0034, vsInner: 0.0048, h: 0.034, bubbles: 60 },
 };
-for (const [k, v] of Object.entries(LEVELS)) if (which === 'all' || which === k) bake(shark, k, v);
+for (const c of chars) for (const [k, v] of Object.entries(LEVELS)) if (which === 'all' || which === k) bake(SHAPES[c], k, { ...v, vsOuter: v.vsOuter * (SHAPES[c].surfScale ?? 1), vsInner: v.vsInner * (SHAPES[c].surfScale ?? 1) });

@@ -268,7 +268,9 @@ void main(){
   float thin = exp(-thick0 / 0.035);
   vec3 L = lightKey(); vec3 Lr = lightRim();
   float through = pow(sat(dot(-N, Lr) * 0.6 + 0.4), 1.5) * 1.1 + pow(sat(dot(-V, L) * 0.5 + 0.5), 2.0) * 0.4;
-  vec3 glow = fr.glowCol.rgb * filt * thin * through * (1.0 - Tsum * 0.5) * 0.85;
+  // dark things right behind a thin skin (eyes, nostrils) stay dark: scale the scattered glow by what lies behind
+  float behind = mix(0.12, 1.0, smoothstep(0.02, 0.3, dot(sc.rgb, vec3(0.3, 0.6, 0.1))));
+  vec3 glow = fr.glowCol.rgb * filt * thin * through * (1.0 - Tsum * 0.5) * 0.85 * behind;
   // subsurface-ish body colour in thick parts (scattered key light)
   vec3 scatter = fr.glowCol.rgb * filt * (1.0 - Tsum) * 0.10 * (0.5 + 0.5 * sat(dot(N, L)));
   // reflections

@@ -1,7 +1,9 @@
 /** Gentle self-righting: if the jelly stays tipped over (and nobody holds it), spin it back upright.
  *  Body "up" is the rest-height-weighted spread of the current node cloud, so it works for any character. */
 export class Righting {
-  private idx: Uint32Array; private q: Float32Array; private tipped = 0;
+  private idx: Uint32Array; private q: Float32Array; private tipped = 0; private active = false; private t0 = 0; private prevAng = -1;
+  /** derivative gain (s): braking against the recovery spin so a tall body does not overshoot */
+  kd = 0.22;
   constructor(rest: Float32Array, maxSamples = 600, public strength = 380, public delay = 0.6) {
     const N = rest.length / 3; const step = Math.max(1, Math.floor(N / maxSamples));
     const ids: number[] = []; for (let i = 0; i < N; i += step) ids.push(i);
@@ -29,13 +31,19 @@ export class Righting {
     const ul = Math.hypot(ux, uy, uz) || 1; ux /= ul; uy /= ul; uz /= ul;
     const ang = Math.acos(Math.max(-1, Math.min(1, uy)));
     out.fill(0); out[3] = cx; out[4] = cy; out[5] = cz;
-    this.tipped = held || ang < 0.45 ? 0 : this.tipped + dt;
-    if (this.tipped > this.delay) {
-      // axis = up x Y  (rotates 'up' toward +Y); upside-down: pick the body's long axis-ish fallback
+    // PD control with hysteresis: engage after staying tipped past 'delay', keep steering (and braking) until nearly upright
+    const angVel = this.prevAng < 0 ? 0 : (ang - this.prevAng) / Math.max(dt, 1e-3); this.prevAng = ang;
+    if (held) { this.tipped = 0; this.active = false; }
+    else if (this.active) { if (ang < 0.12 && Math.abs(angVel) < 0.6) { this.active = false; this.tipped = 0; } }
+    else { this.tipped = ang < 0.45 ? 0 : this.tipped + dt; if (this.tipped > this.delay) { this.active = true; this.t0 = 0; } }
+    if (this.active) {
+      this.t0 += dt;
+      // axis = up x Y  (rotates 'up' toward +Y); upside-down: pick a fallback axis
       let ax = -uz, az = ux; let al = Math.hypot(ax, az);
       if (al < 1e-3) { ax = 1; az = 0; al = 1; }
-      const ramp = Math.min(1, (this.tipped - this.delay) / 0.4);
-      const mag = this.strength * ramp * Math.min(1, (ang - 0.35) / 0.5);
+      const ramp = Math.min(1, this.t0 / 0.4);
+      let mag = this.strength * ramp * Math.min(1, ang / 0.6) + this.strength * this.kd * angVel;
+      mag = Math.max(-0.6 * this.strength, Math.min(this.strength, mag));
       out[0] = ax / al * mag; out[2] = az / al * mag;
     }
     return ang;
