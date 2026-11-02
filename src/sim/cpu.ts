@@ -64,15 +64,24 @@ export class CpuSolver {
       const vol = a.restVol[t];
       const fw = a.finW[t];
       const mu = (prm.muBody + (prm.muFin - prm.muBody) * fw) * a.stiff[t];
-      // muscle: isochoric active stretch along rest x
-      let s = 0; for (let c = 0; c < ch; c++) s += a.muscle[t * ch + c] * act[c];
-      if (s < -0.6) s = -0.6;
-      const sx = 1 / (1 + s), syz = Math.sqrt(1 + s);
+      // muscles: isochoric active stretch along each channel's fibre axis a: A = sum_c[(lam-mu) a a^T + (mu-1) I] + I
+      let A00 = 1, A01 = 0, A02 = 0, A11 = 1, A12 = 0, A22 = 1;
+      for (let c = 0; c < ch; c++) {
+        let s = a.muscle[t * ch + c] * act[c]; if (s === 0) continue; if (s < -0.6) s = -0.6;
+        const lam = 1 + s, mu = 1 / Math.sqrt(lam), d = lam - mu, e = mu - 1;
+        const ax = a.axes[3 * c], ay = a.axes[3 * c + 1], az = a.axes[3 * c + 2];
+        A00 += d * ax * ax + e; A11 += d * ay * ay + e; A22 += d * az * az + e; A01 += d * ax * ay; A02 += d * ax * az; A12 += d * ay * az;
+      }
+      // Ainv (symmetric) via adjugate
+      const c00 = A11 * A22 - A12 * A12, c01 = A02 * A12 - A01 * A22, c02 = A01 * A12 - A02 * A11;
+      const c11 = A00 * A22 - A02 * A02, c12 = A01 * A02 - A00 * A12, c22 = A00 * A11 - A01 * A01;
+      const idet = 1 / (A00 * c00 + A01 * c01 + A02 * c02);
+      const I00 = c00 * idet, I01 = c01 * idet, I02 = c02 * idet, I11 = c11 * idet, I12 = c12 * idet, I22 = c22 * idet;
       const b = 9 * t;
-      // effective B = B * diag(sx, syz, syz)  (columns scaled)
-      const B00 = B[b] * sx, B01 = B[b + 1] * syz, B02 = B[b + 2] * syz;
-      const B10 = B[b + 3] * sx, B11 = B[b + 4] * syz, B12 = B[b + 5] * syz;
-      const B20 = B[b + 6] * sx, B21 = B[b + 7] * syz, B22 = B[b + 8] * syz;
+      // effective B = B * Ainv
+      const B00 = B[b] * I00 + B[b + 1] * I01 + B[b + 2] * I02, B01 = B[b] * I01 + B[b + 1] * I11 + B[b + 2] * I12, B02 = B[b] * I02 + B[b + 1] * I12 + B[b + 2] * I22;
+      const B10 = B[b + 3] * I00 + B[b + 4] * I01 + B[b + 5] * I02, B11 = B[b + 3] * I01 + B[b + 4] * I11 + B[b + 5] * I12, B12 = B[b + 3] * I02 + B[b + 4] * I12 + B[b + 5] * I22;
+      const B20 = B[b + 6] * I00 + B[b + 7] * I01 + B[b + 8] * I02, B21 = B[b + 6] * I01 + B[b + 7] * I11 + B[b + 8] * I12, B22 = B[b + 6] * I02 + B[b + 7] * I12 + B[b + 8] * I22;
       for (let pass = 0; pass < 2; pass++) {
         const e1x = x[3 * i1] - x[3 * i0], e1y = x[3 * i1 + 1] - x[3 * i0 + 1], e1z = x[3 * i1 + 2] - x[3 * i0 + 2];
         const e2x = x[3 * i2] - x[3 * i0], e2y = x[3 * i2 + 1] - x[3 * i0 + 1], e2z = x[3 * i2 + 2] - x[3 * i0 + 2];

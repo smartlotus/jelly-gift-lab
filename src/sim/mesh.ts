@@ -17,6 +17,7 @@ export interface TetAsset {
   fric: Float32Array;       // per-node friction multiplier
   grav: Float32Array;       // per-node gravity multiplier
   channels: number;
+  axes: Float32Array;       // 4 channel fibre axes (xyz each)
   adjOffsets: Uint32Array;  // node -> tets CSR
   adjTets: Uint32Array;
   s: Record<string, any>;   // raw sections (surfaces etc.)
@@ -61,5 +62,6 @@ export function decodeAsset(buf: ArrayBuffer, act: Actuation, density: number): 
   for (let i = 0; i < N; i++) cnt[i + 1] += cnt[i];
   const fill = cnt.slice(0, N); const adj = new Uint32Array(T * 4);
   for (let t = 0; t < T; t++) for (let q = 0; q < 4; q++) adj[fill[tets[4 * t + q]]++] = t;
-  return { meta, nodes, tets, colourOffsets: s.colourOffsets, finW: s.finW, B, restVol, invMass, mass, muscle, stiff, fric, grav, channels: act.channels, adjOffsets: cnt, adjTets: adj, s };
+  const axes = new Float32Array(12); for (let c = 0; c < 4; c++) { const v = act.axes?.[c] ?? [1, 0, 0]; const l = Math.hypot(v[0], v[1], v[2]) || 1; axes.set([v[0] / l, v[1] / l, v[2] / l], 3 * c); }
+  return { meta, axes, nodes, tets, colourOffsets: s.colourOffsets, finW: s.finW, B, restVol, invMass, mass, muscle, stiff, fric, grav, channels: act.channels, adjOffsets: cnt, adjTets: adj, s };
 }

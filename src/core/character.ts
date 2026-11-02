@@ -23,6 +23,8 @@ export interface CharacterShape {
 /** Muscle actuation: per-tet weights for N muscle channels and their activation over time. */
 export interface Actuation {
   channels: number;
+  /** rest-space fibre axis per channel (isochoric active stretch along it); default +x */
+  axes?: V3[];
   weights(cx: number, cy: number, cz: number, out: Float32Array): void;
   activation(t: number, out: Float32Array): void;
   /** optional per-tet stiffness multiplier (rest centroid) */

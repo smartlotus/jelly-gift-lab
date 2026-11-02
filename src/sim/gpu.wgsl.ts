@@ -7,6 +7,7 @@ struct Sim {
   act: vec4f, tgt: vec4f, axis: vec4f,
   counts: vec4u,
   spin: vec4f, spinC: vec4f,
+  axes: array<vec4f, 4>,
   beads: array<vec4f, 16>,
 };
 struct Range { offset: u32, count: u32, pad0: u32, pad1: u32 };
@@ -50,10 +51,20 @@ fn solveTets(@builtin(global_invocation_id) gid: vec3u) {
   let r0 = tetB[3u * t]; let r1 = tetB[3u * t + 1u]; let r2 = tetB[3u * t + 2u];
   let vol = r0.w; let mu = r1.w;
   let m = tetM[t];
-  let s = max(dot(m, sim.act), -0.6);
-  let sx = 1.0 / (1.0 + s); let syz = sqrt(1.0 + s);
-  // effective inverse rest matrix with isochoric active stretch (columns scaled)
-  let B = mat3x3f(vec3f(r0.x * sx, r1.x * sx, r2.x * sx), vec3f(r0.y * syz, r1.y * syz, r2.y * syz), vec3f(r0.z * syz, r1.z * syz, r2.z * syz)); // columns of B
+  // muscles: isochoric active stretch along each channel's fibre axis (see cpu.ts)
+  var A = mat3x3f(vec3f(1.0, 0.0, 0.0), vec3f(0.0, 1.0, 0.0), vec3f(0.0, 0.0, 1.0));
+  for (var c = 0; c < 4; c++) {
+    let s = max(m[c] * sim.act[c], -0.6);
+    if (s == 0.0) { continue; }
+    let lam = 1.0 + s; let mu_ = 1.0 / sqrt(lam); let d = lam - mu_; let e = mu_ - 1.0;
+    let a = sim.axes[c].xyz;
+    A = A + mat3x3f(a * (d * a.x) + vec3f(e, 0.0, 0.0), a * (d * a.y) + vec3f(0.0, e, 0.0), a * (d * a.z) + vec3f(0.0, 0.0, e));
+  }
+  // inverse of symmetric A via cofactors (columns)
+  let Cf = mat3x3f(cross(A[1], A[2]), cross(A[2], A[0]), cross(A[0], A[1]));
+  let Ainv = transpose(Cf) * (1.0 / dot(A[0], Cf[0]));
+  let B0 = mat3x3f(vec3f(r0.x, r1.x, r2.x), vec3f(r0.y, r1.y, r2.y), vec3f(r0.z, r1.z, r2.z));
+  let B = B0 * Ainv;
   var x0 = X[id.x]; var x1 = X[id.y]; var x2 = X[id.z]; var x3 = X[id.w];
   let w0 = x0.w; let w1 = x1.w; let w2 = x2.w; let w3 = x3.w;
   let ih2 = 1.0 / (sim.h * sim.h);
