@@ -142,6 +142,8 @@ export class Engine {
         R = Math.max(R, zb + Math.abs(xr) / (th * m), zb + Math.abs(yu) / (tv * hy * m));
       }
     }
+    // short landscape (phones on their side): UI bands eat the top and bottom, so pull back and lift
+    if (!portrait && this.H / this.dpr < 520) { R *= 1.3; shiftY = 0.1; }
     R *= c.zoom;
     c.eye = [tgt[0] + R * Math.sin(c.yaw) * Math.cos(c.pitch), tgt[1] + R * Math.sin(c.pitch), tgt[2] + R * Math.cos(c.yaw) * Math.cos(c.pitch)];
     m4.lookAt(this.view, c.eye, tgt, [0, 1, 0]);
