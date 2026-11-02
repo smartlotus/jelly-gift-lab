@@ -16,7 +16,7 @@ export const DEFAULT_PARAMS: SimParams = {
   density: 1,
   muBody: 90,
   muFin: 2500,
-  lambdaRatio: 40,
+  lambdaRatio: 150,
   damping: 1.2,
   substeps: 10,
   frictionStatic: 1.2,

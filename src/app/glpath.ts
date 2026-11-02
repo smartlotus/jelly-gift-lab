@@ -31,7 +31,7 @@ export class GLPath implements Path {
   step(inp: SimInput) {
     if (this.inflight > 1) return; // worker is behind: skip, keeps latency bounded
     // adaptive substeps keep the worker within budget on slow phones
-    if (this.cost > 12 && this.substeps > 4) this.substeps--; else if (this.cost < 6 && this.substeps < 10) this.substeps++;
+    if (this.cost > 13 && this.substeps > 6) this.substeps--; else if (this.cost < 7 && this.substeps < 10) this.substeps++;
     const g = inp.grab;
     this.worker.postMessage({ type: 'step', dt: inp.dt, act: inp.act, substeps: this.substeps, seq: this.seq++,
       grab: { active: g.active, count: g.count, idx: g.idx, off: g.off, wt: g.wt, target: g.target, twist: g.twist, axis: g.axis },

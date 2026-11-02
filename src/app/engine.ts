@@ -70,7 +70,9 @@ export class Engine {
     if (!this.running) return;
     requestAnimationFrame(this.loop);
     const t0 = performance.now();
-    const dt = Math.min(Math.max((t - this.last) / 1000, 1 / 240), 1 / 30); this.last = t;
+    const realDt = Math.min(Math.max((t - this.last) / 1000, 1 / 240), 0.25);
+    const dt = Math.min(realDt, 1 / 30); this.last = t;
+    if (this.colourMix < 1) this.colourMix = Math.min(1, this.colourMix + realDt * 1.6);
     this.time += dt;
     this.frames++; if (t - this.fpsT > 500) { this.fps = this.frames * 1000 / (t - this.fpsT); this.frames = 0; this.fpsT = t; }
     this.update(dt);
@@ -78,14 +80,13 @@ export class Engine {
   };
 
   update(dt: number) {
-    this.simTime += dt;
+    this.simTime += Math.min(dt, 1 / 60);
     this.actuation.activation(this.simTime, this.act);
-    if (this.colourMix < 1) this.colourMix = Math.min(1, this.colourMix + dt * 1.6);
     // twist relaxes after the wheel stops when not holding
     if (this.wheelTimer > 0) { this.wheelTimer -= dt; if (this.wheelTimer <= 0 && this.pointers.size === 0) { this.grab.active = false; this.grab.twist = 0; } }
     const nodes = this.path.nodes();
     this.beads.step(dt, nodes?.data ?? null, nodes?.stride ?? 4, this.path.asset.nodes.length / 3, this.path.asset.meta.h * 0.42, DEFAULT_PARAMS.gravity);
-    this.path.step({ dt, act: this.act, grab: this.grab, beads: this.beads.pos, beadCount: this.beads.count });
+    this.path.step({ dt: Math.min(dt, 1 / 60), act: this.act, grab: this.grab, beads: this.beads.pos, beadCount: this.beads.count });
     this.updateCamera(dt);
     this.writeFrame();
     this.path.render(this.frame, 1.0, this.time);
