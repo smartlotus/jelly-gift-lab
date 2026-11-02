@@ -2,3 +2,5 @@ node_modules
 .DS_Store
 /tmp
 fonts-src/*.ttf
+review/**/*.gif
+review/**/*.mp4
