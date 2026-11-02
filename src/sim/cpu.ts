@@ -28,6 +28,7 @@ export class CpuSolver {
   }
 
   step(dt: number, act: Float32Array, grab: GrabState) {
+    if (!(dt > 1e-5)) return;
     const { prm, a } = this; const n = prm.substeps; const h = dt / n;
     const x = this.x, p = this.p, v = this.v, w = a.invMass;
     const damp = Math.exp(-prm.damping * h);
