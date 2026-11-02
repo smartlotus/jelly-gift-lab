@@ -5,8 +5,9 @@ import { packSections } from '../src/core/pack';
 import type { CharacterShape } from '../src/core/character';
 import { shark } from '../src/characters/shark/shape';
 import { pig } from '../src/characters/pig/shape';
+import { cat } from '../src/characters/cat/shape';
 import type { CharacterShape } from '../src/core/character';
-const SHAPES: Record<string, CharacterShape> = { shark, pig };
+const SHAPES: Record<string, CharacterShape> = { shark, pig, cat };
 
 type F = (x: number, y: number, z: number) => number;
 

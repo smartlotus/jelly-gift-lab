@@ -2,5 +2,6 @@
 import type { Actuation } from '../core/character';
 import { sharkActuation } from './shark/actuation';
 import { pigActuation } from './pig/actuation';
-export const ACTUATIONS: Record<string, Actuation> = { shark: sharkActuation, pig: pigActuation };
+import { catActuation } from './cat/actuation';
+export const ACTUATIONS: Record<string, Actuation> = { shark: sharkActuation, pig: pigActuation, cat: catActuation };
 export const actuationFor = (id: string) => ACTUATIONS[id];

@@ -100,8 +100,13 @@ function eyesB(x: number, y: number, z: number) {
   const f = EYES[x >= 0 ? 0 : 1]; toLocal(f, x, y, z, tmp);
   return sdEllipsoid(tmp[0], tmp[1], tmp[2], EYE_R[0], EYE_R[1], EYE_R[2]);
 }
+function limbsB(x: number, y: number, z: number) {
+  const ax = Math.abs(x);
+  return Math.min(sdEllipsoid(ax - ARM.c[0], y - ARM.c[1], z - ARM.c[2], ARM.r[0], ARM.r[1], ARM.r[2]),
+    smax(sdEllipsoid(ax - FOOT.c[0], y - FOOT.c[1], z - FOOT.c[2], FOOT.r[0], FOOT.r[1], FOOT.r[2]), YOFF + 0.8 - y, 0.5));
+}
 function innerB(x: number, y: number, z: number) {
-  let d = coreB(x, y, z) + INSET;
+  let d = smin(coreB(x, y, z) + INSET, limbsB(x, y, z) + 0.75, 1.0);
   d = smin(d, sdSnout(x, y, z, -0.5), 0.6);    // the milky snout comes close to the surface so the nostrils read
   return Math.min(d, eyesB(x, y, z));
 }
