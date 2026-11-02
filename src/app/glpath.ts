@@ -10,7 +10,7 @@ export class GLPath implements Path {
   latest: Float32Array | null = null;
   fresh: Float32Array | null = null;
   inflight = 0; cost = 0; seq = 0;
-  substeps = 8;
+  substeps = 8; presented = 0; simSteps = 0;
   ready: Promise<void>;
   constructor(canvas: HTMLCanvasElement, public asset: TetAsset, buf: ArrayBuffer, character: string, msaa: number) {
     this.gl = new WebGL2Backend(canvas, asset, { msaa });
@@ -21,7 +21,7 @@ export class GLPath implements Path {
         if (m.type === 'ready') res();
         else if (m.type === 'state') {
           this.inflight--; this.cost = this.cost * 0.9 + m.cost * 0.1;
-          this.fresh = m.nodeData; this.latest = m.nodeData;
+          this.fresh = m.nodeData; this.latest = m.nodeData; this.simSteps++;
         }
       };
       this.worker.onerror = (e) => rej(e);
@@ -40,7 +40,7 @@ export class GLPath implements Path {
   }
   render(frame: Float32Array, exposure: number, time: number) {
     const nd = this.fresh; this.fresh = null;
-    this.gl.render({ frame, nodeData: nd, exposure, time });
+    this.gl.render({ frame, nodeData: nd, exposure, time }); this.presented++;
   }
   resize(w: number, h: number) { this.gl.resize(w, h); }
   nodes() { return this.latest ? { data: this.latest, stride: 16 } : null; }

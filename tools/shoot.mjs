@@ -22,10 +22,10 @@ await page.waitForFunction(() => window.__jellyReady || !document.getElementById
 const ready = await page.evaluate(() => window.__jellyReady);
 console.log('ready', JSON.stringify(ready), 'after', Date.now() - t0, 'ms');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const stat = async () => page.evaluate(() => { const e = window.__jelly; return e ? { fps: +e.fps.toFixed(1), frameMs: +e.frameMs.toFixed(2), simMs: +e.path.simMs().toFixed(2), substeps: e.path.substeps, simTime: +e.simTime.toFixed(2), ro: e.readouts } : null; });
+const stat = async () => page.evaluate(() => { const e = window.__jelly; return e ? { fps: +e.fps.toFixed(1), simHz: +e.simHz.toFixed(1), raf: +e.rafFps.toFixed(1), backend: e.path.kind, frameMs: +e.frameMs.toFixed(2), simMs: +e.path.simMs().toFixed(2), substeps: e.path.substeps, simTime: +e.simTime.toFixed(2), ro: e.readouts } : null; });
 await sleep(+(args.wait || 4000));
 let n = 0;
-const snap = async (tag) => { const f = `${out}-${String(n++).padStart(2, '0')}-${tag}.png`; await page.screenshot({ path: f }); console.log('shot', f, JSON.stringify(await stat())); };
+const snap = async (tag) => { const f = `${out}-${String(n++).padStart(2, '0')}-${tag}.png`; await page.evaluate(() => window.__jelly?.debugCapture()); await page.screenshot({ path: f }); await page.evaluate(() => window.__jelly?.debugCapture(false)); console.log('shot', f, JSON.stringify(await stat())); };
 await snap('initial');
 const steps = (args.steps || '').split(',').filter(Boolean);
 const proj = async (x, y, z) => page.evaluate((x, y, z) => { const e = window.__jelly; const m = e.vp; const r = e.canvas.getBoundingClientRect();

@@ -16,4 +16,6 @@ export interface Path {
   reset(): void;
   simMs(): number;
   substeps: number;
+  /** frames actually submitted to the GPU / sim states produced (for honest fps) */
+  presented: number; simSteps: number;
 }

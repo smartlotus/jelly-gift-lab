@@ -31,13 +31,17 @@ export class GPUPath implements Path {
   private grabData = new Float32Array(MAX_GRAB * 8);
   private latest: Float32Array; private staging: GPUBuffer[] = []; private stagingBusy = [false, false]; private stagingNext = 0;
   private cost = 0; private inflight = 0; private nOuter: number; private nInner: number; private nBub: number;
-  private lost = false;
+  private lost = false; private skip = false; private pendingEnc: GPUCommandEncoder | null = null; private pendingRead = -1;
+  presented = 0; simSteps = 0;
+  private captureReq: ((d: ImageData) => void) | null = null;
+  /** Debug/self-check only: read back the next presented frame (headless WebGPU canvases don't reach screenshots). */
+  capture(): Promise<ImageData> { return new Promise(r => { this.captureReq = r; }); }
 
   constructor(private canvas: HTMLCanvasElement, public asset: TetAsset, private dev: GPUDevice, private samples = 4) {
     const a = asset; this.N = a.nodes.length / 3; this.T = a.tets.length / 4;
     const ctx = canvas.getContext('webgpu'); if (!ctx) throw new Error('no webgpu canvas context');
     this.ctx = ctx; this.fmt = navigator.gpu.getPreferredCanvasFormat();
-    ctx.configure({ device: dev, format: this.fmt, alphaMode: 'opaque' });
+    ctx.configure({ device: dev, format: this.fmt, alphaMode: 'opaque', usage: T.RENDER_ATTACHMENT | T.COPY_SRC });
     dev.lost.then(i => { this.lost = true; if (i.reason !== 'destroyed') console.error('WebGPU device lost:', i.message); });
     dev.addEventListener('uncapturederror', (e: any) => console.error('WebGPU error:', e.error?.message ?? e));
     this.latest = new Float32Array(this.N * 4);
@@ -185,8 +189,9 @@ export class GPUPath implements Path {
 
   step(inp: SimInput) {
     if (this.lost || !(inp.dt > 1e-5)) return;
-    if (this.inflight > 2) return; // GPU is behind: keep latency bounded
-    if (this.cost > 14 && this.substeps > 6) this.substeps--; else if (this.cost < 8 && this.substeps < 10) this.substeps++;
+    this.skip = this.inflight >= 2; // GPU is behind: drop this frame (sim + render) to keep latency bounded
+    if (this.skip) return;
+    if (this.cost > 20 && this.substeps > 8) this.substeps--; else if (this.cost < 10 && this.substeps < 10) this.substeps++;
     const prm = DEFAULT_PARAMS; const n = this.substeps; const h = inp.dt / n;
     const f = this.simF, u = this.simI; const g = inp.grab;
     f[0] = h; f[1] = prm.gravity; f[2] = Math.exp(-prm.damping * h); f[3] = prm.muBody;
@@ -222,11 +227,16 @@ export class GPUPath implements Path {
     // async readback of positions for picking / bait / readouts
     const si = this.stagingNext; let read = false;
     if (!this.stagingBusy[si]) { enc.copyBufferToBuffer(this.b.X, 0, this.staging[si], 0, this.N * 16); read = true; this.stagingNext = 1 - si; }
-    const t0 = performance.now();
+    this.pendingEnc = enc; this.pendingRead = read ? si : -1;
+  }
+
+  private submit(enc: GPUCommandEncoder) {
+    const q = this.dev.queue; const t0 = performance.now();
     q.submit([enc.finish()]);
-    this.inflight++;
+    this.inflight++; this.presented++; this.simSteps++;
     q.onSubmittedWorkDone().then(() => { this.inflight--; this.cost = this.cost * 0.85 + (performance.now() - t0) * 0.15; });
-    if (read) {
+    const si = this.pendingRead; this.pendingRead = -1;
+    if (si >= 0) {
       this.stagingBusy[si] = true; const sb = this.staging[si];
       sb.mapAsync(GPUMapMode.READ).then(() => {
         this.latest = new Float32Array(sb.getMappedRange().slice(0)); sb.unmap(); this.stagingBusy[si] = false;
@@ -261,11 +271,11 @@ export class GPUPath implements Path {
   }
 
   render(frame: Float32Array, exposure: number, time: number) {
-    if (this.lost || !this.tg.scene) return;
+    if (this.lost || !this.tg.scene || this.skip) return;
     const d = this.dev, q = d.queue, P = this.rp, tg = this.tg;
     q.writeBuffer(this.b.frame, 0, frame);
     q.writeBuffer(this.b.comp, 0, new Float32Array([exposure, time, 1.5 / 255, 0.35]));
-    const enc = d.createCommandEncoder();
+    const enc = this.pendingEnc ?? d.createCommandEncoder(); this.pendingEnc = null;
     const common = (p: GPURenderPassEncoder) => { p.setBindGroup(0, this.frameBG); p.setBindGroup(1, this.meshBG); };
     // 1. shadow thickness
     let p = enc.beginRenderPass({ colorAttachments: [{ view: this.shadowTex.createView(), loadOp: 'clear', storeOp: 'store', clearValue: [0, 0, 0, 10] }] });
@@ -297,9 +307,28 @@ export class GPUPath implements Path {
     });
     common(p); p.setBindGroup(2, this.shellBG!); p.setPipeline(P.shell); this.mesh(p, 'o_'); p.end();
     // 5. composite
-    p = enc.beginRenderPass({ colorAttachments: [{ view: this.ctx.getCurrentTexture().createView(), loadOp: 'clear', storeOp: 'store', clearValue: [0, 0, 0, 1] }] });
+    const cur = this.ctx.getCurrentTexture();
+    p = enc.beginRenderPass({ colorAttachments: [{ view: cur.createView(), loadOp: 'clear', storeOp: 'store', clearValue: [0, 0, 0, 1] }] });
     p.setPipeline(P.comp); p.setBindGroup(0, this.compBG!); p.draw(3); p.end();
-    q.submit([enc.finish()]);
+    let cap: { buf: GPUBuffer; bpr: number; res: (d: ImageData) => void } | null = null;
+    if (this.captureReq) {
+      const bpr = Math.ceil(this.W * 4 / 256) * 256;
+      const buf = d.createBuffer({ size: bpr * this.H, usage: U.COPY_DST | U.MAP_READ });
+      enc.copyTextureToBuffer({ texture: cur }, { buffer: buf, bytesPerRow: bpr }, [this.W, this.H]);
+      cap = { buf, bpr, res: this.captureReq }; this.captureReq = null;
+    }
+    this.submit(enc);
+    if (cap) {
+      const { buf, bpr, res } = cap; const w = this.W, h = this.H, bgra = this.fmt === 'bgra8unorm';
+      buf.mapAsync(GPUMapMode.READ).then(() => {
+        const src = new Uint8Array(buf.getMappedRange()); const img = new ImageData(w, h);
+        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+          const i = y * bpr + 4 * x, o = 4 * (y * w + x);
+          img.data[o] = src[i + (bgra ? 2 : 0)]; img.data[o + 1] = src[i + 1]; img.data[o + 2] = src[i + (bgra ? 0 : 2)]; img.data[o + 3] = 255;
+        }
+        buf.unmap(); buf.destroy(); res(img);
+      });
+    }
   }
 
   nodes() { return { data: this.latest, stride: 4 }; }

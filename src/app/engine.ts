@@ -23,7 +23,7 @@ export class Engine {
   readouts: Readouts = { massG: 0, volumeMl: 0, forkCm: 0, eyeCm: 0 };
   onReadouts?: (r: Readouts) => void;
   onFirstInteract?: () => void;
-  fps = 0; frames = 0; fpsT = 0; frameMs = 0;
+  fps = 0; simHz = 0; rafFps = 0; frames = 0; fpsT = 0; frameMs = 0; private pres0 = 0; private sim0 = 0;
   W = 1; H = 1; dpr = 1;
   volRatio: number; tetRestVol: number;
   twistDecay = 0;
@@ -74,7 +74,12 @@ export class Engine {
     const dt = Math.min(realDt, 1 / 30); this.last = t;
     if (this.colourMix < 1) this.colourMix = Math.min(1, this.colourMix + realDt * 1.6);
     this.time += dt;
-    this.frames++; if (t - this.fpsT > 500) { this.fps = this.frames * 1000 / (t - this.fpsT); this.frames = 0; this.fpsT = t; }
+    this.frames++;
+    if (t - this.fpsT > 500) {
+      const k = 1000 / (t - this.fpsT);
+      this.rafFps = this.frames * k; this.fps = (this.path.presented - this.pres0) * k; this.simHz = (this.path.simSteps - this.sim0) * k;
+      this.frames = 0; this.fpsT = t; this.pres0 = this.path.presented; this.sim0 = this.path.simSteps;
+    }
     this.update(dt);
     this.frameMs = this.frameMs * 0.9 + (performance.now() - t0) * 0.1;
   };
@@ -292,5 +297,17 @@ export class Engine {
       this.grab.twist = Math.max(-2.2, Math.min(2.2, this.grab.twist + dy * 0.004));
       this.wheelTimer = 0.7;
     }, { passive: false });
+  }
+
+  /** Self-check helper: paint the last WebGPU frame into a 2D overlay so page screenshots include it. */
+  async debugCapture(on = true) {
+    document.getElementById('gpushot')?.remove();
+    const p = this.path as any; if (!on || !p.capture) return false;
+    const img: ImageData = await p.capture();
+    const c = document.createElement('canvas'); c.id = 'gpushot'; c.width = img.width; c.height = img.height;
+    c.getContext('2d')!.putImageData(img, 0, 0);
+    const cs = getComputedStyle(this.canvas); const r = this.canvas.getBoundingClientRect();
+    c.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;z-index:${cs.zIndex};pointer-events:none`;
+    this.canvas.after(c); return true;
   }
 }
