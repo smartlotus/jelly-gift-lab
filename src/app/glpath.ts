@@ -46,4 +46,5 @@ export class GLPath implements Path {
   nodes() { return this.latest ? { data: this.latest, stride: 16 } : null; }
   reset() { this.worker.postMessage({ type: 'reset' }); }
   simMs() { return this.cost; }
+  busy() { return this.inflight > 1; }
 }

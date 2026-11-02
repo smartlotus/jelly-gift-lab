@@ -23,6 +23,7 @@ export class Engine {
   readouts: Readouts = { massG: 0, volumeMl: 0, forkCm: 0, eyeCm: 0 };
   onReadouts?: (r: Readouts) => void;
   onFirstInteract?: () => void;
+  lockstep = new URLSearchParams(location.search).has('lockstep');
   fps = 0; simHz = 0; rafFps = 0; frames = 0; fpsT = 0; frameMs = 0; private pres0 = 0; private sim0 = 0;
   W = 1; H = 1; dpr = 1;
   volRatio: number; tetRestVol: number;
@@ -70,9 +71,12 @@ export class Engine {
     if (!this.running) return;
     requestAnimationFrame(this.loop);
     const t0 = performance.now();
+    // lockstep (self-check only): advance exactly one 60 Hz frame per completed sim step,
+    // so slow software GPUs reproduce real-time behaviour frame for frame
+    if (this.lockstep && this.path.busy()) return;
     const realDt = Math.min(Math.max((t - this.last) / 1000, 1 / 240), 0.25);
-    const dt = Math.min(realDt, 1 / 30); this.last = t;
-    if (this.colourMix < 1) this.colourMix = Math.min(1, this.colourMix + realDt * 1.6);
+    const dt = this.lockstep ? 1 / 60 : Math.min(realDt, 1 / 30); this.last = t;
+    if (this.colourMix < 1) this.colourMix = Math.min(1, this.colourMix + (this.lockstep ? dt : realDt) * 1.6);
     this.time += dt;
     this.frames++;
     if (t - this.fpsT > 500) {

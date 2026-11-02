@@ -18,4 +18,6 @@ export interface Path {
   substeps: number;
   /** frames actually submitted to the GPU / sim states produced (for honest fps) */
   presented: number; simSteps: number;
+  /** true when the next step() would be dropped because the sim is still busy */
+  busy(): boolean;
 }

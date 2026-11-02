@@ -3,7 +3,8 @@ import puppeteer from 'puppeteer-core';
 import fs from 'fs';
 const args = Object.fromEntries(process.argv.slice(2).map(a => { const [k, ...v] = a.split('='); return [k, v.join('=') || '1']; }));
 const W = +(args.w || 1440), H = +(args.h || 900), dpr = +(args.dpr || 1);
-const url = `http://localhost:${args.port || 8800}/${args.q ? '?' + args.q : ''}`;
+const qs = [args.q, args.lock ? 'lockstep=1' : ''].filter(Boolean).join('&');
+const url = `http://localhost:${args.port || 8800}/${qs ? '?' + qs : ''}`;
 const out = args.out || '/tmp/shot';
 const browser = await puppeteer.launch({
   executablePath: '/usr/bin/google-chrome', headless: 'new',
@@ -22,8 +23,14 @@ await page.waitForFunction(() => window.__jellyReady || !document.getElementById
 const ready = await page.evaluate(() => window.__jellyReady);
 console.log('ready', JSON.stringify(ready), 'after', Date.now() - t0, 'ms');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+// in lockstep mode, 'ms' means simulated 60 Hz time: wait for that many completed sim steps
+const tsleep = async ms => {
+  if (!args.lock) return sleep(ms);
+  const n0 = await page.evaluate(() => window.__jelly.path.simSteps); const n = Math.max(1, Math.round(ms / 16.67));
+  await page.waitForFunction((t) => window.__jelly.path.simSteps >= t, { timeout: 600000, polling: 50 }, n0 + n);
+};
 const stat = async () => page.evaluate(() => { const e = window.__jelly; return e ? { fps: +e.fps.toFixed(1), simHz: +e.simHz.toFixed(1), raf: +e.rafFps.toFixed(1), backend: e.path.kind, frameMs: +e.frameMs.toFixed(2), simMs: +e.path.simMs().toFixed(2), substeps: e.path.substeps, simTime: +e.simTime.toFixed(2), ro: e.readouts } : null; });
-await sleep(+(args.wait || 4000));
+await tsleep(+(args.wait || 4000));
 let n = 0;
 const snap = async (tag) => { const f = `${out}-${String(n++).padStart(2, '0')}-${tag}.png`; await page.evaluate(() => window.__jelly?.debugCapture()); await page.screenshot({ path: f }); await page.evaluate(() => window.__jelly?.debugCapture(false)); console.log('shot', f, JSON.stringify(await stat())); };
 await snap('initial');
@@ -35,39 +42,39 @@ for (const s of steps) {
   if (s === 'drag') {
     const [px, py] = await proj(0.06, 0.37, 0); // dorsal fin
     await page.mouse.move(px, py); await page.mouse.down();
-    for (let i = 1; i <= 12; i++) { await page.mouse.move(px - i * 9, py - i * 5); await sleep(120); }
-    await sleep(900); await snap('drag-hold');
-    await page.mouse.up(); await sleep(400); await snap('drag-release');
+    for (let i = 1; i <= 12; i++) { await page.mouse.move(px - i * 9, py - i * 5); await tsleep(120); }
+    await tsleep(900); await snap('drag-hold');
+    await page.mouse.up(); await tsleep(400); await snap('drag-release');
   } else if (s === 'draghead') {
     const [px, py] = await proj(0.48, 0.05, 0.19);
     await page.mouse.move(px, py); await page.mouse.down();
-    for (let i = 1; i <= 12; i++) { await page.mouse.move(px + i * 10, py + i * 2); await sleep(120); }
-    await sleep(900); await snap('draghead-hold');
-    await page.mouse.up(); await sleep(400);
+    for (let i = 1; i <= 12; i++) { await page.mouse.move(px + i * 10, py + i * 2); await tsleep(120); }
+    await tsleep(900); await snap('draghead-hold');
+    await page.mouse.up(); await tsleep(400);
   } else if (s === 'twist') {
     const [px, py] = await proj(-0.3, 0.09, 0.0);
     await page.mouse.move(px, py);
-    for (let i = 0; i < 14; i++) { await page.mouse.wheel({ deltaY: 60 }); await sleep(60); }
-    await sleep(500); await snap('twist');
-    await sleep(1500); await snap('twist-relax');
+    for (let i = 0; i < 14; i++) { await page.mouse.wheel({ deltaY: 60 }); await tsleep(60); }
+    await tsleep(500); await snap('twist');
+    await tsleep(1500); await snap('twist-relax');
   } else if (s === 'bait') {
-    for (let i = 0; i < 6; i++) { await page.click('#bait'); await sleep(250); }
-    await sleep(2500); await snap('bait');
+    for (let i = 0; i < 6; i++) { await page.click('#bait'); await tsleep(250); }
+    await tsleep(2500); await snap('bait');
   } else if (s.startsWith('colour')) {
     const id = s.split(':')[1];
-    await page.click(`.cw[data-id="${id}"]`); await sleep(1600); await snap('colour-' + id);
-  } else if (s.startsWith('wait')) { await sleep(+s.split(':')[1]); await snap('wait'); }
+    await page.click(`.cw[data-id="${id}"]`); await tsleep(1600); await snap('colour-' + id);
+  } else if (s.startsWith('wait')) { await tsleep(+s.split(':')[1]); await snap('wait'); }
   else if (s === 'touchtwist') {
     const [px, py] = await proj(-0.2, 0.1, 0.0);
     const cdp = await page.target().createCDPSession();
     const tp = (pts) => pts.map((p, i) => ({ x: p[0], y: p[1], id: i }));
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: tp([[px, py]]) }); await sleep(150);
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: tp([[px, py], [px + 80, py]]) }); await sleep(150);
-    for (let i = 1; i <= 10; i++) { const a = i * 0.1; await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: tp([[px, py], [px + 80 * Math.cos(a), py + 80 * Math.sin(a)]]) }); await sleep(100); }
-    await sleep(600); await snap('touchtwist');
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await sleep(300);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: tp([[px, py]]) }); await tsleep(150);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: tp([[px, py], [px + 80, py]]) }); await tsleep(150);
+    for (let i = 1; i <= 10; i++) { const a = i * 0.1; await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: tp([[px, py], [px + 80 * Math.cos(a), py + 80 * Math.sin(a)]]) }); await tsleep(100); }
+    await tsleep(600); await snap('touchtwist');
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await tsleep(300);
   } else if (s === 'fps') {
-    await sleep(3000); console.log('fps', JSON.stringify(await stat()));
+    await tsleep(3000); console.log('fps', JSON.stringify(await stat()));
   }
 }
 fs.writeFileSync(`${out}-console.txt`, logs.join('\n'));

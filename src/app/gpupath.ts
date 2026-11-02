@@ -334,4 +334,5 @@ export class GPUPath implements Path {
   nodes() { return { data: this.latest, stride: 4 }; }
   reset() { this.writeInitialState(); }
   simMs() { return this.cost; }
+  busy() { return this.inflight >= 2; }
 }
