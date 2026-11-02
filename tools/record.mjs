@@ -20,11 +20,11 @@ const shot = async () => { await page.evaluate(() => window.__jelly.debugFreeze(
 const run = async (frames, perFrame) => { for (let i = 0; i < frames; i++) { if (perFrame) await perFrame(i); await waitSteps(every); await shot(); } };
 const proj = (x, y, z) => page.evaluate((x, y, z) => { const e = window.__jelly; const m = e.vp; const r = e.canvas.getBoundingClientRect();
   const cx = m[0]*x+m[4]*y+m[8]*z+m[12], cy = m[1]*x+m[5]*y+m[9]*z+m[13], cw = m[3]*x+m[7]*y+m[11]*z+m[15];
-  return [r.left + (cx/cw*0.5+0.5)*r.width, r.top + (1-(cy/cw*0.5+0.5))*r.height]; }, x, y, z);
+  return [r.left + (cx/cw*0.5+0.5)*r.width, r.top + (1-(cy/cw*0.5+0.5))*r.height]; }, x0, y0, z0);
 await waitSteps(30);
 await run(40);                                                     // idle: head sweep + tail swish
 const [px, py] = await proj(0.06, 0.37, 0);                        // grab the first dorsal and stretch
-await page.mouse.move(px, py); await page.mouse.down();
+await page.mouse.move(px, py); await page.mouse.down(); console.log('pointer mode:', await page.evaluate(() => window.__jelly.mode));
 await run(24, async i => page.mouse.move(px - (i + 1) * 7, py - (i + 1) * 5));
 await run(10); await page.mouse.up(); await run(30);               // release and wobble
 const [tx, ty] = await proj(-0.3, 0.09, 0); await page.mouse.move(tx, ty);

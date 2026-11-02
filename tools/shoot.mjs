@@ -35,19 +35,23 @@ let n = 0;
 const snap = async (tag) => { const f = `${out}-${String(n++).padStart(2, '0')}-${tag}.png`; await page.evaluate(() => window.__jelly?.debugFreeze(true)); await page.screenshot({ path: f }); await page.evaluate(() => window.__jelly?.debugFreeze(false)); console.log('shot', f, JSON.stringify(await stat())); };
 await snap('initial');
 const steps = (args.steps || '').split(',').filter(Boolean);
-const proj = async (x, y, z) => page.evaluate((x, y, z) => { const e = window.__jelly; const m = e.vp; const r = e.canvas.getBoundingClientRect();
+// project the CURRENT position of the jelly node nearest to a rest-space point (so grabs land on the jelly)
+const proj = async (x0, y0, z0) => page.evaluate((x0, y0, z0) => { const e = window.__jelly; const m = e.vp;
+  const a = e.path.asset.nodes; const nd = e.path.nodes(); let bi = 0, bd = 1e9;
+  for (let i = 0; i < a.length / 3; i++) { const d = (a[3*i]-x0)**2 + (a[3*i+1]-y0)**2 + (a[3*i+2]-z0)**2; if (d < bd) { bd = d; bi = i; } }
+  const x = nd.data[bi*nd.stride], y = nd.data[bi*nd.stride+1], z = nd.data[bi*nd.stride+2]; const r = e.canvas.getBoundingClientRect();
   const cx = m[0]*x+m[4]*y+m[8]*z+m[12], cy = m[1]*x+m[5]*y+m[9]*z+m[13], cw = m[3]*x+m[7]*y+m[11]*z+m[15];
-  return [r.left + (cx/cw*0.5+0.5)*r.width, r.top + (1-(cy/cw*0.5+0.5))*r.height]; }, x, y, z);
+  return [r.left + (cx/cw*0.5+0.5)*r.width, r.top + (1-(cy/cw*0.5+0.5))*r.height]; }, x0, y0, z0);
 for (const s of steps) {
   if (s === 'drag') {
     const [px, py] = await proj(0.06, 0.37, 0); // dorsal fin
-    await page.mouse.move(px, py); await page.mouse.down();
+    await page.mouse.move(px, py); await page.mouse.down(); console.log('pointer mode:', await page.evaluate(() => window.__jelly.mode));
     for (let i = 1; i <= 12; i++) { await page.mouse.move(px - i * 9, py - i * 5); await tsleep(120); }
     await tsleep(900); await snap('drag-hold');
     await page.mouse.up(); await tsleep(400); await snap('drag-release');
   } else if (s === 'draghead') {
     const [px, py] = await proj(0.48, 0.05, 0.19);
-    await page.mouse.move(px, py); await page.mouse.down();
+    await page.mouse.move(px, py); await page.mouse.down(); console.log('pointer mode:', await page.evaluate(() => window.__jelly.mode));
     for (let i = 1; i <= 12; i++) { await page.mouse.move(px + i * 10, py + i * 2); await tsleep(120); }
     await tsleep(900); await snap('draghead-hold');
     await page.mouse.up(); await tsleep(400);
