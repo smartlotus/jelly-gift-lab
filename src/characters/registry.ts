@@ -21,7 +21,7 @@ export const CHARACTERS: CharacterEntry[] = [
     ],
   },
   {
-    id: 'pig', name: 'Little Pig', zh: '猪', subtitle: '果冻标本 · 小粉猪', num: '2', ready: true,
+    id: 'pig', name: 'Little Pig', zh: '猪', subtitle: '果冻标本 · 小粉猪', num: '2', ready: true, upright: 0.3,
     actuation: ACTUATIONS.pig, look: pigLook, colourways: pigLook.colourways,
     camera: { target: [0, 0.22, 0], yaw: 0.2, pitch: 0.22, mobileYaw: 0.16, mobilePitch: 0.2 },
     metrics: [
@@ -30,8 +30,9 @@ export const CHARACTERS: CharacterEntry[] = [
     ],
   },
   {
-    id: 'cat', name: 'Sleepy Cat', zh: '猫', subtitle: '果冻标本 · 困困猫', num: '3', ready: true,
+    id: 'cat', name: 'Sleepy Cat', zh: '猫', subtitle: '果冻标本 · 困困猫', num: '3', ready: true, upright: 0.3,
     actuation: ACTUATIONS.cat, look: catLook, colourways: catLook.colourways,
+    idle: { at: [0.115, 0.275, -0.088], lift: [0.03, 0, 0.012], period: 6.5, duration: 4.2, radius: 0.04, offset: 2, wave: 2 },
     camera: { target: [0, 0.22, 0], yaw: 0.16, pitch: 0.2, mobileYaw: 0.12, mobilePitch: 0.18 },
     metrics: [
       { id: 'ears', label: 'Ear-tip span', zh: '耳尖距', a: 'earL', b: 'earR', decimals: 2 },

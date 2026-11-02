@@ -16,7 +16,7 @@ export const pigActuation: Actuation = {
   weights(cx, cy, cz, out) {
     const bx = cx / S, by = bY(cy), bz = cz / S;
     // snout + the face right behind it; left half lengthens while the right half shortens -> the snout swings sideways
-    const sn = smoothstep(7.5, 3.5, Math.hypot(bx * 0.8, (by - SNOUT.y) * 1.1)) * smoothstep(3.0, 8.0, bz);
+    const sn = smoothstep(9.0, 4.0, Math.hypot(bx * 0.8, (by - SNOUT.y) * 1.1)) * smoothstep(3.0, 8.0, bz);
     out[0] = clamp(bx / 2.5, -1, 1) * sn;
     // ears: front face vs back face of the slab -> the ear folds forward/back
     for (let i = 0; i < 2; i++) {
@@ -38,13 +38,13 @@ export const pigActuation: Actuation = {
   activation(t, out) {
     // snout: a quick sniff-wiggle every ~4.6 s
     const ps = (t % 4.6) / 4.6; const envS = smoothstep(0.0, 0.05, ps) * (1 - smoothstep(0.18, 0.3, ps));
-    out[0] = 0.32 * Math.sin(2 * Math.PI * t * 3.4) * envS;
+    out[0] = 0.6 * Math.sin(2 * Math.PI * t * 3.4) * envS;
     // ears: alternate flicks, a sharp fold then a soft return
     const flick = (tt: number) => { const p = ((tt % 6.2) + 6.2) % 6.2; return p < 0.9 ? Math.sin(Math.PI * p / 0.9) * Math.exp(-p * 1.5) : 0; };
-    out[1] = 0.55 * flick(t - 1.2);
-    out[2] = 0.55 * flick(t - 4.3);
+    out[1] = 0.95 * flick(t - 1.2);
+    out[2] = 0.95 * flick(t - 4.3);
     // bounce: two little hops every ~7 s
     const pb = (t % 7.0); const hop = (a: number) => pb > a && pb < a + 0.5 ? Math.sin(Math.PI * (pb - a) / 0.5) : 0;
-    out[3] = 0.09 * (hop(2.6) + 0.7 * hop(3.15));
+    out[3] = 0.2 * (hop(2.6) + 0.7 * hop(3.15));
   },
 };

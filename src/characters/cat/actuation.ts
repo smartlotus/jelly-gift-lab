@@ -35,7 +35,7 @@ export const catActuation: Actuation = {
   activation(t, out) {
     // tail: a slow lazy swish with a livelier flick now and then
     const env = 0.55 + 0.45 * smoothstep(0.3, 0.9, 0.5 + 0.5 * Math.sin(2 * Math.PI * t / 9.0));
-    out[0] = 0.30 * env * Math.sin(2 * Math.PI * t / 2.2);
+    out[0] = 0.55 * env * Math.sin(2 * Math.PI * t / 2.2);
     // head tilt: a curious tilt held for a moment, every ~8 s, alternating sides
     const ph = ((t + 2) % 16) / 16; const tilt = (a: number) => smoothstep(a, a + 0.06, ph) * (1 - smoothstep(a + 0.2, a + 0.28, ph));
     out[1] = 0.16 * (tilt(0.05) - tilt(0.55));

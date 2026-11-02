@@ -16,6 +16,8 @@ export interface CharacterSetup {
   id: string; actuation: Actuation; colourways: Colourway[]; metrics: Metric[];
   camera: { target: number[]; yaw: number; pitch: number; mobileYaw?: number; mobilePitch?: number; legacyFit?: boolean };
   idle?: Engine['idle'];
+  /** continuous upright assist for standing figurines (weighted-base feel), fraction of the righting strength */
+  upright?: number;
 }
 
 export class Engine {
@@ -27,7 +29,7 @@ export class Engine {
   beads = new Beads();
   spin = new Float32Array(6); righting: Righting | null = null; tilt = 0;
   /** scripted idle gesture: an invisible hand gently lifts one spot now and then (e.g. the shark raising its head) */
-  idle: { at: number[]; lift: number[]; period: number; duration: number; radius: number; offset?: number } | null = null;
+  idle: { at: number[]; lift: number[]; period: number; duration: number; radius: number; offset?: number; wave?: number } | null = null;
   private idleT = 0; private autoGrab = false; private autoP0 = [0, 0, 0];
   act!: Float32Array; actuation!: Actuation;
   simTime = 0; last = 0; running = false; time = 0;
@@ -135,8 +137,8 @@ export class Engine {
     this.beads.step(dt, nodes?.data ?? null, nodes?.stride ?? 4, this.path.asset.nodes.length / 3, this.path.asset.meta.h * 0.42, DEFAULT_PARAMS.gravity);
     this.updateIdle(Math.min(dt, 1 / 60));
     if (nodes) {
-      if (!this.righting) this.righting = new Righting(this.path.asset.nodes);
-      this.tilt = this.righting.update(nodes.data, nodes.stride, Math.min(dt, 1 / 60), this.grab.active, this.spin);
+      if (!this.righting) { this.righting = new Righting(this.path.asset.nodes); this.righting.hold = this.character.upright ?? 0; }
+      this.tilt = this.righting.update(nodes.data, nodes.stride, Math.min(dt, 1 / 60), this.grab.active && !this.autoGrab, this.spin);
     }
     this.path.step({ dt: Math.min(dt, 1 / 60), act: this.act, grab: this.grab, beads: this.beads.pos, beadCount: this.beads.count, spin: this.spin });
     this.updateCamera(dt);
@@ -279,7 +281,8 @@ export class Engine {
     this.idleT += dt;
     const ph = (this.idleT + (id.offset ?? 0)) % id.period;
     if (ph < id.duration) {
-      const u = ph / id.duration; const e = Math.pow(Math.sin(Math.PI * Math.min(1, u * 1.25)), 2);
+      const u = ph / id.duration; const env = Math.pow(Math.sin(Math.PI * Math.min(1, u * 1.25)), 2);
+      const e = id.wave ? Math.sin(Math.PI * Math.min(1, u * 1.1)) * Math.sin(2 * Math.PI * id.wave * u) : env;
       if (!this.autoGrab) {
         const nd = this.path.nodes(); if (!nd) return;
         const a = this.path.asset.nodes; let bi = 0, bd = 1e9;

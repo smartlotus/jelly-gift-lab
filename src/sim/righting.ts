@@ -4,6 +4,8 @@ export class Righting {
   private idx: Uint32Array; private q: Float32Array; private tipped = 0; private active = false; private t0 = 0; private prevAng = -1;
   /** derivative gain (s): braking against the recovery spin so a tall body does not overshoot */
   kd = 0.22;
+  /** continuous 'weighted base' assist (fraction of strength) for upright figurines; 0 = only the tipped-over rescue */
+  hold = 0;
   constructor(rest: Float32Array, maxSamples = 600, public strength = 380, public delay = 0.6) {
     const N = rest.length / 3; const step = Math.max(1, Math.floor(N / maxSamples));
     const ids: number[] = []; for (let i = 0; i < N; i += step) ids.push(i);
@@ -36,6 +38,12 @@ export class Righting {
     if (held) { this.tipped = 0; this.active = false; }
     else if (this.active) { if (ang < 0.12 && Math.abs(angVel) < 0.6) { this.active = false; this.tipped = 0; } }
     else { this.tipped = ang < 0.45 ? 0 : this.tipped + dt; if (this.tipped > this.delay) { this.active = true; this.t0 = 0; } }
+    if (!this.active && !held && this.hold > 0 && ang > 0.03) {
+      let ax = -uz, az = ux; const al = Math.hypot(ax, az) || 1;
+      let mag = this.strength * this.hold * (Math.min(1, ang / 0.6) + this.kd * 2 * angVel);
+      mag = Math.max(-0.5 * this.strength * this.hold, Math.min(this.strength * this.hold, mag));
+      out[0] = ax / al * mag; out[2] = az / al * mag;
+    }
     if (this.active) {
       this.t0 += dt;
       // axis = up x Y  (rotates 'up' toward +Y); upside-down: pick a fallback axis

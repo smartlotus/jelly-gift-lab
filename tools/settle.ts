@@ -12,7 +12,7 @@ const s = new CpuSolver(a, { ...DEFAULT_PARAMS, substeps: 8 }); const g = makeGr
 const N = s.N; let cy = 0, cx = 0; for (let i = 0; i < N; i++) { cy += a.nodes[3 * i + 1] / N; cx += a.nodes[3 * i] / N; }
 if (roll) { let miny = 1e9; for (let i = 0; i < N; i++) { const x = a.nodes[3 * i] - cx, y = a.nodes[3 * i + 1] - cy; s.x[3 * i] = cx + x * Math.cos(roll) - y * Math.sin(roll); s.x[3 * i + 1] = cy + x * Math.sin(roll) + y * Math.cos(roll); miny = Math.min(miny, s.x[3 * i + 1]); } for (let i = 0; i < N; i++) s.x[3 * i + 1] -= miny - 0.002; s.p.set(s.x); }
 let top = 0, topI = 0; for (let i = 0; i < N; i++) if (a.nodes[3 * i + 1] > top) { top = a.nodes[3 * i + 1]; topI = i; }
-const rt = new Righting(a.nodes); const sp = new Float32Array(6); const v0 = s.volume();
+const rt = new Righting(a.nodes); rt.hold = +(process.env.HOLD || 0); const sp = new Float32Array(6); const v0 = s.volume();
 const frames = +(process.argv[5] || 360);
 for (let f = 0; f < frames; f++) {
   if (!process.env.NOACT) act.activation(f / 60, u); const tilt = rt.update(s.x, 3, 1 / 60, false, sp); s.spin.set(sp); s.step(1 / 60, u, g);
