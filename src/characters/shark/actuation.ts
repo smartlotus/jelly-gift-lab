@@ -1,6 +1,9 @@
 import type { Actuation } from '../../core/character';
 import { clamp, smoothstep } from '../../core/sdf';
-import { bodyA, sdCore } from './shape';
+import { bodyA, bodyB, bodyC, sdCore } from './shape';
+
+/** keel: belly nodes feel a little more gravity than back nodes (low centre of weight) */
+const KEEL = 1.4;
 
 /** Two muscle channels: 0 = slow head sweep (metal detector over the sand), 1 = tail swish. */
 export const sharkActuation: Actuation = {
@@ -17,7 +20,12 @@ export const sharkActuation: Actuation = {
   stiffness(cx) { return 1 + 1.6 * smoothstep(0.22, 0.40, cx) + 10 * smoothstep(-0.26, -0.37, cx); },
   // the hammer skims the sand (low friction); the belly and fins grip
   friction(x) { return 1 - 0.92 * smoothstep(0.30, 0.40, x); },
-  gravity(x, y, z) { return 1 - 0.8 * smoothstep(0.0, 0.035, sdCore(x, y, z)); },
+  gravity(x, y, z) {
+    const xb = clamp(x, -0.42, 0.47);
+    const sec = clamp((y - bodyC(xb)) / bodyB(xb), -1, 1);       // -1 belly ... +1 back
+    const keel = Math.max(0.15, 1 - KEEL * 0.5 * sec);
+    return keel * (1 - 0.8 * smoothstep(0.0, 0.035, sdCore(x, y, z)));
+  },
   activation(t, out) {
     out[0] = 0.28 * Math.sin((2 * Math.PI * t) / 5.2);
     const env = smoothstep(0.15, 0.85, 0.5 + 0.5 * Math.sin((2 * Math.PI * t) / 7.0 + 1.3));

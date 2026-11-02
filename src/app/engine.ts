@@ -4,6 +4,7 @@ import type { Path } from './path';
 import { makeGrab } from '../sim/cpu';
 import { MAX_GRAB, MAX_BEADS, DEFAULT_PARAMS } from '../sim/params';
 import { Beads } from './beads';
+import { Righting } from '../sim/righting';
 import type { Actuation } from '../core/character';
 import type { Colourway } from '../characters/shark/look';
 
@@ -17,6 +18,10 @@ export class Engine {
   camGoal = { yaw: 0.62, pitch: 0.42, zoom: 1 };
   grab = makeGrab(MAX_GRAB);
   beads = new Beads();
+  spin = new Float32Array(6); righting: Righting | null = null; tilt = 0;
+  /** scripted idle gesture: an invisible hand gently lifts one spot now and then (e.g. the shark raising its head) */
+  idle: { at: number[]; lift: number[]; period: number; duration: number; radius: number; offset?: number } | null = null;
+  private idleT = 0; private autoGrab = false; private autoP0 = [0, 0, 0];
   act: Float32Array;
   simTime = 0; last = 0; running = false; time = 0;
   colour!: Colourway; colourMix = 1; prevColour!: Colourway;
@@ -77,7 +82,7 @@ export class Engine {
     else { x = -0.2 + Math.random() * 0.5; z = (Math.random() - 0.5) * 0.12; }
     this.beads.spawn(x, 0.42 + Math.random() * 0.1, z, r);
   }
-  reset() { this.path.reset(); this.beads.clear(); this.grab.active = false; this.simTime = 0; }
+  reset() { this.autoGrab = false; this.idleT = 0; this.path.reset(); this.beads.clear(); this.grab.active = false; this.simTime = 0; }
 
   private loop = (t: number) => {
     if (!this.running) return;
@@ -107,7 +112,12 @@ export class Engine {
     if (this.wheelTimer > 0) { this.wheelTimer -= dt; if (this.wheelTimer <= 0 && this.pointers.size === 0) { this.grab.active = false; this.grab.twist = 0; } }
     const nodes = this.path.nodes();
     this.beads.step(dt, nodes?.data ?? null, nodes?.stride ?? 4, this.path.asset.nodes.length / 3, this.path.asset.meta.h * 0.42, DEFAULT_PARAMS.gravity);
-    this.path.step({ dt: Math.min(dt, 1 / 60), act: this.act, grab: this.grab, beads: this.beads.pos, beadCount: this.beads.count });
+    this.updateIdle(Math.min(dt, 1 / 60));
+    if (nodes) {
+      if (!this.righting) this.righting = new Righting(this.path.asset.nodes);
+      this.tilt = this.righting.update(nodes.data, nodes.stride, Math.min(dt, 1 / 60), this.grab.active, this.spin);
+    }
+    this.path.step({ dt: Math.min(dt, 1 / 60), act: this.act, grab: this.grab, beads: this.beads.pos, beadCount: this.beads.count, spin: this.spin });
     this.updateCamera(dt);
     this.writeFrame();
     this.path.render(this.frame, 1.0, this.time);
@@ -241,6 +251,24 @@ export class Engine {
     if (best < 0) return null;
     const o = best * stride;
     return { node: best, p: [data[o], data[o + 1], data[o + 2]] };
+  }
+  private updateIdle(dt: number) {
+    const id = this.idle; if (!id) return;
+    const userBusy = this.pointers.size > 0 || this.wheelTimer > 0 || (this.grab.active && !this.autoGrab);
+    if (userBusy) { this.autoGrab = false; this.idleT = 0; return; }
+    this.idleT += dt;
+    const ph = (this.idleT + (id.offset ?? 0)) % id.period;
+    if (ph < id.duration) {
+      const u = ph / id.duration; const e = Math.pow(Math.sin(Math.PI * Math.min(1, u * 1.25)), 2);
+      if (!this.autoGrab) {
+        const nd = this.path.nodes(); if (!nd) return;
+        const a = this.path.asset.nodes; let bi = 0, bd = 1e9;
+        for (let i = 0; i < a.length / 3; i++) { const d = (a[3 * i] - id.at[0]) ** 2 + (a[3 * i + 1] - id.at[1]) ** 2 + (a[3 * i + 2] - id.at[2]) ** 2; if (d < bd) { bd = d; bi = i; } }
+        const o = bi * nd.stride; const p = [nd.data[o], nd.data[o + 1], nd.data[o + 2]];
+        this.startGrab(bi, p, id.radius); this.autoP0 = p; this.autoGrab = true;
+      }
+      for (let k = 0; k < 3; k++) this.grab.target[k] = this.autoP0[k] + id.lift[k] * e;
+    } else if (this.autoGrab) { this.autoGrab = false; this.grab.active = false; }
   }
   startGrab(node: number, p: number[], radius: number) {
     const nd = this.path.nodes()!; const { data, stride } = nd;

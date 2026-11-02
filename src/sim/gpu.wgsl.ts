@@ -6,6 +6,7 @@ struct Sim {
   grabK: f32, nodeR: f32, beadCount: f32, grabCount: f32,
   act: vec4f, tgt: vec4f, axis: vec4f,
   counts: vec4u,
+  spin: vec4f, spinC: vec4f,
   beads: array<vec4f, 16>,
 };
 struct Range { offset: u32, count: u32, pad0: u32, pad1: u32 };
@@ -34,6 +35,7 @@ fn predict(@builtin(global_invocation_id) gid: vec3u) {
   let xi = X[i]; if (xi.w == 0.0) { return; }
   var v = Vv[i];
   v.y -= sim.gravity * v.w * sim.h;
+  v = vec4f(v.xyz + cross(sim.spin.xyz, xi.xyz - sim.spinC.xyz) * sim.h, v.w);
   let vel = v.xyz * sim.damp;
   Vv[i] = vec4f(vel, v.w);
   Pp[i] = vec4f(xi.xyz, Pp[i].w);
@@ -48,7 +50,7 @@ fn solveTets(@builtin(global_invocation_id) gid: vec3u) {
   let r0 = tetB[3u * t]; let r1 = tetB[3u * t + 1u]; let r2 = tetB[3u * t + 2u];
   let vol = r0.w; let mu = r1.w;
   let m = tetM[t];
-  let s = dot(m, sim.act);
+  let s = max(dot(m, sim.act), -0.6);
   let sx = 1.0 / (1.0 + s); let syz = sqrt(1.0 + s);
   // effective inverse rest matrix with isochoric active stretch (columns scaled)
   let B = mat3x3f(vec3f(r0.x * sx, r1.x * sx, r2.x * sx), vec3f(r0.y * syz, r1.y * syz, r2.y * syz), vec3f(r0.z * syz, r1.z * syz, r2.z * syz)); // columns of B

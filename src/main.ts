@@ -68,6 +68,7 @@ async function boot() {
   const zeroToOne = path.kind === 'webgpu';
   const engine = new Engine(canvas, path, ch.actuation!, ch.colourways!, dprCap, zeroToOne);
   (window as any).__jelly = engine;
+  engine.idle = ch.idle ?? null;
   if (isMobile && innerWidth < innerHeight) { engine.camGoal.yaw = engine.cam.yaw = 1.3; engine.camGoal.pitch = engine.cam.pitch = 0.6; }
   const camQ = params.get('cam');
   if (camQ) { const [y, p, z] = camQ.split(',').map(Number); Object.assign(engine.camGoal, { yaw: y, pitch: p, zoom: z ?? 1 }); Object.assign(engine.cam, { yaw: y, pitch: p, zoom: z ?? 1 }); }

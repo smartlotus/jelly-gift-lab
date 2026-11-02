@@ -15,6 +15,8 @@ export class CpuSolver {
   time = 0;
   act: Float32Array;
   beads = new Float32Array(MAX_BEADS * 4); beadCount = 0;
+  /** righting assist: angular acceleration vector (xyz) about centre (3..5) */
+  spin = new Float32Array(6);
   constructor(public a: TetAsset, public prm: SimParams) {
     this.N = a.nodes.length / 3; this.T = a.tets.length / 4;
     this.x = new Float32Array(a.nodes); this.p = new Float32Array(a.nodes); this.v = new Float32Array(this.N * 3);
@@ -31,11 +33,15 @@ export class CpuSolver {
     if (!(dt > 1e-5)) return;
     const { prm, a } = this; const n = prm.substeps; const h = dt / n;
     const x = this.x, p = this.p, v = this.v, w = a.invMass;
-    const damp = Math.exp(-prm.damping * h);
+    const damp = Math.exp(-prm.damping * h); const sp = this.spin;
     for (let s = 0; s < n; s++) {
       for (let i = 0; i < this.N; i++) {
         if (w[i] === 0) continue;
         v[3 * i + 1] -= prm.gravity * a.grav[i] * h;
+        if (sp[0] || sp[1] || sp[2]) {
+          const rx = x[3 * i] - sp[3], ry = x[3 * i + 1] - sp[4], rz = x[3 * i + 2] - sp[5];
+          v[3 * i] += (sp[1] * rz - sp[2] * ry) * h; v[3 * i + 1] += (sp[2] * rx - sp[0] * rz) * h; v[3 * i + 2] += (sp[0] * ry - sp[1] * rx) * h;
+        }
         v[3 * i] *= damp; v[3 * i + 1] *= damp; v[3 * i + 2] *= damp;
         p[3 * i] = x[3 * i]; p[3 * i + 1] = x[3 * i + 1]; p[3 * i + 2] = x[3 * i + 2];
         x[3 * i] += v[3 * i] * h; x[3 * i + 1] += v[3 * i + 1] * h; x[3 * i + 2] += v[3 * i + 2] * h;
@@ -60,6 +66,7 @@ export class CpuSolver {
       const mu = (prm.muBody + (prm.muFin - prm.muBody) * fw) * a.stiff[t];
       // muscle: isochoric active stretch along rest x
       let s = 0; for (let c = 0; c < ch; c++) s += a.muscle[t * ch + c] * act[c];
+      if (s < -0.6) s = -0.6;
       const sx = 1 / (1 + s), syz = Math.sqrt(1 + s);
       const b = 9 * t;
       // effective B = B * diag(sx, syz, syz)  (columns scaled)

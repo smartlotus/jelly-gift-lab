@@ -3,6 +3,8 @@ import type { GrabState } from '../sim/cpu';
 
 export interface SimInput {
   dt: number; act: Float32Array; grab: GrabState; beads: Float32Array; beadCount: number;
+  /** righting assist: angular acceleration xyz + centre xyz */
+  spin: Float32Array;
 }
 /** A complete simulation + rendering path (WebGPU compute+render, or CPU worker + WebGL2). */
 export interface Path {

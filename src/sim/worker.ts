@@ -21,7 +21,7 @@ self.onmessage = (e: MessageEvent) => {
     const t0 = performance.now();
     grab.active = m.grab.active; grab.count = m.grab.count; grab.twist = m.grab.twist;
     grab.idx.set(m.grab.idx); grab.off.set(m.grab.off); grab.wt.set(m.grab.wt); grab.target.set(m.grab.target); grab.axis.set(m.grab.axis);
-    solver.beads.set(m.beads); solver.beadCount = m.beadCount;
+    solver.beads.set(m.beads); solver.beadCount = m.beadCount; if (m.spin) solver.spin.set(m.spin);
     if (m.substeps) solver.prm.substeps = m.substeps;
     solver.step(m.dt, m.act, grab);
     const nd: Float32Array = m.out && m.out.length === solver.N * 16 ? m.out : new Float32Array(solver.N * 16);
