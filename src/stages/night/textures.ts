@@ -93,6 +93,10 @@ export function signTexture(text: string): Texture {
   g.strokeStyle = '#3e2c1c'; g.lineWidth = 2; g.strokeRect(1, 1, 62, 30);
   g.fillStyle = '#1d140d'; g.textAlign = 'center'; g.textBaseline = 'middle';
   g.font = `600 ${/[\u4e00-\u9fff]/.test(text) ? 13 : 11}px 'Noto Serif SC Sub', 'Songti SC', serif`;
-  g.fillText(text, 32, 17, 58);
+  // crisp pixel lettering: draw on a scratch canvas, then threshold alpha
+  const sc = document.createElement('canvas'); sc.width = 64; sc.height = 32; const s = sc.getContext('2d')!;
+  s.font = g.font; s.textAlign = 'center'; s.textBaseline = 'middle'; s.fillStyle = '#000'; s.fillText(text, 32, 17, 58);
+  const id = s.getImageData(0, 0, 64, 32).data; g.fillStyle = '#1d140d';
+  for (let i = 0; i < 64 * 32; i++) if (id[i * 4 + 3] > 110) g.fillRect(i % 64, Math.floor(i / 64), 1, 1);
   return tex(c);
 }

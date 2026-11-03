@@ -23,6 +23,7 @@ export function makePost() {
         vec2 c = uv - 0.5; uv = 0.5 + c * (1.0 - 0.035 * dot(c, c));
         float ca = uChroma * (0.0012 + 0.0045 * dot(c, c)) + uTear * 0.006;
         vec3 col = vec3(texture2D(tDiffuse, uv + vec2(ca, 0.)).r, texture2D(tDiffuse, uv).g, texture2D(tDiffuse, uv - vec2(ca, 0.)).b);
+        col = pow(max(col, 0.0), vec3(1.0 / 2.2)); // linear RT -> sRGB
         // camcorder grade: slight cool shadows, warm highlights, soft contrast
         float l = dot(col, vec3(.299, .587, .114));
         col = mix(col, vec3(l), 0.18);

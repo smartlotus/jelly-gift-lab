@@ -49,11 +49,11 @@ function boot() {
 
   // ---- world -------------------------------------------------------------------------------------------------------
   const scene = new Scene(); const FOG = new Color('#070a12');
-  scene.background = FOG; scene.fog = new FogExp2(FOG, 0.082);
+  scene.background = FOG; scene.fog = new FogExp2(FOG, 0.1);
   const cam = new PerspectiveCamera(70, 1, 0.05, 140); cam.rotation.order = 'YXZ';
   const world = buildWorld(getAtlas(), lang); scene.add(world.group); onLang(l => world.setSignLang(l));
-  scene.add(new HemisphereLight('#3b4c7d', '#0b0d12', 0.9));
-  const moonL = new DirectionalLight('#9fb3e6', 0.35); moonL.position.set(-0.5, 1, -0.6); scene.add(moonL);
+  scene.add(new HemisphereLight('#34446f', '#0b0d12', 0.5));
+  const moonL = new DirectionalLight('#9fb3e6', 0.22); moonL.position.set(-0.5, 1, -0.6); scene.add(moonL);
   const torch = new PointLight('#ffb35c', 14, 15, 1.35); scene.add(torch);
   // sky: square moon + stars follow the camera (infinitely far, no fog)
   const sky = new Group(); scene.add(sky);
@@ -97,6 +97,7 @@ function boot() {
     yawOff += (e.clientX - p.x) * k * (phase === 'face' || phase === 'turn' ? 0 : 1); pitch = Math.max(-0.6, Math.min(0.5, pitch + (e.clientY - p.y) * k * 0.8));
     p.x = e.clientX; p.y = e.clientY; lastLook = T;
   });
+  cv.addEventListener('contextmenu', e => e.preventDefault());
   const up = (e: PointerEvent) => { ptrs.delete(e.pointerId); };
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); cv.addEventListener('lostpointercapture', up);
   window.addEventListener('keydown', e => { keys.add(e.code); if (e.code === 'Space' || e.code.startsWith('Arrow')) e.preventDefault(); });
@@ -187,7 +188,7 @@ function boot() {
     if (phase === 'turn' || phase === 'face') {
       // the pig leans right into the lens
       // distance so the 1.04-wide face fills the frame in any aspect (portrait phones need it further away)
-      const fill = 0.5 / (Math.tan((cam.fov * Math.PI) / 360) * Math.min(cam.aspect, 1.25)) + 0.46;
+      const fill = 0.66 / (Math.tan((cam.fov * Math.PI) / 360) * Math.min(cam.aspect, 1.25)) + 0.46;
       const lean = phase === 'face' ? fill - Math.min(0.08, pt * 0.3) : fill + 0.8 - Math.min(1, pt / 0.48) * 0.8;
       const by = -pathDir(d) + yawOff; fwd.set(-Math.sin(by), 0, -Math.cos(by));
       const cx = pathX(d), cz = -d;
@@ -221,8 +222,10 @@ function boot() {
     const flick = reduce ? 0.5 : 0.5 + 0.25 * Math.sin(tt * 13.1) + 0.18 * Math.sin(tt * 27.7 + 1) + 0.12 * Math.sin(tt * 5.3);
     const lit = !torchOff.some(([a, b]) => T >= a && T < b);
     fwd.set(-Math.sin(by + yawOff), 0, -Math.cos(by + yawOff));
-    torch.position.set(cam.position.x + fwd.x * 0.6 - fwd.z * 0.35, EYE + 0.1, cam.position.z + fwd.z * 0.6 + fwd.x * 0.35);
-    torch.intensity = lit ? 11 + flick * 6 : 0.0;
+    const close = phase === 'turn' || phase === 'face' || phase === 'static';
+    const tf = close ? 0.1 : 0.6, ts = close ? 0.15 : 0.35; // up close the torch lights the face from below
+    torch.position.set(cam.position.x + fwd.x * tf - fwd.z * ts, EYE + (close ? -0.35 : 0.1), cam.position.z + fwd.z * tf + fwd.x * ts);
+    torch.intensity = lit ? (close ? 4 : 11) + flick * (close ? 2 : 6) : 0.0;
     // fireflies drift (fade after the shape crosses)
     if (ffFade > 0) {
       for (let i = 0; i < FF; i++) { const [fd, fx, fy, ph] = ffBase[i];

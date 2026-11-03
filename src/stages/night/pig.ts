@@ -51,7 +51,7 @@ export function makePig() {
   const halos: Sprite[] = [];
   for (const s of [-1, 1]) {
     head.add(box(0.16, 0.16, 0.03, eyeM, 0.25 * s, 0.6, 0.47));
-    const h = glow('255,70,100', 0.9, 0.55); h.position.set(0.25 * s, 0.6, 0.52); head.add(h); halos.push(h);
+    const h = glow('255,36,56', 0.8, 0.5); h.position.set(0.25 * s, 0.6, 0.52); head.add(h); halos.push(h);
   }
   // "??" floating above the head
   const qq = new Sprite(new SpriteMaterial({ map: qqTexture(), transparent: true, fog: true })); qq.scale.set(0.9, 0.48, 1); qq.position.set(0.42, 1.55, 0); head.add(qq);
@@ -59,7 +59,7 @@ export function makePig() {
   let phase = 0;
   return {
     root, head, qq,
-    setEyes(intensity: number) { eyeM.color.setRGB(1 * intensity + 0.15, 0.3 * intensity + 0.05, 0.4 * intensity + 0.08); halos.forEach(h => { (h.material as SpriteMaterial).opacity = 0.65 * intensity; }); },
+    setEyes(intensity: number) { eyeM.color.setRGB(Math.min(1, 0.3 + 0.7 * intensity), 0.06 * intensity + 0.02, 0.1 * intensity + 0.04); halos.forEach(h => { (h.material as SpriteMaterial).opacity = 0.65 * intensity; }); },
     /** speed in blocks/s; reach 0..1 (arms up and forward) */
     animate(dt: number, speed: number, reach = 1, t = 0) {
       phase += dt * (2.2 + speed * 2.4);
