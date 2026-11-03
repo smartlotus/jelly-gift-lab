@@ -3,7 +3,7 @@ import { decodeAsset } from '../src/sim/mesh';
 import { CpuSolver, makeGrab } from '../src/sim/cpu';
 import { DEFAULT_PARAMS } from '../src/sim/params';
 import { sharkActuation } from '../src/characters/shark/actuation';
-const buf = readFileSync(`public/assets/shark/lo.bin`);
+const buf = readFileSync(`public/jelly/assets/shark/lo.bin`);
 const a = decodeAsset(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), sharkActuation, 1);
 const s = new CpuSolver(a, { ...DEFAULT_PARAMS, substeps: 10 }); const g = makeGrab(64); const act = new Float32Array(3);
 for (let f = 0; f < 60 * 12; f++) { sharkActuation.activation(f / 60, act); s.step(1 / 60, act, g);

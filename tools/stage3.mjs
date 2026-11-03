@@ -4,7 +4,7 @@ import puppeteer from 'puppeteer-core';
 const a = Object.fromEntries(process.argv.slice(2).map(s => { const [k, ...v] = s.split('='); return [k, v.join('=') || '1']; }));
 const W = +(a.w || 1440), H = +(a.h || 900), tag = a.tag || 'desktop', dir = a.dir || 'review/stage3';
 const qs = new URLSearchParams({ lang: a.lang || 'en', ...(a.backend ? { backend: a.backend } : {}) });
-const url = `${a.url || 'http://localhost:8800/'}?${qs}`;
+const url = `${a.url || 'http://localhost:8800/jelly/'}?${qs}`;
 const browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: 'new', protocolTimeout: 900000,
   args: ['--no-sandbox', '--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-webgpu-adapter=swiftshader', '--disable-vulkan-surface', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', `--window-size=${W},${H}`] });
 const page = await browser.newPage();

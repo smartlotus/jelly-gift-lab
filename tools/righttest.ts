@@ -6,7 +6,7 @@ import { DEFAULT_PARAMS } from '../src/sim/params';
 import { sharkActuation } from '../src/characters/shark/actuation';
 import { Righting } from '../src/sim/righting';
 const roll = +(process.argv[2] || 90) * Math.PI / 180;
-const buf = readFileSync(`public/assets/shark/lo.bin`);
+const buf = readFileSync(`public/jelly/assets/shark/lo.bin`);
 const a = decodeAsset(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), sharkActuation, 1);
 const s = new CpuSolver(a, { ...DEFAULT_PARAMS, substeps: 10 }); const g = makeGrab(64); const act = new Float32Array(2);
 const N = s.N; let cy = 0, cz = 0; for (let i = 0; i < N; i++) { cy += a.nodes[3 * i + 1] / N; cz += a.nodes[3 * i + 2] / N; }

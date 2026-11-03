@@ -3,12 +3,14 @@
   https://github.com/google/fonts/raw/main/ofl/sourceserif4/SourceSerif4%5Bopsz,wght%5D.ttf  -> SourceSerif4.ttf
   https://github.com/google/fonts/raw/main/ofl/sourceserif4/SourceSerif4-Italic%5Bopsz,wght%5D.ttf -> SourceSerif4-Italic.ttf
   https://github.com/google/fonts/raw/main/ofl/notoserifsc/NotoSerifSC%5Bwght%5D.ttf -> NotoSerifSC.ttf
-Chinese glyphs are limited to the characters actually used in index.html / src (scanned), so the CJK font stays tiny."""
+Chinese glyphs are limited to the characters actually used in index.html / src (scanned), so the CJK font stays tiny.
+RE-RUN `npm run fonts` AFTER ANY CHINESE COPY CHANGE (new glyphs otherwise fall back to a system serif)."""
 import pathlib, re, subprocess, sys
 root = pathlib.Path(__file__).resolve().parent.parent
 out = root / 'src/assets/fonts'; out.mkdir(parents=True, exist_ok=True)
 text = ''
-for p in [root / 'index.html', *root.glob('src/**/*.ts'), *root.glob('src/**/*.css')]:
+pages = [root / 'index.html', *[root / d / 'index.html' for d in ('shop', 'night', 'jelly')]]  # every journey page (multi-page app)
+for p in [*[q for q in pages if q.exists()], *root.glob('src/**/*.ts'), *root.glob('src/**/*.css')]:
     text += p.read_text(encoding='utf-8')
 extra = '中'  # language toggle label (also in index.html)
 cjk = sorted(set(ch for ch in text + extra if ord(ch) > 0x2E80))

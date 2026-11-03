@@ -4,7 +4,7 @@ import fs from 'fs';
 const args = Object.fromEntries(process.argv.slice(2).map(a => { const [k, ...v] = a.split('='); return [k, v.join('=') || '1']; }));
 const W = +(args.w || 1440), H = +(args.h || 900), dpr = +(args.dpr || 1);
 const qs = [args.q, args.lock ? 'lockstep=1' : ''].filter(Boolean).join('&');
-const url = `${args.url || `http://localhost:${args.port || 8800}/`}${qs ? '?' + qs : ''}`;
+const url = `${args.url || `http://localhost:${args.port || 8800}/jelly/`}${qs ? '?' + qs : ''}`;
 const out = args.out || '/tmp/shot';
 const browser = await puppeteer.launch({
   executablePath: '/usr/bin/google-chrome', headless: 'new', protocolTimeout: 900000,

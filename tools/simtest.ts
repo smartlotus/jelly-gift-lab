@@ -4,7 +4,7 @@ import { CpuSolver, makeGrab } from '../src/sim/cpu';
 import { DEFAULT_PARAMS } from '../src/sim/params';
 import { sharkActuation } from '../src/characters/shark/actuation';
 const lvl = process.argv[2] || 'lo';
-const buf = readFileSync(`public/assets/shark/${lvl}.bin`);
+const buf = readFileSync(`public/jelly/assets/shark/${lvl}.bin`);
 const a = decodeAsset(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), sharkActuation, 1);
 const prm = { ...DEFAULT_PARAMS, substeps: +(process.argv[3] || 10), frictionStatic: +(process.argv[4] ?? 1.2), frictionKinetic: +(process.argv[4] ?? 0.9) };
 const s = new CpuSolver(a, prm); const g = makeGrab(64); const act = new Float32Array(2);

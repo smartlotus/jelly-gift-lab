@@ -6,7 +6,7 @@ import { DEFAULT_PARAMS } from '../src/sim/params';
 import { ACTUATIONS } from '../src/characters/actuations';
 import { Righting } from '../src/sim/righting';
 const id = process.argv[2] || 'pig'; const pts: Record<string, number[]> = JSON.parse(process.argv[3] || '{}');
-const act = ACTUATIONS[id]; const buf = readFileSync(`public/assets/${id}/${process.env.LV || "lo"}.bin`);
+const act = ACTUATIONS[id]; const buf = readFileSync(`public/jelly/assets/${id}/${process.env.LV || "lo"}.bin`);
 const a = decodeAsset(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), act, 1);
 const s = new CpuSolver(a, { ...DEFAULT_PARAMS, substeps: 8 }); const g = makeGrab(64); const u = new Float32Array(act.channels);
 const rt = new Righting(a.nodes); rt.hold = 0.3; const sp = new Float32Array(6);

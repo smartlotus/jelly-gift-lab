@@ -3,7 +3,7 @@ import puppeteer from 'puppeteer-core';
 const b = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: 'new', args: ['--no-sandbox', '--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-webgpu-adapter=swiftshader', '--disable-vulkan-surface', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const p = await b.newPage(); await p.setViewport({ width: 400, height: 300 });
 p.on('console', m => console.log(' console', m.text()));
-await p.goto('http://localhost:8800/');
+await p.goto('http://localhost:8800/jelly/');
 await p.waitForFunction(() => window.__jellyReady, { timeout: 60000 });
 await new Promise(r => setTimeout(r, 4000));
 const r = await p.evaluate(async () => {

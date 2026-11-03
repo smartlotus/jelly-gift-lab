@@ -1,5 +1,8 @@
 # Jelly Studies（果冻标本）— Hammerhead · Little Pig · Sleepy Cat
 
+> **200 天礼物旅程（进行中）**：本仓库现在是一个多页面网站——`/` 第一章像素闯关 → `/shop/` 3D 模型小店 → `/night/` 夜路整蛊 → `/jelly/` 本果冻页（终章）。
+> 计划见 [`docs/GIFT_PLAN.md`](docs/GIFT_PLAN.md)，接手/进度见 [`docs/HANDOFF.md`](docs/HANDOFF.md)。下文描述的是果冻页本身（现位于 `jelly/index.html`，资源在 `public/jelly/assets/`）。
+
 Interactive soft-body jelly characters for a 200-day anniversary gift: No. 1 hammerhead shark, No. 2 the pig and
 No. 3 the cat from the couple's doodles. A hidden line-art mushroom (top right) opens the easter egg.
 Fully static: `dist/` can be served from any static host / object storage, no CDN, no external fonts.
@@ -8,9 +11,9 @@ Fully static: `dist/` can be served from any static host / object storage, no CD
 ```
 npm install
 npm run build        # type-check + vite build -> dist/
-npm run serve        # static server for dist/ on http://localhost:8800
+npm run serve        # static server for dist/ on http://localhost:8800 (jelly page: /jelly/)
 npm run dev          # vite dev server
-npm run bake -- all  # regenerate public/assets/<id>/{hi,md,lo}.bin (or: npm run bake -- pig lo)
+npm run bake -- all  # regenerate public/jelly/assets/<id>/{hi,md,lo}.bin (or: npm run bake -- pig lo)
 npm run fonts        # re-subset fonts (needs fonts-src/*.ttf, pip fonttools brotli)
 ```
 

@@ -12,7 +12,7 @@ const browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome
 const page = await browser.newPage();
 await page.setViewport({ width: W, height: H, deviceScaleFactor: 1 });
 const logs = []; page.on('console', m => logs.push(`[${m.type()}] ${m.text()}`)); page.on('pageerror', e => logs.push('[pageerror] ' + e.message));
-await page.goto(`http://localhost:8800/?${qs}`, { waitUntil: 'load' });
+await page.goto(`http://localhost:8800/jelly/?${qs}`, { waitUntil: 'load' });
 await page.waitForFunction(() => window.__jellyReady, { timeout: 180000 });
 const steps = () => page.evaluate(() => window.__jelly.path.simSteps);
 const waitSteps = async n => { const t = (await steps()) + n; await page.waitForFunction(t => window.__jelly.path.simSteps >= t, { timeout: 600000, polling: 30 }, t); };

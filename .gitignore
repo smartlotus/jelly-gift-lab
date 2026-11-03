@@ -4,3 +4,4 @@ node_modules
 fonts-src/*.ttf
 review/**/*.gif
 review/**/*.mp4
+dist

@@ -5,7 +5,7 @@ import { CpuSolver, makeGrab } from '../src/sim/cpu';
 import { DEFAULT_PARAMS } from '../src/sim/params';
 import { sharkActuation } from '../src/characters/shark/actuation';
 const lvl = process.argv[2] || 'lo'; const mode = process.argv[3] || 'full';
-const buf = readFileSync(`public/assets/shark/${lvl}.bin`);
+const buf = readFileSync(`public/jelly/assets/shark/${lvl}.bin`);
 const a = decodeAsset(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), sharkActuation, 1);
 const s = new CpuSolver(a, DEFAULT_PARAMS); const g = makeGrab(64); const act = new Float32Array(2);
 for (let f = 0; f < 60; f++) { sharkActuation.activation(f / 60, act); s.step(1 / 60, act, g); }

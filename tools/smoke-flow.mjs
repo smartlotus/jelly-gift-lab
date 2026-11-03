@@ -1,0 +1,12 @@
+import puppeteer from 'puppeteer-core';
+const b = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: 'new', args: ['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader'] });
+const p = await b.newPage(); await p.setViewport({ width: 900, height: 520 });
+const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('response', r => { if (r.status() >= 400) errs.push(r.status() + ' ' + r.url()); });
+await p.goto('http://localhost:8811/?lang=zh'); await new Promise(r => setTimeout(r, 900));
+await p.screenshot({ path: '/tmp/s1a.png' });
+await p.mouse.click(300, 300); await p.keyboard.down('ArrowRight'); await new Promise(r => setTimeout(r, 4000));
+await p.screenshot({ path: '/tmp/s1b.png' });
+await new Promise(r => setTimeout(r, 4000)); console.log('url after walk:', p.url());
+await p.goto('http://localhost:8811/?stage=night'); await new Promise(r => setTimeout(r, 800)); console.log('stage param ->', p.url());
+await p.goto('http://localhost:8811/jelly'); await new Promise(r => setTimeout(r, 1500)); console.log('jelly ->', p.url());
+console.log(errs.join('\n')); await b.close();

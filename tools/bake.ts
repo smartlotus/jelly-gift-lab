@@ -1,5 +1,5 @@
 // Build-time bake: SDF -> surface meshes (surface nets + projection) + snapped-hex-lattice tet mesh,
-// barycentric embedding, graph colouring, bubbles, landmarks.  Output: public/assets/<id>/<level>.bin
+// barycentric embedding, graph colouring, bubbles, landmarks.  Output: public/jelly/assets/<id>/<level>.bin
 import { mkdirSync, writeFileSync } from 'fs';
 import { packSections } from '../src/core/pack';
 import type { CharacterShape } from '../src/core/character';
@@ -411,8 +411,8 @@ function bake(ch: CharacterShape, level: string, opts: { vsOuter: number; vsInne
     bub: new Float32Array(bub), bubN: new Uint16Array(bubN), bubW: new Float32Array(bubW),
     lmN, lmW, lmP,
   });
-  mkdirSync(`public/assets/${ch.id}`, { recursive: true });
-  writeFileSync(`public/assets/${ch.id}/${level}.bin`, out);
+  mkdirSync(`public/jelly/assets/${ch.id}`, { recursive: true });
+  writeFileSync(`public/jelly/assets/${ch.id}/${level}.bin`, out);
   console.log(level, JSON.stringify(meta), 'comps', o2.comps, tm.comps, 'bytes', out.length, 'ms', Date.now() - t0);
 }
 

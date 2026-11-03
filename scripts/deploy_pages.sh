@@ -11,6 +11,13 @@ EMAIL="227950577+smartlotus@users.noreply.github.com"
 NAME="smartlotus"
 
 cd "$ROOT"
+# Since the multi-page journey (docs/GIFT_PLAN.md) the SITE ROOT is stage 1 and the jelly page lives at /jelly/.
+# Deploying replaces what https://smartlotus.github.io/jelly-gift/ shows, so it is gated until milestone M8:
+if [ "${GIFT_DEPLOY:-}" != "1" ]; then
+  echo "Refusing to deploy: the live root would switch from the jelly page to the (unfinished) journey." >&2
+  echo "When the journey is ready (HANDOFF.md, M8): GIFT_DEPLOY=1 scripts/deploy_pages.sh" >&2
+  exit 1
+fi
 rm -rf dist
 npm run build            # base './' in vite.config.ts -> works under /jelly-gift/
 touch dist/.nojekyll
@@ -35,4 +42,4 @@ if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
 SRC_REV="$(git -C "$ROOT" rev-parse --short HEAD)"
 git -c user.email="$EMAIL" -c user.name="$NAME" commit -q -m "Deploy built site (jelly-gift-site@$SRC_REV)"
 git push origin main
-echo "pushed; Pages will rebuild: https://smartlotus.github.io/jelly-gift/"
+echo "pushed; Pages will rebuild: https://smartlotus.github.io/jelly-gift/  (jelly: .../jelly-gift/jelly/)"

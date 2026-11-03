@@ -1,0 +1,13 @@
+/* Stage 3 page styles (owned by workstream C). STUB visuals only. */
+html, body { background: #0b0b0c; }
+#game { position: fixed; inset: 0; }
+.n-rec { position: absolute; top: calc(18px + var(--sat)); left: calc(18px + var(--sal)); color: #e33; font: 12px/1 monospace; letter-spacing: .2em; animation: n-blink 1s steps(2) infinite; }
+@keyframes n-blink { 50% { opacity: 0; } }
+.n-eyes { position: absolute; left: 50%; top: 50%; display: flex; gap: 22px; transform: translate(-50%,-50%) scale(.3); animation: n-near 3.2s cubic-bezier(.7,0,1,1) forwards; }
+.n-eyes i { width: 10px; height: 10px; background: #ff4d6d; box-shadow: 0 0 12px #ff4d6d; }
+@keyframes n-near { to { transform: translate(-50%,-50%) scale(9); } }
+.n-kawaii { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: radial-gradient(circle at 50% 40%, #fff4f7, #ffd6e2 55%, #f9c6cf); color: #c2456b; animation: n-pop .5s cubic-bezier(.2,1.6,.4,1); }
+@keyframes n-pop { from { transform: scale(1.25); opacity: 0; } }
+.n-caught { margin: 0; font-family: var(--display); font-size: clamp(44px, 10vw, 96px); }
+.n-sub { margin: 0; color: #d0708d; }
+.n-go { margin-top: 18px; padding: 10px 22px; border-radius: 99px; border: 1px solid #ee8fa6; color: #c2456b; letter-spacing: .16em; }
