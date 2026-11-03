@@ -31,7 +31,7 @@ type Mode = 'display' | 'opening' | 'inspect' | 'closing';
 interface Pose { az: number; el: number; d: number; m: number }
 
 const D = 4.2;                 // display camera distance (radius-1 model)
-const DISPLAY_M = 1.0, INSPECT_M = 1.32;
+const DISPLAY_M = 1.0, INSPECT_M = 1.1;
 const LAYER = 1 / 0.002;       // 0.2 mm layers; GLB unit = 10 cm
 const ease = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
 const lerp = MathUtils.lerp;
@@ -73,11 +73,11 @@ export class Viewer {
   constructor(host: HTMLElement) {
     const r = this.renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     r.setPixelRatio(Math.min(devicePixelRatio || 1, 2)); r.setSize(innerWidth, innerHeight);
-    r.setClearColor(0x000000, 0); r.autoClear = false; r.toneMapping = NeutralToneMapping; r.toneMappingExposure = 1.02;
+    r.setClearColor(0x000000, 0); r.autoClear = false; r.toneMapping = NeutralToneMapping; r.toneMappingExposure = 0.94;
     r.shadowMap.enabled = true; r.shadowMap.type = PCFShadowMap;
     this.canvas = r.domElement; this.canvas.className = 'shop-gl'; host.appendChild(this.canvas);
-    const pm = new PMREMGenerator(r); this.scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; this.scene.environmentIntensity = 0.62;
-    const k = this.key = new DirectionalLight(new Color('#fff0dc'), 2.1);
+    const pm = new PMREMGenerator(r); this.scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; this.scene.environmentIntensity = 0.5;
+    const k = this.key = new DirectionalLight(new Color('#fff0dc'), 1.85);
     k.position.set(-2.2, 3.6, 3.0); k.castShadow = true;
     const sc = k.shadow.camera; sc.left = sc.bottom = -1.5; sc.right = sc.top = 1.5; sc.near = 1; sc.far = 10;
     k.shadow.mapSize.set(2048, 2048); k.shadow.radius = 3.5; k.shadow.bias = -0.0004; k.shadow.normalBias = 0.012;

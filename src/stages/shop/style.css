@@ -1,5 +1,8 @@
 /* Stage 2 page styles (owned by workstream B). Prefix: shop- / sc- (card) / si- (inspect). */
-html, body { background: linear-gradient(#efe4d3 0 50%, #d9b78a 50% 100%); }
+html { background: #e8d9c2; }
+body { background: linear-gradient(#EADCC6 0 var(--ct, 50%), #f6efe4 var(--ct, 50%) var(--cb, 50%), #d4b07f var(--cb, 50%) 100%); }
+/* portrait phones: lift the stage so the card and thumbs get the space below */
+@media (orientation: portrait) and (max-aspect-ratio: 4/5) { .shop-back, .shop-front { place-items: start center; padding-top: max(76px, 16vh); } }
 .shop-layer { position: fixed; inset: 0; }
 .shop-back { z-index: 1; transition: filter .6s var(--ease), opacity .6s var(--ease); }
 .shop-glhost { z-index: 3; pointer-events: none; }

@@ -10,10 +10,10 @@ export interface Exhibit {
   box: number;           // logical px size of the square 3D viewport over the world
 }
 export const EXHIBITS: Exhibit[] = [
-  { id: 'figure-pig', no: '01', kind: 'figure', size: '59.9 × 31.9 × 41.4', parts: 12, x: 272, y: 124, box: 58 },
-  { id: 'figure-cat', no: '02', kind: 'figure', size: '61.9 × 31.9 × 47.8', parts: 15, x: 432, y: 124, box: 58 },
-  { id: 'magnet-pig', no: '03', kind: 'magnet', size: '70.1 × 55.0 × 10.4', parts: 13, x: 621, y: 129, box: 30 },
-  { id: 'magnet-cat', no: '04', kind: 'magnet', size: '70.1 × 55.0 × 8.9', parts: 15, x: 651, y: 129, box: 30 },
+  { id: 'figure-pig', no: '01', kind: 'figure', size: '59.9 × 31.9 × 41.4', parts: 12, x: 272, y: 124, box: 84 },
+  { id: 'figure-cat', no: '02', kind: 'figure', size: '61.9 × 31.9 × 47.8', parts: 15, x: 432, y: 124, box: 84 },
+  { id: 'magnet-pig', no: '03', kind: 'magnet', size: '70.1 × 55.0 × 10.4', parts: 13, x: 621, y: 129, box: 36 },
+  { id: 'magnet-cat', no: '04', kind: 'magnet', size: '70.1 × 55.0 × 8.9', parts: 15, x: 651, y: 129, box: 36 },
 ];
 export const COLOURS: Record<string, { hex: string; en: string; zh: string }> = {
   black: { hex: '#2E2A2B', en: 'Soft black', zh: '软黑' },

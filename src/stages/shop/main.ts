@@ -13,7 +13,7 @@ import { input } from '../../shared/pixel/input';
 import { mountTouch } from '../../shared/pixel/touch';
 import { makeMap, body, moveBody, overlap, TILE } from '../../shared/pixel/tiles';
 import { Camera } from '../../shared/pixel/camera';
-import { catSprites } from '../../shared/pixel/cat';
+import { catSprites, catFrame } from '../../shared/pixel/cat';
 import { draw, frameAt } from '../../shared/pixel/sprite';
 import { buildShop, drawDynamic, WORLD_W, WORLD_H, FLOOR_Y, BACKDOOR } from './world';
 import { EXHIBITS, type Exhibit, type ExhibitId } from './exhibits';
@@ -36,6 +36,9 @@ const front = document.createElement('canvas'); frontHost.appendChild(front);
 const fg = front.getContext('2d')!;
 const syncFront = () => { front.width = scr.w; front.height = scr.h; front.style.width = scr.canvas.style.width; front.style.height = scr.canvas.style.height; fg.imageSmoothingEnabled = false; };
 scr.onResize(syncFront); syncFront();
+// fill the letterbox above/below the pixel stage with the ceiling / floor colours
+const syncBg = () => { const r = scr.canvas.getBoundingClientRect(); document.body.style.setProperty('--ct', `${r.top + 1}px`); document.body.style.setProperty('--cb', `${r.bottom - 1}px`); };
+scr.onResize(syncBg); window.addEventListener('resize', syncBg); requestAnimationFrame(syncBg);
 const whisper = document.createElement('p'); whisper.className = 'shop-whisper'; whisper.dataset.i18n = 'shop.door'; whisper.textContent = t('shop.door'); document.body.appendChild(whisper);
 onLang(() => { whisper.textContent = t('shop.door'); });
 
@@ -61,7 +64,7 @@ const viewerP = import('./viewer').then(m => {
   return viewer;
 });
 
-let t0 = 0, started = false, leaving = false, actLock = false, near: Exhibit | null = null, bang = 0, flicker = 0, flickered = false, prefetched = false, walkIn = 0;
+let landT = 1, t0 = 0, started = false, leaving = false, actLock = false, near: Exhibit | null = null, bang = 0, flicker = 0, flickered = false, prefetched = false, walkIn = 0;
 input.enabled = false;
 
 // exhibit -> its square 3D viewport in world px, then css px
@@ -110,7 +113,9 @@ startLoop(dt => {
   let ax = input.axis();
   if (walkIn > 0) { walkIn -= dt; ax = 1; }
   if (leaving) ax = 1;
+  const wasGround = cat.ground;
   if (!inspecting || leaving) moveBody(cat, map, dt, ax, input.hit('jump') || input.hit('up'), input.pressed('jump') || input.pressed('up'));
+  landT = cat.ground && !wasGround ? 0 : landT + dt;
   if (cat.ground && Math.abs(cat.vx) > 5 && Math.floor(t0 * 4) !== Math.floor((t0 - dt) * 4) && Math.floor(t0 * 4) % 2 === 0) blip(180 + Math.random() * 30, 0.03, 'triangle', 0.04);
   cam.follow(cat.x + cat.w / 2, cat.y, cat.face, scr.w, scr.h, dt);
   // nearest exhibit
@@ -146,9 +151,11 @@ startLoop(dt => {
   // front layer: the cat (+ its '!!') above the 3D models
   fg.clearRect(0, 0, front.width, front.height);
   if (!leaving || cat.x < doorBox.x + 2) {
-    const img = cat.ground ? (Math.abs(cat.vx) > 5 ? frameAt(sp.walk, t0) : frameAt(sp.idle, t0)) : sp.jump;
-    draw(fg, img, cat.x + cat.w / 2 - 7 + ox, cat.y + cat.h - 16 + oy, cat.face < 0);
-    if (bang > 0) draw(fg, sp.bang, cat.x + cat.w / 2 - 2 + ox, cat.y - 10 - (bang > 0.75 ? 1 : 0) + oy);
+    let img = catFrame(sp, cat, t0, landT);
+    if (leaving) img = frameAt(sp.back, t0);
+    else if (near && cat.ground && Math.abs(cat.vx) < 8) img = bang > 0.4 ? frameAt(sp.happy, t0) : sp.look;
+    draw(fg, img, cat.x + cat.w / 2 - 8 + ox, cat.y + cat.h - 16 + oy, cat.face < 0);
+    if (bang > 0) draw(fg, sp.bang, Math.round(cat.x + cat.w / 2 - sp.bang.width / 2 + ox), cat.y - sp.bang.height - 4 - (bang > 0.75 ? 1 : 0) + oy);
   }
   if (dark) { fg.fillStyle = `rgba(14,10,18,${dark})`; fg.fillRect(0, 0, front.width, front.height); }
   // 3D
