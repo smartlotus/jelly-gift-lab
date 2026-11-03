@@ -16,8 +16,8 @@ import './style.css';
 
 register(dict); markReached('sea'); mountChrome({ sound: false, theme: 'dark' });
 const host = document.getElementById('sea')!;
-const screen = new PixelScreen({ host, minW: 200, minH: 170, maxH: 300 });
-// tall phones: the picture is capped at 300 logical px high; above/below it the host continues the water and the sand
+const screen = new PixelScreen({ host, minW: 200, minH: 170, maxH: 640 });
+// very tall screens: the picture is capped; above/below it the host continues the water and the sand
 let hostBg = '';
 const paintHost = (top: string, sand: string) => { const v = `linear-gradient(${top} 50%, ${sand} 50%)`; if (v !== hostBg) { hostBg = v; host.style.background = v; } };
 const g = screen.ctx;
@@ -29,7 +29,7 @@ const GHOST = ['#e05a5a', '#f2a33a', '#e8d04a', '#5ab86a', '#4a9ad9', '#8a6ad9',
 // ---------- state ----------
 const at = Math.max(0, Math.min(9, +(params.get('at') || 0)));
 const auto = params.has('auto');
-const S = { x: at ? INTRO + (at - 1) * L + 10 : 30, y: -SH, vx: 0, vy: 0, t: 0 };
+const S = { x: at ? INTRO + (at - 1) * L + 10 : 30, y: at ? screen.h * 0.5 : -SH, vx: 0, vy: 0, t: 0 };
 let cam = Math.max(0, S.x - 80), touched = false, held: { x: number; y: number } | null = null, keys = new Set<string>();
 let scene = -1, wipe: { k: number; s: Scene } | null = null, ending: { t: number; y0: number; x0: number } | null = null, left = false;
 const trail: { x: number; y: number }[] = [];
@@ -65,7 +65,7 @@ function update(dt: number) {
   if (intro) { S.y += ((screen.h * 0.42) - S.y) * Math.min(1, dt * 1.6); S.vx += (18 - S.vx) * dt; }
   else if (held) { const dx = held.x - (S.x + SW / 2), dy = held.y - (S.y + SH / 2); ax = Math.max(-1, Math.min(1, dx / 40)) * 160; ay = Math.max(-1, Math.min(1, dy / 30)) * 160; }
   else if (keys.size) { ax = ((keys.has('arrowright') || keys.has('d')) ? 1 : 0) - ((keys.has('arrowleft') || keys.has('a')) ? 1 : 0); ay = ((keys.has('arrowdown') || keys.has('s')) ? 1 : 0) - ((keys.has('arrowup') || keys.has('w')) ? 1 : 0); ax *= 160; ay *= 160; if (!ax) ax = (20 - S.vx) * 2; }
-  else { ax = ((auto ? 140 : 20) * slow - S.vx) * 1.5; ay = ((screen.h * 0.45 + Math.sin(S.t * 0.7) * 10) - S.y) * 0.8 - S.vy * 1.2; } // drift on
+  else { ax = ((auto ? 140 : 20) * slow - S.vx) * 1.5; ay = ((screen.h * 0.5 + Math.sin(S.t * 0.7) * 10) - S.y) * 0.8 - S.vy * 1.2; } // drift on
   if (!intro) { S.vx += ax * dt; S.vy += ay * dt; }
   const max = (auto ? 160 : 78) * slow; S.vx = Math.max(-50, Math.min(max, S.vx)) * (1 - dt * 0.8); S.vy = Math.max(-60, Math.min(60, S.vy)) * (1 - dt * 1.6);
   S.x += S.vx * dt; if (!intro) S.y += S.vy * dt;
@@ -144,7 +144,7 @@ function renderSurface(oy: number) {
   const w = screen.w, h = screen.h, surf = Math.round(-h * 0.06 + oy); if (surf <= 0) return;
   const top = ['#05070d', '#080b14', '#0b1020', '#0e1626'];
   for (let b = 0; b < top.length; b++) R(g, 0, Math.round(surf * b / top.length), w, Math.ceil(surf / top.length) + 1, top[b]);
-  for (let i = 0; i < 90; i++) { const x = (cellHash(i, 1) * w) | 0, y = (cellHash(i, 7) * surf * 0.92) | 0, tw = 0.55 + 0.45 * Math.sin(S.t * 2 + i); g.globalAlpha = (i % 6 === 0 ? 1 : 0.5) * tw; R(g, x, y, 1, 1, '#ece8df'); } g.globalAlpha = 1;
+  for (let i = 0; i < 90; i++) { const x = (cellHash(i, 1) * w) | 0, y = (cellHash(7, i * 1.37) * surf * 0.92) | 0, tw = 0.55 + 0.45 * Math.sin(S.t * 2 + i); g.globalAlpha = (i % 6 === 0 ? 1 : 0.5) * tw; R(g, x, y, 1, 1, '#ece8df'); } g.globalAlpha = 1;
   // the shark breaks the surface: redraw it over the sky, then the water (translucent) over its lower part
   const sx = Math.round(S.x - cam), sy = Math.round(S.y + oy);
   draw(g, frameAt(swim, S.t * 0.6), sx, sy);
