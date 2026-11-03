@@ -6,6 +6,9 @@ import { Engine } from './app/engine';
 import { GLPath } from './app/glpath';
 import type { Path } from './app/path';
 import * as UI from './ui/ui';
+import { irisIn } from './shared/transition';
+// journey arrival: the night stage's kawaii flip closed its iris on pink, so open from pink (before the loader shows)
+if (new URLSearchParams(location.search).get('from') === 'night') void irisIn(innerWidth / 2, innerHeight / 2, 900, '#F9C6CF');
 
 I18N.apply();
 const params = new URLSearchParams(location.search);

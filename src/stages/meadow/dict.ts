@@ -3,7 +3,7 @@ export const en = {
   'meadow.meta.title': 'For lushiva · I · The Meadow',
   'meadow.kicker': 'I · The Meadow',
   'meadow.title': 'Off you go, little cat',
-  'meadow.sub': 'Walk right. There is something at the end.',
+  'meadow.sub': 'Keep walking right. Something is waiting at the end.',
   'meadow.hearts': 'Hearts',
   'meadow.hint.keys': '← →  walk     Space  jump',
   'meadow.hint.touch': 'Hold ▶ to walk · tap ▲ to jump',

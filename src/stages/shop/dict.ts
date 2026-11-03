@@ -3,7 +3,7 @@ export const en = {
   'shop.meta.title': 'For lushiva · II · The Shop',
   'shop.kicker': 'II · The Shop',
   'shop.title': 'Things I made for you',
-  'shop.sub': 'Four small things, modelled and printed by hand.',
+  'shop.sub': 'Modelled by hand, printed in colour.',
   'shop.ex.figure-pig': 'Pig, at the laptop', 'shop.ex.figure-cat': 'Cat, with a book',
   'shop.ex.magnet-pig': 'Pig, fridge magnet', 'shop.ex.magnet-cat': 'Cat, fridge magnet',
   'shop.note.figure-pig': 'Typing away under a little desk lamp, two yellow “??” overhead.',
@@ -23,13 +23,13 @@ export const en = {
   'shop.i.hint.touch': 'Drag to turn · pinch to zoom · double-tap to reset · tap for a wobble',
   'shop.i.hint.mouse': 'Drag to turn · scroll to zoom · double-click to reset · click for a wobble',
   'shop.door': 'It’s dark outside.',
-  'shop.canvas': 'A small pixel shop. The cat walks past four 3D-printed objects towards a dark back door.',
+  'shop.canvas': 'A small pixel shop. The cat walks past five 3D-printed pieces towards a dark back door.',
 };
 export const zh: Record<keyof typeof en, string> = {
   'shop.meta.title': '给 lushiva · 第二章 · 小店',
   'shop.kicker': '第二章 · 小店',
   'shop.title': '我为你做的小东西',
-  'shop.sub': '四件小东西，亲手建模，亲手打印。',
+  'shop.sub': '亲手建模，彩色打印。',
   'shop.ex.figure-pig': '小猪 · 敲电脑', 'shop.ex.figure-cat': '小猫 · 捧着书',
   'shop.ex.magnet-pig': '小猪 · 冰箱贴', 'shop.ex.magnet-cat': '小猫 · 冰箱贴',
   'shop.note.figure-pig': '在小台灯下敲电脑，头顶两个黄色的“??”。',
@@ -49,5 +49,5 @@ export const zh: Record<keyof typeof en, string> = {
   'shop.i.hint.touch': '拖动旋转 · 双指缩放 · 双击复位 · 轻点会 Q 弹',
   'shop.i.hint.mouse': '拖动旋转 · 滚轮缩放 · 双击复位 · 单击会 Q 弹',
   'shop.door': '外面天黑了。',
-  'shop.canvas': '一间像素小店。小猫走过四件 3D 打印的小东西，走向一扇黑黑的后门。',
+  'shop.canvas': '一间像素小店。小猫走过五件 3D 打印的小东西，走向一扇黑黑的后门。',
 };

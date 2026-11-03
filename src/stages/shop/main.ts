@@ -15,7 +15,7 @@ import { makeMap, body, moveBody, overlap, TILE } from '../../shared/pixel/tiles
 import { Camera } from '../../shared/pixel/camera';
 import { catSprites, catFrame } from '../../shared/pixel/cat';
 import { draw, frameAt } from '../../shared/pixel/sprite';
-import { buildShop, drawDynamic, WORLD_W, WORLD_H, FLOOR_Y, BACKDOOR } from './world';
+import { buildShop, drawDynamic, WORLD_W, WORLD_H, FLOOR_Y, BACKDOOR, ENTRY } from './world';
 import { EXHIBITS, type Exhibit, type ExhibitId } from './exhibits';
 import { Card, Inspect } from './ui';
 import type { Viewer, Rect, Slot } from './viewer';
@@ -175,7 +175,8 @@ startLoop(dt => {
   }
 });
 
-void irisIn();
+// continuity: the meadow closed its iris onto a door; the shop opens it from the entry door the cat just came through
+{ const d = scr.toClient(ENTRY.x + ENTRY.w / 2 - cam.ix, ENTRY.y + 30 - cam.iy); void irisIn(d.x, d.y, 750); }
 const begin = () => {
   started = true; input.enabled = true; begunAt = performance.now(); walkIn = startX < 60 ? 0.55 : 0;
   blip(1568, 0.25, 'sine', 0.1); setTimeout(() => blip(2093, 0.4, 'sine', 0.07), 90);   // shop door bell

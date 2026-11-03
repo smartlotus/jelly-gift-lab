@@ -2,7 +2,7 @@
 // and the jelly page alike. irisOut() before navigating away, irisIn() when a stage boots.
 let el: HTMLDivElement | null = null;
 function veil(colour: string) {
-  if (!el) { el = document.createElement('div'); el.className = 'gift-iris'; document.body.appendChild(el); }
+  if (!el) { el = document.createElement('div'); el.className = 'gift-iris'; el.style.cssText = 'position:fixed;inset:0;z-index:100;pointer-events:none'; document.body.appendChild(el); } // inline: also used on the jelly page (no chrome.css)
   el.style.background = colour; return el;
 }
 function run(from: number, to: number, ms: number, x: number, y: number, colour: string, steps = 14) {
