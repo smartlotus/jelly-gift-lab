@@ -65,6 +65,20 @@ export class Viewer {
   private poseA: Pose = { az: 0, el: 0, d: D, m: 1 };
   private tween: { t: number; dur: number; a: Pose; b: Pose; spinA: number; spinB: number } | null = null;
   autoSpin = true;
+  /** lighting moods (inspect "Light" button): studio · window · evening */
+  mood = 0;
+  private moodT = { k: new Color('#fff0dc'), kp: new Vector3(-2.2, 3.6, 3.0), ki: 1.85, env: 0.5, exp: 0.94 };
+  private static MOODS = [
+    { k: '#fff0dc', kp: [-2.2, 3.6, 3.0], ki: 1.85, env: 0.5, exp: 0.94 },
+    { k: '#eef4ff', kp: [3.4, 2.2, 1.2], ki: 2.3, env: 0.38, exp: 0.92 },
+    { k: '#ffc89a', kp: [-3.2, 1.3, 2.0], ki: 2.0, env: 0.3, exp: 0.9 },
+  ];
+  cycleMood() { this.mood = (this.mood + 1) % Viewer.MOODS.length; this.onChange(); return this.mood; }
+  private stepMood(dt: number) {
+    const m = Viewer.MOODS[this.mode === 'display' ? 0 : this.mood], T = this.moodT, a = Math.min(1, dt * 4);
+    T.k.lerp(new Color(m.k), a); T.kp.lerp(new Vector3(m.kp[0], m.kp[1], m.kp[2]), a); T.ki += (m.ki - T.ki) * a; T.env += (m.env - T.env) * a; T.exp += (m.exp - T.exp) * a;
+    this.key.color.copy(T.k); this.key.position.copy(T.kp); this.key.intensity = T.ki; this.scene.environmentIntensity = T.env; this.renderer.toneMappingExposure = T.exp;
+  }
   private lastTouch = 0;
   private clock = performance.now();
   onChange: () => void = () => {};       // UI hook (split/solo/spin state changed)
@@ -80,7 +94,7 @@ export class Viewer {
     const k = this.key = new DirectionalLight(new Color('#fff0dc'), 1.85);
     k.position.set(-2.2, 3.6, 3.0); k.castShadow = true;
     const sc = k.shadow.camera; sc.left = sc.bottom = -1.5; sc.right = sc.top = 1.5; sc.near = 1; sc.far = 10;
-    k.shadow.mapSize.set(2048, 2048); k.shadow.radius = 3.5; k.shadow.bias = -0.0004; k.shadow.normalBias = 0.012;
+    const small = matchMedia('(pointer: coarse)').matches; k.shadow.mapSize.set(small ? 1024 : 2048, small ? 1024 : 2048); k.shadow.radius = 3.5; k.shadow.bias = -0.0004; k.shadow.normalBias = 0.012;
     this.scene.add(k, k.target);
     const rim = new DirectionalLight(new Color('#ffd9e2'), 0.55); rim.position.set(2.5, 1.5, -3); this.scene.add(rim);
     this.loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
@@ -223,7 +237,7 @@ export class Viewer {
   /** render a frame. slots = exhibits currently on screen (display mode). */
   render(slots: Slot[]) {
     const now = performance.now(), dt = Math.min(0.05, (now - this.clock) / 1000); this.clock = now;
-    const r = this.renderer;
+    const r = this.renderer; this.stepMood(dt);
     r.setScissorTest(false); r.setViewport(0, 0, innerWidth, innerHeight); r.clear();
     r.setScissorTest(true);
     if (this.mode === 'display') {

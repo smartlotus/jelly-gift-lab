@@ -95,7 +95,9 @@ function closeInspect() {
 }
 
 // tap / click a model in the shop to look closer
+let begunAt = 0;
 window.addEventListener('pointerup', e => {
+  if (performance.now() - begunAt < 400) return;
   if (!started || !viewer || viewer.mode !== 'display' || leaving) return;
   if ((e.target as HTMLElement).closest('.touchpad, .gift-chrome, .shop-card, .shop-inspect, .gift-card')) return;
   for (const ex of EXHIBITS) { const r = clientRect(ex); if (viewer.ready(ex.id) && e.clientX > r.x && e.clientX < r.x + r.w && e.clientY > r.y && e.clientY < r.y + r.h) { openInspect(ex.id); return; } }
@@ -170,7 +172,7 @@ startLoop(dt => {
 
 void irisIn();
 const begin = () => {
-  started = true; input.enabled = true; walkIn = startX < 60 ? 0.55 : 0;
+  started = true; input.enabled = true; begunAt = performance.now(); walkIn = startX < 60 ? 0.55 : 0;
   blip(1568, 0.25, 'sine', 0.1); setTimeout(() => blip(2093, 0.4, 'sine', 0.07), 90);   // shop door bell
   if (viewerOnly) void viewerP.then(() => openInspect('figure-pig'));
 };

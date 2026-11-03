@@ -66,6 +66,7 @@ export class Inspect {
           <button type="button" class="si-btn" data-k="reset"></button>
           <button type="button" class="si-btn" data-k="split" aria-pressed="false"></button>
           <button type="button" class="si-btn" data-k="spin" aria-pressed="true"></button>
+          <button type="button" class="si-btn si-light" data-k="light"></button>
           <button type="button" class="si-next" data-i18n-aria="shop.i.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 5l7 7-7 7"/></svg></button>
         </nav>
         <p class="si-hint"></p>
@@ -79,6 +80,7 @@ export class Inspect {
       else if (b.dataset.k === 'reset') v.reset();
       else if (b.dataset.k === 'split') v.toggleSplit();
       else if (b.dataset.k === 'spin') { v.autoSpin = !v.autoSpin; this.sync(); }
+      else if (b.dataset.k === 'light') v.cycleMood();
       else if (b.dataset.sw !== undefined) v.solo(b.dataset.sw || null);
     });
     // hovering a swatch previews its name (desktop)
@@ -90,6 +92,7 @@ export class Inspect {
       else if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.browse(-1);
       else if (e.code === 'ArrowRight' || e.code === 'KeyD') this.browse(1);
       else if (e.code === 'KeyR') v.reset();
+      else if (e.code === 'KeyL') v.cycleMood();
       else if (e.code === 'KeyS' || e.code === 'Space') { e.preventDefault(); v.toggleSplit(); }
     });
     v.onChange = () => this.sync();
@@ -121,7 +124,7 @@ export class Inspect {
     q('.si-no').innerHTML = `No. ${e.no} <span>/ 0${EXHIBITS.length}</span>`; q('.si-title').textContent = t(`shop.ex.${e.id}`);
     q('.si-note').textContent = t(`shop.note.${e.id}`); q('.si-meta').textContent = `${meta(e)} · ${t('shop.mat')}`;
     q('.si-hint').textContent = t(coarse ? 'shop.i.hint.touch' : 'shop.i.hint.mouse');
-    this.el.querySelectorAll<HTMLButtonElement>('.si-btn').forEach(b => { b.textContent = t(`shop.i.${b.dataset.k}`); });
+    this.el.querySelectorAll<HTMLButtonElement>('.si-btn').forEach(b => { b.textContent = b.dataset.k === 'light' ? t(`shop.i.light${this.v.mood}`) : t(`shop.i.${b.dataset.k}`); });
   }
   private swName(key: string | null) {
     const n = this.el.querySelector('.si-swname')!;
@@ -139,5 +142,6 @@ export class Inspect {
     this.swName(solo);
     this.el.querySelector('[data-k="split"]')!.setAttribute('aria-pressed', String(v.split()));
     this.el.querySelector('[data-k="spin"]')!.setAttribute('aria-pressed', String(v.autoSpin));
+    this.el.querySelector('[data-k="light"]')!.textContent = t(`shop.i.light${v.mood}`);
   }
 }
