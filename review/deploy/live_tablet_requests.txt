@@ -1,0 +1,8 @@
+200 text/html; charset=utf-8 https://smartlotus.github.io/jelly-gift/
+200 text/css; charset=utf-8 https://smartlotus.github.io/jelly-gift/assets/index-CbDQaHIK.css
+200 font/woff2 https://smartlotus.github.io/jelly-gift/assets/NotoSerifSC-sub-C52JOCCD.woff2
+200 font/woff2 https://smartlotus.github.io/jelly-gift/assets/SourceSerif4-Italic-sub-CfRXuZZD.woff2
+200 font/woff2 https://smartlotus.github.io/jelly-gift/assets/SourceSerif4-sub-D5Wb3ic4.woff2
+200 application/javascript; charset=utf-8 https://smartlotus.github.io/jelly-gift/assets/index-BSLgdowN.js
+200 application/octet-stream https://smartlotus.github.io/jelly-gift/assets/shark/md.bin
+200 application/javascript; charset=utf-8 https://smartlotus.github.io/jelly-gift/assets/gpupath-BJ6pN_c_.js
