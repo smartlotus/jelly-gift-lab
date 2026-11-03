@@ -130,6 +130,19 @@ async function boot() {
   const egg = () => import('./egg/egg');
   shroom.addEventListener('pointerenter', () => { egg(); }, { once: true });
   shroom.addEventListener('click', async () => { (await egg()).openEgg(shroom, engine); });
+  // Journey arrival (/jelly/?from=night): one quiet glint on the mushroom ~18 s in, at a moment she isn't dragging.
+  // Once per visit; never if she already found it. The egg itself is untouched.
+  if (new URLSearchParams(location.search).get('from') === 'night') {
+    let found = false, lastTouch = 0;
+    shroom.addEventListener('click', () => { found = true; }, { once: true });
+    window.addEventListener('pointerdown', () => { lastTouch = performance.now(); });
+    const tryGlint = () => {
+      if (found) return;
+      if (performance.now() - lastTouch < 2000) { setTimeout(tryGlint, 700); return; }
+      shroom.classList.add('glint'); setTimeout(() => shroom.classList.remove('glint'), 2600);
+    };
+    setTimeout(tryGlint, 18000);
+  }
   document.getElementById('bait')!.addEventListener('click', () => { engine.dropBait(); UI.fadeHint(); });
   document.getElementById('reset')!.addEventListener('click', () => engine.reset());
   document.addEventListener('visibilitychange', () => { if (document.hidden) engine.stop(); else engine.start(); });

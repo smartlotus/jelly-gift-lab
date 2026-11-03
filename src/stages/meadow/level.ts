@@ -40,6 +40,7 @@ export function buildLevel(): Level {
   ground(38, 62);
   ents.push({ kind: 'mush', x: 44 * 16, y: G * 16, dir: -1 }, { kind: 'mush', x: 49 * 16, y: G * 16, dir: -1 });
   pipe(52, 2); heart(52.5, 8); ents.push({ kind: 'sleepy', x: 56 * 16, y: G * 16 }); pipe(60, 3); ents.push({ kind: 'giftpipe', x: 60 * 16, y: (G - 3) * 16 });
+  set(57, G - 2, '='); // M7: a one-way plank halfway up, so the 3-tile pipe is a comfortable two-step hop (the sleepy mushroom runs underneath)
   d('bush', 39.5); d('flowerW', 42.2); d('tuft', 46.5); d('flowerP', 50.3); d('tree', 55.6); d('flowerY', 58.8);
   // 63-72 · the lake, crossed on smiling clouds
   pond(63, 72);

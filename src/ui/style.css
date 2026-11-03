@@ -146,6 +146,12 @@ html[data-lang="zh"] .fail-t { font-style: normal; letter-spacing: .1em; }
 /* the hidden mushroom: quiet line art, a full 44px target */
 .shroom { position: absolute; top: calc(var(--pad) + var(--sat) + 40px); right: calc(var(--pad) + var(--sar) - 12px); width: 44px; height: 44px; display: grid; place-items: center; color: var(--ink); opacity: .2; transition: opacity .4s ease, transform .5s var(--ease); }
 .shroom:hover, .shroom:focus-visible { opacity: .62; transform: translateY(-1px) rotate(-6deg); outline: none; }
+/* one-time arrival hint from the journey (?from=night): a soft breath of light, then back to quiet */
+.shroom.glint { animation: shroom-glint 2.6s var(--ease) 1; }
+.shroom.glint svg { animation: shroom-glint-svg 2.6s var(--ease) 1; }
+@keyframes shroom-glint { 0% { opacity: .2; } 30% { opacity: .9; filter: drop-shadow(0 0 6px rgba(255,214,120,.9)); } 55% { opacity: .55; filter: drop-shadow(0 0 2px rgba(255,214,120,.5)); } 100% { opacity: .2; filter: none; } }
+@keyframes shroom-glint-svg { 0%, 100% { transform: none; } 30% { transform: translateY(-1.5px) rotate(-7deg) scale(1.08); } 60% { transform: rotate(3deg); } }
+@media (prefers-reduced-motion: reduce) { .shroom.glint svg { animation: none; } }
 @media (max-width: 760px) { .shroom { top: calc(var(--pad) + var(--sat) + 30px); right: calc(var(--pad) + var(--sar) - 12px); opacity: .24; } }
 @media (max-height: 500px) and (orientation: landscape) { .shroom { top: calc(var(--pad) + var(--sat) + 30px); } }
 /* tablet portrait: the hint sits above the readouts */

@@ -26,5 +26,6 @@
   "private": true,
   "dependencies": {
     "three": "^0.187.0"
-  }
+  },
+  "type": "module"
 }

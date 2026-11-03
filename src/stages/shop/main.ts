@@ -70,7 +70,7 @@ input.enabled = false;
 
 // exhibit -> its square 3D viewport in world px, then css px
 function worldBox(e: Exhibit) {
-  const B = e.box;
+  const B = e.kind === 'magnet' && innerHeight > innerWidth ? Math.round(e.box * 1.3) : e.box;   // M7: magnets read bigger on portrait phones
   if (e.kind === 'magnet') return { x: e.x - B / 2, y: e.y - B / 2, w: B, h: B };
   if (e.kind === 'pair') { const off = viewer ? viewer.baseOffset(e.id) : 0.3, W = B * 1.5; return { x: e.x - W / 2, y: e.y - B / 2 - (off * B) / 2 + 1, w: W, h: B }; }
   const off = viewer ? viewer.baseOffset(e.id) : 0.55;

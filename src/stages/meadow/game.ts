@@ -298,7 +298,7 @@ export function startMeadow(host: HTMLElement, hooks: Hooks, opts: { ready: Prom
       dr.t += dt; const k = Math.min(1, Math.max(0, (dr.t - 0.35) / 0.75));
       dr.x = dr.x0 + (dr.hopTo - dr.x0) * ease(k); dr.hopY = -Math.abs(Math.sin(k * Math.PI * 2)) * (k < 0.5 ? 26 : 12);
       if (k >= 1) { dr.state = 'still'; dr.hopY = 0; puff(dr.x + 4, dr.y - 4, 2); puff(dr.x + 28, dr.y - 4, 2); sfx.boop(); }
-    } else if (dr.state === 'still' && cat.ground && Math.abs(catCx() - (dr.x + 16)) < 7) { dr.state = 'enter'; dr.t = 0; input.reset(); sfx.door(); }
+    } else if (dr.state === 'still' && cat.ground && Math.abs(catCx() - (dr.x + 16)) < 13) { dr.state = 'enter'; dr.t = 0; input.reset(); sfx.door(); }
     else if (dr.state === 'enter') {
       dr.t += dt; cat.vx = 0; cat.x += ((dr.x + 16 - cat.w / 2) - cat.x) * Math.min(1, dt * 12);
       if (dr.t > 0.95) { dr.state = 'done'; dr.t = 0; sfx.door(); pops.push({ x: dr.x + 16, y: dr.y - 48, t: 0, big: true }); }

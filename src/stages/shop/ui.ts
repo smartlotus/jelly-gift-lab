@@ -39,7 +39,10 @@ export class Card {
     if (below > h + 120 || innerWidth < 560) { x = innerWidth / 2 - w / 2; y = Math.min(stage.bottom + 18, innerHeight - h - (coarse ? 128 : 24)); this.el.dataset.mode = 'below'; }
     else {
       this.el.dataset.mode = 'side';
-      x = a.x + a.w + 10; if (x + w > innerWidth - 16) x = a.x - w - 10;
+      // the two fridge magnets sit side by side: pig's card goes left, cat's right, so a card never covers the other magnet
+      const left = this.cur.id === 'magnet-pig';
+      x = left ? a.x - w - 10 : a.x + a.w + 10;
+      if (left && x < 16) x = a.x + a.w + 10; else if (!left && x + w > innerWidth - 16) x = a.x - w - 10;
       y = Math.max(64, Math.min(a.y + a.h / 2 - h / 2 - 10, innerHeight - h - (coarse ? 120 : 24)));
     }
     this.el.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`;

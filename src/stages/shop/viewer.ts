@@ -125,16 +125,25 @@ export class Viewer {
         const grp = new Group(); b.position.x = PAIR_DX; b.userData.side = 1; a.userData.side = -1; grp.add(a, b);
         const m = this.prepare(id, grp);
         for (const pt of m.parts) { let o: Object3D | null = pt.mesh, side = 0; while (o && !side) { side = o.userData.side ?? 0; o = o.parent; } pt.dir.set(side * 0.11, 0, 0); }
-        m.split = 1; m.splitT = 1; this.models.set(id, m); this.prog.set(id, 1); return m;
+        m.split = 1; m.splitT = 1; this.models.set(id, m); this.prog.set(id, 1); this.warm(m); return m;
       });
       this.loading.set(id, p); return p;
     }
     p = new Promise<Model>((res, rej) => this.loader.load(asset(`models/${id}.glb`), g => {
-      const m = this.prepare(id, g.scene); this.models.set(id, m); this.prog.set(id, 1); res(m);
+      const m = this.prepare(id, g.scene); this.models.set(id, m); this.prog.set(id, 1); this.warm(m); res(m);
     }, e => { if (e.total) this.prog.set(id, Math.max(0.02, e.loaded / e.total) * 0.95); }, rej));
     this.loading.set(id, p); return p;
   }
 
+  /** compile the model's shader programs right after it loads (during the title card for No.01), so its first
+   *  appearance on screen doesn't hitch. Display grounds + inspect grounds are both compiled. */
+  private warm(m: Model) {
+    try {
+      m.root.visible = true;
+      this.renderer.compile(this.scene, this.cam);
+      this.setGrounds(m, true); this.renderer.compile(this.scene, this.cam); this.setGrounds(m, false);
+    } catch { /* best effort */ } finally { m.root.visible = false; }
+  }
   private prepare(id: ExhibitId, gs: Object3D): Model {
     const magnet = id.startsWith('magnet');
     const root = new Group(), norm = new Group(), orient = new Group();
@@ -227,7 +236,7 @@ export class Viewer {
     if (w < 2 || h < 2 || x > innerWidth || y > H || x + w < 0 || y + h < 0) return;
     m.root.visible = true; m.root.updateMatrixWorld(true);
     m.printInv.value.copy(m.print.matrixWorld).invert();
-    r.setViewport(x, y, w, h); r.setScissor(x, y, w, h);
+    r.setViewport(x, y, w, h); r.setScissor(x, y, w, h); r.clearDepth();   // boxes may overlap (the two fridge magnets): later slot wins cleanly
     r.render(this.scene, cam); m.root.visible = false;
   }
   private step(m: Model, dt: number, display: boolean) {
