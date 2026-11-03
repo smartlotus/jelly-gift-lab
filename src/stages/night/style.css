@@ -20,3 +20,67 @@ html[lang="zh-CN"] .n-say { font-family: var(--serif); font-style: normal; font-
 .n-snd button[aria-pressed="true"] { color: var(--ink); border-color: var(--ink-2); }
 .n-fps { position: absolute; right: 8px; bottom: 8px; z-index: 5; font: 11px monospace; color: #7f7; }
 .n-black { position: absolute; inset: 0; background: #000; z-index: 1; pointer-events: none; transition: opacity .2s; }
+
+/* ---- puzzles: a "close look" over the dimmed forest; torch-warm type, chunky pixel art, big touch targets ---- */
+.pz { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: calc(var(--sat) + 64px) 16px calc(var(--sab) + 24px);
+  background: radial-gradient(90% 70% at 50% 48%, rgba(10,8,6,.55), rgba(3,4,8,.88)); color: #f1e4cf; opacity: 0; transition: opacity .6s var(--ease); touch-action: manipulation; }
+.pz.on { opacity: 1; } .pz.out { opacity: 0; pointer-events: none; }
+.pz-in { display: flex; flex-direction: column; align-items: center; gap: 18px; max-width: 520px; width: 100%; text-align: center; }
+.pz-q { margin: 0; font-family: var(--display); font-style: italic; font-size: clamp(18px, 4.6vw, 24px); line-height: 1.35; color: #f6e8cf; text-shadow: 0 0 14px rgba(255,170,80,.25); text-wrap: balance; }
+html[lang="zh-CN"] .pz-q { font-family: var(--serif); font-style: normal; font-weight: 600; letter-spacing: .1em; }
+.pz-say { margin: 0; min-height: 1.5em; font-size: 14px; letter-spacing: .08em; color: rgba(241,228,207,.62); opacity: 0; transition: opacity .4s var(--ease); }
+.pz-say.on { opacity: 1; } .pz-say.hint { color: #ffd27a; } .pz-say.ok { color: #ffe6b0; font-size: 16px; }
+.pz button { -webkit-tap-highlight-color: transparent; }
+.pz svg[shape-rendering] { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.pz-shake { animation: pz-shake .42s cubic-bezier(.36,.07,.19,.97); }
+@keyframes pz-shake { 20%, 60% { transform: translateX(-6px) rotate(-1.5deg); } 40%, 80% { transform: translateX(6px) rotate(1.5deg); } }
+
+/* mushrooms + the little sign with dots */
+.pz-sign { display: flex; align-items: center; gap: 12px; padding: 10px 18px; background: repeating-linear-gradient(#6b4a2c 0 9px, #5b3e25 9px 10px); border: 3px solid #2d1e12; box-shadow: 0 6px 18px rgba(0,0,0,.5); }
+.pz-sign i { width: calc(20px * var(--s)); height: calc(20px * var(--s)); background: #1c130c; box-shadow: inset 2px 2px 0 rgba(0,0,0,.4); transition: background .4s, box-shadow .4s; }
+.pz-sign.glow i { background: #ffd27a; box-shadow: 0 0 10px #ffb347; animation: pz-dots 1.8s steps(1) infinite; }
+.pz-sign.glow i:nth-child(2) { animation-delay: .3s; } .pz-sign.glow i:nth-child(3) { animation-delay: .6s; }
+@keyframes pz-dots { 0%, 30% { opacity: 1; } 31%, 100% { opacity: .35; } }
+.pz-row { display: flex; align-items: flex-end; justify-content: center; gap: clamp(18px, 7vw, 44px); min-height: 120px; }
+.pz-m { width: calc(var(--w) + 28px); padding: 14px; display: grid; place-items: end center; filter: brightness(.62) saturate(.8); transition: filter .35s var(--ease), transform .2s var(--ease); }
+.pz-m svg { width: var(--w) !important; }
+.pz-m:active { transform: scale(.94); }
+.pz-m.lit { filter: brightness(1.15) saturate(1.1) drop-shadow(0 0 12px rgba(255,140,170,.75)); animation: pz-hop .35s ease; }
+@keyframes pz-hop { 40% { transform: translateY(-8px); } }
+
+/* three openings in the trees + hoofprints */
+.pz-forks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: min(100%, 360px); }
+.pz-fork { position: relative; padding: 0; aspect-ratio: 11 / 11; transition: transform .25s var(--ease), filter .3s; }
+.pz-fork .pz-dark { position: absolute; left: 18%; right: 18%; top: 20%; bottom: 0; background: radial-gradient(60% 50% at 50% 70%, #11141c, #000); }
+.pz-fork svg { position: relative; }
+.pz-fork:active { transform: scale(.95); }
+.pz-fork.nope { filter: brightness(.5); }
+.pz-fork.go .pz-dark { background: radial-gradient(60% 60% at 50% 70%, #3b2f22, #0a0805); box-shadow: inset 0 0 22px rgba(255,180,90,.35); }
+.pz-prints { width: min(100%, 360px); height: auto; margin-top: -12px; fill: #8a7155; opacity: .85; transition: fill .5s; }
+.pz-prints.glow { fill: #ffd27a; filter: drop-shadow(0 0 4px #ffb347); }
+
+/* the gate lock: a weathered board, two number wheels */
+.pz-lock { width: 56px; transition: transform .5s cubic-bezier(.2,1.6,.4,1); }
+.pz-gate.solved .pz-lock { transform: translateY(-6px) rotate(-14deg); }
+.pz-board { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 18px 18px; width: min(100%, 380px);
+  background: repeating-linear-gradient(#5e4127 0 22px, #4f3620 22px 24px); border: 3px solid #24170d; box-shadow: 0 14px 40px rgba(0,0,0,.6), inset 0 0 30px rgba(0,0,0,.35); }
+.pz-date { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 22px; color: #f6e8cf; }
+.pz-lab { font-family: var(--display); font-style: italic; font-size: 17px; color: rgba(246,232,207,.75); }
+.pz-lab:empty, .pz-unit:empty { display: none; }
+.pz-unit { font-weight: 600; margin-right: 6px; }
+.pz-wheel { display: flex; flex-direction: column; align-items: center; }
+.pz-wheel button { width: 64px; height: 44px; display: grid; place-items: center; color: rgba(246,232,207,.8); }
+.pz-wheel button svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: square; }
+.pz-wheel button:active { color: #ffd27a; transform: scale(.9); }
+.pz-num { width: 64px; height: 60px; text-align: center; font: 600 30px/1 var(--serif); font-variant-numeric: tabular-nums; color: #ffe9c2; caret-color: #ffd27a;
+  background: #1b130c; border: 3px solid #120c07; box-shadow: inset 3px 3px 0 rgba(0,0,0,.55), 0 0 0 1px rgba(255,210,122,.12); border-radius: 0; outline: none; -webkit-appearance: none; appearance: none; padding: 0; }
+.pz-num::placeholder { color: rgba(246,232,207,.22); }
+.pz-num:focus { box-shadow: inset 3px 3px 0 rgba(0,0,0,.55), 0 0 0 2px rgba(255,210,122,.55); }
+.pz-wheel.tick .pz-num { animation: pz-tick .18s ease; }
+@keyframes pz-tick { 50% { transform: translateY(-2px); } }
+.pz-open { min-width: 140px; height: 48px; padding: 0 26px; border: 2px solid #ffd27a; color: #ffe6b0; background: rgba(255,210,122,.08); font-size: 15px; letter-spacing: .2em; text-transform: uppercase; }
+html[lang="zh-CN"] .pz-open { letter-spacing: .4em; padding-left: calc(26px + .4em); }
+.pz-open:active { transform: scale(.96); background: rgba(255,210,122,.2); }
+.pz-gate.solved .pz-board { filter: brightness(1.15); transition: filter .6s; }
+@media (max-height: 560px) { .pz { padding-top: calc(var(--sat) + 44px); } .pz-in { gap: 10px; } .pz-wheel button { height: 34px; } .pz-num { height: 48px; } }
+@media (prefers-reduced-motion: reduce) { .pz-shake, .pz-m.lit, .pz-sign.glow i { animation: none; } }

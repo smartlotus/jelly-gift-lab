@@ -18,8 +18,10 @@ import { makePig, qqTexture, glow } from './pig';
 import { makeHand } from './hand';
 import { makePost } from './post';
 import { makeHud } from './hud';
-import { sfx } from './sfx';
+import { sfx, pzSfx } from './sfx';
 import { showKawaii } from './kawaii';
+import { mushrooms, trail, gate as gatePuzzle } from './puzzles';
+import { makeGate } from './gate';
 import './style.css';
 
 declare global { interface Window { __pause?: boolean; __steps?: number } }
@@ -30,6 +32,8 @@ const touch = matchMedia('(pointer: coarse)').matches;
 const at = params.get('at');
 
 const EYE = 1.62, WALK = 1.75, STOP_D = END_D - 2.4, CHASE_D = 74, CHASE_T = 47;
+// light puzzles on the way (distance-triggered; the walk pauses while one is open): mushrooms, the fork, the gate lock
+const P_MUSH = 15, P_TRAIL = 52, GATE_D = 70.5, GATE_STOP = GATE_D - 2;
 
 if (at === 'kawaii') { showKawaii(); } else boot();
 
@@ -72,6 +76,7 @@ function boot() {
   const fireflies = new Points(ffGeo, ffMat); fireflies.frustumCulled = false; scene.add(fireflies);
   let ffFade = 1;
 
+  const gateObj = makeGate(GATE_D, lang); scene.add(gateObj.root); onLang(l => gateObj.setLang(l));
   const pig = makePig(); scene.add(pig.root);
   const glimpse = new Sprite(new SpriteMaterial({ map: qqTexture(), transparent: true, opacity: 0 })); glimpse.scale.set(0.8, 0.42, 1); glimpse.visible = false; scene.add(glimpse);
   const hand = makeHand(); const post = makePost();
@@ -106,15 +111,22 @@ function boot() {
   const walking = () => ptrs.size > 0 || keys.has('KeyW') || keys.has('ArrowUp') || keys.has('Space');
 
   // ---- timeline state ------------------------------------------------------------------------------------------------
-  type Phase = 'card' | 'boot' | 'walk' | 'chase' | 'dead' | 'turn' | 'face' | 'static' | 'done';
+  type Phase = 'card' | 'boot' | 'puzzle' | 'walk' | 'chase' | 'dead' | 'turn' | 'face' | 'static' | 'done';
   let phase: Phase = 'card', T = 0, pt = 0, d = 0.5, speed = 0, bob = 0, lastStepHalf = 0, shake = 0, tension = 0;
   let torchOff: [number, number][] = [], idle = 0, pigGap = 99, pigD = -99, pigX = 0, crossT = -1, glimpseT = -1, heavyT = 0, beatT = 0, turnFrom = 0, kawaiiShown = false;
   const ev = { qq: false, flick: false, cross: false, behind: false };
+  const pz = { mush: false, trail: false, gate: false }; let gateT = -1, noInput = 0;
+  const puzzle = (k: keyof typeof pz, run: () => Promise<unknown>) => {
+    setPhase('puzzle'); hint.classList.remove('on'); ptrs.clear(); keys.clear();
+    void run().then(() => { pz[k] = true; keys.clear(); ptrs.clear(); noInput = 0; if (k === 'gate') { gateT = T; gateObj.open(); pzSfx.creak(); } setPhase('walk'); });
+  };
   const setPhase = (p: Phase) => { phase = p; pt = 0; };
   const sayIt = (key: string, soft = false) => { say.textContent = t(key); say.className = 'n-say' + (soft ? ' soft' : ''); void say.offsetWidth; say.classList.add('on'); };
 
   if (params.get('d')) d = +params.get('d')!;
-  if (at === 'chase' || at === 'caught') { d = at === 'chase' ? CHASE_D - 0.5 : STOP_D - 0.3; T = at === 'chase' ? 44 : 55; ev.qq = ev.flick = ev.cross = true; }
+  if (at === 'trail') { d = P_TRAIL - 1.5; T = 30; pz.mush = true; ev.qq = ev.flick = true; }
+  if (at === 'gate') { d = GATE_STOP - 2; T = 40; pz.mush = pz.trail = true; ev.qq = ev.flick = ev.cross = true; }
+  if (at === 'chase' || at === 'caught') { pz.mush = pz.trail = pz.gate = true; gateObj.open(); d = at === 'chase' ? CHASE_D - 0.5 : STOP_D - 0.3; T = at === 'chase' ? 44 : 55; ev.qq = ev.flick = ev.cross = true; }
 
   const pigAlong = (dd: number, xoff = 0) => { pig.root.position.set(pathX(dd) + xoff, 0, -dd); };
   const startChase = () => {
@@ -130,13 +142,16 @@ function boot() {
     if (phase === 'card') return;
     if (ev.cross) ffFade = Math.max(0, ffFade - dt * 0.5);
     if (phase === 'boot') { if (pt > 1.1) { setPhase('walk'); hint.classList.add('on'); } return; }
+    gateObj.update(dt);
+    if (phase === 'puzzle') { speed *= Math.max(0, 1 - dt * 6); sfx.tick(T, tension); return; }
     if (phase !== 'done') T += dt;
     // walking / running
     let target = 0;
-    if (phase === 'walk') target = walking() ? WALK : 0;
+    // never stuck: after ~9 s without input the camera drifts forward on its own
+    if (phase === 'walk') { noInput = walking() ? 0 : noInput + dt; target = walking() ? WALK : noInput > 9 ? WALK * 0.6 : 0; }
     if (phase === 'chase') target = Math.max(4.2, (STOP_D - d) / 8);
     speed += (target - speed) * Math.min(1, dt * (phase === 'chase' ? 3 : 5));
-    if (phase === 'walk' || phase === 'chase') d = Math.min(STOP_D, d + speed * dt);
+    if (phase === 'walk' || phase === 'chase') d = Math.min(pz.gate ? STOP_D : GATE_STOP, d + speed * dt);
     bob += speed * dt * 3.3;
     const half = Math.floor(bob / Math.PI); if (half !== lastStepHalf && speed > 0.3) { lastStepHalf = half; sfx.step(phase === 'chase'); }
     // look: keys + spring back to the path when not dragging
@@ -156,7 +171,10 @@ function boot() {
       if (!ev.flick && (d > 48 || T > 32)) { ev.flick = true; torchOff = [[T, T + 0.12], [T + 0.22, T + 0.82]]; sfx.torchOut(); }
       if (!ev.cross && (d > 58 || T > 38)) { ev.cross = true; crossT = 0; sfx.crickets(false); sfx.heavyStep(0.12); }
       if (!ev.behind && (d > 67 || T > 43)) { ev.behind = true; pigGap = 17; pig.root.visible = true; pig.setEyes(0.5); sfx.grunt(0.1); heavyT = 0; }
-      if (d >= CHASE_D || T > CHASE_T) startChase();
+      if (!pz.mush && d >= P_MUSH) { puzzle('mush', mushrooms); return; }
+      if (!pz.trail && d >= P_TRAIL) { puzzle('trail', trail); return; }
+      if (!pz.gate && d >= GATE_STOP - 0.02) { puzzle('gate', gatePuzzle); return; }
+      if (pz.gate && (d >= CHASE_D || T > Math.max(CHASE_T, gateT + 2.2))) startChase();
     }
     if (glimpseT >= 0) { glimpseT += dt; const m = glimpse.material; m.opacity = glimpseT < 0.25 ? glimpseT / 0.25 : Math.max(0, 1 - (glimpseT - 1.1) / 0.3); glimpse.position.y = 2.3 + Math.sin(glimpseT * 5) * 0.05; if (glimpseT > 1.4) { glimpseT = -1; glimpse.visible = false; } }
     // the shape crossing the path ahead (it is the pig, dimly)

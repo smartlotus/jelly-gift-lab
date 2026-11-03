@@ -63,3 +63,11 @@ export const sfx = {
   },
   pop() { tone(660, 0.12, 0.08, 'sine', 0, 500); },
 };
+// puzzle bits (appended): soft and friendly, never a buzzer
+export const pzSfx = {
+  tap(i = 0) { init(); tone(660 * Math.pow(1.26, i), 0.16, 0.06, 'triangle'); },
+  nope() { init(); tone(330, 0.16, 0.05, 'sine', 0, -60); tone(262, 0.2, 0.04, 'sine', 0.12, -40); },
+  ok() { init(); [784, 988, 1319].forEach((f, i) => tone(f, 0.3, 0.05, 'sine', i * 0.08)); },
+  click() { init(); noise(0.05, 2400, 4, 0.08, 'bandpass'); tone(1800, 0.04, 0.03, 'square'); },
+  creak() { init(); tone(140, 1.1, 0.05, 'sawtooth', 0, 60, 0.2); noise(0.9, 500, 6, 0.03, 'bandpass', 0.1); },
+};
