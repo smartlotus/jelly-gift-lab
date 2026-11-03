@@ -1,13 +1,22 @@
-/* Stage 3 page styles (owned by workstream C). STUB visuals only. */
-html, body { background: #0b0b0c; }
-#game { position: fixed; inset: 0; }
-.n-rec { position: absolute; top: calc(18px + var(--sat)); left: calc(18px + var(--sal)); color: #e33; font: 12px/1 monospace; letter-spacing: .2em; animation: n-blink 1s steps(2) infinite; }
-@keyframes n-blink { 50% { opacity: 0; } }
-.n-eyes { position: absolute; left: 50%; top: 50%; display: flex; gap: 22px; transform: translate(-50%,-50%) scale(.3); animation: n-near 3.2s cubic-bezier(.7,0,1,1) forwards; }
-.n-eyes i { width: 10px; height: 10px; background: #ff4d6d; box-shadow: 0 0 12px #ff4d6d; }
-@keyframes n-near { to { transform: translate(-50%,-50%) scale(9); } }
-.n-kawaii { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: radial-gradient(circle at 50% 40%, #fff4f7, #ffd6e2 55%, #f9c6cf); color: #c2456b; animation: n-pop .5s cubic-bezier(.2,1.6,.4,1); }
-@keyframes n-pop { from { transform: scale(1.25); opacity: 0; } }
-.n-caught { margin: 0; font-family: var(--display); font-size: clamp(44px, 10vw, 96px); }
-.n-sub { margin: 0; color: #d0708d; }
-.n-go { margin-top: 18px; padding: 10px 22px; border-radius: 99px; border: 1px solid #ee8fa6; color: #c2456b; letter-spacing: .16em; }
+/* Stage 3 page styles (owned by workstream C). */
+html, body { background: #05070d; }
+#game { position: fixed; inset: 0; overflow: hidden; cursor: grab; }
+#game:active { cursor: grabbing; }
+.n-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.n-hud { position: absolute; left: 0; top: 0; pointer-events: none; image-rendering: pixelated; image-rendering: crisp-edges; z-index: 2; }
+.n-hint { position: absolute; left: 50%; bottom: calc(14% + var(--sab)); transform: translateX(-50%); z-index: 3; pointer-events: none; white-space: nowrap;
+  font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: rgba(242,239,233,.72); transition: opacity .9s var(--ease); opacity: 0; }
+html[lang="zh-CN"] .n-hint { letter-spacing: .26em; font-size: 13px; }
+.n-hint.on { opacity: 1; animation: gk-pulse 2.4s var(--ease) infinite; }
+.n-say { position: absolute; left: 50%; top: 44%; z-index: 3; pointer-events: none; transform: translate(-50%, -50%); margin: 0; white-space: nowrap;
+  font-family: var(--display); font-style: italic; font-size: clamp(28px, 6vw, 54px); letter-spacing: .08em; color: #f4efe6; opacity: 0;
+  text-shadow: 0 0 18px rgba(0,0,0,.8); }
+html[lang="zh-CN"] .n-say { font-family: var(--serif); font-style: normal; font-weight: 600; letter-spacing: .3em; }
+.n-say.on { animation: n-say 1.5s var(--ease) forwards; }
+.n-say.soft { font-size: clamp(16px, 3vw, 22px); color: rgba(242,239,233,.7); }
+@keyframes n-say { 0% { opacity: 0; transform: translate(-50%, -50%) scale(1.15); } 12% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 20% { transform: translate(calc(-50% + 2px), -50%); } 26% { transform: translate(calc(-50% - 2px), -50%); } 70% { opacity: 1; } 100% { opacity: 0; } }
+.n-snd { margin: 2px 0 0; font-size: 13px; color: var(--ink-3); letter-spacing: .08em; display: flex; gap: 10px; align-items: center; }
+.n-snd button { padding: 4px 12px; border: 1px solid var(--hair); border-radius: 99px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-2); }
+.n-snd button[aria-pressed="true"] { color: var(--ink); border-color: var(--ink-2); }
+.n-fps { position: absolute; right: 8px; bottom: 8px; z-index: 5; font: 11px monospace; color: #7f7; }
+.n-black { position: absolute; inset: 0; background: #000; z-index: 1; pointer-events: none; transition: opacity .2s; }
