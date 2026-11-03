@@ -190,7 +190,7 @@ function boot() {
       // distance so the 1.04-wide face fills the frame in any aspect (portrait phones need it further away)
       const fill = 0.66 / (Math.tan((cam.fov * Math.PI) / 360) * Math.min(cam.aspect, 1.25)) + 0.46;
       const lean = phase === 'face' ? fill - Math.min(0.08, pt * 0.3) : fill + 0.8 - Math.min(1, pt / 0.48) * 0.8;
-      const by = -pathDir(d) + yawOff; fwd.set(-Math.sin(by), 0, -Math.cos(by));
+      const by = -pathDir(d) + (phase === 'turn' ? Math.PI * (turnFrom > 0 ? 1 : -1) : yawOff); fwd.set(-Math.sin(by), 0, -Math.cos(by)); // fixed behind you while the camera swings round
       const cx = pathX(d), cz = -d;
       pig.root.position.set(cx + fwd.x * lean, EYE - 2.54 + 0.05, cz + fwd.z * lean);
       pig.root.rotation.y = Math.atan2(-fwd.x, -fwd.z); pig.root.visible = true; pig.setEyes(1.2); pig.animate(dt, 0, 1, T);
