@@ -7,7 +7,8 @@
 import * as A from 'astronomy-engine';
 import { register, t, onLang, apply, lang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
-import { irisIn, dissolve } from '../../shared/transition';
+import { irisIn } from '../../shared/transition';
+import { drawDawn, DAWN_LINES } from '../../shared/dawn';
 import { go, from as cameFrom, markReached } from '../../shared/flow';
 import { params } from '../../shared/flow';
 import { SKY } from './config';
@@ -113,6 +114,9 @@ function aim(i: number) { // open looking at the brightest thing that is up (moo
 }
 aim(v0);
 // journey arrival from the jelly egg ("抬头"): open on the dark horizon and raise the eyes into the sky (3.6 s, cubic in-out)
+let lastHy = 0;
+// leaving for the co-op meadow (see leaveTick): eyes lower to the horizon, the sky pixelates into the shared dawn frame
+let leave: { t: number; alt0: number; fov0: number; tgt: number } | null = null;
 let raise = cameFrom === 'jelly' && !still && !reduced ? { t: 0, a0: -6, a1: view.alt } : null;
 if (raise) view.alt = raise.a0;
 markReached();
@@ -157,7 +161,7 @@ function frame(now: number) {
   const s = shown = kT >= 1 ? target : blend(from, target, e), M = mat(s.q);
   const realAlt = altDeg(s.sun), sunAlt = realAlt + (Math.min(realAlt, -30) - realAlt) * (hideK * hideK * (3 - 2 * hideK)), day = Math.max(0, Math.min(1, (sunAlt + 12) / 18)), lim = limMag(sunAlt);
   // sky gradient by sun altitude, plus the glow on the Sun's side
-  const hd = Math.hypot(F[0], F[1]) || 1; proj(F[0] / hd, F[1] / hd, 0); const hy = P.y;
+  const hd = Math.hypot(F[0], F[1]) || 1; proj(F[0] / hd, F[1] / hd, 0); const hy = P.y; lastHy = hy;
   const [zc, hc] = skyCols(sunAlt);
   const gr = g.createLinearGradient(0, hy - H * 1.1, 0, hy); gr.addColorStop(0, zc); gr.addColorStop(1, hc);
   g.fillStyle = gr; g.fillRect(0, 0, W, H);
@@ -341,13 +345,49 @@ function loop(now: number) {
   requestAnimationFrame(loop);
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   if (kT < 1) kT = Math.min(1, kT + dt / 1.8);
+  leaveTick(dt);
   if (raise) { raise.t = Math.min(1, raise.t + dt / 3.6); const k = raise.t < .5 ? 4 * raise.t ** 3 : 1 - (-2 * raise.t + 2) ** 3 / 2; view.alt = raise.a0 + (raise.a1 - raise.a0) * k; if (raise.t >= 1) raise = null; }
   intro += dt; hideK = reduced ? (hideDay ? 1 : 0) : Math.max(0, Math.min(1, hideK + (hideDay ? dt : -dt) / 0.8));
-  frame(now);
+  frame(now); leavePost();
 }
 requestAnimationFrame(loop);
 if (!still && !reduced && cameFrom !== 'jelly') void irisIn(innerWidth / 2, innerHeight / 2, 900, '#04060b'); // from the egg: already black, the stars rise out of it
 // onward -> the co-op finale: a slow fade through black, then the pixel iris opens there
 const next = $<HTMLButtonElement>('.sk-next');
-setTimeout(() => next.classList.add('on'), still ? 0 : cameFrom === 'jelly' ? 7000 : 2500);
-next.addEventListener('click', () => void go('coop', () => dissolve(1, 900, '#04060b')));
+setTimeout(() => next.classList.add('on'), still ? 0 : cameFrom === 'jelly' ? 9000 : 4000);
+next.addEventListener('click', () => {
+  if (leave) return; raise = null; gyro = false;
+  if (reduced) { void go('coop', undefined, { hz: '0.66' }); return; }
+  leave = { t: 0, alt0: view.alt, fov0: view.fov, tgt: 13 }; document.body.classList.add('sk-leaving');
+});
+// one continuous motion (3.4 s): 0–1.6 s the view sinks to the horizon (cubic in-out) and widens a little; from 0.8 s the
+// picture pixelates in steps (the meadow's resolution); from 1.7 s it settles, band by band, into the shared dawn frame;
+// then /coop/ opens on that same frame (?hz = where the horizon sits) and lets the morning finish there.
+const pix = document.createElement('canvas'), pg = pix.getContext('2d')!;
+const dawnCv = document.createElement('canvas'), dg = dawnCv.getContext('2d')!;
+function leaveTick(dt: number) {
+  if (!leave) return;
+  const T = 3.4; leave.t = Math.min(T, leave.t + dt); const t = leave.t;
+  const ease = (x: number) => x <= 0 ? 0 : x >= 1 ? 1 : x < .5 ? 4 * x ** 3 : 1 - (-2 * x + 2) ** 3 / 2;
+  const k1 = ease(t / 1.6);
+  if (lastHy) leave.tgt = Math.max(0, Math.min(60, leave.tgt + (0.64 - lastHy / H) * 50 * dt)); // settle the horizon near 64 % height
+  view.alt = leave.alt0 + (leave.tgt - leave.alt0) * k1; view.fov = leave.fov0 + (Math.max(leave.fov0, 84) - leave.fov0) * k1;
+  if (t >= T) { const hz = Math.max(0.45, Math.min(0.85, lastHy / H)); leave = null; void go('coop', undefined, { hz: hz.toFixed(3) }); }
+}
+function leavePost() {
+  if (!leave) return;
+  const t = leave.t; if (t < 0.8) return;
+  // pixelate: block size grows in whole steps up to the dawn frame's resolution
+  const finalBlk = H / DAWN_LINES, pk = Math.min(1, (t - 0.8) / 1.0), blk = Math.max(1, Math.round(1 + (finalBlk - 1) * pk * pk));
+  const lw = Math.max(1, Math.round(W / blk)), lh = Math.max(1, Math.round(H / blk));
+  if (pix.width !== lw || pix.height !== lh) { pix.width = lw; pix.height = lh; }
+  pg.imageSmoothingEnabled = true; pg.drawImage(cv, 0, 0, lw, lh);
+  // the dawn frame, at the same low resolution, rises over it with an ordered dither
+  const dk = Math.max(0, Math.min(1, (t - 1.7) / 1.4));
+  if (dk > 0) {
+    const dw = Math.round(W / finalBlk), dh = DAWN_LINES; if (dawnCv.width !== dw || dawnCv.height !== dh) { dawnCv.width = dw; dawnCv.height = dh; }
+    drawDawn(dg, dw, dh, Math.max(0.45, Math.min(0.85, lastHy / H)), 0.35 * dk, t);
+    pg.save(); pg.globalAlpha = dk < 1 ? Math.round(dk * 6) / 6 : 1; pg.imageSmoothingEnabled = false; pg.drawImage(dawnCv, 0, 0, lw, lh); pg.restore();
+  }
+  g.imageSmoothingEnabled = false; g.drawImage(pix, 0, 0, W, H);
+}

@@ -73,3 +73,6 @@ body.cp-preview .cp-tolink { display: none; }
 @media (prefers-reduced-motion: reduce) { .cp-home { animation: none !important; } }
 /* finale buttons sit low, between the thumbs, so the big heart stays clear */
 body.cp-playing .cp-again, body.cp-playing .cp-home { top: auto; bottom: calc(26px + var(--sab)); }
+/* arrival from /sky/: the shared pixel dawn frame over the level (main.ts dawnArrive) */
+.cp-dawn { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 80; pointer-events: none; image-rendering: pixelated; }
+html.cp-from-sky, html.cp-from-sky body { background: #05070d; }

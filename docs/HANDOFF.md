@@ -178,7 +178,7 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 - ✅ `src/shared/flow.ts`：STAGES = meadow, shop, night, jelly, **sea**, sky, coop（ar 为侧室）。
 - ⏳ TODO `/sea/`：`sea/index.html` + `vite.config.ts` 入口 + `src/stages/sea/{main.ts, shark.ts, scenes.ts, fx.ts, dict.ts, style.css}`（计划：PixelScreen minW 192 / minH 160 / maxH 240；`?at=<0..9>` 直达场景、`window.__pause/__steps` 截图；到达 `from=jelly` 时从 `#0d2c3b` 溶解进入、鲨鱼从上方潜入；结尾 `go('sky', …, { hz: <水线比例> })`）。
 - ⏳ TODO `/sky/?from=sea`：按 `hz` 让地平线落在相同屏幕高度，下半屏水波纹叠层渐隐，星星照常按星等浮现。
-- ⏳ TODO `/sky/ → /coop/` 连续过渡（见目标 5）。
+- ✅ `/sky/ → /coop/` 连续过渡：`src/shared/dawn.ts` 的 `drawDawn()` 是两页共用的像素地平线帧（夜 k=0 → 黎明 .5 → 合作关白天配色 1，分层色带 + 两排阶梯山 + 渐隐像素星）。sky 点「一起玩」（现在 9 s/4 s 后才带模糊渐显）：文字先淡出 → 视线 1.6 s 降到地平线（反馈控制让地平线落在 ~64% 高）→ 0.8 s 起逐级像素化 → 1.7 s 起抖动叠入 dawn 帧（k→.35）→ `go('coop', …, {hz})`。coop `?from=sky`：`coop/index.html` 头部内联脚本先把背景设为夜色，`dawnArrive()` 从同一帧开始把清晨走完（1.6 s）再用 Bayer 抖动溶解进正在运行的关卡（1.3 s）。无黑场、无光圈。检查脚本 `tools/sky-coop-shots.mjs`（`VW=844 VH=390` 横屏），截图 `review/v03/sky-coop-strip-land.png`。
 - ⏳ TODO 文档：GIFT_PLAN mermaid 加 `/sea/`；`npm run fonts`（新中文）；截图 `review/v03/`；合入 master、tag v03、部署、确认 200。
 
 ### 运行 / 构建 / 部署
