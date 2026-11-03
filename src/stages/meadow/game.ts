@@ -395,6 +395,7 @@ export function startMeadow(host: HTMLElement, hooks: Hooks, opts: { ready: Prom
     g.drawImage(S.fountain[Math.floor(time * (fountain.state === 'show' ? 12 : 6)) & 3], fountain.x - 32 - cx, fountain.y - 64 - cy);
     const dr = door, dframe = dr.state === 'enter' ? 2 : dr.state === 'done' ? 0 : (dr.state === 'still' && Math.abs(catCx() - dr.x - 16) < 64) ? 1 : 0;
     g.drawImage(S.door[dframe], Math.round(dr.x - cx), Math.round(dr.y - 48 - cy + dr.hopY));
+    if (dframe) { const lx = Math.round(dr.x - cx), ly = dr.y - cy; g.fillStyle = PAL.L; g.fillRect(lx + 8, ly, 16, 1); g.fillRect(lx + 4, ly + 1, 24, 1); g.fillStyle = PAL.Y; g.fillRect(lx + 11, ly, 10, 1); if (Math.floor(time * 3) & 1) { g.fillStyle = PAL.w; g.fillRect(lx + 2 + ((time * 7) % 28 | 0), ly - 18 - ((time * 11) % 20 | 0), 1, 1); } }
     // the cat
     if (splashT < 0 && dr.state !== 'done' && !(blinkT > 0 && Math.floor(blinkT * 16) % 2)) {
       let img: Img;
