@@ -1,8 +1,12 @@
 // Stage 2 DOM layer: the proximity card (editorial caption next to an exhibit) and the inspect-mode chrome
 // (title block, colour swatches, hairline buttons). Same typography as the jelly page (shared/chrome.css tokens).
 import { t, lang, onLang } from '../../shared/i18n';
+import { AR_ICON, isArId, quickLook, webxrAR, openQuickLook } from '../../shared/ar';
+import { asset, params as qp } from '../../shared/flow';
 import { EXHIBITS, colourOf, type Exhibit, type ExhibitId } from './exhibits';
 import type { Viewer, Rect } from './viewer';
+// v02: AR button (iOS Quick Look / WebXR); shown only where it can work (?ar=force for screenshots)
+let arOk = qp.get('ar') === 'force' || quickLook(); if (!arOk) void webxrAR().then(v => { arOk = v; });
 
 const coarse = matchMedia('(pointer: coarse)').matches;
 const ex = (id: ExhibitId) => EXHIBITS.find(e => e.id === id)!;
@@ -49,6 +53,7 @@ export class Inspect {
           <button type="button" class="si-btn" data-k="split" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1"/><rect x="14" y="14" width="6.5" height="6.5" rx="1"/></svg></button>
           <button type="button" class="si-btn" data-k="spin" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="8.5" ry="3.6"/><path d="M15.5 6.6l2.6 1.9-2.4 2"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg></button>
           <button type="button" class="si-btn si-light" data-k="light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6"/></svg><i></i></button>
+          <button type="button" class="si-btn si-ar" data-k="ar" hidden>${AR_ICON}</button>
           <button type="button" class="si-next" data-i18n-aria="shop.i.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 5l7 7-7 7"/></svg></button>
         </nav>
       </footer>`;
@@ -62,6 +67,7 @@ export class Inspect {
       else if (b.dataset.k === 'split') v.toggleSplit();
       else if (b.dataset.k === 'spin') { v.autoSpin = !v.autoSpin; this.sync(); }
       else if (b.dataset.k === 'light') v.cycleMood();
+      else if (b.dataset.k === 'ar' && isArId(this.id)) { if (quickLook()) openQuickLook(this.id); else location.assign(`${asset('ar/')}?m=${this.id}`); }
       else if (b.dataset.sw !== undefined) v.solo(b.dataset.sw || null);
     });
     window.addEventListener('keydown', e => {
@@ -97,7 +103,7 @@ export class Inspect {
   private fill() {
     // icon-only controls: words live in aria-labels / tooltips only
     this.el.querySelectorAll<HTMLButtonElement>('.si-btn').forEach(b => {
-      const k = b.dataset.k!, l = k === 'light' ? t(`shop.i.light${this.v.mood}`) : k === 'split' && this.id === 'pair' ? t('shop.i.split.pair') : t(`shop.i.${k}`);
+      const k = b.dataset.k!, l = k === 'ar' ? t('shop.i.ar') : k === 'light' ? t(`shop.i.light${this.v.mood}`) : k === 'split' && this.id === 'pair' ? t('shop.i.split.pair') : t(`shop.i.${k}`);
       b.setAttribute('aria-label', l); b.title = l;
     });
   }
@@ -112,6 +118,7 @@ export class Inspect {
     sw.querySelectorAll<HTMLButtonElement>('[data-sw]').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.sw || null) === solo)));
     this.el.querySelector('[data-k="split"]')!.setAttribute('aria-pressed', String(v.split()));
     this.el.querySelector('[data-k="spin"]')!.setAttribute('aria-pressed', String(v.autoSpin));
+    this.el.querySelector<HTMLButtonElement>('[data-k="ar"]')!.hidden = !(arOk && isArId(this.id));
     const lb = this.el.querySelector<HTMLElement>('[data-k="light"]')!; lb.dataset.mood = String(v.mood); this.fill();
   }
 }
