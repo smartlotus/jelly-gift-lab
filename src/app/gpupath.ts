@@ -7,7 +7,7 @@ import * as W from '../render/webgpu/shaders';
 import type { Look } from '../core/look';
 
 const U = GPUBufferUsage, T = GPUTextureUsage, SS = GPUShaderStage;
-const SIM_BYTES = 464; // see Sim struct in gpu.wgsl.ts
+const SIM_BYTES = 512; // see Sim struct in gpu.wgsl.ts
 const HDR = 'rgba16float' as GPUTextureFormat;
 
 /** WebGPU path: XPBD on compute shaders, skinned + shaded with WGSL render passes. Mirrors GLPath + WebGL2Backend. */
@@ -205,6 +205,7 @@ export class GPUPath implements Path {
     f[28] = inp.spin[0]; f[29] = inp.spin[1]; f[30] = inp.spin[2]; f[31] = 0; f[32] = inp.spin[3]; f[33] = inp.spin[4]; f[34] = inp.spin[5]; f[35] = 0;
     for (let c = 0; c < 4; c++) { f[36 + 4 * c] = this.asset.axes[3 * c]; f[37 + 4 * c] = this.asset.axes[3 * c + 1]; f[38 + 4 * c] = this.asset.axes[3 * c + 2]; f[39 + 4 * c] = 0; }
     f.set(inp.beads.subarray(0, MAX_BEADS * 4), 52);
+    f.fill(0, 116, 128); if (inp.acc) f.set(inp.acc, 116); if (inp.box) f.set(inp.box, 120);
     const q = this.dev.queue;
     q.writeBuffer(this.b.sim, 0, this.simU);
     const grabbing = g.active && g.count > 0;

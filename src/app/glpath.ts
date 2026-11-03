@@ -37,7 +37,7 @@ export class GLPath implements Path {
     const g = inp.grab;
     this.worker.postMessage({ type: 'step', dt: inp.dt, act: inp.act, substeps: this.substeps, seq: this.seq++,
       grab: { active: g.active, count: g.count, idx: g.idx, off: g.off, wt: g.wt, target: g.target, twist: g.twist, axis: g.axis },
-      beads: inp.beads, beadCount: inp.beadCount, spin: inp.spin });
+      beads: inp.beads, beadCount: inp.beadCount, spin: inp.spin, acc: inp.acc, box: inp.box });
     this.inflight++;
   }
   render(frame: Float32Array, exposure: number, time: number) {
