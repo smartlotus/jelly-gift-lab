@@ -27,3 +27,14 @@ function circle(x: number, y: number, r: number) {
 export const irisOut = (x = innerWidth / 2, y = innerHeight / 2, ms = 650, colour = '#141414') => run(1, 0, ms, x, y, colour);
 /** open from black at page start */
 export const irisIn = (x = innerWidth / 2, y = innerHeight / 2, ms = 650, colour = '#141414') => run(0, 1, ms, x, y, colour);
+
+/** paper / dark stages: a plain full-screen dissolve (no iris). to = 1 covers the page, to = 0 reveals it.
+ *  Reduced motion -> instant. The same veil element as the iris, so an arrival can continue a departure's colour. */
+export function dissolve(to: 0 | 1, ms = 600, colour = '#f6efe4', ease = 'cubic-bezier(.65,0,.35,1)'): Promise<void> {
+  const v = veil(colour); v.style.clipPath = ''; v.style.transition = 'none';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  v.style.opacity = String(1 - to); void v.offsetWidth;
+  if (reduce) { v.style.opacity = String(to); return Promise.resolve(); }
+  v.style.transition = `opacity ${ms}ms ${ease}`; v.style.opacity = String(to);
+  return new Promise(res => setTimeout(() => { v.style.transition = ''; res(); }, ms + 20));
+}

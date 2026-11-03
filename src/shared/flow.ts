@@ -2,11 +2,14 @@
 //   meadow  /         stage 1 · bright Cat-Mario-style pixel platformer (the link she opens)
 //   shop    /shop/    stage 2 · pixel cat walks through a shop of lotus's 3D models
 //   night   /night/   stage 3 · blocky night walk, "caught" by the pig -> kawaii flip
-//   jelly   /jelly/   stage 4 · Jelly Studies + mushroom easter egg (existing page)
+//   jelly   /jelly/   stage 4 · Jelly Studies + mushroom easter egg (existing page) -> 抬头 / Look up
+//   sky     /sky/     stage 5 · the real live sky over Changchun -> 一起玩 / Play together
+//   coop    /coop/    stage 6 · the pig + cat co-op level (one phone by default, two phones optional) = the finale
+//   (ar     /ar/      side room of the shop: the figure on a real table; returns to the same exhibit)
 // vite base is './' so every URL here is RELATIVE (works under https://smartlotus.github.io/jelly-gift/ and any host).
-export type StageId = 'meadow' | 'shop' | 'night' | 'jelly';
-export const STAGES: readonly StageId[] = ['meadow', 'shop', 'night', 'jelly'];
-const PATH: Record<StageId, string> = { meadow: '', shop: 'shop/', night: 'night/', jelly: 'jelly/' };
+export type StageId = 'meadow' | 'shop' | 'night' | 'jelly' | 'sky' | 'coop' | 'ar';
+export const STAGES: readonly StageId[] = ['meadow', 'shop', 'night', 'jelly', 'sky', 'coop'];
+const PATH: Record<StageId, string> = { meadow: '', shop: 'shop/', night: 'night/', jelly: 'jelly/', sky: 'sky/', coop: 'coop/', ar: 'ar/' };
 /** query params that survive page hops (language + dev switches) */
 const CARRY = ['lang', 'dev', 'sound', 'skip'];
 const PROGRESS = 'gift.progress';
@@ -48,12 +51,15 @@ export function prefetchNext(id: StageId = here) {
 }
 
 /** leave for the next stage: optional outro (e.g. iris close) then navigate. */
-export async function go(to: StageId | null = nextStage(), outro?: () => Promise<void>) {
+export async function go(to: StageId | null = nextStage(), outro?: () => Promise<void>, extra: Record<string, string> = {}) {
   if (!to) return;
   markReached(to);
   if (outro) await outro();
-  location.assign(stageUrl(to, { from: here }));
+  location.assign(stageUrl(to, { from: here, ...extra }));
 }
+/** where this page was entered from (?from=...), for arrival animations */
+export const from = params.get('from') as StageId | null;
+export const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** URL of a file in public/ (copied to the site root) from any stage page, e.g. asset('models/figure-pig.glb').
  *  Never use '/models/..' (absolute breaks under /jelly-gift/) or import.meta.env.BASE_URL (= './', document-relative). */
