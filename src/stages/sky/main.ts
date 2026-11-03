@@ -117,7 +117,15 @@ aim(v0);
 let lastHy = 0;
 // leaving for the co-op meadow (see leaveTick): eyes lower to the horizon, the sky pixelates into the shared dawn frame
 let leave: { t: number; alt0: number; fov0: number; tgt: number } | null = null;
-let raise = cameFrom === 'jelly' && !still && !reduced ? { t: 0, a0: -6, a1: view.alt } : null;
+let raise = (cameFrom === 'jelly' || cameFrom === 'sea') && !still && !reduced ? { t: cameFrom === 'sea' ? -0.6 : 0, a0: cameFrom === 'sea' ? 16 : -6, a1: view.alt } : null;
+// arrival from /sea/: the shark has just surfaced. Hold the horizon exactly where the pixel water line was (?hz, settled
+// by feedback during the first 0.6 s while the page is still fading in), let the water drain below it, then raise the eyes.
+const seaHz = cameFrom === 'sea' ? Math.max(0.3, Math.min(0.8, +(new URLSearchParams(location.search).get('hz') || 0.62))) : 0;
+if (cameFrom === 'sea') {
+  const w = document.createElement('div'); w.className = 'sk-water'; w.style.top = `${seaHz * 100}%`; w.innerHTML = '<i></i>'; document.body.appendChild(w);
+  requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => w.classList.add('off'), reduced ? 0 : 900)));
+  setTimeout(() => w.remove(), 4500);
+}
 if (raise) view.alt = raise.a0;
 markReached();
 let W = 0, H = 0, dpr = 1;
@@ -346,7 +354,8 @@ function loop(now: number) {
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   if (kT < 1) kT = Math.min(1, kT + dt / 1.8);
   leaveTick(dt);
-  if (raise) { raise.t = Math.min(1, raise.t + dt / 3.6); const k = raise.t < .5 ? 4 * raise.t ** 3 : 1 - (-2 * raise.t + 2) ** 3 / 2; view.alt = raise.a0 + (raise.a1 - raise.a0) * k; if (raise.t >= 1) raise = null; }
+  if (raise && raise.t < 0) { raise.t += dt; if (lastHy) raise.a0 = Math.max(-10, Math.min(60, raise.a0 + (seaHz - lastHy / H) * 90 * dt)); view.alt = raise.a0; if (raise.t >= 0) raise.t = 0; }
+  else if (raise) { raise.t = Math.min(1, raise.t + dt / 3.6); const k = raise.t < .5 ? 4 * raise.t ** 3 : 1 - (-2 * raise.t + 2) ** 3 / 2; view.alt = raise.a0 + (raise.a1 - raise.a0) * k; if (raise.t >= 1) raise = null; }
   intro += dt; hideK = reduced ? (hideDay ? 1 : 0) : Math.max(0, Math.min(1, hideK + (hideDay ? dt : -dt) / 0.8));
   frame(now); leavePost();
 }

@@ -24,7 +24,7 @@ export function drawDawn(g: CanvasRenderingContext2D, w: number, h: number, hz: 
   // stars fade as the dawn comes (deterministic positions)
   const sa = Math.max(0, 1 - k * 2.2);
   if (sa > 0) for (let i = 0; i < 70; i++) {
-    const x = (i * 97.13 + 13) % w | 0, y = ((i * 57.7) % (hy * 0.9)) | 0, tw = 0.6 + 0.4 * Math.sin(t * 2 + i);
+    const hx = Math.sin(i * 12.9898 + 4.1) * 43758.5453, hy2 = Math.sin(i * 78.233 + 1.7) * 43758.5453, x = ((hx - Math.floor(hx)) * w) | 0, y = ((hy2 - Math.floor(hy2)) * hy * 0.9) | 0, tw = 0.6 + 0.4 * Math.sin(t * 2 + i);
     g.fillStyle = `rgba(236,232,223,${(sa * tw * (i % 5 === 0 ? 1 : 0.55)).toFixed(3)})`; g.fillRect(x, y, 1, 1);
   }
   // two rows of stepped hills (the meadow's skyline), then the earth

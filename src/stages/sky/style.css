@@ -41,3 +41,7 @@ body.sk-leaving .sk-ui > *, body.sk-leaving .gift-chrome { opacity: 0 !important
 .sk-next svg { width: 16px; height: 16px; transition: transform .4s cubic-bezier(.16,1,.3,1); }
 .sk-next:hover { color: #f2eee6; } .sk-next:hover svg { transform: translateX(3px); }
 @media (prefers-reduced-motion: reduce) { .sk-next { transition: none; } }
+/* arrival from /sea/: the pixel water the shark surfaced through, draining below the horizon */
+.sk-water { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; pointer-events: none; background: linear-gradient(rgba(18,52,70,.92), rgba(13,44,59,.98)); transition: transform 3.2s cubic-bezier(.45,0,.2,1), opacity 2.6s ease .4s; }
+.sk-water i { position: absolute; left: 0; right: 0; top: -2px; height: 2px; background: #5d8a9a; opacity: .8; }
+.sk-water.off { transform: translateY(100%); opacity: 0; }
