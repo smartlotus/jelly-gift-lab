@@ -16,7 +16,7 @@
 | 3D 模型仓库（私有） | `smartlotus/lotus-3d-figures`，本机 `/workspace/lotus-3d-figures-repo` |
 | 涂鸦参考 | `/workspace/figure-project/refs/ref_A_pig_laptop.jpg`（猪+笔记本）、`ref_B_cat_book.jpg`（猫+书） |
 | Blender | `/workspace/blender-4.2.3-linux-x64/blender`（模型转换用） |
-| git 身份 | `gh` 已登录 smartlotus；提交邮箱 `227950577+smartlotus@users.noreply.github.com`，名字 `smartlotus` |
+| git 身份 | `gh` 已登录 smartlotus；本仓库已 `git config user.email 227950577+smartlotus@users.noreply.github.com` / `user.name smartlotus`（新克隆要重新设置，否则会以 bot@local 提交） |
 | 规则 | 每次提交后 `git push origin master`；**禁止 force-push**；提交前 `git pull --rebase origin master` |
 
 ## 3. 目录结构
