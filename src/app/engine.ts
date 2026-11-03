@@ -100,6 +100,13 @@ export class Engine {
   }
   band = [-1, 1]; rest: { lo: number[]; hi: number[] } | null = null;
 
+  /** world point -> css px (client), with the current camera (used to aim arrival transitions at the jelly) */
+  project(p: number[]): { x: number; y: number } {
+    this.updateCamera(0); const m = this.vp; const x = p[0], y = p[1], z = p[2];
+    const cx = m[0] * x + m[4] * y + m[8] * z + m[12], cy = m[1] * x + m[5] * y + m[9] * z + m[13], cw = m[3] * x + m[7] * y + m[11] * z + m[15];
+    const r = this.canvas.getBoundingClientRect();
+    return { x: r.left + (cx / cw * 0.5 + 0.5) * r.width, y: r.top + (0.5 - cy / cw * 0.5) * r.height };
+  }
   dropBait() {
     const r = 0.016 + Math.random() * 0.008;
     const u = Math.random();

@@ -171,3 +171,15 @@ html[data-lang="zh"] .fail-t { font-style: normal; letter-spacing: .1em; }
 @media (min-width: 761px) and (max-width: 1100px) and (orientation: portrait) {
   .hint { top: auto; bottom: calc(var(--pad) + var(--sab) + 100px); }
 }
+
+/* v03: the mushroom only exists on the last specimen (the shark) */
+.shroom.off { opacity: 0 !important; visibility: hidden; pointer-events: none; transform: translateY(-4px); transition: opacity .5s ease, transform .6s var(--ease), visibility 0s .6s; }
+.shroom:not(.off) { transition: opacity .9s ease .25s, transform .9s var(--ease) .25s, visibility 0s; }
+/* journey: the next specimen's tab glows once when she lingers */
+.char.nudge { animation: char-nudge 2.8s var(--ease) 2; }
+@keyframes char-nudge { 0%, 100% { color: var(--ink-3); } 35% { color: var(--ink); text-shadow: 0 0 10px rgba(255,255,255,.9); } }
+/* arrival from the night stage: the kawaii pink gathers into the pig (radial mask driven from main.ts) */
+.pink-veil { position: fixed; inset: 0; z-index: 90; pointer-events: none; background: #F9C6CF;
+  -webkit-mask-image: radial-gradient(circle at var(--mx, 50%) var(--my, 45%), #000 var(--mr, 200vmax), transparent var(--ms, 200vmax));
+  mask-image: radial-gradient(circle at var(--mx, 50%) var(--my, 45%), #000 var(--mr, 200vmax), transparent var(--ms, 200vmax)); }
+@media (prefers-reduced-motion: reduce) { .char.nudge { animation: none; } }
