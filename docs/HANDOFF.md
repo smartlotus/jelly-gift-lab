@@ -139,3 +139,10 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 - **动效**：规格 `jelly-gift-ideas/designs/v02/motion.md`。sky 星星按星等淡入 / 数值滚入；ar 模型溶解 + 转台 expo-out、按钮外扩环；coop 大厅/配对面板依次浮现、进入关卡/连接/再来一次用草地关的像素虹膜。全部尊重 prefers-reduced-motion。
 - **/jelly/ 重力感应**：`src/app/tilt.ts`（DeviceOrientation β/γ → 屏幕坐标“下”方向，低通 120 ms，前后倾相对 4 s 自适应握姿；DeviceMotion.acceleration 高通 + 死区 → 冲量，总量限幅 2.2 G，向上 ≤ 1.1 G）。Engine 每帧把额外加速度 `acc` 与侧墙 `box`（相机坐标系下、按可见宽度的盒子）传给求解器：CPU (`cpu.ts`) 与 WGSL (`gpu.wgsl.ts`，Sim uniform 464 → 512 B) 同步实现；开关关闭时与旧版完全一致。开关 `#grav`（`localStorage['jelly.gravity']`），iOS 在点按时 requestPermission，拒绝 → 复位并轻摇；无传感器（桌面 / 2 s 内无事件）隐藏。检查：`node tools/jelly-grav-check.mjs http://localhost:8811/`（`?grav` 强制显示，合成倾斜/摇晃事件）。
 - **部署**（只增不改 + /jelly/）：公开仓库只新增 sky/ ar/ coop/ 及其资源、USDZ，并更新 `jelly/index.html`；/、/shop/、/night/ 的 html 与其引用的资源未动（同名资源逐字节一致）。
+
+### v02 = 一条线的完整旅程（2026-11-03）
+`/` 草地 → `/shop/` 小店（检视器 AR 按钮：iOS Quick Look；其他设备纸面溶解进 `/ar/?from=shop&m=<id>`，‹ 回 `/shop/?from=ar&ex=<id>` 同一展台自动重开检视器）→ `/night/` → `/jelly/`（蘑菇在旅程中 12 s 起每 16 s 微光；彩蛋卡片下新增「抬头 / Look up」，彩蛋原文案未改）→ `/sky/?from=jelly`（暗场连续：卡片下沉、烟花下滑、入夜 2.7 s；天空从地平线 −6° 抬到目标高度 3.6 s，星星按星等浮现；7 s 后出现「一起玩 ›」）→ `/coop/?from=sky`（淡入黑 0.9 s → 像素光圈从黑打开，直接一部手机双人；左上两部手机图标 → `?duo` 配对）→ 结局满屏爱心后 ↻ 再来 / ⌂ 从头再来（光圈 → `/?from=coop`）。
+- `flow.ts`：`STAGES` = meadow, shop, night, jelly, sky, coop（`ar` 为侧室路径）；`go(to, outro, extra)`；`from`；`?stage=5|sky`、`6|coop` 可直达。`transition.ts` 新增 `dissolve(to, ms, colour)`（纸面 / 暗场溶解，同一 veil 元素，尊重 reduced-motion）。
+- 过渡语言：像素章 = 像素光圈；纸面（小店检视器 ⇄ AR）= 纸色溶解 `#eeece8`；暗场（彩蛋 → 天空 → 合作关）= 经黑色慢淡。
+- 检查：`node tools/journey-v02.mjs http://localhost:8811/`（彩蛋 → 天空 → 合作关 → 结局 → 草地；小店 AR → /ar/ → 回到同一展台；截图 `review/v02/journey-*.png`）。
+- 草地隐藏管道（彩蛋式直达 /coop/）未做（可选）。

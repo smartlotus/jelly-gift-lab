@@ -5,8 +5,8 @@ import { WebGLRenderer, Scene, PerspectiveCamera, DirectionalLight, Mesh, PlaneG
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { register, t, onLang, apply } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
-import { irisIn } from '../../shared/transition';
-import { params } from '../../shared/flow';
+import { irisIn, dissolve } from '../../shared/transition';
+import { params, from, go } from '../../shared/flow';
 import { AR_IDS, AR_ICON, isArId, quickLook, webxrAR, openQuickLook, type ArId } from '../../shared/ar';
 import { loadFigure } from './models';
 import * as dict from './dict';
@@ -83,5 +83,13 @@ function loop() {
   r.render(scene, cam);
 }
 r.setAnimationLoop(loop);
-void show(idx); void irisIn(innerWidth / 2, innerHeight / 2, 700, '#eeece8');
+void show(idx);
+if (from === 'shop') {
+  // came from the shop's inspector: the paper dissolves away around the same figure; a quiet back arrow returns to it
+  void dissolve(0, 800, '#eeece8');
+  const back = document.createElement('button'); back.type = 'button'; back.className = 'ar-back'; back.dataset.i18nAria = 'ar.back';
+  back.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 6l-6 6 6 6"/></svg>';
+  document.body.appendChild(back); apply();
+  back.addEventListener('click', () => void go('shop', () => dissolve(1, 600, '#eeece8'), { ex: AR_IDS[idx] }));
+} else void irisIn(innerWidth / 2, innerHeight / 2, 700, '#eeece8');
 void t; void isArId;

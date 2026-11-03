@@ -134,8 +134,8 @@ async function boot() {
   const egg = () => import('./egg/egg');
   shroom.addEventListener('pointerenter', () => { egg(); }, { once: true });
   shroom.addEventListener('click', async () => { (await egg()).openEgg(shroom, engine); });
-  // Journey arrival (/jelly/?from=night): one quiet glint on the mushroom ~18 s in, at a moment she isn't dragging.
-  // Once per visit; never if she already found it. The egg itself is untouched.
+  // Journey arrival (/jelly/?from=night): a quiet glint on the mushroom ~12 s in (then every ~16 s), at a moment she isn't
+  // dragging; stops once she found it. The egg leads on to /sky/ (抬头 / Look up).
   if (new URLSearchParams(location.search).get('from') === 'night') {
     let found = false, lastTouch = 0;
     shroom.addEventListener('click', () => { found = true; }, { once: true });
@@ -144,8 +144,9 @@ async function boot() {
       if (found) return;
       if (performance.now() - lastTouch < 2000) { setTimeout(tryGlint, 700); return; }
       shroom.classList.add('glint'); setTimeout(() => shroom.classList.remove('glint'), 2600);
+      setTimeout(tryGlint, 16000); // the journey continues through the egg: keep glinting quietly until she finds it
     };
-    setTimeout(tryGlint, 18000);
+    setTimeout(tryGlint, 12000);
   }
   // gravity sensor switch (default off, remembered). iOS asks on the tap; a remembered "on" re-asks on her first touch.
   const grav = document.getElementById('grav') as HTMLButtonElement, GK = 'jelly.gravity';

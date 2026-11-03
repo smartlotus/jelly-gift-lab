@@ -62,3 +62,14 @@ body.cp-preview #coop { position: fixed; inset: 0; display: flex; align-items: c
 @keyframes cp-rise { from { opacity: 0; transform: translateY(10px); } }
 @keyframes cp-bloom { from { opacity: 0; transform: scale(.96); } }
 @media (prefers-reduced-motion: reduce) { .cp-lobby, .cp-pair, .cp-lobby > *, .cp-pair > *, .cp-qrc, .cp-cam, .cp-again { animation: none !important; } .cp-rotate svg { animation: none !important; } }
+/* finale: again + from the start, side by side; the two-phones switch (solo), top left */
+.cp-home { position: fixed; z-index: 40; left: 50%; top: calc(var(--pad) * .7 + var(--sat)); transform: translateX(calc(-50% + 30px)); width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: rgba(20,20,20,.22); border: 1px solid rgba(255,255,255,.8); }
+.cp-home svg { width: 20px; height: 20px; } .cp-home[hidden] { display: none; }
+.cp-home:not([hidden]) { animation: cp-fade 1.2s cubic-bezier(.16,1,.3,1) .3s both; }
+body.cp-playing .cp-again { transform: translateX(calc(-50% - 30px)); }
+.cp-tolink { position: fixed; z-index: 40; left: calc(var(--pad) + var(--sal)); top: calc(var(--pad) * .7 + var(--sat)); width: 44px; height: 36px; display: grid; place-items: center; color: #fff; opacity: .72; }
+.cp-tolink svg { width: 30px; height: 20px; }
+body.cp-preview .cp-tolink { display: none; }
+@media (prefers-reduced-motion: reduce) { .cp-home { animation: none !important; } }
+/* finale buttons sit low, between the thumbs, so the big heart stays clear */
+body.cp-playing .cp-again, body.cp-playing .cp-home { top: auto; bottom: calc(26px + var(--sab)); }

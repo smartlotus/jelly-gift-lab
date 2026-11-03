@@ -5,7 +5,7 @@
 import { register, apply, onLang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
 import { irisIn, irisOut } from '../../shared/transition';
-import { params } from '../../shared/flow';
+import { params, from, go, markReached } from '../../shared/flow';
 import { PixelScreen } from '../../shared/pixel/screen';
 import { startLoop } from '../../shared/pixel/loop';
 import { TILE } from '../../shared/pixel/tiles';
@@ -26,6 +26,7 @@ const ICON = {
   x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   again: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4v3.5H8"/></svg>',
   link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M10 14l4-4M8.5 11.5l-2 2a3 3 0 0 0 4.2 4.2l2-2M15.5 12.5l2-2a3 3 0 0 0-4.2-4.2l-2 2"/><path d="M4 4l16 16"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5L12 5l7.5 6.5"/><path d="M7 10v8.5h10V10"/></svg>',
   rotate: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="17" y="8" width="14" height="24" rx="2.5"/><path d="M10 34a16 16 0 0 0 26 4"/><path d="M36 33v5h-5"/></svg>',
 };
 const head = (who: 'pig' | 'cat', k = 6) => { const s = who === 'pig' ? pigSprites().idle.frames[0] : catSprites().idle.frames[0]; const c = document.createElement('canvas'); c.width = 16 * k; c.height = 16 * k; const g = c.getContext('2d')!; g.imageSmoothingEnabled = false; g.drawImage(s, 0, 0, 16 * k, 16 * k); c.className = `cp-head cp-${who}`; return c; };
@@ -70,6 +71,12 @@ function boot() {
     const rot = document.createElement('div'); rot.className = 'cp-rotate'; rot.innerHTML = ICON.rotate; document.body.appendChild(rot);
     const again = document.createElement('button'); again.type = 'button'; again.className = 'cp-again'; again.innerHTML = ICON.again; again.dataset.i18nAria = 'coop.again'; again.hidden = true; document.body.appendChild(again);
     const lost = document.createElement('div'); lost.className = 'cp-lost'; lost.innerHTML = ICON.link; lost.hidden = true; document.body.appendChild(lost);
+    // the finale: hearts across the screens, then two quiet choices — again, or the whole journey from the start
+    const home = document.createElement('button'); home.type = 'button'; home.className = 'cp-home'; home.innerHTML = ICON.home; home.dataset.i18nAria = 'coop.home'; home.hidden = true; document.body.appendChild(home);
+    home.addEventListener('click', () => { link?.close(); void go('meadow', () => reduced ? Promise.resolve() : irisOut(tapX, tapY, 700)); });
+    // one phone (the default in the journey) can still become two: a small two-phones button, top left
+    if (role === 'solo') { const lk = document.createElement('button'); lk.type = 'button'; lk.className = 'cp-tolink'; lk.innerHTML = ICON.duo; lk.dataset.i18nAria = 'coop.duo'; document.body.appendChild(lk);
+      lk.addEventListener('click', () => void (reduced ? Promise.resolve() : irisOut(tapX, tapY, 480, '#f6efe4')).then(() => location.assign(`${location.pathname}?${new URLSearchParams({ ...(params.get('lang') ? { lang: params.get('lang')! } : {}), duo: '1' })}`))); }
     apply();
     again.addEventListener('click', () => { if (role !== 'guest') void iris(() => { sim = new Sim(view); again.hidden = true; }, '#FFF8EE'); });
     // network
@@ -102,13 +109,14 @@ function boot() {
       sim.step([a, b], dt);
       if (role === 'host' && n % 2 === 0) link?.send({ k: 's', s: sim.snapshot() });
       again.hidden = !(sim.end > 7);
+      if (home.hidden !== !(sim.end > 7)) home.hidden = !(sim.end > 7);
     }, () => {
       if (role === 'guest') {
         if (!snapB) { scr.ctx.fillStyle = '#5EC4FF'; scr.ctx.fillRect(0, 0, scr.w, scr.h); return; }
         // render ~one snapshot behind, interpolating positions + camera (30 Hz -> smooth 60 Hz)
         const k = snapA ? Math.min(1, (performance.now() - tB) / 33) : 1, s = snapB.slice();
         if (snapA) for (const i of [0, 1, 6, 7, 12]) s[i] = snapA[i] + (snapB[i] - snapA[i]) * k;
-        sim.load(s); art.render(scr.ctx, sim, sim.camX + otherW, scr.w, scr.h);
+        sim.load(s); art.render(scr.ctx, sim, sim.camX + otherW, scr.w, scr.h); if (home.hidden !== !(sim.end > 7)) home.hidden = !(sim.end > 7);
       } else art.render(scr.ctx, sim, sim.camX + (role === 'host' ? 0 : 0), scr.w, scr.h);
     });
     (window as unknown as { __coop: unknown }).__coop = { get sim() { return sim; }, role, scr };
@@ -127,7 +135,9 @@ function boot() {
     (window as unknown as { __coop: unknown }).__coop = { sim };
     return;
   }
-  if (params.has('solo')) { play('solo'); return; }
+  markReached();
+  // journey arrival from the sky: straight into the level on this one phone (always works); the pixel iris opens from black
+  if (params.has('solo') || from === 'sky') { play('solo'); if (from === 'sky' && !reduced) void irisIn(innerWidth / 2, innerHeight / 2, 900, '#04060b'); return; }
 
   // ================= lobby =================
   const lobby = () => {
@@ -178,6 +188,6 @@ function boot() {
     else if (m === 'back') { scanning?.stop(); link?.close(); link = null; history.replaceState(null, '', location.pathname + location.search); lobby(); }
   });
   onLang(() => apply());
-  if (/^o[zr]/.test(hashCode)) void guest(hashCode); else lobby();
+  if (/^o[zr]/.test(hashCode)) void guest(hashCode); else if (params.has('duo')) void host(); else lobby();
   void irisIn(innerWidth / 2, innerHeight / 2, 650, '#f6efe4');
 }

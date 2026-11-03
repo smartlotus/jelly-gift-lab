@@ -1,12 +1,14 @@
 // Stage 2 DOM layer: the proximity card (editorial caption next to an exhibit) and the inspect-mode chrome
 // (title block, colour swatches, hairline buttons). Same typography as the jelly page (shared/chrome.css tokens).
 import { t, lang, onLang } from '../../shared/i18n';
-import { AR_ICON, isArId, quickLook, webxrAR, openQuickLook } from '../../shared/ar';
-import { asset, params as qp } from '../../shared/flow';
+import { AR_ICON, isArId, quickLook, openQuickLook } from '../../shared/ar';
+import { go } from '../../shared/flow';
+import { dissolve } from '../../shared/transition';
 import { EXHIBITS, colourOf, type Exhibit, type ExhibitId } from './exhibits';
 import type { Viewer, Rect } from './viewer';
-// v02: AR button (iOS Quick Look / WebXR); shown only where it can work (?ar=force for screenshots)
-let arOk = qp.get('ar') === 'force' || quickLook(); if (!arOk) void webxrAR().then(v => { arOk = v; });
+// v02: the AR button is part of the journey: on every device for the three printed figures. iOS -> AR Quick Look on the
+// spot; elsewhere the paper dissolves into /ar/ (same model, centred; WebXR there if the phone has it) and comes back here.
+const AR_PAPER = '#eeece8';
 
 const coarse = matchMedia('(pointer: coarse)').matches;
 const ex = (id: ExhibitId) => EXHIBITS.find(e => e.id === id)!;
@@ -67,7 +69,7 @@ export class Inspect {
       else if (b.dataset.k === 'split') v.toggleSplit();
       else if (b.dataset.k === 'spin') { v.autoSpin = !v.autoSpin; this.sync(); }
       else if (b.dataset.k === 'light') v.cycleMood();
-      else if (b.dataset.k === 'ar' && isArId(this.id)) { if (quickLook()) openQuickLook(this.id); else location.assign(`${asset('ar/')}?m=${this.id}`); }
+      else if (b.dataset.k === 'ar' && isArId(this.id)) { b.classList.remove('suggest'); if (quickLook()) openQuickLook(this.id); else { const id = this.id; void go('ar', () => dissolve(1, 650, AR_PAPER), { m: id }); } }
       else if (b.dataset.sw !== undefined) v.solo(b.dataset.sw || null);
     });
     window.addEventListener('keydown', e => {
@@ -83,7 +85,7 @@ export class Inspect {
     onLang(() => { this.fill(); this.sync(); });
     v.inspectRect = () => this.rect();
   }
-  open = false;
+  open = false; static hinted = false;
   private rect(): Rect {
     const foot = this.el.querySelector<HTMLElement>('.si-foot')!.getBoundingClientRect();
     const top = Math.max(64, innerHeight * 0.08), bottom = foot.top - 6;
@@ -91,6 +93,8 @@ export class Inspect {
   }
   show(id: ExhibitId) {
     this.id = id; this.open = true; this.fill(); this.sync();
+    // featured once per visit: the first figure she opens gently points at its AR button (two soft rings)
+    if (isArId(id) && !Inspect.hinted) { Inspect.hinted = true; const b = this.el.querySelector<HTMLElement>('[data-k="ar"]')!; setTimeout(() => { if (this.open && this.id === id) b.classList.add('suggest'); }, 1400); }
     this.el.classList.add('on'); this.backdrop.classList.add('on'); document.body.classList.add('shop-inspecting');
   }
   hide() { this.open = false; this.el.classList.remove('on'); this.backdrop.classList.remove('on'); document.body.classList.remove('shop-inspecting'); }
@@ -118,7 +122,7 @@ export class Inspect {
     sw.querySelectorAll<HTMLButtonElement>('[data-sw]').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.sw || null) === solo)));
     this.el.querySelector('[data-k="split"]')!.setAttribute('aria-pressed', String(v.split()));
     this.el.querySelector('[data-k="spin"]')!.setAttribute('aria-pressed', String(v.autoSpin));
-    this.el.querySelector<HTMLButtonElement>('[data-k="ar"]')!.hidden = !(arOk && isArId(this.id));
+    this.el.querySelector<HTMLButtonElement>('[data-k="ar"]')!.hidden = !isArId(this.id);
     const lb = this.el.querySelector<HTMLElement>('[data-k="light"]')!; lb.dataset.mood = String(v.mood); this.fill();
   }
 }

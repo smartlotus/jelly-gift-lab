@@ -7,7 +7,8 @@
 import * as A from 'astronomy-engine';
 import { register, t, onLang, apply, lang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
-import { irisIn } from '../../shared/transition';
+import { irisIn, dissolve } from '../../shared/transition';
+import { go, from as cameFrom, markReached } from '../../shared/flow';
 import { params } from '../../shared/flow';
 import { SKY } from './config';
 import { sky, skyAt, wall, recur, addDays, dayDiff, altDeg, azDeg, PLANETS, type Sky, type Recur, type V3, type M3 } from './astro';
@@ -111,6 +112,10 @@ function aim(i: number) { // open looking at the brightest thing that is up (moo
   if (up[0]) { view.az = azDeg(up[0][1]); view.alt = Math.min(48, Math.max(14, altDeg(up[0][1]) - 6)); }
 }
 aim(v0);
+// journey arrival from the jelly egg ("抬头"): open on the dark horizon and raise the eyes into the sky (3.6 s, cubic in-out)
+let raise = cameFrom === 'jelly' && !still && !reduced ? { t: 0, a0: -6, a1: view.alt } : null;
+if (raise) view.alt = raise.a0;
+markReached();
 let W = 0, H = 0, dpr = 1;
 function resize() { dpr = Math.min(devicePixelRatio || 1, 2); W = cv.width = Math.round(innerWidth * dpr); H = cv.height = Math.round(innerHeight * dpr); cv.style.width = innerWidth + 'px'; cv.style.height = innerHeight + 'px'; }
 window.addEventListener('resize', resize);
@@ -246,7 +251,7 @@ function drawMoon(v: V3, sun: V3, frac: number, day: number) {
 // ---------- UI ----------
 const ui = document.createElement('div'); ui.className = 'sk-ui';
 ui.innerHTML = `<header class="sk-head"><p class="sk-date"></p><p class="sk-place"></p><p class="sk-moon"></p></header>
-<footer class="sk-foot"><div class="sk-seg" role="group"><button type="button" data-k="0"></button><button type="button" data-k="1"></button><button type="button" data-k="2"></button></div>
+<footer class="sk-foot"><button type="button" class="sk-next"><span data-i18n="sky.next"></span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M10 7l5 5-5 5"/></svg></button><div class="sk-seg" role="group"><button type="button" data-k="0"></button><button type="button" data-k="1"></button><button type="button" data-k="2"></button></div>
 <dl class="sk-rec"><dt data-i18n="sky.again" class="sk-rec-h"></dt><div><dt data-i18n="sky.r.stars"></dt><dd data-r="stars"></dd></div><div><dt data-i18n="sky.r.moon"></dt><dd data-r="moon"></dd></div><div><dt data-i18n="sky.r.planets"></dt><dd data-r="planets"></dd></div></dl></footer>
 <div class="sk-tools"><button type="button" class="sk-sun" data-i18n-aria="sky.hideDay" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6L18 18M6 18l1.4-1.4M16.6 7.4L18 6"/><path class="sk-slash" d="M4 20L20 4"/></svg></button>
 <button type="button" class="sk-gyro" data-i18n-aria="sky.gyro" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="8.5"/><path d="M12 5.5l2.2 6.5L12 18.5 9.8 12z"/></svg></button></div>`;
@@ -303,7 +308,7 @@ setInterval(() => {
 // ---------- look around: drag, pinch, wheel, optional gyro ----------
 const pts = new Map<number, { x: number; y: number }>(); let pinch0 = 0, fov0 = 0;
 const clampV = () => { view.alt = Math.max(-8, Math.min(89, view.alt)); view.fov = Math.max(30, Math.min(120, view.fov)); view.az = (view.az % 360 + 360) % 360; };
-cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); fov0 = view.fov; } gyro = false; gbtn.classList.remove('on'); });
+cv.addEventListener('pointerdown', e => { raise = null; cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); fov0 = view.fov; } gyro = false; gbtn.classList.remove('on'); });
 cv.addEventListener('pointermove', e => {
   const p = pts.get(e.pointerId); if (!p) return;
   if (pts.size === 1) { const s = view.fov / Math.min(innerWidth, innerHeight); view.az -= (e.clientX - p.x) * s; view.alt += (e.clientY - p.y) * s; }
@@ -336,8 +341,13 @@ function loop(now: number) {
   requestAnimationFrame(loop);
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   if (kT < 1) kT = Math.min(1, kT + dt / 1.8);
+  if (raise) { raise.t = Math.min(1, raise.t + dt / 3.6); const k = raise.t < .5 ? 4 * raise.t ** 3 : 1 - (-2 * raise.t + 2) ** 3 / 2; view.alt = raise.a0 + (raise.a1 - raise.a0) * k; if (raise.t >= 1) raise = null; }
   intro += dt; hideK = reduced ? (hideDay ? 1 : 0) : Math.max(0, Math.min(1, hideK + (hideDay ? dt : -dt) / 0.8));
   frame(now);
 }
 requestAnimationFrame(loop);
-if (!still && !reduced) void irisIn(innerWidth / 2, innerHeight / 2, 900, '#04060b');
+if (!still && !reduced && cameFrom !== 'jelly') void irisIn(innerWidth / 2, innerHeight / 2, 900, '#04060b'); // from the egg: already black, the stars rise out of it
+// onward -> the co-op finale: a slow fade through black, then the pixel iris opens there
+const next = $<HTMLButtonElement>('.sk-next');
+setTimeout(() => next.classList.add('on'), still ? 0 : cameFrom === 'jelly' ? 7000 : 2500);
+next.addEventListener('click', () => void go('coop', () => dissolve(1, 900, '#04060b')));

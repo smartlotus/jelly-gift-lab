@@ -33,3 +33,9 @@ body[data-daylight="1"] .sk-head, body[data-daylight="1"] .gift-chrome { text-sh
 @keyframes sk-in { from { opacity: 0; transform: translateY(6px); } }
 .sk-head p { transition: opacity .5s var(--ease); }
 @media (prefers-reduced-motion: reduce) { .sk-rec dd.roll, .sk-head, .sk-foot, .sk-tools { animation: none; } }
+/* onward to the co-op finale: one quiet line above the switch, appears after she has had a look */
+.sk-next { pointer-events: auto; display: flex; align-items: center; gap: 4px; padding: 8px 6px 8px 14px; font-size: 13px; letter-spacing: .28em; color: rgba(236,232,223,.78); opacity: 0; transform: translateY(6px); transition: opacity 1.4s var(--ease), transform 1.4s cubic-bezier(.16,1,.3,1), color .3s; visibility: hidden; }
+.sk-next.on { opacity: 1; transform: none; visibility: visible; }
+.sk-next svg { width: 16px; height: 16px; transition: transform .4s cubic-bezier(.16,1,.3,1); }
+.sk-next:hover { color: #f2eee6; } .sk-next:hover svg { transform: translateX(3px); }
+@media (prefers-reduced-motion: reduce) { .sk-next { transition: none; } }

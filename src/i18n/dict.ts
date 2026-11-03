@@ -28,7 +28,7 @@ const en = {
   'fail.body': 'Open in a recent Chrome, Safari or Edge.',
   'egg.kicker': 'Jelly Studies',
   'egg.line': 'Happy 200 days, {name}.',
-  'egg.replay': 'Replay', 'egg.close': 'Close',
+  'egg.replay': 'Replay', 'egg.close': 'Close', 'egg.up': 'Look up',
   'egg.aria': 'Anniversary',
 };
 const zh: Record<keyof typeof en, string> = {
@@ -58,7 +58,7 @@ const zh: Record<keyof typeof en, string> = {
   'fail.body': '请用新版 Chrome、Safari 或 Edge 打开。',
   'egg.kicker': '果冻标本',
   'egg.line': '200 天纪念日快乐，{name}',
-  'egg.replay': '重播', 'egg.close': '关闭',
+  'egg.replay': '重播', 'egg.close': '关闭', 'egg.up': '抬头',
   'egg.aria': '纪念日',
 };
 export type Key = keyof typeof en;
