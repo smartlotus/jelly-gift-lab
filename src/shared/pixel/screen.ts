@@ -14,6 +14,8 @@ export class PixelScreen {
     new ResizeObserver(() => this.resize()).observe(o.host); this.resize();
   }
   onResize(f: () => void) { this.subs.push(f); }
+  /** change sizing options at runtime (e.g. portrait vs landscape minimums) and re-fit */
+  configure(o: Partial<Omit<ScreenOpts, 'host'>>) { Object.assign(this.o, o); this.w = -1; this.resize(); }
   resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 3), r = this.o.host.getBoundingClientRect();
     const dw = Math.max(1, Math.round(r.width * dpr)), dh = Math.max(1, Math.round(r.height * dpr));

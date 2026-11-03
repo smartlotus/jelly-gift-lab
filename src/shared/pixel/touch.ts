@@ -21,7 +21,8 @@ export function mountTouch(opts: { act?: boolean; dpad?: boolean } = {}) {
     if (old) { input.up(old.dataset.act as Action); old.classList.remove('on'); owner.delete(id); }
     if (b) { input.down(b.dataset.act as Action); b.classList.add('on'); owner.set(id, b); navigator.vibrate?.(6); }
   };
-  pad.addEventListener('pointerdown', e => { const b = (e.target as HTMLElement).closest('button'); if (!b) return; e.preventDefault(); press(e.pointerId, b); });
+  pad.addEventListener('pointerdown', e => { const b = (e.target as HTMLElement).closest('button'); if (!b) return; e.preventDefault(); try { pad.releasePointerCapture(e.pointerId); } catch { /* */ } press(e.pointerId, b); });
+  pad.addEventListener('touchstart', e => e.preventDefault(), { passive: false }); // no iOS double-tap zoom / callout on the buttons
   window.addEventListener('pointermove', e => {
     if (!owner.has(e.pointerId)) return;
     const el = document.elementFromPoint(e.clientX, e.clientY)?.closest('.touchpad button') as HTMLButtonElement | null;
@@ -29,6 +30,7 @@ export function mountTouch(opts: { act?: boolean; dpad?: boolean } = {}) {
     // slide between left/right only (don't steal jump)
     if (el && el !== cur && (el.dataset.act === 'left' || el.dataset.act === 'right') && (cur.dataset.act === 'left' || cur.dataset.act === 'right')) press(e.pointerId, el);
   });
+  input.resetHook = () => { for (const b of owner.values()) b.classList.remove('on'); owner.clear(); };
   const end = (e: PointerEvent) => press(e.pointerId, null);
   window.addEventListener('pointerup', end); window.addEventListener('pointercancel', end);
   pad.addEventListener('contextmenu', e => e.preventDefault());

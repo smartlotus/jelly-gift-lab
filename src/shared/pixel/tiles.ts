@@ -51,3 +51,16 @@ export function moveBody(b: Body, m: TileMap, dt: number, axis: number, jumpHit:
   return { jumped, headTile: b.vy === 0 && !b.ground ? { tx: Math.floor((b.x + b.w / 2) / TILE), ty: Math.floor(b.y / TILE) - 1 } : null };
 }
 export const overlap = (a: { x: number; y: number; w: number; h: number }, b: { x: number; y: number; w: number; h: number }) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+
+/** change one tile at runtime (opened blocks, collapsing floors, bridges). Out-of-range writes are ignored. */
+export function setTile(m: TileMap, tx: number, ty: number, ch: string) {
+  if (tx < 0 || ty < 0 || tx >= m.w || ty >= m.h) return;
+  const r = m.data[ty]; m.data[ty] = r.slice(0, tx) + ch + r.slice(tx + 1);
+}
+/** one-way landing on a moving/entity platform (clouds, springs): call after moveBody with the body's bottom before it.
+ *  Returns true when the body is (now) standing on it. */
+export function landOn(b: Body, prevBottom: number, top: number, x0: number, x1: number) {
+  if (b.vy < 0 || b.x + b.w <= x0 + 1 || b.x >= x1 - 1) return false;
+  if (prevBottom <= top + 2 && b.y + b.h >= top) { b.y = top - b.h; b.vy = 0; b.ground = true; return true; }
+  return false;
+}

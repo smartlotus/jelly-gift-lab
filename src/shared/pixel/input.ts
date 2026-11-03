@@ -11,11 +11,16 @@ class Input {
   constructor() {
     window.addEventListener('keydown', e => { const a = KEYS[e.code]; if (a) { this.held.add(a); e.preventDefault(); } });
     window.addEventListener('keyup', e => { const a = KEYS[e.code]; if (a) this.held.delete(a); });
-    window.addEventListener('blur', () => { this.held.clear(); this.virt.clear(); });
+    window.addEventListener('blur', () => this.reset());
+    document.addEventListener('visibilitychange', () => { if (document.hidden) this.reset(); });
   }
   /** touch buttons call these (counted, so two fingers on one button are fine) */
   down(a: Action) { this.virt.set(a, (this.virt.get(a) ?? 0) + 1); }
   up(a: Action) { const n = (this.virt.get(a) ?? 1) - 1; if (n <= 0) this.virt.delete(a); else this.virt.set(a, n); }
+  /** release everything (focus loss, page hidden, scripted cut-scenes) */
+  reset() { this.held.clear(); this.virt.clear(); this.resetHook?.(); }
+  /** set by touch.ts so a reset also clears the on-screen buttons */
+  resetHook?: () => void;
   update() {
     this.prev = this.now; this.now = new Set(this.enabled ? [...this.held, ...this.virt.keys()] : []);
     const gp = this.enabled ? navigator.getGamepads?.()[0] : null;
