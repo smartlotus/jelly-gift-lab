@@ -11,8 +11,11 @@ declare -A SRC=(
   [figure-cat]="models/figures/B_cat/Figure_B_Cat_v5_round_color.obj"
   [magnet-pig]="models/reliefs/A_pig/Relief_A_Pig_v5_color.obj"
   [magnet-cat]="models/reliefs/B_cat/Relief_B_Cat_v5_color.obj"
+  [pair-pig]="models/figures/A_pig/Figure_A_Pig_v5_pair_round_color.obj"   # No.05 couple set (dovetail); viewer puts the cat at +60.8493 mm X
+  [pair-cat]="models/figures/B_cat/Figure_B_Cat_v5_pair_round_color.obj"
 )
-for id in "${!SRC[@]}"; do
+# ONLY="pair-pig pair-cat" tools/models/compress.sh   -> rebuild just those
+for id in ${ONLY:-${!SRC[@]}}; do
   "$B" -b --python "$ROOT/tools/models/export_glb.py" -- "$FIG/${SRC[$id]}" "$TMP/$id.raw.glb" "${TRIS:-90000}" >/dev/null
   npx --yes @gltf-transform/cli@4 optimize "$TMP/$id.raw.glb" "$OUT/$id.glb" \
     --compress meshopt --simplify false --texture-compress false --instance false --join false --flatten false

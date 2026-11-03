@@ -47,7 +47,7 @@ const bg = buildShop();
 const cols = WORLD_W / TILE, rows = WORLD_H / TILE;
 const map = makeMap(Array.from({ length: rows }, (_, y) => (y * TILE >= FLOOR_Y ? '#' : ' ').repeat(cols)), c => c === '#');
 const cam = new Camera(WORLD_W, WORLD_H);
-const AT: Record<string, number> = { pig: 230, cat: 392, fridge: 600, counter: 820, door: 990 };
+const AT: Record<string, number> = { pig: 230, cat: 392, fridge: 600, pair: 760, counter: 806, door: 990 };
 const startX = viewerOnly ? 250 : AT[params.get('at') ?? ''] ?? 26;
 const cat = body(startX, FLOOR_Y - 13);
 const sp = catSprites();
@@ -59,7 +59,8 @@ cam.snap(cat.x, cat.y, scr.w, scr.h);
 let viewer: Viewer | null = null, inspect: Inspect | null = null;
 const viewerP = import('./viewer').then(m => {
   viewer = new m.Viewer(glHost); inspect = new Inspect(viewer);
-  inspect.onClose = closeInspect; viewer.onClosed = () => { input.enabled = started && !leaving; actLock = true; };
+  inspect.onClose = closeInspect;
+  viewer.onJoin = () => { blip(1318, 0.08, 'sine', 0.08); setTimeout(() => blip(1760, 0.16, 'sine', 0.06), 70); }; viewer.onClosed = () => { input.enabled = started && !leaving; actLock = true; };
   void viewer.load('figure-pig');
   return viewer;
 });
@@ -71,6 +72,7 @@ input.enabled = false;
 function worldBox(e: Exhibit) {
   const B = e.box;
   if (e.kind === 'magnet') return { x: e.x - B / 2, y: e.y - B / 2, w: B, h: B };
+  if (e.kind === 'pair') { const off = viewer ? viewer.baseOffset(e.id) : 0.3, W = B * 1.5; return { x: e.x - W / 2, y: e.y - B / 2 - (off * B) / 2 + 1, w: W, h: B }; }
   const off = viewer ? viewer.baseOffset(e.id) : 0.55;
   return { x: e.x - B / 2, y: e.y - B / 2 - (off * B) / 2 + 1, w: B, h: B };
 }
@@ -123,12 +125,13 @@ startLoop(dt => {
   // nearest exhibit
   const cx = cat.x + cat.w / 2;
   let best: Exhibit | null = null, bd = 1e9;
-  for (const e of EXHIBITS) { const d = Math.abs(cx - e.x); if (d < (e.kind === 'magnet' ? 18 : 30) && d < bd) { bd = d; best = e; } }
+  for (const e of EXHIBITS) { const d = Math.abs(cx - e.x); if (d < (e.kind === 'magnet' ? 18 : e.kind === 'pair' ? 40 : 30) && d < bd) { bd = d; best = e; } }
   if (inspecting || leaving || !started) best = null;
   if (best !== near) { near = best; card.show(best); pad.showAct(!!best); if (best) { bang = 0.9; blip(1046, 0.07, 'sine', 0.07); } }
   bang = Math.max(0, bang - dt);
   if (!input.pressed('act')) actLock = false;
   if (near && input.hit('act') && !actLock) openInspect(near.id);
+  viewer?.setPairJoined(!!near && near.id === 'pair' || cx > 860);
   // lazy-load models as the cat approaches
   if (viewer) for (const e of EXHIBITS) if (Math.abs(cx - e.x) < 380) void viewer.load(e.id);
   // the back door: lights flicker twice, then the dark

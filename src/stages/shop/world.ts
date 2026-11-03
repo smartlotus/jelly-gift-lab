@@ -8,7 +8,7 @@ export const WORLD_W = 1120, WORLD_H = 192, FLOOR_Y = 160;
 export const ENTRY = { x: 12, y: 104, w: 32, h: 56 };
 export const BACKDOOR = { x: 1048, y: 104, w: 32, h: 56 };
 export const FRIDGE = { x: 604, y: 74, w: 64, h: 86 };
-export const LAMPS = [272, 432, 832];
+export const LAMPS = [272, 432, 816];
 
 type G = CanvasRenderingContext2D;
 const R = (g: G, x: number, y: number, w: number, h: number, c: string) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
@@ -225,7 +225,10 @@ export function buildShop() {
   R(g, 784, 124, 96, 1, '#E8C08E'); R(g, 784, 125, 96, 3, '#C99A6B'); R(g, 786, 128, 92, 1, '#A97E52');
   R(g, 786, 129, 92, 31, '#E6C79F'); for (let x = 794; x < 878; x += 8) R(g, x, 129, 1, 29, '#D6B285');
   R(g, 786, 129, 92, 1, '#F0D6B0'); R(g, 786, 156, 92, 4, '#B98A5C'); R(g, 780, 159, 104, 2, 'rgba(120,80,50,0.16)');
-  g.drawImage(REGISTER, 846, 110); g.drawImage(BELL, 800, 119); g.drawImage(FLOWER, 820, 115);
+  g.drawImage(REGISTER, 852, 110); g.drawImage(BELL, 871, 119);
+  // a low cream riser on the counter for the couple set (No.05) + its brass plate on the counter front
+  R(g, 788, 121, 56, 3, '#FBF7F1'); R(g, 788, 121, 56, 1, '#FFFFFF'); R(g, 842, 121, 2, 3, '#E4D8C6'); R(g, 788, 124, 56, 1, '#BFA27E');
+  R(g, 807, 137, 18, 9, '#B48A45'); R(g, 808, 138, 16, 7, '#E2BE73'); R(g, 808, 138, 16, 1, '#F3DDA6'); text(g, '05', 813, 139, '#6E5323');
 
   // the back door: dark, ajar, night outside
   const B = BACKDOOR;

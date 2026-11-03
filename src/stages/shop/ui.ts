@@ -121,10 +121,10 @@ export class Inspect {
   get current() { return this.id; }
   private fill() {
     const e = ex(this.id), q = (s: string) => this.el.querySelector(s)!;
-    q('.si-no').innerHTML = `No. ${e.no} <span>/ 0${EXHIBITS.length}</span>`; q('.si-title').textContent = t(`shop.ex.${e.id}`);
+    q('.si-no').innerHTML = `No. ${e.no} <span>/ ${String(EXHIBITS.length).padStart(2, '0')}</span>`; q('.si-title').textContent = t(`shop.ex.${e.id}`);
     q('.si-note').textContent = t(`shop.note.${e.id}`); q('.si-meta').textContent = `${meta(e)} · ${t('shop.mat')}`;
     q('.si-hint').textContent = t(coarse ? 'shop.i.hint.touch' : 'shop.i.hint.mouse');
-    this.el.querySelectorAll<HTMLButtonElement>('.si-btn').forEach(b => { b.textContent = b.dataset.k === 'light' ? t(`shop.i.light${this.v.mood}`) : t(`shop.i.${b.dataset.k}`); });
+    this.el.querySelectorAll<HTMLButtonElement>('.si-btn').forEach(b => { b.textContent = b.dataset.k === 'light' ? t(`shop.i.light${this.v.mood}`) : b.dataset.k === 'split' && this.id === 'pair' ? t('shop.i.split.pair') : t(`shop.i.${b.dataset.k}`); });
   }
   private swName(key: string | null) {
     const n = this.el.querySelector('.si-swname')!;

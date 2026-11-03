@@ -16,7 +16,7 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { asset } from '../../shared/flow';
-import { EXHIBITS, partKey, type ExhibitId } from './exhibits';
+import { EXHIBITS, PAIR_DX, partKey, type ExhibitId } from './exhibits';
 
 export interface Rect { x: number; y: number; w: number; h: number }
 export interface Slot { id: ExhibitId; rect: Rect }
@@ -83,6 +83,9 @@ export class Viewer {
   private clock = performance.now();
   onChange: () => void = () => {};       // UI hook (split/solo/spin state changed)
   onClosed: () => void = () => {};
+  onJoin: () => void = () => {};
+  /** couple set: slide together when the cat comes close, drift apart when she leaves (display mode only) */
+  setPairJoined(j: boolean) { const m = this.models.get('pair'); if (m && !(this.mode !== 'display' && this.current === 'pair')) m.split = j ? 0 : 1; }
 
   constructor(host: HTMLElement) {
     const r = this.renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -115,6 +118,17 @@ export class Viewer {
   load(id: ExhibitId): Promise<Model> {
     let p = this.loading.get(id); if (p) return p;
     this.prog.set(id, 0.02);
+    if (id === 'pair') {
+      const pr = [0.02, 0.02], one = (f: string, i: number) => new Promise<Object3D>((res, rej) => this.loader.load(asset(`models/${f}.glb`), g => res(g.scene),
+        e => { if (e.total) { pr[i] = e.loaded / e.total; this.prog.set(id, Math.max(0.02, (pr[0] + pr[1]) / 2) * 0.95); } }, rej));
+      p = Promise.all([one('pair-pig', 0), one('pair-cat', 1)]).then(([a, b]) => {
+        const grp = new Group(); b.position.x = PAIR_DX; b.userData.side = 1; a.userData.side = -1; grp.add(a, b);
+        const m = this.prepare(id, grp);
+        for (const pt of m.parts) { let o: Object3D | null = pt.mesh, side = 0; while (o && !side) { side = o.userData.side ?? 0; o = o.parent; } pt.dir.set(side * 0.11, 0, 0); }
+        m.split = 1; m.splitT = 1; this.models.set(id, m); this.prog.set(id, 1); return m;
+      });
+      this.loading.set(id, p); return p;
+    }
     p = new Promise<Model>((res, rej) => this.loader.load(asset(`models/${id}.glb`), g => {
       const m = this.prepare(id, g.scene); this.models.set(id, m); this.prog.set(id, 1); res(m);
     }, e => { if (e.total) this.prog.set(id, Math.max(0.02, e.loaded / e.total) * 0.95); }, rej));
@@ -218,7 +232,9 @@ export class Viewer {
   }
   private step(m: Model, dt: number, display: boolean) {
     if (display) m.spin = m.magnet ? Math.sin(performance.now() / 1000 * 0.55 + (m.id === 'magnet-cat' ? 1.7 : 0)) * 0.32 : m.spin + dt * 0.32;
-    m.splitT += ((m.split ? 1 : 0) - m.splitT) * Math.min(1, dt * 5.5);
+    const was = m.splitT;
+    m.splitT += ((m.split ? 1 : 0) - m.splitT) * Math.min(1, dt * (m.id === 'pair' ? 2.6 : 5.5));
+    if (m.id === 'pair' && was > 0.04 && m.splitT <= 0.04) { m.sqv += 2.6; this.onJoin(); }   // click! the dovetail closes
     const e = ease(MathUtils.clamp(m.splitT, 0, 1));
     for (const p of m.parts) {
       p.mesh.position.copy(p.home).addScaledVector(p.dir, e / p.mesh.parent!.scale.x);

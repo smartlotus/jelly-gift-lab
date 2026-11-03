@@ -1,8 +1,8 @@
 // The four printed objects on display (data from lotus-3d-figures docs/PROJECT_README_v5.md §4).
 // Each GLB has one mesh per colour part, named 'NN_key' (e.g. '08_pink'); COLOURS maps key -> filament hex + names.
-export type ExhibitId = 'figure-pig' | 'figure-cat' | 'magnet-pig' | 'magnet-cat';
+export type ExhibitId = 'figure-pig' | 'figure-cat' | 'magnet-pig' | 'magnet-cat' | 'pair';
 export interface Exhibit {
-  id: ExhibitId; no: string; kind: 'figure' | 'magnet';
+  id: ExhibitId; no: string; kind: 'figure' | 'magnet' | 'pair';
   size: string;          // X × Y × Z mm (print bed axes)
   parts: number;         // colour parts (AMS)
   x: number;             // world x (logical px) of the display centre
@@ -14,7 +14,11 @@ export const EXHIBITS: Exhibit[] = [
   { id: 'figure-cat', no: '02', kind: 'figure', size: '61.9 × 31.9 × 47.8', parts: 15, x: 432, y: 124, box: 84 },
   { id: 'magnet-pig', no: '03', kind: 'magnet', size: '70.1 × 55.0 × 10.4', parts: 13, x: 621, y: 129, box: 36 },
   { id: 'magnet-cat', no: '04', kind: 'magnet', size: '70.1 × 55.0 × 8.9', parts: 15, x: 651, y: 129, box: 36 },
+  // the couple set on the counter: dovetailed pig + cat that slide together (the half hearts on the seam make one heart)
+  { id: 'pair', no: '05', kind: 'pair', size: '121.8 × 31.9 × 47.8', parts: 21, x: 816, y: 121, box: 78 },
 ];
+/** pair = two GLBs; the cat sits at +60.8493 mm X when assembled (lotus-3d-figures README v5, dx) */
+export const PAIR_DX = 0.608493;
 export const COLOURS: Record<string, { hex: string; en: string; zh: string }> = {
   black: { hex: '#2E2A2B', en: 'Soft black', zh: '软黑' },
   logo: { hex: '#8A8F99', en: 'Slate', zh: '石板灰' },
