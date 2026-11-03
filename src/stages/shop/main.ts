@@ -92,7 +92,9 @@ function openInspect(id: ExhibitId) {
 function closeInspect() {
   if (!viewer || !inspect) return;
   const e = EXHIBITS.find(x => x.id === inspect!.current)!;
-  inspect.hide(); viewer.close(() => clientRect(e)); blip(660, 0.1, 'sine', 0.08);
+  // browsed to an exhibit that is off-screen? shrink it away in the middle instead of flying off the edge
+  const home = onScreen(clientRect(e)) ? () => clientRect(e) : () => ({ x: innerWidth / 2 - 24, y: innerHeight / 2 - 24, w: 48, h: 48 });
+  inspect.hide(); viewer.close(home); blip(660, 0.1, 'sine', 0.08);
   backHost.classList.remove('dim'); frontHost.classList.remove('dim');
 }
 

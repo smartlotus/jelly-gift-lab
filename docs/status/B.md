@@ -14,15 +14,15 @@
   - 检视模式：视口从展台平滑放大到全屏；OrbitControls（拖动旋转、滚轮/双指缩放、阻尼、俯仰限制、禁平移）；3.8 s 无操作自动转；双击/双点复位（带缓动，转到 3/4 英雄角度）；单击 = 果冻 Q 弹（以底面为枢轴的弹簧挤压）；**分色拆解**（手办沿质心径向散开，冰箱贴按层叠方向抬起并自动转到 3/4 角度）；**单色查看**（色点 → 其他零件变成 10% 幽灵）；**灯光**三档（影棚 / 窗边 / 傍晚）。
 - `src/stages/shop/ui.ts`：靠近展品的说明卡（编号、标题、一句话、类型 · 尺寸 · 颜色数、「看看 →」），横屏放在模型旁边、竖屏放在舞台下方；检视界面（左上标题块、右上关闭、底部：色名 + 色点、细线胶囊按钮 ‹ 复位 · 分色拆解 · 自动转 · 灯光 ›、操作提示 5 s 后淡出）。键盘：Esc/E/Enter/X 关闭，←/→ 浏览，R 复位，S/空格 拆解，L 灯光。
 - `src/stages/shop/main.ts`：图层（像素背景 → 检视底板 → 3D → 像素前景(猫) → UI）；猫用 A 的最终精灵（`catFrame`，靠近展品时 look/happy + "!!"，进后门用背影帧）；进店自动走两步 + 门铃；按距离懒加载 GLB（No.01 开场即加载）；点模型 / B 键 / E 打开检视；检视时像素世界模糊、猫与触屏键隐藏、输入锁定；靠近后门："外面天黑了。" + 灯闪 + prefetch；进门 → 光圈收拢 → `go('night')`。竖屏时舞台上移，舞台上下用天花板/地板色填满。
-- `src/stages/shop/exhibits.ts`：4 件展品数据（尺寸/零件数来自 3D 仓库 README v5 §4）+ 全部料色表（中英名、HEX）。
+- **No.05 情侣拼合**（收银台上的奶油色矮台 + 黄铜牌 05）：`public/models/pair-{pig,cat}.glb`（`ONLY="pair-pig pair-cat" TRIS=70000 tools/models/compress.sh`，各 ~330 KB），查看器里拼成一组（猫 +60.8493 mm X）。平时两件分开，猫走近时慢慢滑到一起，合上时"咔哒"Q 弹 + 叮；检视里"分开"按钮。
+- `src/stages/shop/exhibits.ts`：5 件展品数据（尺寸/零件数来自 3D 仓库 README v5 §4）+ 全部料色表（中英名、HEX）。
 - `src/stages/shop/dict.ts`：中英文案（新增的中文字在 M7 `npm run fonts` 前会回退系统宋体）。
 - 截图：`review/stage2-shop/desk-pig.jpg`、`desk-inspect.jpg`、`phone-fridge.jpg`。
 
 ## 进行中 / 下一步（打磨，按优先级）
 1. 真机检查：iPhone 上检视模式双指缩放 / 双击复位手感；模型在小屏展台上是否够大（`exhibits.ts` 的 `box`）。
-2. 可选 No.05 情侣拼合台（`Figure_A_Pig_v5_pair_round_color.obj` + `Figure_B_Cat_v5_pair_round_color.obj`，dx = 60.8493 mm）：需要用 `tools/models/compress.sh` 加两个源并在 world.ts 收银台前加展台。
-3. 显示模式下模型首次出现时的着色器编译小卡顿（可在标题卡期间预编译）。
-4. 检视模式关闭后若浏览到别的展品，缩回动画会飞向那件展品的位置（可能在屏幕外）——可改为飞回当前猫附近的展品。
+2. 显示模式下模型首次出现时的着色器编译小卡顿（可在标题卡期间预编译）。
+3. No.05 情侣拼合台只做了代码 + GLB，未截图验证（猫在 +X 60.8493 mm，已按 OBJ 包围盒核对：猪 x∈[-29.9, 35.9]、猫 x∈[-30.9, 31.0]）。
 
 ## 对共享代码的需求（给整合人 / 其他工作流）
 - 无。只读使用 `shared/pixel`（PixelScreen、startLoop、input、mountTouch、tiles、Camera、catSprites/catFrame）、`flow`、`i18n`、`chrome`、`transition`、`audio`。
