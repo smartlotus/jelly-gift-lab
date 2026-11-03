@@ -1,63 +1,57 @@
-/* The kawaii flip (owned by workstream C). Soft, glossy pastel - the exact opposite of the night. */
-.kw { position: fixed; inset: 0; z-index: 60; overflow: hidden; display: grid; place-items: center; color: #d2557d; font-family: var(--serif); }
-.kw-bg { position: absolute; inset: 0; background: radial-gradient(120% 85% at 50% 38%, #fff7f9 0%, #ffe6ee 42%, #fbcfdb 78%, #f6bccb 100%); }
-.kw-rays { position: absolute; left: 50%; top: 46%; width: 220vmax; height: 220vmax; margin: -110vmax 0 0 -110vmax; opacity: .55;
-  background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.55) 0 6deg, rgba(255,255,255,0) 6deg 15deg);
-  -webkit-mask: radial-gradient(circle, #000 0, rgba(0,0,0,.6) 18%, transparent 44%); mask: radial-gradient(circle, #000 0, rgba(0,0,0,.6) 18%, transparent 44%);
-  animation: kw-spin 60s linear infinite; }
-.kw-dots { position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,.75) 0 2.2px, transparent 2.8px) 0 0 / 30px 30px, radial-gradient(circle, rgba(238,143,166,.22) 0 1.6px, transparent 2.2px) 15px 15px / 30px 30px;
-  -webkit-mask: linear-gradient(#000, rgba(0,0,0,.25) 45%, #000); mask: linear-gradient(#000, rgba(0,0,0,.25) 45%, #000); }
-@keyframes kw-spin { to { transform: rotate(360deg); } }
+/* The kawaii flip. A soft pastel picture-book page - flat paper, crayon grain, warm-brown lines - the opposite of the night. */
+.kw { position: fixed; inset: 0; z-index: 60; overflow: hidden; display: grid; place-items: center; color: #c95a7a; font-family: var(--serif); background: #FBEDEA; }
+/* paper: flat peach-pink, a warm glow behind the pair, fine grain (inline SVG turbulence, no files) */
+.kw-bg { position: absolute; inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .36 0 0 0 0 .3 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(70% 50% at 50% 50%, #FFF6F2 0%, rgba(255,246,242,0) 70%),
+    linear-gradient(#FCEFEB, #FBEDEA 60%, #F9E3E2); }
 
 .kw-float { position: absolute; inset: 0; pointer-events: none; }
-.kw-f { position: absolute; bottom: -40px; width: calc(26px * var(--s)); animation: kw-up var(--d) linear var(--del) infinite; opacity: .9; filter: drop-shadow(0 3px 4px rgba(233,129,159,.25)); }
-.kw-f svg, .kw-tw svg { display: block; width: 100%; height: auto; }
-@keyframes kw-up { 0% { transform: translate(0, 0) rotate(-8deg); opacity: 0; } 10% { opacity: .9; } 50% { transform: translate(var(--x), -55vh) rotate(8deg); } 100% { transform: translate(0, -112vh) rotate(-8deg); opacity: 0; } }
-.kw-tw { position: absolute; width: calc(18px * var(--s)); animation: kw-twinkle var(--d) ease-in-out var(--del) infinite; }
+.kw-f { position: absolute; bottom: -40px; width: calc(22px * var(--s)); animation: kw-up var(--d) linear var(--del) infinite; opacity: .8; }
+.kw-f svg, .kw-tw svg, .kw-rise svg { display: block; width: 100%; height: auto; }
+@keyframes kw-up { 0% { transform: translate(0, 0) rotate(-8deg); opacity: 0; } 10% { opacity: .8; } 50% { transform: translate(var(--x), -55vh) rotate(8deg); } 100% { transform: translate(0, -112vh) rotate(-8deg); opacity: 0; } }
+.kw-tw { position: absolute; width: calc(15px * var(--s)); animation: kw-twinkle var(--d) ease-in-out var(--del) infinite; }
 @keyframes kw-twinkle { 0%, 100% { transform: scale(.3) rotate(0); opacity: 0; } 50% { transform: scale(1) rotate(45deg); opacity: 1; } }
 
-.kw-burst { position: absolute; left: 50%; top: 48%; pointer-events: none; }
-.kw-c { position: absolute; width: 12px; height: 12px; margin: -6px; border-radius: 50%; opacity: 0; animation: kw-burst 1.3s cubic-bezier(.12,.8,.3,1) var(--del) forwards; }
-.kw-c0 { background: #ff8fab; } .kw-c1 { background: #fff; box-shadow: 0 0 0 2px #f9c6cf; } .kw-c2 { background: #ffd45c; border-radius: 3px; width: 9px; height: 9px; } .kw-c3 { background: #b9dcf7; width: 8px; height: 8px; }
+.kw-burst { position: absolute; left: 50%; top: 50%; pointer-events: none; }
+.kw-c { position: absolute; width: 11px; height: 11px; margin: -5px; border-radius: 50%; opacity: 0; animation: kw-burst 1.3s cubic-bezier(.12,.8,.3,1) var(--del) forwards; }
+.kw-c0 { background: #F58FA9; } .kw-c1 { background: #fff; box-shadow: 0 0 0 1.5px #F3B6C4; } .kw-c2 { background: #FFD87A; border-radius: 3px; width: 8px; height: 8px; } .kw-c3 { background: #BFDDF2; width: 7px; height: 7px; }
 @keyframes kw-burst { 0% { opacity: 1; transform: translate(0,0) scale(.4) rotate(0); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1) rotate(var(--r)); } }
 
-.kw-stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 1.4vh, 14px); padding: calc(var(--pad) + var(--sat)) var(--pad) calc(var(--pad) + var(--sab)); max-height: 100%; }
-.kw-title { margin: 0; font-family: var(--display); font-weight: 700; font-style: italic; font-size: clamp(46px, 11vw, 104px); line-height: 1; letter-spacing: .01em; color: #ec6b92; white-space: nowrap;
-  text-shadow: 0 0 0 #fff, 3px 0 0 #fff, -3px 0 0 #fff, 0 3px 0 #fff, 0 -3px 0 #fff, 2.2px 2.2px 0 #fff, -2.2px 2.2px 0 #fff, 2.2px -2.2px 0 #fff, -2.2px -2.2px 0 #fff, 5px 0 0 #fff, -5px 0 0 #fff, 0 5px 0 #fff, 0 -5px 0 #fff, 3.6px 3.6px 0 #fff, -3.6px 3.6px 0 #fff, 3.6px -3.6px 0 #fff, -3.6px -3.6px 0 #fff, 0 10px 18px rgba(233,129,159,.45); }
-html[lang="zh-CN"] .kw-title { font-family: var(--serif); font-style: normal; font-weight: 800; letter-spacing: .06em; font-size: clamp(42px, 10.5vw, 96px); }
-.kw-title span { display: inline-block; animation: kw-letter .7s cubic-bezier(.2,1.8,.4,1) calc(.12s + var(--i) * .06s) both, kw-bob 2.6s ease-in-out calc(1s + var(--i) * .12s) infinite; }
-@keyframes kw-letter { from { transform: translateY(40px) scale(.3); opacity: 0; } }
-@keyframes kw-bob { 50% { transform: translateY(-5px) rotate(-2deg); } }
+.kw-stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: clamp(2px, 1vh, 10px); padding: calc(var(--pad) + var(--sat) + 28px) var(--pad) calc(var(--pad) + var(--sab)); max-height: 100%; }
+/* hand-lettered title: each glyph tilted a little, warm-brown crayon outline, soft pink fill */
+.kw-title { margin: 0; font-family: var(--display); font-weight: 700; font-style: italic; font-size: clamp(44px, 11vw, 96px); line-height: 1.05; color: #F07E9C; white-space: nowrap;
+  -webkit-text-stroke: 1.6px #8A5545; paint-order: stroke fill; text-shadow: 0 3px 0 rgba(255,255,255,.9), 0 8px 18px rgba(214,120,140,.25); }
+html[lang="zh-CN"] .kw-title { font-family: var(--serif); font-style: normal; font-weight: 800; letter-spacing: .04em; font-size: clamp(40px, 10.5vw, 88px); }
+.kw-title span { display: inline-block; rotate: var(--t, 0deg); animation: kw-letter .7s cubic-bezier(.2,1.8,.4,1) calc(.12s + var(--i) * .06s) both, kw-bob 2.6s ease-in-out calc(1s + var(--i) * .12s) infinite; }
+@keyframes kw-letter { from { transform: translateY(36px) scale(.3); opacity: 0; } }
+@keyframes kw-bob { 50% { transform: translateY(-4px); } }
 
-.kw-sticker { position: relative; width: min(84vw, 460px, 54vh); aspect-ratio: 440 / 400; animation: kw-pop .75s cubic-bezier(.2,1.7,.35,1) both, kw-hug 2.4s ease-in-out 1s infinite; transform-origin: 50% 80%; will-change: transform; cursor: pointer; }
-.kw-sticker.squish { animation: kw-squish .5s cubic-bezier(.2,1.6,.4,1), kw-hug 2.4s ease-in-out .5s infinite; }
-@keyframes kw-pop { 0% { transform: scale(.2) rotate(-10deg); opacity: 0; } 60% { opacity: 1; } }
-@keyframes kw-hug { 0%, 100% { transform: scale(1, 1) rotate(0); } 45% { transform: scale(1.035, .965) rotate(-1deg); } 55% { transform: scale(1.03, .97) rotate(-1deg); } }
-@keyframes kw-squish { 30% { transform: scale(1.12, .86); } 60% { transform: scale(.95, 1.06); } }
-.kw-art { display: block; width: 100%; height: 100%; overflow: visible; }
-.kw-qq { animation: kw-qq 1.6s ease forwards; transform-box: fill-box; transform-origin: 50% 100%; }
-@keyframes kw-qq { 0%, 45% { transform: scale(1); opacity: 1; } 60% { transform: scale(1.3) rotate(8deg); opacity: 0; } 100% { opacity: 0; transform: scale(0); } }
-.kw-hh path { transform-box: fill-box; transform-origin: 50% 50%; }
-.kw-hh { opacity: 0; animation: kw-hh .6s cubic-bezier(.2,1.8,.4,1) .95s forwards; transform-box: fill-box; transform-origin: 50% 100%; }
-@keyframes kw-hh { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: scale(1); } }
-.kw-h1 { animation: kw-beat 1.1s ease-in-out 1.6s infinite; } .kw-h2 { animation: kw-beat 1.1s ease-in-out 1.85s infinite; }
-@keyframes kw-beat { 0%, 100% { scale: 1; } 15% { scale: 1.18; } 30% { scale: .96; } 45% { scale: 1.1; } }
-.kw-rise path { transform-box: fill-box; transform-origin: 50% 50%; opacity: 0; animation: kw-rise 2.6s ease-out infinite; }
-.kw-rise .r1 { animation-delay: 1.2s; } .kw-rise .r2 { animation-delay: 2.1s; } .kw-rise .r3 { animation-delay: 2.9s; }
-@keyframes kw-rise { 0% { opacity: 0; translate: 0 10px; scale: .4; } 20% { opacity: 1; scale: 1; } 100% { opacity: 0; translate: 0 -70px; scale: .8; } }
-.kw-cathead { transform-box: fill-box; transform-origin: 80% 90%; animation: kw-nuzzle 2.4s ease-in-out 1s infinite; }
-.kw-pighead { transform-box: fill-box; transform-origin: 20% 90%; animation: kw-nuzzle2 2.4s ease-in-out 1s infinite; }
-@keyframes kw-nuzzle { 50% { transform: rotate(3deg); } } @keyframes kw-nuzzle2 { 50% { transform: rotate(-3deg); } }
+.kw-sticker { position: relative; width: min(94vw, 600px, 60vh); aspect-ratio: 1; animation: kw-pop .75s cubic-bezier(.2,1.6,.35,1) both, kw-hug 2.6s ease-in-out 1s infinite; transform-origin: 50% 86%; will-change: transform; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.kw-sticker.squish { animation: kw-squish .5s cubic-bezier(.2,1.6,.4,1), kw-hug 2.6s ease-in-out .5s infinite; }
+@keyframes kw-pop { 0% { transform: scale(.6) translateY(30px); opacity: 0; } 60% { opacity: 1; } }
+@keyframes kw-hug { 0%, 100% { transform: scale(1, 1); } 45% { transform: scale(1.025, .975); } 55% { transform: scale(1.02, .98); } }
+@keyframes kw-squish { 30% { transform: scale(1.08, .9); } 60% { transform: scale(.97, 1.04); } }
+/* the illustration's paper is the page colour; feather its edge so it has no frame on any screen */
+.kw-art { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-select: none; pointer-events: none;
+  -webkit-mask: radial-gradient(closest-side, #000 82%, transparent 100%); mask: radial-gradient(closest-side, #000 82%, transparent 100%); }
+/* little hearts rising from between the two cheeks */
+.kw-rise { position: absolute; left: 49%; top: 40%; width: 0; height: 0; pointer-events: none; }
+.kw-rise i { position: absolute; width: 20px; margin-left: -10px; opacity: 0; animation: kw-rise 3s ease-out infinite; }
+.kw-rise .r1 { animation-delay: 1.1s; } .kw-rise .r2 { animation-delay: 1.9s; width: 14px; --x: -26px; } .kw-rise .r3 { animation-delay: 2.7s; width: 16px; --x: 22px; } .kw-rise .r4 { animation-delay: 3.5s; width: 12px; --x: -8px; }
+@keyframes kw-rise { 0% { opacity: 0; transform: translate(0, 10px) scale(.4); } 20% { opacity: 1; transform: translate(calc(var(--x, 6px) * .3), -14px) scale(1); } 100% { opacity: 0; transform: translate(var(--x, 6px), -110px) scale(.85); } }
 
-.kw-sticker > svg:not(.kw-art) { position: absolute; width: 30px; pointer-events: none; animation: kw-twinkle 2.2s ease-in-out infinite; }
-.kw-s1 { left: 4%; top: 22%; } .kw-s2 { right: 2%; bottom: 30%; width: 22px !important; animation-delay: -.8s !important; } .kw-s3 { left: 14%; bottom: 6%; width: 18px !important; animation-delay: -1.4s !important; }
+.kw-sticker > svg { position: absolute; width: 24px; pointer-events: none; animation: kw-twinkle 2.4s ease-in-out infinite; }
+.kw-s1 { left: 6%; top: 28%; } .kw-s2 { right: 4%; bottom: 34%; width: 18px !important; animation-delay: -.8s !important; } .kw-s3 { left: 12%; bottom: 10%; width: 15px !important; animation-delay: -1.4s !important; }
 
-.kw-sub { margin: 0; font-size: clamp(15px, 2.2vw, 19px); color: #c9567b; letter-spacing: .04em; font-style: italic; animation: kw-fade .8s var(--ease) 1.2s both; text-align: center; }
-html[lang="zh-CN"] .kw-sub { font-style: normal; letter-spacing: .12em; }
+.kw-sub { margin: 0; font-size: clamp(15px, 2.2vw, 19px); color: #9A5A55; letter-spacing: .04em; font-style: italic; animation: kw-fade .8s var(--ease) 1.2s both; text-align: center; }
+html[lang="zh-CN"] .kw-sub { font-style: normal; letter-spacing: .14em; }
 @keyframes kw-fade { from { opacity: 0; transform: translateY(8px); } }
-.kw-go { margin-top: 6px; display: inline-flex; align-items: center; gap: 10px; padding: 12px 26px 12px 30px; border-radius: 999px; background: rgba(255,255,255,.86); color: #d2557d; font-size: 13px; letter-spacing: .22em; text-transform: uppercase;
-  box-shadow: 0 0 0 1px rgba(238,143,166,.55), 0 10px 26px -8px rgba(226,110,145,.55); opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity .6s var(--ease), transform .6s var(--ease), background .2s; }
+.kw-go { margin-top: 10px; display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px 12px 28px; border-radius: 999px; background: rgba(255,255,255,.75); color: #B5576F; font-size: 13px; letter-spacing: .22em; text-transform: uppercase;
+  box-shadow: 0 0 0 1px rgba(154,90,85,.28), 0 8px 20px -10px rgba(170,90,100,.5); opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity .6s var(--ease), transform .6s var(--ease), background .2s; }
 .kw.ready .kw-go { opacity: 1; transform: none; pointer-events: auto; }
 .kw-go:hover { background: #fff; } .kw-go:active { transform: scale(.96); }
 .kw-go svg { transition: transform .3s var(--ease); } .kw-go:hover svg { transform: translateX(3px); }
-@media (prefers-reduced-motion: reduce) { .kw-rays, .kw-f, .kw-tw, .kw-sticker, .kw-title span, .kw-cathead, .kw-pighead { animation-duration: 0s !important; animation-iteration-count: 1 !important; } }
+@media (orientation: landscape) and (max-height: 520px) { .kw-stage { padding-top: calc(var(--sat) + 10px); } .kw-sticker { width: min(70vh, 600px); } }
+@media (prefers-reduced-motion: reduce) { .kw-f, .kw-tw, .kw-sticker, .kw-title span, .kw-rise i { animation-duration: 0s !important; animation-iteration-count: 1 !important; } }
