@@ -184,3 +184,5 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 
 ### 运行 / 构建 / 部署
 `npm run dev`（`/jelly/` 要带结尾斜杠）· `npx tsc --noEmit -p . && npx vite build` · 本地预览 `node tools/serve.mjs dist 8811` · 截图 `node tools/v02-shots.mjs http://localhost:8811/ "sea/?lang=zh|review/v03/x.png|3000|390x844"` · 旅程检查 `node tools/journey-v02.mjs`（v03 需把 jelly→sky 段改为 jelly→sea→sky）· 部署 `GIFT_DEPLOY=1 scripts/deploy_pages.sh`（公开仓库 `smartlotus/jelly-gift` main）。提交邮箱 227950577+smartlotus@users.noreply.github.com，永不 force push。
+
+**v03 已交付（2026-11-03）**：master `6d7a0de`（合并 v03-ocean），tag `v03`；公开仓库 `smartlotus/jelly-gift` main `5307194`。线上 /、/shop/、/night/、/jelly/、/sea/、/sky/、/coop/、/ar/ 都是 200。还原点：`v01`、`v02`、`v03`。
