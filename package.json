@@ -25,6 +25,9 @@
   },
   "private": true,
   "dependencies": {
+    "astronomy-engine": "^2.1.19",
+    "jsqr": "^1.4.0",
+    "qrcode-generator": "^2.0.4",
     "three": "^0.187.0"
   },
   "type": "module"

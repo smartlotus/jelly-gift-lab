@@ -1,0 +1,41 @@
+/* /sky/ — dark, quiet, editorial. All selectors prefixed .sk- */
+html, body { background: #04060b; color: #ece8df; }
+#sky { position: fixed; inset: 0; }
+#sky canvas { display: block; touch-action: none; cursor: grab; }
+.sk-ui { position: fixed; inset: 0; pointer-events: none; font-family: var(--serif); color: rgba(236,232,223,.86); }
+.sk-head { position: absolute; top: calc(var(--pad) * .7 + var(--sat)); left: calc(var(--pad) + var(--sal)); }
+.sk-head p { margin: 0; }
+.sk-date { font-family: var(--display); font-size: 22px; letter-spacing: .04em; font-variant-numeric: lining-nums tabular-nums; color: #f2eee6; }
+.sk-place, .sk-moon { margin-top: 4px !important; font-size: 12px; letter-spacing: .12em; color: rgba(236,232,223,.56); }
+.sk-foot { position: absolute; left: 0; right: 0; bottom: 0; padding-bottom: calc(18px + var(--sab)) !important; padding-top: 40px !important; background: linear-gradient(to top, rgba(3,4,6,.92) 55%, rgba(3,4,6,0)); display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 0 var(--pad); }
+.sk-seg { pointer-events: auto; display: flex; border: 1px solid rgba(236,232,223,.22); border-radius: 999px; padding: 3px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); background: rgba(4,6,11,.35); }
+.sk-seg button { padding: 7px 18px; border-radius: 999px; font-size: 13px; letter-spacing: .1em; color: rgba(236,232,223,.5); transition: background .4s var(--ease), color .4s var(--ease); }
+.sk-seg button[aria-pressed="true"] { background: rgba(236,232,223,.12); color: #f2eee6; }
+.sk-rec { margin: 0; display: grid; gap: 5px; font-size: 12px; letter-spacing: .06em; width: min(100%, 420px); }
+.sk-rec > div { display: flex; justify-content: space-between; gap: 14px; border-top: 1px solid rgba(236,232,223,.09); padding-top: 5px; }
+.sk-rec dt { color: rgba(236,232,223,.5); white-space: nowrap; }
+.sk-rec dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; color: rgba(236,232,223,.86); }
+.sk-rec-h { text-align: center; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: rgba(236,232,223,.38) !important; margin-bottom: 2px; }
+.sk-tools { position: absolute; right: calc(var(--pad) + var(--sar)); top: calc(var(--pad) * .7 + var(--sat) + 96px); display: flex; flex-direction: column; gap: 10px; }
+.sk-sun, .sk-gyro { pointer-events: auto; width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(236,232,223,.22); color: rgba(236,232,223,.6); display: grid; place-items: center; }
+.sk-sun svg, .sk-gyro svg { width: 18px; height: 18px; } .sk-sun .sk-slash { opacity: 0; transition: opacity .3s; } .sk-sun[aria-pressed="true"] .sk-slash { opacity: 1; } .sk-sun[aria-pressed="true"] { color: #f2eee6; border-color: rgba(236,232,223,.6); }
+.sk-gyro.on { color: #f2eee6; border-color: rgba(236,232,223,.6); }
+.sk-gyro[hidden] { display: none; }
+.sk-ui::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: calc(130px + var(--sat)); background: linear-gradient(rgba(3,4,8,.7), rgba(3,4,8,0)); }
+.sk-sun { border-radius: 50%; border: 1px solid rgba(236,232,223,.22); color: rgba(236,232,223,.6); display: grid; place-items: center; height: 34px; }
+.sk-date[data-day]:not([data-day=""])::after { content: attr(data-day); display: block; margin-top: 2px; font-family: var(--serif); font-size: 13px; letter-spacing: .14em; color: rgba(236,232,223,.7); }
+body[data-daylight="1"] .sk-ui::before { background: linear-gradient(rgba(10,20,40,.32), rgba(10,20,40,0)); }
+body[data-daylight="1"] .sk-head, body[data-daylight="1"] .gift-chrome { text-shadow: 0 1px 8px rgba(10,20,40,.35); }
+/* motion: values roll in (slide + fade, expo-out); UI eases in on entry */
+.sk-rec dd.roll { animation: sk-roll .6s cubic-bezier(.16,1,.3,1); }
+@keyframes sk-roll { from { opacity: 0; transform: translateY(7px); } }
+.sk-head, .sk-foot, .sk-tools { animation: sk-in 1.2s cubic-bezier(.16,1,.3,1) .5s both; }
+@keyframes sk-in { from { opacity: 0; transform: translateY(6px); } }
+.sk-head p { transition: opacity .5s var(--ease); }
+@media (prefers-reduced-motion: reduce) { .sk-rec dd.roll, .sk-head, .sk-foot, .sk-tools { animation: none; } }
+/* onward to the co-op finale: one quiet line above the switch, appears after she has had a look */
+.sk-next { pointer-events: auto; display: flex; align-items: center; gap: 4px; padding: 8px 6px 8px 14px; font-size: 13px; letter-spacing: .28em; color: rgba(236,232,223,.78); opacity: 0; transform: translateY(6px); transition: opacity 1.4s var(--ease), transform 1.4s cubic-bezier(.16,1,.3,1), color .3s; visibility: hidden; }
+.sk-next.on { opacity: 1; transform: none; visibility: visible; }
+.sk-next svg { width: 16px; height: 16px; transition: transform .4s cubic-bezier(.16,1,.3,1); }
+.sk-next:hover { color: #f2eee6; } .sk-next:hover svg { transform: translateX(3px); }
+@media (prefers-reduced-motion: reduce) { .sk-next { transition: none; } }

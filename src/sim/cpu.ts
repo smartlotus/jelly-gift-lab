@@ -17,6 +17,8 @@ export class CpuSolver {
   beads = new Float32Array(MAX_BEADS * 4); beadCount = 0;
   /** righting assist: angular acceleration vector (xyz) about centre (3..5) */
   spin = new Float32Array(6);
+  /** gravity sensor: extra acceleration xyz; side walls cx, cz, rx, rz, wx, wz, on */
+  acc = new Float32Array(3); box = new Float32Array(8);
   constructor(public a: TetAsset, public prm: SimParams) {
     this.N = a.nodes.length / 3; this.T = a.tets.length / 4;
     this.x = new Float32Array(a.nodes); this.p = new Float32Array(a.nodes); this.v = new Float32Array(this.N * 3);
@@ -38,6 +40,7 @@ export class CpuSolver {
       for (let i = 0; i < this.N; i++) {
         if (w[i] === 0) continue;
         v[3 * i + 1] -= prm.gravity * a.grav[i] * h;
+        v[3 * i] += this.acc[0] * h; v[3 * i + 1] += this.acc[1] * h; v[3 * i + 2] += this.acc[2] * h;
         if (sp[0] || sp[1] || sp[2]) {
           const rx = x[3 * i] - sp[3], ry = x[3 * i + 1] - sp[4], rz = x[3 * i + 2] - sp[5];
           v[3 * i] += (sp[1] * rz - sp[2] * ry) * h; v[3 * i + 1] += (sp[2] * rx - sp[0] * rz) * h; v[3 * i + 2] += (sp[0] * ry - sp[1] * rx) * h;
@@ -180,6 +183,14 @@ export class CpuSolver {
         const dx = x[3 * i] - bd[4 * b], dy = x[3 * i + 1] - bd[4 * b + 1], dz = x[3 * i + 2] - bd[4 * b + 2];
         const r = bd[4 * b + 3] + nr; const d2 = dx * dx + dy * dy + dz * dz;
         if (d2 < r * r && d2 > 1e-12) { const d = Math.sqrt(d2); const s = (r - d) / d * 0.5; x[3 * i] += dx * s; x[3 * i + 1] += dy * s; x[3 * i + 2] += dz * s; }
+      }
+      if (this.box[6]) { // side walls (gravity sensor on): a box in the camera's frame, so the screen edges are solid
+        const B = this.box, ox = x[3 * i] - B[0], oz = x[3 * i + 2] - B[1];
+        let u = ox * B[2] + oz * B[3], w2 = -ox * B[3] + oz * B[2]; const wx = B[4] - nr, wz = B[5] - nr;
+        if (u > wx || u < -wx || w2 > wz || w2 < -wz) {
+          u = Math.max(-wx, Math.min(wx, u)); w2 = Math.max(-wz, Math.min(wz, w2));
+          x[3 * i] = B[0] + u * B[2] - w2 * B[3]; x[3 * i + 2] = B[1] + u * B[3] + w2 * B[2];
+        }
       }
       const y = x[3 * i + 1];
       if (y < 0) {

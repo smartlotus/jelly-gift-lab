@@ -121,3 +121,28 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 - 2026-11-03 T24（整合人，按用户试玩反馈）：①果冻彩蛋 kicker 去掉「特刊 / Special Edition」→「果冻标本 / Jelly Studies」；②第三章加三个轻解谜（`src/stages/night/puzzles.ts`，DOM 覆盖层 + 像素画）：蘑菇从小到大（木牌圆点提示）→ 三岔路跟蹄印 → 木门挂锁「世界屁股日是什么时候？」`__ 月 __ 日` 数字轮（▲▼ / 数字键盘 / 键盘，答案 5/05 · 2/02）；2 次错给提示，蘑菇 4 次 / 岔路 3 次 / 门锁 6 次后自动通过；闲置 9 s 自动前行；门（`gate.ts`，体素小路上的双开木门）解开后打开，随后追逐 + 必被抓不变；dev `?at=trail|gate`；③反转画面换成绘本风插画 `src/stages/night/art/hug.webp`（GenerateImage 以涂鸦为参考生成，1600 px，141 KB，导入时预解码），纸张底色 + 颗粒、手写感倾斜标题、心形上浮、闪光、呼吸弹跳；④小店去掉所有展示文字：说明卡 → 只在桌面显示一个圆形眼睛按钮（触屏用触控板上的眼睛键 / 点模型），检视器去掉编号/标题/描述/规格/「打印用色」/操作提示，控制改为纯图标（复位、拆解、自动转、光线带色点），像素场景里的 OPEN/200/铜牌编号和后门「外面天黑了」去掉；`npm run fonts`。截图：`review/rev-t24/`。
 - 2026-11-03 M7/M8（整合人）：`npm run fonts`（CJK 318 字）；文案微调（第二章副标题不再写"四件"——现在有 5 件）；转场连续：草地门光圈收拢 → 小店从入口门打开光圈 → 夜路 → 粉色光圈 → 果冻页从粉色打开（`?from=night`，`transition.ts` 改为内联样式，果冻页也能用）；果冻页 `?from=night` 一次性蘑菇微光（~18 s，避开拖动，找到后不再出现，彩蛋未改动）；第一章门进入判定 ±7 → ±13 px、3 格高管子前加一块单向木板（瞌睡蘑菇从下面跑过）；第二章：冰箱贴说明卡不再盖住另一块（小猪卡在左、小猫卡在右）、每个视口单独清深度（两块磁贴视口重叠）、模型加载后立即预编译着色器（No.01 在标题卡期间就编译好）、竖屏冰箱贴视口 ×1.3；标题卡副标题 `text-wrap: balance`；`vite.config.ts` 原生加载器警告清除（`"type": "module"`、`.ts` 扩展名、`import.meta.dirname`）；新增 `tools/check-pages.mjs`；部署到公开仓库。
 - 2026-11-03 M0：建立 `src/shared/*` 与 `src/shared/pixel/*` 初版 API；果冻页移到 `/jelly/`；`dist/` 停止跟踪；部署加闸门；GLB 管线与 4 个模型。
+
+## 10. v02 番外（分支 `v02-extras`，未合入 master、未部署；线上仍是 v01）
+
+规格：`smartlotus/jelly-gift-ideas` → `designs/v02/{sky,ar,coop}.md`。三个独立新页面（没有接进 flow.ts 的四章旅程，合入 v02 时再决定入口）：
+
+| 页面 | 入口文件 | 要点 |
+|---|---|---|
+| `/sky/` 真实星空 | `src/stages/sky/{config,astro,main}.ts` | **日期/城市/钟点全在 `config.ts`（占位，待用户确认）**。星表 `data/stars.json`（HYG 派生、mag ≤ 6、5044 颗，`tools/sky/gen.mjs` 从 d3-celestial 数据生成）+ IAU 连线；astronomy-engine（打包）算岁差/章动/大气折射/月亮/行星；「下一次同样的星空」= `astro.recur()` 逐日搜索 300 年（结果缓存 localStorage）。`tools/sky/check.ts` 用另一条 astronomy-engine 路径交叉验证地平坐标。dev：`?day=1`、`?still` |
+| `/ar/` AR 手办 | `src/stages/ar/*`、`src/shared/ar.ts` | iOS：`public/models/{figure-pig,figure-cat,pair}.usdz`（`tools/models/export_usdz.py`，Blender，实物 mm 尺寸、Y-up、底面落地），`rel="ar"` Quick Look；安卓：WebXR hit-test（`xr.ts`）；都不支持则隐藏按钮只做转台。小店检视器多了 AR 图标（仅人偶 + 情侣件）。dev：`?m=pair`、`?ar=force` |
+| `/coop/` 双手机合作关 | `src/stages/coop/*`、`src/shared/pixel/pig.ts` | 主机（小猪，左手机）权威：60 Hz 模拟、30 Hz 快照；客机（小猫）发手柄。信令：offer/answer 压缩成 URL 二维码（系统相机扫 offer 直接打开客机页；主机页内扫回码，或用系统相机打开回码 URL → BroadcastChannel/storage 回传给原标签页）。一部手机模式（左右分键）。dev：`?solo`、`?preview`（两部手机并排画在一个屏幕上）、`?at=wall|end`、`?auto`。检查：`npx tsx tools/coop-sim.ts`（谜题逻辑）、`tools/coop-net-test.ts`（Node + node-datachannel 验证信令/通道）、`tools/coop-rtc.mjs`（两页真浏览器，**本机 Chrome 策略禁 UDP，需在普通机器上跑**） |
+
+截图：`review/v02/`；脚本 `node tools/v02-shots.mjs <base> 'path|out.png|waitMs|WxH' …`。本地预览：`npm run build && node tools/serve.mjs dist 8800` → `http://localhost:8800/sky/`、`/ar/`、`/coop/`（手机同 Wi-Fi 访问需 HTTPS 才能用相机/陀螺仪/WebXR：可用 `npx vite --host` + 自签证书，或部署到预览仓库）。
+
+### v02 extras — motion, live sky, jelly gravity (2026-11-03)
+- **/sky/**：默认 = 长春此刻的实时星空（地球自转每帧、日月行星每 2 s 重算，平滑插值），太阳高度决定天色（白天 / 民用·航海·天文晨昏），「隐去日光」0.8 s 过渡；「此刻 / 第 1 天 / 第 200 天」三视图连续形变；「下一次同样的星空」对三个时刻都在浏览器里现算（此刻视图跨日才重算）。dev：`?at=YYYY-MM-DDTHH:MM`（固定时刻）、`?still`。
+- **动效**：规格 `jelly-gift-ideas/designs/v02/motion.md`。sky 星星按星等淡入 / 数值滚入；ar 模型溶解 + 转台 expo-out、按钮外扩环；coop 大厅/配对面板依次浮现、进入关卡/连接/再来一次用草地关的像素虹膜。全部尊重 prefers-reduced-motion。
+- **/jelly/ 重力感应**：`src/app/tilt.ts`（DeviceOrientation β/γ → 屏幕坐标“下”方向，低通 120 ms，前后倾相对 4 s 自适应握姿；DeviceMotion.acceleration 高通 + 死区 → 冲量，总量限幅 2.2 G，向上 ≤ 1.1 G）。Engine 每帧把额外加速度 `acc` 与侧墙 `box`（相机坐标系下、按可见宽度的盒子）传给求解器：CPU (`cpu.ts`) 与 WGSL (`gpu.wgsl.ts`，Sim uniform 464 → 512 B) 同步实现；开关关闭时与旧版完全一致。开关 `#grav`（`localStorage['jelly.gravity']`），iOS 在点按时 requestPermission，拒绝 → 复位并轻摇；无传感器（桌面 / 2 s 内无事件）隐藏。检查：`node tools/jelly-grav-check.mjs http://localhost:8811/`（`?grav` 强制显示，合成倾斜/摇晃事件）。
+- **部署**（只增不改 + /jelly/）：公开仓库只新增 sky/ ar/ coop/ 及其资源、USDZ，并更新 `jelly/index.html`；/、/shop/、/night/ 的 html 与其引用的资源未动（同名资源逐字节一致）。
+
+### v02 = 一条线的完整旅程（2026-11-03）
+`/` 草地 → `/shop/` 小店（检视器 AR 按钮：iOS Quick Look；其他设备纸面溶解进 `/ar/?from=shop&m=<id>`，‹ 回 `/shop/?from=ar&ex=<id>` 同一展台自动重开检视器）→ `/night/` → `/jelly/`（蘑菇在旅程中 12 s 起每 16 s 微光；彩蛋卡片下新增「抬头 / Look up」，彩蛋原文案未改）→ `/sky/?from=jelly`（暗场连续：卡片下沉、烟花下滑、入夜 2.7 s；天空从地平线 −6° 抬到目标高度 3.6 s，星星按星等浮现；7 s 后出现「一起玩 ›」）→ `/coop/?from=sky`（淡入黑 0.9 s → 像素光圈从黑打开，直接一部手机双人；左上两部手机图标 → `?duo` 配对）→ 结局满屏爱心后 ↻ 再来 / ⌂ 从头再来（光圈 → `/?from=coop`）。
+- `flow.ts`：`STAGES` = meadow, shop, night, jelly, sky, coop（`ar` 为侧室路径）；`go(to, outro, extra)`；`from`；`?stage=5|sky`、`6|coop` 可直达。`transition.ts` 新增 `dissolve(to, ms, colour)`（纸面 / 暗场溶解，同一 veil 元素，尊重 reduced-motion）。
+- 过渡语言：像素章 = 像素光圈；纸面（小店检视器 ⇄ AR）= 纸色溶解 `#eeece8`；暗场（彩蛋 → 天空 → 合作关）= 经黑色慢淡。
+- 检查：`node tools/journey-v02.mjs http://localhost:8811/`（彩蛋 → 天空 → 合作关 → 结局 → 草地；小店 AR → /ar/ → 回到同一展台；截图 `review/v02/journey-*.png`）。
+- 草地隐藏管道（彩蛋式直达 /coop/）未做（可选）。

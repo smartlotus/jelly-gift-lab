@@ -7,6 +7,7 @@ import { Beads } from './beads';
 import { Righting } from '../sim/righting';
 import type { Actuation } from '../core/character';
 import type { Colourway } from '../core/look';
+import { Tilt } from './tilt';
 
 const KEY = [-0.28, 1.0, -0.62];
 export interface Readouts { massG: number; volumeMl: number; metrics: number[] }
@@ -28,6 +29,8 @@ export class Engine {
   grab = makeGrab(MAX_GRAB);
   beads = new Beads();
   spin = new Float32Array(6); righting: Righting | null = null; tilt = 0;
+  /** gravity sensor (off by default): extra acceleration + side walls fed to the solver */
+  sensor = new Tilt(); acc = new Float32Array(3); box = new Float32Array(8); private fitR = 1; private fitTh = 0.3;
   /** scripted idle gesture: an invisible hand gently lifts one spot now and then (e.g. the shark raising its head) */
   idle: { at: number[]; lift: number[]; period: number; duration: number; radius: number; offset?: number; wave?: number } | null = null;
   private idleT = 0; private autoGrab = false; private autoP0 = [0, 0, 0];
@@ -140,11 +143,26 @@ export class Engine {
       if (!this.righting) { this.righting = new Righting(this.path.asset.nodes); this.righting.hold = this.character.upright ?? 0; }
       this.tilt = this.righting.update(nodes.data, nodes.stride, Math.min(dt, 1 / 60), this.grab.active && !this.autoGrab, this.spin);
     }
-    this.path.step({ dt: Math.min(dt, 1 / 60), act: this.act, grab: this.grab, beads: this.beads.pos, beadCount: this.beads.count, spin: this.spin });
+    this.updateSensor(Math.min(dt, 1 / 30));
+    this.path.step({ dt: Math.min(dt, 1 / 60), act: this.act, grab: this.grab, beads: this.beads.pos, beadCount: this.beads.count, spin: this.spin, acc: this.acc, box: this.box });
     this.updateCamera(dt);
     this.writeFrame();
     this.path.render(this.frame, 1.0, this.time);
     this.updateReadouts(dt);
+  }
+
+  /** tilt/shake -> acceleration; walls = what the camera sees around the rest pose, in the camera's floor frame */
+  private updateSensor(dt: number) {
+    const c = this.cam, bx = [Math.sin(c.yaw), 0, Math.cos(c.yaw)], rt = [bx[2], 0, -bx[0]];
+    this.sensor.update(dt, rt, bx, this.acc);
+    if (!this.sensor.on || !this.rest) { this.box[6] = 0; return; }
+    const { lo, hi } = this.rest;
+    const cx = (lo[0] + hi[0]) / 2, cz = (lo[2] + hi[2]) / 2;
+    let hu = 0, hw = 0; // rest half-extents along camera right / depth
+    for (const px of [lo[0], hi[0]]) for (const pz of [lo[2], hi[2]]) { hu = Math.max(hu, Math.abs((px - cx) * rt[0] + (pz - cz) * rt[2])); hw = Math.max(hw, Math.abs((px - cx) * bx[0] + (pz - cz) * bx[2])); }
+    const seen = Math.max(0, this.fitR - 0.2) * this.fitTh * 0.92; // half-width visible at the target's depth
+    const wx = Math.max(hu * 1.3, Math.min(seen, hu * 2.4)), wz = Math.max(hw * 1.25, Math.min(wx * 0.9, hw * 2.4));
+    this.box.set([cx, cz, rt[0], rt[2], wx, wz, 1, 0]);
   }
 
   // ------------------------------------------------------------------------------ camera
@@ -178,6 +196,7 @@ export class Engine {
     }
     // short landscape (phones on their side): UI bands eat the top and bottom, so pull back and lift
     if (!portrait && this.H / this.dpr < 520) { R *= 1.3; shiftY = 0.1; }
+    this.fitR = R; this.fitTh = th;
     R *= c.zoom;
     c.eye = [tgt[0] + R * Math.sin(c.yaw) * Math.cos(c.pitch), tgt[1] + R * Math.sin(c.pitch), tgt[2] + R * Math.cos(c.yaw) * Math.cos(c.pitch)];
     m4.lookAt(this.view, c.eye, tgt, [0, 1, 0]);

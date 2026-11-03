@@ -5,6 +5,8 @@ export interface SimInput {
   dt: number; act: Float32Array; grab: GrabState; beads: Float32Array; beadCount: number;
   /** righting assist: angular acceleration xyz + centre xyz */
   spin: Float32Array;
+  /** gravity sensor: extra world acceleration xyz (tilt delta + shake), and the side walls: cx, cz, rx, rz, wx, wz, on, 0 */
+  acc?: Float32Array; box?: Float32Array;
 }
 /** A complete simulation + rendering path (WebGPU compute+render, or CPU worker + WebGL2). */
 export interface Path {

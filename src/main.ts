@@ -7,6 +7,7 @@ import { GLPath } from './app/glpath';
 import type { Path } from './app/path';
 import * as UI from './ui/ui';
 import { irisIn } from './shared/transition';
+import { hasSensors, askPermission, needsPermission } from './app/tilt';
 // journey arrival: the night stage's kawaii flip closed its iris on pink, so open from pink (before the loader shows)
 if (new URLSearchParams(location.search).get('from') === 'night') void irisIn(innerWidth / 2, innerHeight / 2, 900, '#F9C6CF');
 
@@ -133,8 +134,8 @@ async function boot() {
   const egg = () => import('./egg/egg');
   shroom.addEventListener('pointerenter', () => { egg(); }, { once: true });
   shroom.addEventListener('click', async () => { (await egg()).openEgg(shroom, engine); });
-  // Journey arrival (/jelly/?from=night): one quiet glint on the mushroom ~18 s in, at a moment she isn't dragging.
-  // Once per visit; never if she already found it. The egg itself is untouched.
+  // Journey arrival (/jelly/?from=night): a quiet glint on the mushroom ~12 s in (then every ~16 s), at a moment she isn't
+  // dragging; stops once she found it. The egg leads on to /sky/ (抬头 / Look up).
   if (new URLSearchParams(location.search).get('from') === 'night') {
     let found = false, lastTouch = 0;
     shroom.addEventListener('click', () => { found = true; }, { once: true });
@@ -143,8 +144,32 @@ async function boot() {
       if (found) return;
       if (performance.now() - lastTouch < 2000) { setTimeout(tryGlint, 700); return; }
       shroom.classList.add('glint'); setTimeout(() => shroom.classList.remove('glint'), 2600);
+      setTimeout(tryGlint, 16000); // the journey continues through the egg: keep glinting quietly until she finds it
     };
-    setTimeout(tryGlint, 18000);
+    setTimeout(tryGlint, 12000);
+  }
+  // gravity sensor switch (default off, remembered). iOS asks on the tap; a remembered "on" re-asks on her first touch.
+  const grav = document.getElementById('grav') as HTMLButtonElement, GK = 'jelly.gravity';
+  if (hasSensors() || params.has('grav')) {
+    grav.hidden = false;
+    const set = (on: boolean) => {
+      grav.setAttribute('aria-pressed', String(on)); try { localStorage.setItem(GK, on ? '1' : '0'); } catch { /* private mode */ }
+      if (on) {
+        engine.sensor.start();
+        const t0 = performance.now(); // no events within 2 s = no sensor after all: quietly switch off and hide
+        setTimeout(() => { if (engine.sensor.on && engine.sensor.lastEvent < t0 && !params.has('grav')) { engine.sensor.stop(); grav.setAttribute('aria-pressed', 'false'); grav.hidden = true; } }, 2000);
+      } else engine.sensor.stop();
+    };
+    const turnOn = async () => {
+      if (await askPermission()) set(true);
+      else { set(false); grav.classList.remove('nope'); void grav.offsetWidth; grav.classList.add('nope'); }
+    };
+    grav.addEventListener('click', () => { if (engine.sensor.on) set(false); else void turnOn(); });
+    let stored = false; try { stored = localStorage.getItem(GK) === '1'; } catch { /* */ }
+    if (stored) {
+      if (!needsPermission()) set(true);
+      else { grav.setAttribute('aria-pressed', 'true'); addEventListener('pointerup', e => { if (!grav.contains(e.target as Node) && !engine.sensor.on) void turnOn(); }, { once: true }); }
+    }
   }
   document.getElementById('bait')!.addEventListener('click', () => { engine.dropBait(); UI.fadeHint(); });
   document.getElementById('reset')!.addEventListener('click', () => engine.reset());

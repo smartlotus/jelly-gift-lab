@@ -62,3 +62,10 @@ body.shop-inspecting .touchpad { opacity: 0; pointer-events: none; }
 body.shop-inspecting .touchpad .tp-group { pointer-events: none; }
 .touchpad { transition: opacity .35s var(--ease); }
 @media (prefers-reduced-motion: reduce) { .shop-card.on { animation: none; } }
+/* v02: the AR button — featured once (two soft rings, expo-out), then quiet like the others */
+.si-bar .si-ar[hidden] { display: none; }
+.si-bar .si-ar::after { content: ''; position: absolute; inset: 2px; border-radius: 50%; border: 1px solid var(--ink-2); opacity: 0; pointer-events: none; }
+.si-bar .si-ar.suggest { color: var(--ink); }
+.si-bar .si-ar.suggest::after { animation: si-suggest 1.6s cubic-bezier(.16,1,.3,1) 2; }
+@keyframes si-suggest { 0% { opacity: .7; transform: scale(.85); } 100% { opacity: 0; transform: scale(1.6); } }
+@media (prefers-reduced-motion: reduce) { .si-bar .si-ar.suggest::after { animation: none; } }

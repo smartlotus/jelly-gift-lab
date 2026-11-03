@@ -4,6 +4,7 @@
 // Tap the number (or Replay) to run it again. prefers-reduced-motion gets the card alone, no motion.
 import './egg.css';
 import { t, lang } from '../i18n/i18n';
+import { go } from '../shared/flow';
 
 type Celebrant = { celebrate?: (times?: number, gap?: number) => void };
 const NAME = 'lushiva';
@@ -120,6 +121,7 @@ export function openEgg(trigger?: HTMLElement, scene?: Celebrant) {
       <span class="egg-rule" aria-hidden="true"></span>
       <h2 class="egg-line">${lineHTML()}</h2>
       <div class="egg-foot"><button class="egg-btn" data-a="replay" type="button">${t('egg.replay')}</button><span class="egg-dot" aria-hidden="true"></span><button class="egg-btn" data-a="close" type="button">${t('egg.close')}</button></div>
+      <button class="egg-up" data-a="up" type="button"><span>${t('egg.up')}</span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14l5-5 5 5"/></svg></button>
     </div>`;
     root.classList.toggle('zh', lang === 'zh');
   };
@@ -148,6 +150,14 @@ export function openEgg(trigger?: HTMLElement, scene?: Celebrant) {
     root.querySelector('[data-a="close"]')!.addEventListener('click', close);
     root.querySelector('[data-a="replay"]')!.addEventListener('click', run);
     root.querySelector('.egg-num')!.addEventListener('click', run);
+    root.querySelector('[data-a="up"]')!.addEventListener('click', lookUp);
+  };
+  // onward: the card sinks, the fireworks slide away below as if she raised her eyes, the room goes to night -> /sky/
+  let leavingUp = false;
+  const lookUp = () => {
+    if (leavingUp) return; leavingUp = true; removeEventListener('keydown', onKey); timers.forEach(clearTimeout);
+    root.classList.add('lookup');
+    void go('sky', () => new Promise(r => setTimeout(r, reduce ? 10 : 2700)));
   };
   const close = () => {
     root.classList.add('leaving'); removeEventListener('keydown', onKey);

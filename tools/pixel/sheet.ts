@@ -4,6 +4,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
 import { CAT_FRAMES, CAT_PAL } from '../../src/shared/pixel/cat';
 import { SHEETS } from '../../src/stages/meadow/art';
+import { PIG_FRAMES, PIG_PAL } from '../../src/shared/pixel/pig';
 
 const S = 8, PAD = 4, BG = [0x9a, 0xdc, 0xff];
 const hex = (h: string) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -27,4 +28,6 @@ function sheet(name: string, groups: Record<string, string[][]>, pal: Record<str
   console.log(`review/sprites/${name}.png  ${Object.keys(groups).join(', ')}`);
 }
 sheet('cat', CAT_FRAMES, CAT_PAL);
+sheet('pig', PIG_FRAMES, PIG_PAL);
+sheet('duo', { cat: [CAT_FRAMES.idle[0], CAT_FRAMES.walk[0], CAT_FRAMES.jump[0]], pig: [PIG_FRAMES.idle[0], PIG_FRAMES.walk[0], PIG_FRAMES.jump[0]] }, { ...CAT_PAL, n: PIG_PAL.n });
 for (const s of SHEETS) sheet(s.name, s.groups, s.pal);

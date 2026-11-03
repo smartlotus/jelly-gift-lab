@@ -9,6 +9,7 @@ struct Sim {
   spin: vec4f, spinC: vec4f,
   axes: array<vec4f, 4>,
   beads: array<vec4f, 16>,
+  acc: vec4f, box: vec4f, boxE: vec4f,   // gravity sensor: extra acceleration; walls (cx, cz, rx, rz) + (wx, wz, on, -)
 };
 struct Range { offset: u32, count: u32, pad0: u32, pad1: u32 };
 
@@ -36,6 +37,7 @@ fn predict(@builtin(global_invocation_id) gid: vec3u) {
   let xi = X[i]; if (xi.w == 0.0) { return; }
   var v = Vv[i];
   v.y -= sim.gravity * v.w * sim.h;
+  v = vec4f(v.xyz + sim.acc.xyz * sim.h, v.w);
   v = vec4f(v.xyz + cross(sim.spin.xyz, xi.xyz - sim.spinC.xyz) * sim.h, v.w);
   let vel = v.xyz * sim.damp;
   Vv[i] = vec4f(vel, v.w);
@@ -137,6 +139,13 @@ fn contacts(@builtin(global_invocation_id) gid: vec3u) {
     let bd = sim.beads[b];
     let d = p - bd.xyz; let rr = bd.w + sim.nodeR; let d2 = dot(d, d);
     if (d2 < rr * rr && d2 > 1e-12) { let dl = sqrt(d2); p += d * ((rr - dl) / dl * 0.5); }
+  }
+  if (sim.boxE.z > 0.0) {
+    let o = vec2f(p.x - sim.box.x, p.z - sim.box.y);
+    let uw = vec2f(o.x * sim.box.z + o.y * sim.box.w, -o.x * sim.box.w + o.y * sim.box.z);
+    let lim = sim.boxE.xy - vec2f(sim.nodeR);
+    let c = clamp(uw, -lim, lim);
+    if (any(c != uw)) { p.x = sim.box.x + c.x * sim.box.z - c.y * sim.box.w; p.z = sim.box.y + c.x * sim.box.w + c.y * sim.box.z; }
   }
   if (p.y < 0.0) {
     let pen = -p.y; p.y = 0.0;
