@@ -87,7 +87,7 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 
 | # | 里程碑 | 归属 | 状态 | 备注 / 提交 |
 |---|---|---|---|---|
-| M0 | 计划 + 交接 + MPA 脚手架 + 共享引擎雏形 + GLB 管线 | 整合人 | ✅ 完成 | 见 git log "Journey scaffold" |
+| M0 | 计划 + 交接 + MPA 脚手架 + 共享引擎雏形 + GLB 管线 | 整合人 | ✅ 完成 | `55de709` |
 | M1 | 像素引擎定稿 + 猫精灵定稿 + 审稿工具 | A | ⏳ 未开始 | `docs/status/A.md` |
 | M2 | 第一章关卡 + 喷泉 + 门 | A | ⏳ 未开始 | |
 | M3 | 3D 查看器模块 | B | ⏳ 未开始 | GLB 已就绪 `public/models/` |
