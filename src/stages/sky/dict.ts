@@ -14,6 +14,7 @@ export const en = {
   'sky.N': 'N', 'sky.E': 'E', 'sky.S': 'S', 'sky.W': 'W',
   'sky.p.Mercury': 'Mercury', 'sky.p.Venus': 'Venus', 'sky.p.Mars': 'Mars', 'sky.p.Jupiter': 'Jupiter', 'sky.p.Saturn': 'Saturn',
   'sky.gyro': 'Look around with the phone',
+  'sky.now': 'Now', 'sky.hideDay': 'Hide daylight',
   'sky.computing': '…',
 };
 export const zh: Record<keyof typeof en, string> = {
@@ -31,5 +32,6 @@ export const zh: Record<keyof typeof en, string> = {
   'sky.N': '北', 'sky.E': '东', 'sky.S': '南', 'sky.W': '西',
   'sky.p.Mercury': '水星', 'sky.p.Venus': '金星', 'sky.p.Mars': '火星', 'sky.p.Jupiter': '木星', 'sky.p.Saturn': '土星',
   'sky.gyro': '用手机环视',
+  'sky.now': '此刻', 'sky.hideDay': '隐去日光',
   'sky.computing': '…',
 };

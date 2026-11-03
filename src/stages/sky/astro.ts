@@ -59,14 +59,22 @@ export interface Sky {
   moon: V3; sun: V3; moonFrac: number; moonPhase: number; /* 0..360 elongation-ish: 0 new, 180 full */ moonAge: number;
   planets: Record<PlanetName, V3>;
 }
-export function sky(date: string, time: string, place: Place): Sky {
-  const t = zoned(date, time, place.tz), m = eqjToHor(t, place);
+/** local wall-clock 'YYYY-MM-DD' and 'HH:MM' of an instant in a zone */
+export function wall(t: Date, tz: string): { date: string; time: string; sec: number } {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).formatToParts(t).map(x => [x.type, x.value]));
+  return { date: `${p.year}-${p.month}-${p.day}`, time: `${String(+p.hour % 24).padStart(2, '0')}:${p.minute}`, sec: +p.second };
+}
+export function sky(date: string, time: string, place: Place): Sky { return skyAt(zoned(date, time, place.tz), place, date, time); }
+/** the sky at an exact instant (live view); date/time label = local wall clock */
+export function skyAt(t: Date, place: Place, date?: string, time?: string): Sky {
+  if (!date || !time) ({ date, time } = wall(t, place.tz));
+  const m = eqjToHor(t, place);
   const il = A.Illumination(A.Body.Moon, t), ph = A.MoonPhase(t);
   const planets = {} as Record<PlanetName, V3>;
   for (const n of PLANETS) planets[n] = bodyHor(n, t, place, m);
   // days since the last new moon (synodic age)
   const nm = A.SearchMoonPhase(0, t, -31); const age = nm ? (t.getTime() - nm.date.getTime()) / 864e5 : 0;
-  return { date, time, place, t, m, moon: bodyHor('Moon', t, place, m), sun: bodyHor('Sun', t, place, m), moonFrac: il.phase_fraction, moonPhase: ph, moonAge: age, planets };
+  return { date: date!, time: time!, place, t, m, moon: bodyHor('Moon', t, place, m), sun: bodyHor('Sun', t, place, m), moonFrac: il.phase_fraction, moonPhase: ph, moonAge: age, planets };
 }
 
 // ---------- "when will this exact sky come back?" ----------
@@ -81,12 +89,12 @@ export interface Recur { stars: Match | null; moon: Match | null; planets: Match
  *  days with a cheap sidereal-time filter, then the full rotation matrix. */
 export function recur(s: Sky, o: { years: number; starDeg: number; moonDeg: number; moonFrac: number }, onProgress?: (k: number) => void): Recur {
   const r: Recur = { stars: null, moon: null, planets: null, best: null, years: o.years, checked: 0 };
-  const y0 = +s.date.slice(0, 4), md = s.date.slice(4);
+  const y0 = +s.date.slice(0, 4), md = s.date.slice(4), sub = s.t.getTime() - zoned(s.date, s.time, s.place.tz).getTime(); // seconds past the minute (live view)
   for (let y = 1; y <= o.years; y++) {
     onProgress?.(y / o.years);
     let anchor = `${y0 + y}${md}`; if (isNaN(Date.parse(anchor))) anchor = addDays(`${y0 + y}-03-01`, -1); // 29 Feb -> 28 Feb
     for (let k = -4; k <= 4; k++) {
-      const date = addDays(anchor, k), t = zoned(date, s.time, s.place.tz);
+      const date = addDays(anchor, k), t = new Date(zoned(date, s.time, s.place.tz).getTime() + sub);
       const m = eqjToHor(t, s.place), star = fieldErrDeg(s.m, m); r.checked++;
       if (star > o.starDeg) continue;
       const days = dayDiff(s.date, date);
