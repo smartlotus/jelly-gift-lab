@@ -133,3 +133,9 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 | `/coop/` 双手机合作关 | `src/stages/coop/*`、`src/shared/pixel/pig.ts` | 主机（小猪，左手机）权威：60 Hz 模拟、30 Hz 快照；客机（小猫）发手柄。信令：offer/answer 压缩成 URL 二维码（系统相机扫 offer 直接打开客机页；主机页内扫回码，或用系统相机打开回码 URL → BroadcastChannel/storage 回传给原标签页）。一部手机模式（左右分键）。dev：`?solo`、`?preview`（两部手机并排画在一个屏幕上）、`?at=wall|end`、`?auto`。检查：`npx tsx tools/coop-sim.ts`（谜题逻辑）、`tools/coop-net-test.ts`（Node + node-datachannel 验证信令/通道）、`tools/coop-rtc.mjs`（两页真浏览器，**本机 Chrome 策略禁 UDP，需在普通机器上跑**） |
 
 截图：`review/v02/`；脚本 `node tools/v02-shots.mjs <base> 'path|out.png|waitMs|WxH' …`。本地预览：`npm run build && node tools/serve.mjs dist 8800` → `http://localhost:8800/sky/`、`/ar/`、`/coop/`（手机同 Wi-Fi 访问需 HTTPS 才能用相机/陀螺仪/WebXR：可用 `npx vite --host` + 自签证书，或部署到预览仓库）。
+
+### v02 extras — motion, live sky, jelly gravity (2026-11-03)
+- **/sky/**：默认 = 长春此刻的实时星空（地球自转每帧、日月行星每 2 s 重算，平滑插值），太阳高度决定天色（白天 / 民用·航海·天文晨昏），「隐去日光」0.8 s 过渡；「此刻 / 第 1 天 / 第 200 天」三视图连续形变；「下一次同样的星空」对三个时刻都在浏览器里现算（此刻视图跨日才重算）。dev：`?at=YYYY-MM-DDTHH:MM`（固定时刻）、`?still`。
+- **动效**：规格 `jelly-gift-ideas/designs/v02/motion.md`。sky 星星按星等淡入 / 数值滚入；ar 模型溶解 + 转台 expo-out、按钮外扩环；coop 大厅/配对面板依次浮现、进入关卡/连接/再来一次用草地关的像素虹膜。全部尊重 prefers-reduced-motion。
+- **/jelly/ 重力感应**：`src/app/tilt.ts`（DeviceOrientation β/γ → 屏幕坐标“下”方向，低通 120 ms，前后倾相对 4 s 自适应握姿；DeviceMotion.acceleration 高通 + 死区 → 冲量，总量限幅 2.2 G，向上 ≤ 1.1 G）。Engine 每帧把额外加速度 `acc` 与侧墙 `box`（相机坐标系下、按可见宽度的盒子）传给求解器：CPU (`cpu.ts`) 与 WGSL (`gpu.wgsl.ts`，Sim uniform 464 → 512 B) 同步实现；开关关闭时与旧版完全一致。开关 `#grav`（`localStorage['jelly.gravity']`），iOS 在点按时 requestPermission，拒绝 → 复位并轻摇；无传感器（桌面 / 2 s 内无事件）隐藏。检查：`node tools/jelly-grav-check.mjs http://localhost:8811/`（`?grav` 强制显示，合成倾斜/摇晃事件）。
+- **部署**（只增不改 + /jelly/）：公开仓库只新增 sky/ ar/ coop/ 及其资源、USDZ，并更新 `jelly/index.html`；/、/shop/、/night/ 的 html 与其引用的资源未动（同名资源逐字节一致）。
