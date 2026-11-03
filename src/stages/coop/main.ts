@@ -4,7 +4,7 @@
 // Dev: ?solo (straight into one-phone play) · ?preview (both phones drawn side by side on one screen) · ?at=wall|end · ?auto
 import { register, apply, onLang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
-import { irisIn } from '../../shared/transition';
+import { irisIn, irisOut } from '../../shared/transition';
 import { params } from '../../shared/flow';
 import { PixelScreen } from '../../shared/pixel/screen';
 import { startLoop } from '../../shared/pixel/loop';
@@ -41,6 +41,15 @@ if (/^a[zr]/.test(hashCode)) {
   setTimeout(() => window.close(), 600);
 } else boot();
 
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let tapX = innerWidth / 2, tapY = innerHeight / 2; // the iris closes onto the last tap, like the meadow's doors
+window.addEventListener('pointerdown', (e: PointerEvent) => { tapX = e.clientX; tapY = e.clientY; }, true);
+/** the meadow's pixel iris: close onto the tap, swap, open again (reduced motion -> instant) */
+async function iris(swap: () => void, colour = '#2E2A2B') {
+  if (reduced) { swap(); return; }
+  await irisOut(tapX, tapY, 480, colour); swap(); await new Promise(r => requestAnimationFrame(() => r(0))); void irisIn(innerWidth / 2, innerHeight / 2, 620, colour);
+}
+
 function boot() {
   mountChrome({ sound: false });
   const gameEl = document.getElementById('coop')!;
@@ -62,7 +71,7 @@ function boot() {
     const again = document.createElement('button'); again.type = 'button'; again.className = 'cp-again'; again.innerHTML = ICON.again; again.dataset.i18nAria = 'coop.again'; again.hidden = true; document.body.appendChild(again);
     const lost = document.createElement('div'); lost.className = 'cp-lost'; lost.innerHTML = ICON.link; lost.hidden = true; document.body.appendChild(lost);
     apply();
-    again.addEventListener('click', () => { if (role !== 'guest') { sim = new Sim(view); again.hidden = true; } });
+    again.addEventListener('click', () => { if (role !== 'guest') void iris(() => { sim = new Sim(view); again.hidden = true; }, '#FFF8EE'); });
     // network
     const remote = { ax: 0, held: false, seq: 0, last: 0 };
     let snapA: number[] | null = null, snapB: number[] | null = null, tB = 0;
@@ -137,7 +146,7 @@ function boot() {
   };
   const showQR = (text: string) => { const q = ui.querySelector('.cp-qr')!; q.innerHTML = ''; const c = qrCanvas(text, 8); c.className = 'cp-qrc'; q.appendChild(c); (window as unknown as { __code: string }).__code = text; };
   let link: Link | null = null, scanning: { stop(): void } | null = null;
-  const toGame = (role: 'host' | 'guest') => { scanning?.stop(); const l = link!; l.onOpen = () => {}; play(role, l); };
+  const toGame = (role: 'host' | 'guest') => { scanning?.stop(); const l = link!; l.onOpen = () => {}; tapX = innerWidth / 2; tapY = innerHeight / 2; void iris(() => play(role, l)); };
   async function host() {
     link?.close(); link = new Link(); panel('pig');
     const l = link; l.onOpen = () => toGame('host'); (window as unknown as { __link: Link }).__link = l;
@@ -163,7 +172,7 @@ function boot() {
     const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-m]'); if (!b) return;
     const m = b.dataset.m;
     if (m === 'duo') void host();
-    else if (m === 'solo') { link?.close(); play('solo'); }
+    else if (m === 'solo') { link?.close(); void iris(() => play('solo')); }
     else if (m === 'join') { panel('cat'); camera('o', s => void guest(s)); }
     else if (m === 'scan') camera('a', s => { if (link && !link.open) void link.accept(s); });
     else if (m === 'back') { scanning?.stop(); link?.close(); link = null; history.replaceState(null, '', location.pathname + location.search); lobby(); }

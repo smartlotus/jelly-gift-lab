@@ -52,3 +52,13 @@ body.cp-playing .gift-chrome [aria-pressed="false"] { color: rgba(255,255,255,.5
 body.cp-preview { background: #1d1b1a; }
 body.cp-preview #coop { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; gap: 14px; }
 .cp-phone { width: min(46vw, 720px); aspect-ratio: 360 / 192; image-rendering: pixelated; border: 10px solid #0c0b0b; border-radius: 22px; box-shadow: 0 0 0 1px #333; }
+/* motion: lobby / pairing panels settle in (opacity on the section, a short rise on its children, expo-out); the QR blooms */
+.cp-lobby, .cp-pair { animation: cp-fade .5s cubic-bezier(.16,1,.3,1) both; }
+.cp-lobby > *, .cp-pair > :not(.cp-x) { animation: cp-rise .7s cubic-bezier(.16,1,.3,1) both; }
+.cp-lobby > :nth-child(2), .cp-pair > :nth-child(3) { animation-delay: .07s; } .cp-lobby > :nth-child(3), .cp-pair > :nth-child(4) { animation-delay: .14s; }
+.cp-qrc, .cp-cam:not([hidden]) { animation: cp-bloom .6s cubic-bezier(.16,1,.3,1) both; }
+.cp-again:not([hidden]) { animation: cp-fade .9s cubic-bezier(.16,1,.3,1) both; }
+@keyframes cp-fade { from { opacity: 0; } }
+@keyframes cp-rise { from { opacity: 0; transform: translateY(10px); } }
+@keyframes cp-bloom { from { opacity: 0; transform: scale(.96); } }
+@media (prefers-reduced-motion: reduce) { .cp-lobby, .cp-pair, .cp-lobby > *, .cp-pair > *, .cp-qrc, .cp-cam, .cp-again { animation: none !important; } .cp-rotate svg { animation: none !important; } }
