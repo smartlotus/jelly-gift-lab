@@ -7,6 +7,7 @@ import { mountChrome } from '../../shared/chrome';
 import { irisIn, irisOut } from '../../shared/transition';
 import { params, from, go, markReached } from '../../shared/flow';
 import { PixelScreen } from '../../shared/pixel/screen';
+import { drawDawn, bayer, DAWN_LINES } from '../../shared/dawn';
 import { startLoop } from '../../shared/pixel/loop';
 import { TILE } from '../../shared/pixel/tiles';
 import { catSprites } from '../../shared/pixel/cat';
@@ -49,6 +50,31 @@ window.addEventListener('pointerdown', (e: PointerEvent) => { tapX = e.clientX; 
 async function iris(swap: () => void, colour = '#2E2A2B') {
   if (reduced) { swap(); return; }
   await irisOut(tapX, tapY, 480, colour); swap(); await new Promise(r => requestAnimationFrame(() => r(0))); void irisIn(innerWidth / 2, innerHeight / 2, 620, colour);
+}
+
+/** arrival from /sky/: open on the exact pixel frame the sky ended on, let the morning finish (night → dawn → the level's
+ *  own day colours, 1.6 s), then dissolve into the running level with an ordered dither (1.3 s). One continuous picture. */
+function dawnArrive() {
+  document.documentElement.classList.remove('cp-from-sky');
+  const hz = Math.max(0.45, Math.min(0.85, +(params.get('hz') || 0.66)));
+  const cv = document.createElement('canvas'); cv.className = 'cp-dawn'; document.body.appendChild(cv);
+  const g = cv.getContext('2d')!, lh = DAWN_LINES, lw = Math.max(1, Math.round(lh * innerWidth / innerHeight));
+  cv.width = lw; cv.height = lh; const frame = document.createElement('canvas'); frame.width = lw; frame.height = lh; const fg = frame.getContext('2d')!;
+  const img = g.createImageData(lw, lh); let mask: Uint8ClampedArray | null = null;
+  if (reduced) { cv.remove(); return; }
+  const t0 = performance.now();
+  const tick = (now: number) => {
+    const t = (now - t0) / 1000, k = 0.35 + 0.65 * Math.min(1, t / 1.6) ** 1.4, d = Math.max(0, (t - 1.5) / 1.3);
+    drawDawn(fg, lw, lh, hz, k, t + 3.4);
+    if (d <= 0) { g.clearRect(0, 0, lw, lh); g.drawImage(frame, 0, 0); }
+    else { // dither the frame away, top-down bias so the meadow seems to come up out of the dawn
+      const src = fg.getImageData(0, 0, lw, lh).data; mask ??= img.data;
+      for (let y = 0; y < lh; y++) for (let x = 0; x < lw; x++) { const i = (y * lw + x) * 4, th = bayer(x, y) * 0.8 + (1 - y / lh) * 0.2; const keep = d < th; mask[i] = src[i]; mask[i + 1] = src[i + 1]; mask[i + 2] = src[i + 2]; mask[i + 3] = keep ? 255 : 0; }
+      g.putImageData(img, 0, 0);
+    }
+    if (d < 1) requestAnimationFrame(tick); else cv.remove();
+  };
+  requestAnimationFrame(tick);
 }
 
 function boot() {
@@ -137,7 +163,7 @@ function boot() {
   }
   markReached();
   // journey arrival from the sky: straight into the level on this one phone (always works); the pixel iris opens from black
-  if (params.has('solo') || from === 'sky') { play('solo'); if (from === 'sky' && !reduced) void irisIn(innerWidth / 2, innerHeight / 2, 900, '#04060b'); return; }
+  if (params.has('solo') || from === 'sky') { play('solo'); if (from === 'sky') dawnArrive(); return; }
 
   // ================= lobby =================
   const lobby = () => {

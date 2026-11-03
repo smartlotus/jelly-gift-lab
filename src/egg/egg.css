@@ -69,14 +69,18 @@
   .egg *, .egg-night { transition-duration: .01s !important; transition-delay: 0s !important; }
 }
 
-/* onward: 抬头 / Look up — sits under the card's foot, the quiet main way on */
-.egg-up { display: flex; flex-direction: column-reverse; align-items: center; gap: 2px; margin-top: clamp(18px, 4vh, 34px); min-height: 44px; color: var(--ivory); opacity: 0; transition: opacity 1.4s ease .6s, color .3s; font: 500 11.5px/1 'Playfair Egg', Georgia, serif; letter-spacing: .34em; text-transform: uppercase; padding-left: .34em; }
+/* onward: 入海 / Into the sea — sits under the card's foot, the quiet main way on */
+.egg-up { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: clamp(18px, 4vh, 34px); min-height: 44px; color: var(--ivory); opacity: 0; transition: opacity 1.4s ease .6s, color .3s; font: 500 11.5px/1 'Playfair Egg', Georgia, serif; letter-spacing: .34em; text-transform: uppercase; padding-left: .34em; }
 .egg.zh .egg-up { font-family: 'Noto Serif SC Sub', serif; font-size: 14px; letter-spacing: .5em; padding-left: .5em; }
 .egg-up svg { width: 22px; height: 22px; color: var(--gold); animation: egg-up-breathe 2.8s ease-in-out infinite; }
-@keyframes egg-up-breathe { 50% { transform: translateY(-4px); opacity: .55; } }
+@keyframes egg-up-breathe { 50% { transform: translateY(4px); opacity: .55; } }
 .egg.act4 .egg-up { opacity: 1; }
-.egg::after { content: ''; position: absolute; inset: 0; background: #04060b; opacity: 0; pointer-events: none; transition: opacity 1.6s cubic-bezier(.65,0,.35,1) 1s; }
-.egg.lookup::after { opacity: 1; }
-.egg.lookup .egg-card { opacity: 0; transform: translateY(14vh); transition: opacity 1.1s ease, transform 2.6s cubic-bezier(.45,0,.2,1); }
-.egg.lookup .egg-fx { transform: translateY(42vh); opacity: 0; transition: transform 2.6s cubic-bezier(.45,0,.2,1), opacity 2s ease .4s; }
-@media (prefers-reduced-motion: reduce) { .egg-up svg { animation: none; } .egg::after { transition: opacity .01s !important; } }
+/* the tide: deep teal water rises from below with a soft moving crest; /sea/ opens on exactly this colour (#0d2c3b) */
+.egg-water { position: absolute; inset: 0; pointer-events: none; z-index: 3; transform: translateY(102%); }
+.egg-water::before { content: ''; position: absolute; inset: 22px 0 0; background: linear-gradient(#174457, #0d2c3b 38%, #0d2c3b); }
+.egg-water i { position: absolute; left: -10%; right: -10%; top: 0; height: 30px; background: radial-gradient(28px 16px at 50% 100%, #174457 98%, transparent 100%) 0 0 / 56px 30px repeat-x; opacity: .95; animation: egg-crest 1.6s linear infinite; }
+@keyframes egg-crest { to { background-position: 56px 0; } }
+.egg.tide .egg-water { transform: translateY(0); transition: transform 2.4s cubic-bezier(.55,0,.25,1); }
+.egg.tide .egg-card { opacity: 0; transform: translateY(-10vh); transition: opacity 1.4s ease .3s, transform 2.4s cubic-bezier(.45,0,.2,1); }
+.egg.tide .egg-fx { transform: translateY(-20vh); opacity: 0; transition: transform 2.4s cubic-bezier(.45,0,.2,1), opacity 1.8s ease .4s; }
+@media (prefers-reduced-motion: reduce) { .egg-up svg, .egg-water i { animation: none; } .egg.tide .egg-water { transition: none; } }

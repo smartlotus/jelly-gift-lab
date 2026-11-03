@@ -1,0 +1,13 @@
+/* /sea/ — the pixel ocean. All selectors prefixed .sea- */
+html, body { background: #05070d; }
+#sea { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; touch-action: none; }
+#sea canvas { image-rendering: pixelated; touch-action: none; }
+/* arrival from the jelly egg: the same deep teal the tide ended on, clearing */
+.sea-veil { position: fixed; inset: 0; z-index: 50; pointer-events: none; background: #0d2c3b; transition: opacity 1.8s cubic-bezier(.33,0,.2,1); }
+.sea-veil.off { opacity: 0; }
+/* the film's name, small, at the top: name · year */
+.sea-title { position: fixed; left: 0; right: 0; top: calc(env(safe-area-inset-top, 0px) + 62px); z-index: 20; pointer-events: none; text-align: center; color: rgba(244,240,232,.9); font-family: var(--serif); opacity: 0; transform: translateY(-4px); transition: opacity 1.2s ease, transform 1.6s cubic-bezier(.16,1,.3,1); text-shadow: 0 1px 10px rgba(0,0,0,.35); }
+.sea-title.on { opacity: 1; transform: none; }
+.sea-title b { display: block; font-weight: 500; font-size: 15px; letter-spacing: .32em; padding-left: .32em; }
+.sea-title i { display: block; margin-top: 6px; font-style: normal; font-size: 11px; letter-spacing: .3em; opacity: .6; font-variant-numeric: lining-nums; }
+@media (prefers-reduced-motion: reduce) { .sea-veil, .sea-title { transition: none; } }

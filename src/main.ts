@@ -6,10 +6,27 @@ import { Engine } from './app/engine';
 import { GLPath } from './app/glpath';
 import type { Path } from './app/path';
 import * as UI from './ui/ui';
-import { irisIn } from './shared/transition';
 import { hasSensors, askPermission, needsPermission } from './app/tilt';
 // journey arrival: the night stage's kawaii flip closed its iris on pink, so open from pink (before the loader shows)
-if (new URLSearchParams(location.search).get('from') === 'night') void irisIn(innerWidth / 2, innerHeight / 2, 900, '#F9C6CF');
+const fromNight = new URLSearchParams(location.search).get('from') === 'night';
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// journey arrival: the night stage's kawaii flip closed on pink. Hold that pink over the loader, then let it gather into the
+// jelly pig (strawberry, the same pink) and dissolve — a radial mask shrinking onto where the pig stands (see pinkInto()).
+const pink = fromNight ? (() => { const v = document.createElement('div'); v.className = 'pink-veil'; document.body.appendChild(v); return v; })() : null;
+function pinkInto(x: number, y: number, r: number) {
+  if (!pink) return;
+  if (reduceMotion) { pink.remove(); return; }
+  const R = Math.hypot(innerWidth, innerHeight), t0 = performance.now(), D = 1500;
+  const tick = (now: number) => {
+    const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3); // cubic-out
+    const rad = R * (1 - e) + r * e, soft = 40 + 80 * e;
+    pink.style.setProperty('--mx', `${x}px`); pink.style.setProperty('--my', `${y}px`);
+    pink.style.setProperty('--mr', `${rad}px`); pink.style.setProperty('--ms', `${rad + soft}px`);
+    pink.style.opacity = String(k < 0.55 ? 1 : 1 - (k - 0.55) / 0.45);
+    if (k < 1) requestAnimationFrame(tick); else pink.remove();
+  };
+  requestAnimationFrame(tick);
+}
 
 I18N.apply();
 const params = new URLSearchParams(location.search);
@@ -99,8 +116,11 @@ async function boot() {
     canvas.setAttribute('aria-label', I18N.t('aria.canvas', { name: I18N.t(`title.${c.id}` as I18N.Key) }));
     UI.showHint(isMobile); colophon();
   };
+  const shroomEl = document.getElementById('shroom')!;
   const dress = (c: CharacterEntry) => {
     UI.setActiveCharacter(c.id);
+    shroomEl.classList.toggle('off', c.id !== 'shark'); // the mushroom (easter egg) belongs to the last specimen only
+    nudgeNext(c.id);
     UI.buildColourways(c.colourways, cw => { engine.setColour(cw); veilTone(); });
     label(c); veilTone();
   };
@@ -110,7 +130,7 @@ async function boot() {
   dress(ch);
   I18N.onLang(() => label(ch));
   UI.bindLang(I18N.lang, l => I18N.setLang(l));
-  let switching = false;
+  let switching = false; var nudgeT = 0;
   const switchTo = async (id: string) => {
     const next = CHARACTERS.find(c => c.id === id && c.ready);
     if (!next || next === ch || switching) return;
@@ -126,6 +146,13 @@ async function boot() {
     switching = false;
   };
   UI.enableCharacters(ready.map(c => c.id), switchTo);
+  // journey: pig -> cat -> shark. If she lingers, the next tab glows once, quietly (never on the last one).
+  function nudgeNext(id: string) {
+    clearTimeout(nudgeT); document.querySelectorAll('.char.nudge').forEach(b => b.classList.remove('nudge'));
+    if (!fromNight) return;
+    const order = ready.map(c => c.id), nx = order[order.indexOf(id) + 1]; if (!nx) return;
+    nudgeT = window.setTimeout(() => { const b = document.querySelector<HTMLElement>(`.char[data-char="${nx}"]`); b?.classList.add('nudge'); }, id === order[0] ? 16000 : 13000);
+  }
   (window as any).__switchTo = switchTo;
   const onResize = () => engine.resize();
   addEventListener('resize', onResize); new ResizeObserver(onResize).observe(canvas);
@@ -134,20 +161,24 @@ async function boot() {
   const egg = () => import('./egg/egg');
   shroom.addEventListener('pointerenter', () => { egg(); }, { once: true });
   shroom.addEventListener('click', async () => { (await egg()).openEgg(shroom, engine); });
-  // Journey arrival (/jelly/?from=night): a quiet glint on the mushroom ~12 s in (then every ~16 s), at a moment she isn't
+  // Journey arrival (/jelly/?from=night): once the shark is shown, a quiet glint on the mushroom after ~6 s (then every ~16 s),
+  // at a moment she isn't dragging; stops once she found it. The egg leads on to /sea/.
   // dragging; stops once she found it. The egg leads on to /sky/ (抬头 / Look up).
-  if (new URLSearchParams(location.search).get('from') === 'night') {
-    let found = false, lastTouch = 0;
+  if (fromNight) {
+    let found = false, lastTouch = 0, shownAt = 0;
     shroom.addEventListener('click', () => { found = true; }, { once: true });
     window.addEventListener('pointerdown', () => { lastTouch = performance.now(); });
     const tryGlint = () => {
       if (found) return;
+      if (ch.id !== 'shark') { shownAt = 0; setTimeout(tryGlint, 1000); return; } // only while the shark is shown
+      if (!shownAt) { shownAt = performance.now(); setTimeout(tryGlint, 6000); return; }
       if (performance.now() - lastTouch < 2000) { setTimeout(tryGlint, 700); return; }
       shroom.classList.add('glint'); setTimeout(() => shroom.classList.remove('glint'), 2600);
-      setTimeout(tryGlint, 16000); // the journey continues through the egg: keep glinting quietly until she finds it
+      setTimeout(tryGlint, 14000);
     };
-    setTimeout(tryGlint, 12000);
+    setTimeout(tryGlint, 1000);
   }
+
   // gravity sensor switch (default off, remembered). iOS asks on the tap; a remembered "on" re-asks on her first touch.
   const grav = document.getElementById('grav') as HTMLButtonElement, GK = 'jelly.gravity';
   if (hasSensors() || params.has('grav')) {
@@ -175,7 +206,14 @@ async function boot() {
   document.getElementById('reset')!.addEventListener('click', () => engine.reset());
   document.addEventListener('visibilitychange', () => { if (document.hidden) engine.stop(); else engine.start(); });
   engine.start();
-  requestAnimationFrame(() => requestAnimationFrame(() => UI.hideLoader()));
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    UI.hideLoader();
+    if (pink) { // gather the pink onto the pig: its rest-pose centre projected to the screen
+      const a = engine.path.asset.nodes; let cx = 0, cy = 0, cz = 0; const n = a.length / 3; for (let i = 0; i < a.length; i += 3) { cx += a[i]; cy += a[i + 1]; cz += a[i + 2]; }
+      const p = engine.project([cx / n, cy / n, cz / n]);
+      pinkInto(p.x, p.y, Math.min(innerWidth, innerHeight) * 0.18);
+    }
+  }));
   (window as any).__jellyReady = { backend: path.kind, level, tets: path.asset.meta.tets };
 }
 
