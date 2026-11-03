@@ -176,10 +176,11 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 - ✅ `src/main.ts`（果冻页）：蘑菇 `.shroom.off` 只在鲨鱼时显示；微光只在鲨鱼显示 6 s 后开始、每 14 s 一次；旅程中逗留时下一个标签轻微发光（`.char.nudge`）；夜路到达：粉色 `.pink-veil` 盖住加载，随后径向遮罩收拢到猪的位置并淡出（`pinkInto()`，用新 `Engine.project()` 把猪的中心投到屏幕）。
 - ✅ `src/egg/egg.ts/.css`：第三个按钮改为「入海 / Into the sea」（`egg.sea`），点击后深青色潮水从下往上涨满（`.egg-water`，终色 `#0d2c3b`），卡片和火花上浮淡出 → `go('sea')`。彩蛋原文案不变。
 - ✅ `src/shared/flow.ts`：STAGES = meadow, shop, night, jelly, **sea**, sky, coop（ar 为侧室）。
-- ⏳ TODO `/sea/`：`sea/index.html` + `vite.config.ts` 入口 + `src/stages/sea/{main.ts, shark.ts, scenes.ts, fx.ts, dict.ts, style.css}`（计划：PixelScreen minW 192 / minH 160 / maxH 240；`?at=<0..9>` 直达场景、`window.__pause/__steps` 截图；到达 `from=jelly` 时从 `#0d2c3b` 溶解进入、鲨鱼从上方潜入；结尾 `go('sky', …, { hz: <水线比例> })`）。
-- ⏳ TODO `/sky/?from=sea`：按 `hz` 让地平线落在相同屏幕高度，下半屏水波纹叠层渐隐，星星照常按星等浮现。
+- ✅ `/sea/`：`sea/index.html`、`vite.config.ts` 入口；`src/stages/sea/shark.ts`（像素锤头鲨，由形状生成 → 字符画 → 描边，4 帧摆尾，`AT` = 服装锚点）、`scenes.ts`（9 个场景：各自水色/沙色、back/front 道具、dress 服装、wipe 转场类型 + 颜色；`L = 340` px/场景）、`main.ts`（PixelScreen minW 200/minH 170/maxH 640；按住拖动游向手指，松手自动向右漂，摄像机只前进；场景交界 16 px Bayer 抖动接缝 + 进入时的形状扫过转场 + 顶部「片名 / 年份」；神探 = 身后七色人格鲨影；寂静人生起小鱼逐渐跟随；结尾 6 s 视角升到水面、鲨鱼探头、像素星空，8.6 s 后 `go('sky', …, {hz})`，hz 按窗口坐标）、`style.css`（深青到达遮罩、标题）。开发参数 `?at=1..9`、`?end`、`?auto`。截图 `node tools/sea-shots.mjs 390x844|844x390` → `review/v03/sea-*.png`；旅程 `node tools/journey-v03.mjs`（果冻猪先、蘑菇隐藏 → 鲨 → 彩蛋 → 入海 → /sea/）；`node tools/sea-sky-shots.mjs`（结尾 → /sky/?from=sea）。
+- ✅ `/sky/?from=sea`：前 0.6 s 用反馈把地平线对到 hz，`.sk-water` 深青水层从水线下方退去，然后照旧抬眼。
+- 未做/可选：海里音效（目前 `/sea/` 不挂声音开关）；真机手感调参；场景细节可继续加（如复联「集结」的更多剪影、婚礼的人物剪影等）。
 - ✅ `/sky/ → /coop/` 连续过渡：`src/shared/dawn.ts` 的 `drawDawn()` 是两页共用的像素地平线帧（夜 k=0 → 黎明 .5 → 合作关白天配色 1，分层色带 + 两排阶梯山 + 渐隐像素星）。sky 点「一起玩」（现在 9 s/4 s 后才带模糊渐显）：文字先淡出 → 视线 1.6 s 降到地平线（反馈控制让地平线落在 ~64% 高）→ 0.8 s 起逐级像素化 → 1.7 s 起抖动叠入 dawn 帧（k→.35）→ `go('coop', …, {hz})`。coop `?from=sky`：`coop/index.html` 头部内联脚本先把背景设为夜色，`dawnArrive()` 从同一帧开始把清晨走完（1.6 s）再用 Bayer 抖动溶解进正在运行的关卡（1.3 s）。无黑场、无光圈。检查脚本 `tools/sky-coop-shots.mjs`（`VW=844 VH=390` 横屏），截图 `review/v03/sky-coop-strip-land.png`。
-- ⏳ TODO 文档：GIFT_PLAN mermaid 加 `/sea/`；`npm run fonts`（新中文）；截图 `review/v03/`；合入 master、tag v03、部署、确认 200。
+- ✅ GIFT_PLAN mermaid 已含 `/sea/`；`npm run fonts` 已重跑；合入 master、tag `v03`、全量部署（见下）。
 
 ### 运行 / 构建 / 部署
 `npm run dev`（`/jelly/` 要带结尾斜杠）· `npx tsc --noEmit -p . && npx vite build` · 本地预览 `node tools/serve.mjs dist 8811` · 截图 `node tools/v02-shots.mjs http://localhost:8811/ "sea/?lang=zh|review/v03/x.png|3000|390x844"` · 旅程检查 `node tools/journey-v02.mjs`（v03 需把 jelly→sky 段改为 jelly→sea→sky）· 部署 `GIFT_DEPLOY=1 scripts/deploy_pages.sh`（公开仓库 `smartlotus/jelly-gift` main）。提交邮箱 227950577+smartlotus@users.noreply.github.com，永不 force push。
