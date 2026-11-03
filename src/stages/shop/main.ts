@@ -39,8 +39,6 @@ scr.onResize(syncFront); syncFront();
 // fill the letterbox above/below the pixel stage with the ceiling / floor colours
 const syncBg = () => { const r = scr.canvas.getBoundingClientRect(); document.body.style.setProperty('--ct', `${r.top + 1}px`); document.body.style.setProperty('--cb', `${r.bottom - 1}px`); };
 scr.onResize(syncBg); window.addEventListener('resize', syncBg); requestAnimationFrame(syncBg);
-const whisper = document.createElement('p'); whisper.className = 'shop-whisper'; whisper.dataset.i18n = 'shop.door'; whisper.textContent = t('shop.door'); document.body.appendChild(whisper);
-onLang(() => { whisper.textContent = t('shop.door'); });
 
 // ---- world ----
 const bg = buildShop();
@@ -140,9 +138,8 @@ startLoop(dt => {
   if (!flickered && cx > BACKDOOR.x - 110) { flickered = true; flicker = 1.4; blip(110, 0.25, 'sawtooth', 0.05, -40); }
   if (!prefetched && cx > BACKDOOR.x - 200) { prefetched = true; prefetchNext(); }
   if (flicker > 0) flicker = Math.max(0, flicker - dt);
-  whisper.classList.toggle('on', started && !leaving && cx > BACKDOOR.x - 90);
   if (!leaving && started && overlap(cat, doorBox)) {
-    leaving = true; input.enabled = false; card.show(null); whisper.classList.remove('on');
+    leaving = true; input.enabled = false; card.show(null);
     const c = scr.toClient(BACKDOOR.x + BACKDOOR.w / 2 - cam.ix, BACKDOOR.y + 30 - cam.iy);
     void go('night', () => irisOut(c.x, c.y, 900));
   }

@@ -106,10 +106,10 @@ function plinth(g: G, cx: number, no: string) {
   R(g, x, top + 6, 40, 1, '#DCCFBC');                                       // under-slab shadow
   R(g, x, top + 7, 40, 26, '#F8F3EB'); R(g, x, top + 7, 1, 26, '#FFFFFF'); R(g, x + 36, top + 7, 4, 26, '#EAE0D1'); R(g, x + 39, top + 7, 1, 26, '#E0D4C2');
   R(g, x - 2, top + 32, 44, 4, '#EDE4D6'); R(g, x - 2, top + 32, 44, 1, '#FFFFFF'); R(g, x + 38, top + 32, 4, 4, '#E0D4C2');
-  // brass plate "01"
+  // blank brass plate
   const px = cx - 9, py = top + 14;
   R(g, px, py, 18, 9, '#B48A45'); R(g, px + 1, py + 1, 16, 7, '#E2BE73'); R(g, px + 1, py + 1, 16, 1, '#F3DDA6');
-  text(g, no, px + 6, py + 2, '#6E5323');
+  void no;
 }
 function lamp(g: G, cx: number, top = 9) {
   R(g, cx, top, 1, 26, '#7A6A62'); R(g, cx - 1, top + 26, 3, 2, '#7A6A62');
@@ -166,14 +166,14 @@ export function buildShop() {
   R(g, E.x + 5, E.y + 30, 22, 20, '#DDBB8E'); R(g, E.x + 5, E.y + 30, 22, 1, '#CFA878'); R(g, E.x + 5, E.y + 30, 1, 20, '#CFA878');
   R(g, E.x + 26, E.y + 30, 2, 2, '#D9B26A');
   R(g, E.x + 16 - 6, E.y + 26, 1, 3, '#8A6A3A'); R(g, E.x + 16 + 5, E.y + 26, 1, 3, '#8A6A3A');
-  R(g, E.x + 6, E.y + 28, 20, 9, '#EE8FA6'); R(g, E.x + 7, E.y + 29, 18, 7, '#FFF4E4'); text(g, 'OPEN', E.x + 9, E.y + 30, '#E07C96');
+  R(g, E.x + 6, E.y + 28, 20, 9, '#EE8FA6'); R(g, E.x + 7, E.y + 29, 18, 7, '#FFF4E4'); g.drawImage(HEART, E.x + 13, E.y + 29);
   g.drawImage(BELL, E.x + E.w + 3, E.y - 1); R(g, E.x + E.w + 5, E.y - 4, 1, 3, '#8A6A3A');
   R(g, E.x - 2, 161, E.w + 4, 3, '#C7868F'); R(g, E.x - 2, 161, E.w + 4, 1, '#D99AA4');
 
   // hanging sign: ♥ 200
   R(g, 96, 9, 1, 22, '#B9A58C'); R(g, 136, 9, 1, 22, '#B9A58C');
   R(g, 90, 31, 52, 18, '#C99E6E'); R(g, 91, 32, 50, 16, '#E6C79F'); R(g, 91, 32, 50, 1, '#F0D6B0'); R(g, 91, 47, 50, 1, '#CFA878');
-  g.drawImage(HEART, 101, 37); text(g, '200', 113, 38, '#8A5A3A');
+  g.drawImage(HEART, 113, 37);
   // tall plant by the entrance
   g.drawImage(PLANT, 146, 136);
   R(g, 148, 159, 18, 2, 'rgba(120,80,50,0.16)');
@@ -228,7 +228,7 @@ export function buildShop() {
   g.drawImage(REGISTER, 852, 110); g.drawImage(BELL, 871, 119);
   // a low cream riser on the counter for the couple set (No.05) + its brass plate on the counter front
   R(g, 788, 121, 56, 3, '#FBF7F1'); R(g, 788, 121, 56, 1, '#FFFFFF'); R(g, 842, 121, 2, 3, '#E4D8C6'); R(g, 788, 124, 56, 1, '#BFA27E');
-  R(g, 807, 137, 18, 9, '#B48A45'); R(g, 808, 138, 16, 7, '#E2BE73'); R(g, 808, 138, 16, 1, '#F3DDA6'); text(g, '05', 813, 139, '#6E5323');
+  R(g, 807, 137, 18, 9, '#B48A45'); R(g, 808, 138, 16, 7, '#E2BE73'); R(g, 808, 138, 16, 1, '#F3DDA6');
 
   // the back door: dark, ajar, night outside
   const B = BACKDOOR;
