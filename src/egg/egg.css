@@ -2,7 +2,7 @@
 @font-face { font-family: 'Playfair Egg'; src: url('../assets/fonts/PlayfairDisplay-sub.woff2') format('woff2'); font-weight: 400 900; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Playfair Egg'; src: url('../assets/fonts/PlayfairDisplay-Italic-sub.woff2') format('woff2'); font-weight: 400 900; font-style: italic; font-display: swap; }
 
-.egg { --ivory: #f2ede3; --ivory-2: rgba(242,237,227,.58); --ivory-3: rgba(242,237,227,.28); --gold: #d9bc82;
+.egg { --ivory: #f2ede3; --ivory-2: rgba(242,237,227,.68); --ivory-3: rgba(242,237,227,.28); --gold: #d9bc82;
   --e: cubic-bezier(.16,.84,.24,1);
   position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; color: var(--ivory);
   padding: calc(28px + var(--sat)) calc(24px + var(--sar)) calc(28px + var(--sab)) calc(24px + var(--sal)); }
@@ -22,12 +22,12 @@
   font: italic 400 clamp(124px, 30vw, 236px)/1 'Playfair Egg', Georgia, serif; letter-spacing: -.035em; font-feature-settings: 'lnum' 1;
   opacity: 0; transition: opacity .8s ease; }
 .egg-num:focus-visible { outline: 1px solid var(--ivory-3); outline-offset: 8px; }
-.odo { display: inline-flex; height: 1em; overflow: hidden; line-height: 1;
-  -webkit-mask-image: linear-gradient(transparent 0, #000 14%, #000 86%, transparent 100%); mask-image: linear-gradient(transparent 0, #000 14%, #000 86%, transparent 100%); }
-.odo-col { display: block; height: 1em; overflow: hidden; }
+.odo { display: inline-flex; height: 1.3em; margin: -.15em 0; overflow: hidden; line-height: 1.3;
+  -webkit-mask-image: linear-gradient(transparent 0, #000 22%, #000 80%, transparent 100%); mask-image: linear-gradient(transparent 0, #000 22%, #000 80%, transparent 100%); }
+.odo-col { display: block; height: 1.3em; overflow: hidden; }
 .odo-strip { display: flex; flex-direction: column; transform: translateY(0); }
-.odo-strip > span { display: block; height: 1em; line-height: 1; padding: 0 .02em; }
-.egg.act2 .odo-strip { transform: translateY(calc(var(--n) * -1em)); transition: transform calc(1.35s + var(--i) * .35s) cubic-bezier(.3,.05,.12,1) calc((2 - var(--i)) * .06s); }
+.odo-strip > span { display: block; height: 1.3em; line-height: 1.3; padding: 0 .02em; }
+.egg.act2 .odo-strip { transform: translateY(calc(var(--n) * -1.3em)); transition: transform calc(1.35s + var(--i) * .35s) cubic-bezier(.3,.05,.12,1) calc((2 - var(--i)) * .06s); }
 .egg.act2 .egg-kicker, .egg.act2 .egg-num { opacity: 1; transform: none; }
 
 .egg-rule { display: block; width: min(220px, 46vw); height: 1px; margin: clamp(10px, 2.4vh, 22px) 0 0; background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
@@ -47,8 +47,8 @@
 
 .egg-foot { display: flex; align-items: center; gap: 18px; margin-top: clamp(30px, 6vh, 56px); opacity: 0; transition: opacity 1.2s ease; }
 .egg.act4 .egg-foot { opacity: 1; }
-.egg-btn { position: relative; min-height: 44px; padding: 0 4px; color: var(--ivory-2); font: 500 11px/1 'Playfair Egg', Georgia, serif; letter-spacing: .3em; text-transform: uppercase; transition: color .3s; }
-.egg.zh .egg-btn { font-family: 'Noto Serif SC Sub', serif; font-size: 13px; letter-spacing: .4em; padding-left: calc(4px + .4em); }
+.egg-btn { position: relative; min-height: 44px; padding: 0 4px; color: var(--ivory-2); font: 500 11.5px/1 'Playfair Egg', Georgia, serif; letter-spacing: .3em; text-transform: uppercase; transition: color .3s; }
+.egg.zh .egg-btn { font-family: 'Noto Serif SC Sub', serif; font-size: 14px; letter-spacing: .4em; padding-left: calc(4px + .4em); }
 .egg-btn::after { content: ''; position: absolute; left: 4px; right: calc(4px + .3em); bottom: 12px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .45s var(--e); }
 .egg-btn:hover, .egg-btn:focus-visible { color: var(--ivory); outline: none; }
 .egg-btn:hover::after, .egg-btn:focus-visible::after { transform: scaleX(1); transform-origin: left; }
@@ -59,9 +59,10 @@
 
 @media (max-width: 520px) {
   .egg-num { font-size: clamp(120px, 40vw, 170px); }
-  .egg-line { font-size: 27px; max-width: 11em; }
+  .egg-line { font-size: 28px; max-width: none; }
+  .seg.name { display: block; }
   .egg.zh .egg-line { font-size: 25px; letter-spacing: .08em; }
-  .egg.zh .seg.name { display: block; padding-left: 0; }
+  .egg.zh .seg.name { padding-left: 0; }
 }
 @media (max-height: 520px) { .egg-num { font-size: clamp(80px, 26vh, 130px); margin-top: 8px; } .egg-line { margin-top: 12px; font-size: 24px; } .egg-foot { margin-top: 14px; } }
 @media (prefers-reduced-motion: reduce) {

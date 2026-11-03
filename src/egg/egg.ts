@@ -149,7 +149,6 @@ export function openEgg(trigger?: HTMLElement, scene?: Celebrant) {
     root.querySelector('[data-a="replay"]')!.addEventListener('click', run);
     root.querySelector('.egg-num')!.addEventListener('click', run);
   };
-  bind();
   const close = () => {
     root.classList.add('leaving'); removeEventListener('keydown', onKey);
     timers.forEach(clearTimeout);
@@ -163,6 +162,7 @@ export function openEgg(trigger?: HTMLElement, scene?: Celebrant) {
     }
   };
   addEventListener('keydown', onKey);
+  bind();
   // (the language toggle sits under the modal, so the card never needs re-rendering while open)
   (window as any).__eggClose = close;
   (window as any).__eggReplay = run;

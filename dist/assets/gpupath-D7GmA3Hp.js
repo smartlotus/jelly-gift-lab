@@ -1,4 +1,4 @@
-import{n as e,r as t,t as n}from"./index-BshJmftA.js";var r=`
+import{n as e,r as t,t as n}from"./index-CqZ1vLWl.js";var r=`
 struct Sim {
   h: f32, gravity: f32, damp: f32, muBody: f32,
   muFin: f32, lambdaRatio: f32, fs: f32, fk: f32,
