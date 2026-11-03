@@ -99,6 +99,7 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 
 线上地址：`https://smartlotus.github.io/jelly-gift/`（第一章）· `/shop/` · `/night/` · `/jelly/`。
 **再次部署**：`GIFT_DEPLOY=1 scripts/deploy_pages.sh`（普通 push，不会 force）。
+**交付版 01 = tag `v01`**（源 `jelly-gift-site@v01` = `317a483`，部署 `jelly-gift@v01` = `473aaf3`，Release 附 dist zip）。恢复：`git checkout v01 && GIFT_DEPLOY=1 scripts/deploy_pages.sh`。
 **最少线上检查**：`node tools/check-pages.mjs https://smartlotus.github.io/jelly-gift/ [phone-shot.png]`（四页 console 错误 / 失败请求）。
 
 ## 8. 下一步（可选打磨；礼物已可用）
