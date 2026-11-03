@@ -11,7 +11,7 @@ import type { Colourway } from '../core/look';
 const KEY = [-0.28, 1.0, -0.62];
 export interface Readouts { massG: number; volumeMl: number; metrics: number[] }
 /** a live measurement between two embedded landmarks (cm) */
-export interface Metric { id: string; label: string; zh: string; a: string; b: string; decimals?: number }
+export interface Metric { id: string; a: string; b: string; decimals?: number }
 export interface CharacterSetup {
   id: string; actuation: Actuation; colourways: Colourway[]; metrics: Metric[];
   camera: { target: number[]; yaw: number; pitch: number; mobileYaw?: number; mobilePitch?: number; legacyFit?: boolean };
@@ -274,10 +274,35 @@ export class Engine {
     const o = best * stride;
     return { node: best, p: [data[o], data[o + 1], data[o + 2]] };
   }
+  /** a little celebratory hop: an invisible hand lifts the body's crown and lets go (the jelly does the rest) */
+  private hops: number[] = []; private hopT = -1; private hopP0 = [0, 0, 0];
+  celebrate(times = 1, gap = 0.55) { for (let i = 0; i < times; i++) this.hops.push(i * gap); }
+  private updateHop(dt: number): boolean {
+    if (this.hopT < 0) {
+      if (!this.hops.length) return false;
+      this.hops = this.hops.map(h => h - dt);
+      if (this.hops[0] > 0) return false;
+      this.hops.shift();
+      const nd = this.path.nodes(); if (!nd || !this.rest) return false;
+      const { lo, hi } = this.rest; const size = Math.max(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]);
+      const c = [(lo[0] + hi[0]) / 2, lo[1] + (hi[1] - lo[1]) * 0.55, (lo[2] + hi[2]) / 2];
+      const a = this.path.asset.nodes; let bi = 0, bd = 1e9;
+      for (let i = 0; i < a.length / 3; i++) { const d = (a[3 * i] - c[0]) ** 2 + (a[3 * i + 1] - c[1]) ** 2 + (a[3 * i + 2] - c[2]) ** 2; if (d < bd) { bd = d; bi = i; } }
+      const o = bi * nd.stride; const p = [nd.data[o], nd.data[o + 1], nd.data[o + 2]];
+      this.startGrab(bi, p, size * 0.2); this.hopP0 = p; this.hopT = 0; this.autoGrab = true; this.hopLift = size * 0.07;
+    }
+    this.hopT += dt; const u = this.hopT / 0.32;
+    if (u >= 1) { this.hopT = -1; this.autoGrab = false; this.grab.active = false; return true; }
+    const e = Math.sin(Math.PI * 0.5 * u);
+    this.grab.target[0] = this.hopP0[0]; this.grab.target[1] = this.hopP0[1] + this.hopLift * e; this.grab.target[2] = this.hopP0[2];
+    return true;
+  }
+  private hopLift = 0;
   private updateIdle(dt: number) {
-    const id = this.idle; if (!id) return;
     const userBusy = this.pointers.size > 0 || this.wheelTimer > 0 || (this.grab.active && !this.autoGrab);
-    if (userBusy) { this.autoGrab = false; this.idleT = 0; return; }
+    if (userBusy) { this.autoGrab = false; this.idleT = 0; this.hops = []; this.hopT = -1; return; }
+    if (this.updateHop(dt)) return;
+    const id = this.idle; if (!id) return;
     this.idleT += dt;
     const ph = (this.idleT + (id.offset ?? 0)) % id.period;
     if (ph < id.duration) {

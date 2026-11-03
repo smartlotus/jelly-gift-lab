@@ -1,4 +1,5 @@
 import './ui/style.css';
+import * as I18N from './i18n/i18n';
 import { decodeAsset } from './sim/mesh';
 import { CHARACTERS, type CharacterEntry } from './characters/registry';
 import { Engine } from './app/engine';
@@ -6,6 +7,7 @@ import { GLPath } from './app/glpath';
 import type { Path } from './app/path';
 import * as UI from './ui/ui';
 
+I18N.apply();
 const params = new URLSearchParams(location.search);
 const isMobile = matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod|Mobile|MicroMessenger/i.test(navigator.userAgent);
 
@@ -86,19 +88,24 @@ async function boot() {
   };
   applyCamQ();
   const colophon = () => {
-    const a = engine.path.asset;
-    UI.setColophon(`${kind === 'webgpu' ? 'WebGPU compute' : 'WebGL 2 · CPU worker'} · ${a.meta.tets.toLocaleString('en-US')} tetrahedra · ${(a.meta.outer.tris + a.meta.inner.tris).toLocaleString('en-US')} triangles`);
+    UI.setColophon(I18N.t('colophon', { backend: I18N.t(kind === 'webgpu' ? 'backend.webgpu' : 'backend.webgl2'), tets: engine.path.asset.meta.tets.toLocaleString('en-US') }));
+  };
+  const label = (c: CharacterEntry) => {
+    UI.setMasthead(c.id, c.num); UI.labelColourways(); UI.buildReadouts(c.metrics);
+    canvas.setAttribute('aria-label', I18N.t('aria.canvas', { name: I18N.t(`title.${c.id}` as I18N.Key) }));
+    UI.showHint(isMobile); colophon();
   };
   const dress = (c: CharacterEntry) => {
-    UI.setMasthead(c.name, c.subtitle, c.num); UI.setActiveCharacter(c.id); UI.buildReadouts(c.metrics);
+    UI.setActiveCharacter(c.id);
     UI.buildColourways(c.colourways, cw => { engine.setColour(cw); veilTone(); });
-    canvas.setAttribute('aria-label', `Interactive jelly ${c.name.toLowerCase()}`);
-    veilTone(); colophon();
+    label(c); veilTone();
   };
   const veilTone = () => { const b = engine.colour.bgBot, t = engine.colour.bgTop; const h = (v: number[]) => `rgb(${v.map(x => Math.round(255 * Math.pow(Math.min(1, x), 1 / 2.2))).join(',')})`; document.documentElement.style.setProperty('--veil', `linear-gradient(${h(t)}, ${h(b)})`); };
   engine.onReadouts = r => UI.updateReadouts(r);
   engine.onFirstInteract = () => UI.fadeHint();
   dress(ch);
+  I18N.onLang(() => label(ch));
+  UI.bindLang(I18N.lang, l => I18N.setLang(l));
   let switching = false;
   const switchTo = async (id: string) => {
     const next = CHARACTERS.find(c => c.id === id && c.ready);
@@ -122,7 +129,7 @@ async function boot() {
   const shroom = document.getElementById('shroom')!;
   const egg = () => import('./egg/egg');
   shroom.addEventListener('pointerenter', () => { egg(); }, { once: true });
-  shroom.addEventListener('click', async () => { (await egg()).openEgg(shroom); });
+  shroom.addEventListener('click', async () => { (await egg()).openEgg(shroom, engine); });
   document.getElementById('bait')!.addEventListener('click', () => { engine.dropBait(); UI.fadeHint(); });
   document.getElementById('reset')!.addEventListener('click', () => engine.reset());
   document.addEventListener('visibilitychange', () => { if (document.hidden) engine.stop(); else engine.start(); });

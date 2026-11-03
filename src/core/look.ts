@@ -2,7 +2,7 @@
 // shellPattern(X, Nr, A) -> vec4(pigmentA (backCol), ink, pigmentB (finTipCol), groove)
 // innerPattern(X, Nr)    -> vec4(albedo multiplier rgb, glossy-eye mask)
 export interface Colourway {
-  id: string; label: string; zh: string;
+  id: string;
   absorb: [number, number, number];   // Beer-Lambert sigma per unit length
   back: [number, number, number, number]; // dark back pigment rgb + strength
   finTip: [number, number, number, number];

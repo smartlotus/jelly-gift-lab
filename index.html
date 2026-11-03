@@ -1,43 +1,48 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
 <meta name="theme-color" content="#cfcdc8" />
 <meta name="format-detection" content="telephone=no" />
-<title>Jelly Studies — No. 1 Great Hammerhead · 果冻标本</title>
+<title>%T:meta.title%</title>
+<meta name="description" content="%T:meta.desc%" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='%23111'/%3E%3C/svg%3E" />
 </head>
 <body>
 <main id="stage">
-  <canvas id="gl" aria-label="Interactive jelly hammerhead shark"></canvas>
+  <canvas id="gl"></canvas>
   <div id="veil" class="veil" aria-hidden="true"></div>
 
   <header class="masthead">
-    <div class="kicker"><span>Jelly Studies</span><span class="rule"></span><span class="num">No.&nbsp;1</span></div>
-    <h1 class="title"><em>Great Hammerhead</em></h1>
-    <p class="subtitle zh">果冻标本 · 无沟双髻鲨</p>
+    <p class="kicker"><span data-i18n="kicker"></span><span class="rule" aria-hidden="true"></span><span class="num"></span></p>
+    <h1 class="title"><em></em></h1>
   </header>
 
-  <nav class="characters" aria-label="Character">
-    <button class="char active" data-char="shark" aria-pressed="true"><span class="en">Shark</span><span class="zh">鲨</span></button>
-    <button class="char soon" data-char="pig" aria-disabled="true" title="Coming soon"><span class="en">Pig</span><span class="zh">猪</span><i>soon</i></button>
-    <button class="char soon" data-char="cat" aria-disabled="true" title="Coming soon"><span class="en">Cat</span><span class="zh">猫</span><i>soon</i></button>
-  </nav>
+  <div class="topright">
+    <nav class="characters" data-i18n-aria="aria.chars">
+      <button class="char active" data-char="shark" aria-pressed="true" data-i18n="char.shark"></button>
+      <button class="char" data-char="pig" aria-pressed="false" data-i18n="char.pig"></button>
+      <button class="char" data-char="cat" aria-pressed="false" data-i18n="char.cat"></button>
+    </nav>
+    <div class="lang" role="group" data-i18n-aria="aria.lang">
+      <button type="button" data-lang="zh" lang="zh-CN">中</button><span aria-hidden="true">/</span><button type="button" data-lang="en" lang="en">EN</button>
+    </div>
+  </div>
 
   <section class="readouts" aria-live="off"></section>
 
   <section class="controls">
-    <div class="colourways" role="radiogroup" aria-label="Colourway"></div>
+    <div class="colourways" role="radiogroup" data-i18n-aria="aria.colours"><div class="dots"></div><span class="cw-name" aria-hidden="true"></span></div>
     <div class="actions">
-      <button id="bait" class="act"><span class="en">Drop bait</span><span class="zh">投饵</span></button>
-      <button id="reset" class="act"><span class="en">Reset</span><span class="zh">复位</span></button>
+      <button id="bait" class="act" type="button" data-i18n="act.bait"></button>
+      <button id="reset" class="act" type="button" data-i18n="act.reset"></button>
     </div>
   </section>
 
-  <p class="hint" id="hint"><span class="en">Drag to stretch · scroll or two fingers to twist</span><span class="zh">拖动拉伸 · 滚轮或双指扭转</span></p>
+  <p class="hint" id="hint"></p>
   <p class="colophon" id="colophon"></p>
-  <button class="shroom" id="shroom" type="button" aria-label="A small surprise · 一个小惊喜">
+  <button class="shroom" id="shroom" type="button" data-i18n-aria="aria.egg">
     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round">
       <path d="M3.6 12.2C3.6 7.1 7.4 3.4 12 3.4s8.4 3.7 8.4 8.8c0 .5-.4.8-.9.8H4.5c-.5 0-.9-.3-.9-.8Z"/>
       <path d="M9.2 13v4.6c0 1.7 1.2 2.9 2.8 2.9s2.8-1.2 2.8-2.9V13"/>
@@ -47,14 +52,12 @@
 
   <div id="loader" class="loader">
     <div class="loader-inner">
-      <p class="l-kicker">Jelly Studies</p>
-      <p class="l-title"><em>Casting the jelly</em></p>
-      <p class="l-zh zh">浇注果冻中</p>
+      <p class="l-kicker" data-i18n="kicker"></p>
       <div class="bar"><i id="bar"></i></div>
-      <p class="l-pct" id="pct">0%</p>
+      <p class="l-pct" id="pct">0</p>
     </div>
   </div>
-  <div id="fail" class="fail" hidden><p><em>This study needs WebGL 2 or WebGPU.</em></p><p class="zh">当前浏览器不支持 WebGL2 / WebGPU，请换用新版浏览器打开。</p></div>
+  <div id="fail" class="fail" hidden><p class="fail-t" data-i18n="fail.title"></p><p class="fail-b" data-i18n="fail.body"></p></div>
 </main>
 <script type="module" src="/src/main.ts"></script>
 </body>

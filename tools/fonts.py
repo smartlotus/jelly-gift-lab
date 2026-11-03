@@ -10,7 +10,7 @@ out = root / 'src/assets/fonts'; out.mkdir(parents=True, exist_ok=True)
 text = ''
 for p in [root / 'index.html', *root.glob('src/**/*.ts'), *root.glob('src/**/*.css')]:
     text += p.read_text(encoding='utf-8')
-extra = '200 天纪念日快乐，lushiva。'  # reserved for the stage-3 easter egg line
+extra = '中'  # language toggle label (also in index.html)
 cjk = sorted(set(ch for ch in text + extra if ord(ch) > 0x2E80))
 cjk_txt = ''.join(cjk) + '·—，。：；！？“”‘’（）《》、0123456789'
 (root / 'tools/.cjk-chars.txt').write_text(cjk_txt, encoding='utf-8')
@@ -23,9 +23,9 @@ def run(src, dst, args):
 run('SourceSerif4.ttf', 'SourceSerif4-sub.woff2', [f'--unicodes={latin}'])
 run('SourceSerif4-Italic.ttf', 'SourceSerif4-Italic-sub.woff2', [f'--unicodes={latin}'])
 run('NotoSerifSC.ttf', 'NotoSerifSC-sub.woff2', [f'--text={cjk_txt}'])
-# Playfair Display (OFL) only carries the easter-egg card: subset to exactly the Latin it shows
-egg = (root / 'src/egg/egg.ts').read_text(encoding='utf-8')
-lat = ''.join(sorted(set(re.sub(r'[^\x20-\x7e·]', '', ' '.join(re.findall(r'>([^<]*)<', egg))) + '0123456789 ·')))
+# Playfair Display (OFL) carries the easter-egg card (Latin only, text comes from src/i18n/dict.ts):
+# printable ASCII + the few typographic marks the dictionary uses, so any copy edit stays covered
+lat = ''.join(chr(c) for c in range(0x20, 0x7f)) + '·’‘“”—–…'
 run('PlayfairDisplay.ttf', 'PlayfairDisplay-sub.woff2', [f'--text={lat}'])
 run('PlayfairDisplay-Italic.ttf', 'PlayfairDisplay-Italic-sub.woff2', [f'--text={lat}'])
 print('CJK glyphs:', len(cjk_txt), 'Playfair glyphs:', len(lat))

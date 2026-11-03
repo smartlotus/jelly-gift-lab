@@ -1,23 +1,69 @@
-/* Easter egg: a quiet line-art mushroom → a short firework salvo → a black-and-white editorial card. */
+/* Easter egg: lights down, a short champagne salvo, an odometer 200, the line rising word by word. */
 @font-face { font-family: 'Playfair Egg'; src: url('../assets/fonts/PlayfairDisplay-sub.woff2') format('woff2'); font-weight: 400 900; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Playfair Egg'; src: url('../assets/fonts/PlayfairDisplay-Italic-sub.woff2') format('woff2'); font-weight: 400 900; font-style: italic; font-display: swap; }
 
-.egg { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: calc(28px + var(--sat)) calc(22px + var(--sar)) calc(28px + var(--sab)) calc(22px + var(--sal)); }
-.egg-fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 31; }
-.egg-paper { position: absolute; inset: 0; background: rgba(247, 245, 240, 0.0); transition: background 1.1s ease; }
-.egg.show .egg-paper { background: rgba(247, 245, 240, 0.94); }
-.egg-card { position: relative; z-index: 32; max-width: 720px; width: 100%; text-align: center; color: #111; opacity: 0; transform: translateY(10px); transition: opacity 1.2s ease .15s, transform 1.4s cubic-bezier(.2,.7,.2,1) .15s; }
-.egg.show .egg-card { opacity: 1; transform: none; }
-.egg-kicker { margin: 0; font: 600 10.5px/1 'Playfair Egg', 'Noto Serif SC Sub', serif; letter-spacing: .34em; text-transform: uppercase; color: rgba(17,17,17,.62); }
-.egg-rule { width: min(360px, 62%); height: 0; border: 0; border-top: 1px solid rgba(17,17,17,.75); margin: 22px auto 0; }
-.egg-rule.thin { border-top-color: rgba(17,17,17,.28); margin-top: 4px; }
-.egg-num { margin: clamp(10px, 3vh, 26px) 0 0; font: italic 400 clamp(96px, 24vw, 210px)/0.86 'Playfair Egg', Georgia, serif; letter-spacing: -0.02em; font-feature-settings: 'lnum' 1; }
-.egg-line { margin: clamp(18px, 4vh, 34px) 0 0; font: 500 clamp(23px, 5.4vw, 40px)/1.45 'Noto Serif SC Sub', 'Songti SC', serif; letter-spacing: .08em; }
-.egg-line .lat { font-family: 'Playfair Egg', Georgia, serif; font-style: italic; font-weight: 500; letter-spacing: .01em; }
-.egg-dateline { margin: clamp(18px, 3.4vh, 28px) 0 0; font: 400 11px/1.6 'Playfair Egg', 'Noto Serif SC Sub', serif; letter-spacing: .28em; text-transform: uppercase; color: rgba(17,17,17,.58); }
-.egg-dateline .zh { font-family: 'Noto Serif SC Sub', serif; letter-spacing: .3em; }
-.egg-close { margin-top: clamp(26px, 5vh, 44px); min-height: 44px; padding: 0 22px; border: 1px solid rgba(17,17,17,.7); border-radius: 999px; background: transparent; color: #111; font: 500 13px/1 'Playfair Egg', 'Noto Serif SC Sub', serif; letter-spacing: .14em; cursor: pointer; transition: background .25s, color .25s; }
-.egg-close:hover, .egg-close:focus-visible { background: #111; color: #f7f5f0; outline: none; }
-.egg.leaving .egg-card, .egg.leaving .egg-paper, .egg.leaving .egg-fx { opacity: 0; transition: opacity .6s ease; }
-@media (max-height: 520px) { .egg-num { font-size: clamp(64px, 20vh, 120px); } .egg-line { margin-top: 12px; font-size: 22px; } .egg-close { margin-top: 16px; } .egg-rule { margin-top: 14px; } }
-@media (prefers-reduced-motion: reduce) { .egg-card, .egg-paper { transition-duration: .01s, .01s; transition-delay: 0s; } .egg-card { transform: none; } }
+.egg { --ivory: #f2ede3; --ivory-2: rgba(242,237,227,.58); --ivory-3: rgba(242,237,227,.28); --gold: #d9bc82;
+  --e: cubic-bezier(.16,.84,.24,1);
+  position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; color: var(--ivory);
+  padding: calc(28px + var(--sat)) calc(24px + var(--sar)) calc(28px + var(--sab)) calc(24px + var(--sal)); }
+.egg-night { position: absolute; inset: 0; opacity: 0; transition: opacity 1.3s ease;
+  background: radial-gradient(120% 90% at 50% 42%, rgba(30,27,24,.80) 0%, rgba(14,13,12,.90) 55%, rgba(8,8,7,.96) 100%);
+  -webkit-backdrop-filter: blur(7px) saturate(.8); backdrop-filter: blur(7px) saturate(.8); }
+.egg-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.egg.act1 .egg-night { opacity: 1; }
+
+.egg-card { position: relative; width: 100%; max-width: 760px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+.egg-kicker { margin: 0; font: 500 10.5px/1 'Playfair Egg', Georgia, serif; letter-spacing: .4em; text-transform: uppercase; color: var(--ivory-2);
+  opacity: 0; transform: translateY(8px); transition: opacity 1s ease, transform 1.2s var(--e); }
+.egg.zh .egg-kicker { font-family: 'Noto Serif SC Sub', serif; font-size: 12px; letter-spacing: .6em; text-transform: none; padding-left: .6em; }
+
+/* the number: three digit columns spinning down to 2-0-0 */
+.egg-num { margin: clamp(16px, 3.6vh, 34px) 0 0; padding: 0 .06em; color: var(--ivory); cursor: pointer; border-radius: 4px;
+  font: italic 400 clamp(124px, 30vw, 236px)/1 'Playfair Egg', Georgia, serif; letter-spacing: -.035em; font-feature-settings: 'lnum' 1;
+  opacity: 0; transition: opacity .8s ease; }
+.egg-num:focus-visible { outline: 1px solid var(--ivory-3); outline-offset: 8px; }
+.odo { display: inline-flex; height: 1em; overflow: hidden; line-height: 1;
+  -webkit-mask-image: linear-gradient(transparent 0, #000 14%, #000 86%, transparent 100%); mask-image: linear-gradient(transparent 0, #000 14%, #000 86%, transparent 100%); }
+.odo-col { display: block; height: 1em; overflow: hidden; }
+.odo-strip { display: flex; flex-direction: column; transform: translateY(0); }
+.odo-strip > span { display: block; height: 1em; line-height: 1; padding: 0 .02em; }
+.egg.act2 .odo-strip { transform: translateY(calc(var(--n) * -1em)); transition: transform calc(1.35s + var(--i) * .35s) cubic-bezier(.3,.05,.12,1) calc((2 - var(--i)) * .06s); }
+.egg.act2 .egg-kicker, .egg.act2 .egg-num { opacity: 1; transform: none; }
+
+.egg-rule { display: block; width: min(220px, 46vw); height: 1px; margin: clamp(10px, 2.4vh, 22px) 0 0; background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
+  transform: scaleX(0); opacity: .8; transition: transform 1.2s var(--e); }
+.egg.act3 .egg-rule { transform: scaleX(1); }
+
+.egg-line { margin: clamp(20px, 4vh, 34px) 0 0; max-width: 16em; font: 400 clamp(26px, 4.6vw, 44px)/1.3 'Playfair Egg', Georgia, serif; letter-spacing: .005em; text-wrap: balance; }
+.egg.zh .egg-line { font-family: 'Noto Serif SC Sub', 'Songti SC', serif; font-weight: 500; font-size: clamp(24px, 4.4vw, 40px); letter-spacing: .1em; line-height: 1.5; max-width: none; }
+.seg { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .08em; }
+.seg > span { display: inline-block; white-space: pre; transform: translateY(105%); transition: transform 1.1s var(--e); }
+.seg.name > span { font-family: 'Playfair Egg', Georgia, serif; font-style: italic; letter-spacing: .01em; color: #f7ecd4; }
+.egg.zh .seg.name { padding-left: .1em; }
+.egg.act3 .seg > span { transform: none; }
+.egg.act3 .seg:nth-child(2) > span { transition-delay: .1s; } .egg.act3 .seg:nth-child(3) > span { transition-delay: .2s; }
+.egg.act3 .seg:nth-child(4) > span { transition-delay: .3s; } .egg.act3 .seg:nth-child(5) > span { transition-delay: .4s; }
+.egg.act3 .seg:nth-child(6) > span { transition-delay: .55s; }
+
+.egg-foot { display: flex; align-items: center; gap: 18px; margin-top: clamp(30px, 6vh, 56px); opacity: 0; transition: opacity 1.2s ease; }
+.egg.act4 .egg-foot { opacity: 1; }
+.egg-btn { position: relative; min-height: 44px; padding: 0 4px; color: var(--ivory-2); font: 500 11px/1 'Playfair Egg', Georgia, serif; letter-spacing: .3em; text-transform: uppercase; transition: color .3s; }
+.egg.zh .egg-btn { font-family: 'Noto Serif SC Sub', serif; font-size: 13px; letter-spacing: .4em; padding-left: calc(4px + .4em); }
+.egg-btn::after { content: ''; position: absolute; left: 4px; right: calc(4px + .3em); bottom: 12px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .45s var(--e); }
+.egg-btn:hover, .egg-btn:focus-visible { color: var(--ivory); outline: none; }
+.egg-btn:hover::after, .egg-btn:focus-visible::after { transform: scaleX(1); transform-origin: left; }
+.egg-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--ivory-3); }
+
+.egg.leaving .egg-card { opacity: 0; transform: translateY(-6px); transition: opacity .5s ease, transform .7s var(--e); }
+.egg.leaving .egg-night, .egg.leaving .egg-fx { opacity: 0; transition: opacity .9s ease .1s; }
+
+@media (max-width: 520px) {
+  .egg-num { font-size: clamp(120px, 40vw, 170px); }
+  .egg-line { font-size: 27px; max-width: 11em; }
+  .egg.zh .egg-line { font-size: 25px; letter-spacing: .08em; }
+  .egg.zh .seg.name { display: block; padding-left: 0; }
+}
+@media (max-height: 520px) { .egg-num { font-size: clamp(80px, 26vh, 130px); margin-top: 8px; } .egg-line { margin-top: 12px; font-size: 24px; } .egg-foot { margin-top: 14px; } }
+@media (prefers-reduced-motion: reduce) {
+  .egg *, .egg-night { transition-duration: .01s !important; transition-delay: 0s !important; }
+}

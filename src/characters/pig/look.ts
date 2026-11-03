@@ -5,9 +5,9 @@ import { S, YOFF, SNOUT, NOSTRIL, CHEEK, EYES, EYE_R } from './shape';
 
 const BG = { bgTop: [0.50, 0.50, 0.495] as [number, number, number], bgBot: [0.36, 0.36, 0.355] as [number, number, number], floor: [0.66, 0.655, 0.645] as [number, number, number] };
 export const COLOURWAYS: Colourway[] = [
-  { id: 'strawberry', label: 'Strawberry', zh: '草莓', absorb: [0.9, 8.5, 5.2], back: [0.96, 0.52, 0.62, 0.85], finTip: [0.95, 0.55, 0.66, 0.5], belly: [1.0, 0.84, 0.87, 1], glow: [1.0, 0.60, 0.68, 1], bead: [0.98, 0.80, 0.30, 1], swatch: '#f0a1b2', ...BG },
-  { id: 'peach', label: 'Peach', zh: '蜜桃', absorb: [0.55, 3.0, 6.2], back: [1.0, 0.58, 0.50, 0.8], finTip: [1.0, 0.62, 0.52, 0.5], belly: [1.0, 0.89, 0.81, 1], glow: [1.0, 0.72, 0.55, 1], bead: [0.55, 0.78, 0.36, 1], swatch: '#f4b48f', ...BG },
-  { id: 'milk', label: 'Milk', zh: '牛奶', absorb: [0.45, 0.55, 0.7], back: [0.98, 0.58, 0.68, 0.85], finTip: [0.97, 0.70, 0.76, 0.5], belly: [0.985, 0.975, 0.965, 1], glow: [1.0, 0.90, 0.88, 1], bead: [0.95, 0.42, 0.50, 1], swatch: '#efebe4', ...BG },
+  { id: 'strawberry', absorb: [0.9, 8.5, 5.2], back: [0.96, 0.52, 0.62, 0.85], finTip: [0.95, 0.55, 0.66, 0.5], belly: [1.0, 0.84, 0.87, 1], glow: [1.0, 0.60, 0.68, 1], bead: [0.98, 0.80, 0.30, 1], swatch: '#f0a1b2', ...BG },
+  { id: 'peach', absorb: [0.55, 3.0, 6.2], back: [1.0, 0.58, 0.50, 0.8], finTip: [1.0, 0.62, 0.52, 0.5], belly: [1.0, 0.89, 0.81, 1], glow: [1.0, 0.72, 0.55, 1], bead: [0.55, 0.78, 0.36, 1], swatch: '#f4b48f', ...BG },
+  { id: 'milk', absorb: [0.45, 0.55, 0.7], back: [0.98, 0.58, 0.68, 0.85], finTip: [0.97, 0.70, 0.76, 0.5], belly: [0.985, 0.975, 0.965, 1], glow: [1.0, 0.90, 0.88, 1], bead: [0.95, 0.42, 0.50, 1], swatch: '#efebe4', ...BG },
 ];
 
 const E = EYES;

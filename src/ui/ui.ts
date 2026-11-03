@@ -1,32 +1,37 @@
 import type { Colourway } from '../core/look';
 import type { Readouts, Metric } from '../app/engine';
+import { t, type Key } from '../i18n/i18n';
 
 const $ = (id: string) => document.getElementById(id)!;
 
 export function setProgress(p: number) {
   ($('bar') as HTMLElement).style.width = `${Math.round(p * 100)}%`;
-  $('pct').textContent = `${Math.round(p * 100)}%`;
+  $('pct').textContent = `${Math.round(p * 100)}`;
 }
 export function hideLoader() { $('loader').classList.add('done'); }
 export function showFail() { $('fail').hidden = false; $('loader').classList.add('done'); }
 
+/** colour dots; the active colour's name sits beside them (one label, not three) */
+let cwList: Colourway[] = []; let cwActive = '';
 export function buildColourways(list: Colourway[], onPick: (c: Colourway) => void, activeId?: string) {
-  const root = document.querySelector('.colourways')!;
+  cwList = list; cwActive = activeId ?? list[0].id;
+  const root = document.querySelector('.colourways .dots')!;
   root.innerHTML = '';
-  list.forEach((c, i) => {
+  for (const c of list) {
     const b = document.createElement('button');
-    const on = activeId ? c.id === activeId : i === 0;
-    b.className = 'cw' + (on ? ' active' : '');
-    b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', on ? 'true' : 'false');
-    b.dataset.id = c.id;
-    b.innerHTML = `<span class="dot" style="background:${c.swatch}"></span><span class="en">${c.label}</span><span class="zh">${c.zh}</span>`;
-    b.addEventListener('click', () => {
-      root.querySelectorAll('.cw').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-checked', 'false'); });
-      b.classList.add('active'); b.setAttribute('aria-checked', 'true');
-      onPick(c);
-    });
+    b.type = 'button'; b.className = 'cw'; b.dataset.id = c.id; b.setAttribute('role', 'radio');
+    b.innerHTML = `<span class="dot" style="background:${c.swatch}"></span>`;
+    b.addEventListener('click', () => { cwActive = c.id; labelColourways(); onPick(c); });
     root.appendChild(b);
+  }
+  labelColourways();
+}
+export function labelColourways() {
+  document.querySelectorAll<HTMLButtonElement>('.colourways .cw').forEach(b => {
+    const on = b.dataset.id === cwActive; b.classList.toggle('active', on);
+    b.setAttribute('aria-checked', on ? 'true' : 'false'); b.setAttribute('aria-label', t(`cw.${b.dataset.id}` as Key));
   });
+  const name = document.querySelector('.cw-name')!; if (cwList.length) name.textContent = t(`cw.${cwActive}` as Key);
 }
 
 const fmt = (v: number, d: number) => v.toFixed(d);
@@ -35,9 +40,9 @@ let shown: Readouts | null = null; let metricDefs: Metric[] = [];
 export function buildReadouts(metrics: Metric[]) {
   metricDefs = metrics; shown = null;
   const root = document.querySelector('.readouts')!;
-  const cell = (id: string, en: string, zh: string, unit: string) =>
-    `<div class="ro"><span class="lab">${en} <b class="zh">${zh}</b></span><span class="val"><span id="${id}">—</span><small>${unit}</small></span></div>`;
-  root.innerHTML = cell('ro-mass', 'Mass', '质量', 'g') + cell('ro-vol', 'Volume', '体积', 'ml') + metrics.map((m, i) => cell(`ro-m${i}`, m.label, m.zh, 'cm')).join('');
+  const cell = (id: string, lab: Key, unit: Key) =>
+    `<div class="ro"><span class="lab">${t(lab)}</span><span class="val"><span id="${id}">—</span><small>${t(unit)}</small></span></div>`;
+  root.innerHTML = cell('ro-mass', 'ro.mass', 'u.g') + cell('ro-vol', 'ro.vol', 'u.ml') + metrics.map((m, i) => cell(`ro-m${i}`, `m.${m.id}` as Key, 'u.cm')).join('');
 }
 export function updateReadouts(r: Readouts) {
   // gentle easing so the numbers breathe with the jelly instead of flickering
@@ -49,10 +54,11 @@ export function updateReadouts(r: Readouts) {
   $('ro-vol').textContent = fmt(shown.volumeMl, 1);
   shown.metrics.forEach((v, i) => { const el = document.getElementById(`ro-m${i}`); if (el) el.textContent = fmt(v, metricDefs[i]?.decimals ?? 2); });
 }
-export function setMasthead(name: string, subtitle: string, num: string) {
-  const t = document.querySelector('.title em')!; const sub = document.querySelector('.subtitle')!; const n = document.querySelector('.kicker .num')!;
-  t.textContent = name; sub.textContent = subtitle; n.innerHTML = `No.&nbsp;${num}`;
-  document.title = `Jelly Studies — No. ${num} ${name}`;
+export function setMasthead(id: string, num: string) {
+  const name = t(`title.${id}` as Key);
+  document.querySelector('.title em')!.textContent = name;
+  document.querySelector('.kicker .num')!.textContent = num.padStart(2, '0');
+  document.title = `${name} — ${t('meta.title')}`;
 }
 export function setActiveCharacter(id: string) {
   document.querySelectorAll<HTMLButtonElement>('.char').forEach(b => { const on = b.dataset.char === id; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
@@ -60,8 +66,7 @@ export function setActiveCharacter(id: string) {
 export function enableCharacters(ready: string[], onPick: (id: string) => void) {
   document.querySelectorAll<HTMLButtonElement>('.char').forEach(b => {
     const id = b.dataset.char!; const ok = ready.includes(id);
-    b.classList.toggle('soon', !ok); if (ok) { b.removeAttribute('aria-disabled'); b.removeAttribute('title'); b.querySelector('i')?.remove(); }
-    b.onclick = ok ? () => onPick(id) : null;
+    b.hidden = !ok; b.onclick = ok ? () => onPick(id) : null;
   });
 }
 /** cross-fade veil for character changes */
@@ -69,5 +74,17 @@ export async function veil(on: boolean) {
   const v = document.getElementById('veil')!; v.classList.toggle('on', on);
   await new Promise(r => setTimeout(r, on ? 380 : 10));
 }
+/** the interaction hint says its line once, then gets out of the way */
+let hintTimer = 0;
+export function showHint(touch: boolean) {
+  const h = $('hint'); h.textContent = t(touch ? 'hint.touch' : 'hint.mouse');
+  if (!hintTimer && !h.classList.contains('gone')) hintTimer = window.setTimeout(fadeHint, 9000);
+}
 export function fadeHint() { $('hint').classList.add('gone'); }
-export function setColophon(t: string) { $('colophon').textContent = t; }
+export function setColophon(s: string) { $('colophon').textContent = s; }
+export function bindLang(current: string, onPick: (l: 'zh' | 'en') => void) {
+  const btns = document.querySelectorAll<HTMLButtonElement>('.lang button');
+  const mark = (l: string) => btns.forEach(b => { const on = b.dataset.lang === l; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  btns.forEach(b => b.addEventListener('click', () => { onPick(b.dataset.lang as 'zh' | 'en'); mark(b.dataset.lang!); }));
+  mark(current);
+}

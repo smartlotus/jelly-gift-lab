@@ -5,9 +5,9 @@ import { S, YOFF, FACE } from './shape';
 
 const BG = { bgTop: [0.50, 0.50, 0.495] as [number, number, number], bgBot: [0.36, 0.36, 0.355] as [number, number, number], floor: [0.66, 0.655, 0.645] as [number, number, number] };
 export const COLOURWAYS: Colourway[] = [
-  { id: 'cream', label: 'Cream', zh: '奶油', absorb: [0.45, 1.1, 2.9], back: [0.97, 0.60, 0.70, 0.85], finTip: [0.97, 0.60, 0.70, 0.9], belly: [1.0, 0.965, 0.91, 1], glow: [1.0, 0.88, 0.70, 1], bead: [0.40, 0.62, 0.95, 1], swatch: '#f1e3c8', ...BG },
-  { id: 'mint', label: 'Mint', zh: '薄荷', absorb: [3.2, 0.75, 1.7], back: [0.97, 0.62, 0.72, 0.85], finTip: [0.97, 0.62, 0.72, 0.9], belly: [0.95, 1.0, 0.97, 1], glow: [0.70, 1.0, 0.86, 1], bead: [0.98, 0.55, 0.45, 1], swatch: '#b9e3cf', ...BG },
-  { id: 'lavender', label: 'Lavender', zh: '薰衣草', absorb: [1.5, 2.3, 0.6], back: [0.98, 0.60, 0.74, 0.85], finTip: [0.98, 0.60, 0.74, 0.9], belly: [0.97, 0.955, 1.0, 1], glow: [0.86, 0.78, 1.0, 1], bead: [0.98, 0.80, 0.35, 1], swatch: '#cbbfec', ...BG },
+  { id: 'cream', absorb: [0.45, 1.1, 2.9], back: [0.97, 0.60, 0.70, 0.85], finTip: [0.97, 0.60, 0.70, 0.9], belly: [1.0, 0.965, 0.91, 1], glow: [1.0, 0.88, 0.70, 1], bead: [0.40, 0.62, 0.95, 1], swatch: '#f1e3c8', ...BG },
+  { id: 'mint', absorb: [3.2, 0.75, 1.7], back: [0.97, 0.62, 0.72, 0.85], finTip: [0.97, 0.62, 0.72, 0.9], belly: [0.95, 1.0, 0.97, 1], glow: [0.70, 1.0, 0.86, 1], bead: [0.98, 0.55, 0.45, 1], swatch: '#b9e3cf', ...BG },
+  { id: 'lavender', absorb: [1.5, 2.3, 0.6], back: [0.98, 0.60, 0.74, 0.85], finTip: [0.98, 0.60, 0.74, 0.9], belly: [0.97, 0.955, 1.0, 1], glow: [0.86, 0.78, 1.0, 1], bead: [0.98, 0.80, 0.35, 1], swatch: '#cbbfec', ...BG },
 ];
 
 const F = FACE;
