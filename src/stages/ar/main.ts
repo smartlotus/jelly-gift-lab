@@ -38,13 +38,16 @@ let mode: 'ql' | 'xr' | null = null;
 void (async () => { mode = quickLook() ? 'ql' : (await webxrAR()) ? 'xr' : null; btn.hidden = !mode && params.get('ar') !== 'force'; })();
 
 // ---------- carousel ----------
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches, cv = r.domElement;
 let spin = 0, spinV = 0.25, shown: Group | null = null, fade = 1, dist = 4;
 async function show(i: number) {
   idx = (i + AR_IDS.length) % AR_IDS.length; const id = AR_IDS[idx];
   ui.querySelectorAll<HTMLButtonElement>('.ar-dots button').forEach(b => b.setAttribute('aria-current', String(b.dataset.id === id)));
   let f = figs.get(id); if (!f) { f = await loadFigure(id); figs.set(id, f); }
   if (AR_IDS[idx] !== id) return;
-  if (shown) stage.remove(shown); shown = f; stage.add(f); fade = 0;
+  // cross-dissolve through the paper: out 260 ms, swap, the new one eases in on the turntable (expo-out)
+  if (shown && !reduced) { cv.style.opacity = '0'; await new Promise(r => setTimeout(r, 260)); if (AR_IDS[idx] !== id) return; }
+  if (shown) stage.remove(shown); shown = f; stage.add(f); fade = reduced ? 1 : 0; cv.style.opacity = '1';
   const s = f.userData.size; const rad = Math.hypot(s.x, s.y, s.z) / 2;
   const vf = cam.fov * Math.PI / 180, hf = 2 * Math.atan(Math.tan(vf / 2) * cam.aspect);
   dist = Math.max(rad / Math.sin(vf / 2) * 1.1, (s.x / 2 * 1.3) / Math.tan(hf / 2) + s.z / 2);
@@ -53,6 +56,7 @@ async function show(i: number) {
 }
 ui.querySelector('.ar-dots')!.addEventListener('click', e => { const b = (e.target as HTMLElement).closest('button'); if (b) void show(AR_IDS.indexOf(b.dataset.id as ArId)); });
 btn.addEventListener('click', async () => {
+  btn.classList.remove('ping'); void btn.offsetWidth; btn.classList.add('ping');
   const id = AR_IDS[idx];
   if (mode === 'ql') { openQuickLook(id); return; }
   if (mode === 'xr' && shown) {
@@ -71,8 +75,9 @@ window.addEventListener('keydown', e => { if (e.code === 'ArrowRight') void show
 let last = performance.now(), camD = 4, camY = 0.2;
 function loop() {
   const now = performance.now(), dt = Math.min(0.05, (now - last) / 1000); last = now;
-  if (!params.has('still')) spin += spinV * dt; fade = Math.min(1, fade + dt * 2.2);
-  stage.rotation.y = spin + (1 - fade) ** 3 * 0.8; stage.position.y = -((1 - fade) ** 2) * 0.06;
+  if (!params.has('still')) spin += spinV * dt; fade = Math.min(1, fade + dt / 0.9);
+  const ef = 1 - Math.pow(2, -10 * fade); // expo-out
+  stage.rotation.y = spin + (1 - ef) * 0.9; stage.position.y = -(1 - ef) * 0.05; stage.scale.setScalar(0.94 + 0.06 * ef);
   camD += (dist - camD) * Math.min(1, dt * 5); camY += ((cam.userData.ty ?? 0.2) - camY) * Math.min(1, dt * 5);
   cam.position.set(0, camY + camD * 0.28, camD); cam.lookAt(0, camY, 0);
   r.render(scene, cam);
