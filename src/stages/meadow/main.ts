@@ -1,6 +1,6 @@
 // Stage 1 · Meadow - bright Cat-Mario-style pixel platformer -> heart fountain -> door -> /shop/ (docs/GIFT_PLAN.md §5.1).
 // main.ts = page shell: chrome (zh/EN + sound), start card, HUD (heart counter), hints, the "Day 200" caption, exit.
-import { handleStageParam, markReached, go, prefetchNext, params, dev } from '../../shared/flow';
+import { handleStageParam, markReached, reached, go, prefetchNext, params, dev } from '../../shared/flow';
 import { register, t, onLang, apply } from '../../shared/i18n';
 import { mountChrome, startCard } from '../../shared/chrome';
 import { irisIn, irisOut } from '../../shared/transition';
@@ -34,6 +34,12 @@ if (!handleStageParam()) {
   const cap = document.createElement('div'); cap.className = 'm-cap';
   cap.innerHTML = `<p class="m-cap-k" data-i18n="meadow.day"></p><p class="m-cap-l" data-i18n="meadow.line"></p>`;
   document.body.appendChild(cap);
+  // replaying (she has been further before): a discreet skip
+  if (reached() >= 1) {
+    const sk = document.createElement('button'); sk.type = 'button'; sk.className = 'm-skip'; sk.dataset.i18n = 'ui.skip';
+    sk.addEventListener('pointerdown', e => e.stopPropagation()); sk.addEventListener('click', () => { music(false); void go(undefined, () => irisOut()); });
+    document.body.appendChild(sk);
+  }
   apply(); onLang(() => apply());
 
   mountTouch();

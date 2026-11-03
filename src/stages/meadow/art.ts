@@ -188,7 +188,7 @@ function spring(squash: boolean) {
   g.rect(2, 14, 12, 2, 'z').hline(2, 13, 14, 'S');
   return outline(g.rows().slice(1)).slice(0, 16).map(r => r.slice(0, 16));
 }
-function bell(state: 0 | 1 | 2) {
+function bell(state: 0 | 1 | 2 | 3) {
   // a little post with a bell; state 0 idle, 1/2 ringing (swing L/R). Rung bells get a pink bow.
   const g = new Grid(16, 32);
   g.rect(7, 8, 2, 24, 'T').vline(7, 8, 31, 't').rect(3, 7, 10, 2, 'T').hline(3, 12, 7, 't');
@@ -303,7 +303,7 @@ export function hills(seed: number, w: number, h: number, base: number, amp: num
 
 export const SPRITES = {
   mush: [mushroom(0), mushroom(1)], mushSleep: [mushroom(0, true)], mushFlat: [mushroomFlat()],
-  cloud: [cloudPlat(false), cloudPlat(true)], spring: [spring(false), spring(true)], bell: [bell(0), bell(1), bell(2)],
+  cloud: [cloudPlat(false), cloudPlat(true)], spring: [spring(false), spring(true)], bell: [bell(0), bell(1), bell(2), bell(3)],
   fountain: [0, 1, 2, 3].map(fountain), door: [door(0), door(1), door(2)], puff: [0, 1, 2].map(puff), splash: [0, 1, 2].map(splash),
 };
 export { DECO };

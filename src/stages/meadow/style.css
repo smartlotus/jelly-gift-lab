@@ -42,3 +42,5 @@ html[lang="zh-CN"] .m-cap-l { font-family: var(--serif); font-style: normal; fon
   .touchpad button { width: 74px; height: 74px; } .touchpad .tp-a { width: 88px; height: 88px; }
 }
 @media (prefers-reduced-motion: reduce) { .m-hud svg, .m-hud.glow svg { animation: none !important; } }
+.m-skip { position: fixed; z-index: 45; top: calc(var(--pad) * .7 + var(--sat) + 30px); left: calc(var(--pad) + var(--sal)); color: rgba(255,255,255,.7); font-size: 11px; letter-spacing: .24em; text-transform: uppercase; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.4); }
+.m-skip:hover { color: #fff; }

@@ -33,7 +33,7 @@ export function buildLevel(): Level {
   // 17-34 · ? row: hearts, a bashful block that scoots away, an invisible block
   ground(17, 34);
   q(20, 8); set(22, 8, 'B'); q(23, 8, 'hearts5'); set(24, 8, 'B'); q(25, 8); set(27, 8, 'i'); content.set('27,8', 'bang'); q(30, 8, 'shy');
-  row(22, 24, 6); d('flowerW', 18.3); d('tuft', 21); d('flowerP', 26.4); d('fence', 31); d('fence', 32); d('flowerY', 33.5);
+  col(21, 11); row(22, 24, 6); d('flowerW', 18.3); d('tuft', 21); d('flowerP', 26.4); d('fence', 31); d('fence', 32); d('flowerY', 33.5);
   // 35-37 · stairs up and a hop down
   col(35, 11); col(36, 10); col(37, 9); arc(37, 41, 7, 2);
   // 38-62 · mushroom meadow, two pipes, the sleepy mushroom
@@ -54,10 +54,10 @@ export function buildLevel(): Level {
   pond(93, 95);
   // 96-118 · brick road, a high ? block, two mushrooms, planks
   ground(96, 118);
-  for (let x = 99; x <= 105; x++) set(x, 8, 'B'); q(101, 8); q(103, 8, 'hearts5'); q(102, 4, 'big'); row(99, 100, 6); row(104, 105, 6);
+  col(97, 11); col(98, 10); for (let x = 99; x <= 105; x++) set(x, 8, 'B'); q(101, 8); q(103, 8, 'hearts5'); q(102, 4, 'big'); row(99, 100, 6); row(104, 105, 6);
   ents.push({ kind: 'mush', x: 109 * 16, y: G * 16, dir: -1 }, { kind: 'mush', x: 112 * 16, y: G * 16, dir: 1 });
   for (let x = 114; x <= 117; x++) set(x, 9, '='); row(114, 117, 7);
-  d('flowerW', 97.2); d('tree', 107); d('tuft', 110.5); d('flowerP', 113.2); d('fence', 116); d('fence', 117);
+  d('flowerW', 96.1); d('tree', 107); d('tuft', 110.5); d('flowerP', 113.2); d('fence', 116); d('fence', 117);
   // 119-121 · pond
   pond(119, 121); arc(118, 122, 8, 2);
   // 122-140 · stone hill, second bell

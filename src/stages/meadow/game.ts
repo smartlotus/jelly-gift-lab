@@ -283,6 +283,7 @@ export function startMeadow(host: HTMLElement, hooks: Hooks, opts: { ready: Prom
       if (F.t > 6.6) F.state = 'after';
       if (lockT > 0 && F.t > 0.5 && F.t < 2 && cat.ground && Math.random() < dt * 2) { cat.vy = -160; cat.ground = false; }
     }
+    if (F.state === 'after' && Math.random() < dt * 3.5 && Math.abs(F.x - cam.x - scr.w / 2) < scr.w) hearts.add(pick(S.heart), F.x + rnd(-2, 2), F.y - 60, rnd(-50, 50), -rnd(160, 260), { g: 300, drag: 0.3, life: rnd(1.4, 2) });
     if (rollT >= 0) {
       rollT += dt; const k = ease(rollT / 4.2);
       shown = Math.round(rollFrom + (200 - rollFrom) * k); hooks.hearts(shown, true);
@@ -369,7 +370,7 @@ export function startMeadow(host: HTMLElement, hooks: Hooks, opts: { ready: Prom
     // pops (hearts jumping out of blocks)
     for (const p of pops) { const k = p.t / 0.6, img = p.big ? S.big[0] : S.pickup[0]; g.drawImage(img, Math.round(p.x - img.width / 2 - cx), Math.round(p.y - img.height - cy - Math.sin(Math.min(1, k * 1.3) * Math.PI * 0.85) * 30)); }
     // bells
-    for (const b of bells) g.drawImage(S.bell[b.rung && b.t < 1.4 ? 1 + (Math.floor(b.t * 8) & 1) : b.rung ? 1 + 0 * 0 : 0], b.x - cx, b.y - 32 - cy + 1);
+    for (const b of bells) g.drawImage(S.bell[b.rung && b.t < 1.4 ? 1 + (Math.floor(b.t * 8) & 1) : b.rung ? 3 : 0], b.x - cx, b.y - 32 - cy + 1);
     // clouds
     for (const c of clouds) g.drawImage(S.cloud[c.blink > 0 ? 1 : 0], Math.round(c.x - cx), Math.round(c.y - cy));
     // mushrooms
