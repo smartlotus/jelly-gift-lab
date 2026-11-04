@@ -70,7 +70,9 @@ function updateBridges(dt: number) {
   const nose = S.x + SW - 6, floor = floorOf(screen.h);
   BR.forEach((b, i) => {
     const seam = INTRO + i * L; if (Math.abs(seam - S.x) > 700) return; const sz = bridgeSize(i); b.t += dt;
-    if (b.ph === 0) { b.y = floor * 0.42 + Math.sin(b.t * 1.2 + i) * 4; if (nose >= b.x - 2) { b.ph = 1; sfx.pick(); } }
+    if (b.ph === 0) { // bobbing in the water ahead; as the shark comes near it drifts into its lane, so the catch is a nudge, not a snap
+      const near = sstep(1 - (b.x - nose) / 150), lane = S.y + poseDy + SH * 0.5 - sz.h / 2, home = floor * 0.42 + Math.sin(b.t * 1.2 + i) * 4;
+      b.y += (home + (lane - home) * near - b.y) * Math.min(1, dt * 2.5); if (nose >= b.x - 2) { b.ph = 1; sfx.pick(); } }
     else if (b.ph === 1) { // carried on the shark's nose across the seam, turning into B on the way
       const tx = nose - 2, ty = S.y + poseDy + SH * 0.5 - sz.h / 2 + Math.sin(S.t * 3) * 1.5;
       b.x += (tx - b.x) * Math.min(1, dt * 6); b.y += (ty - b.y) * Math.min(1, dt * 4);
