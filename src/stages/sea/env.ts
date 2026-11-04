@@ -59,7 +59,7 @@ export function giants(g: CanvasRenderingContext2D, w: number, h: number, t: num
   const P = 0.12, step = 260, first = Math.floor((cam * P) / step) - 1;
   for (let i = first; i < first + Math.ceil(w / step) + 2; i++) {
     const x = i * step - cam * P + hash(i * 3.3) * 120 + Math.sin(t * 0.1 + i) * 20 - t * 1.5, y = h * (0.1 + hash(i * 5.1) * 0.22) + Math.sin(t * 0.4 + i) * 4, pal = palAt(x + cam);
-    const col = mix(mix(pal.top, pal.bot, 0.3), '#000000', 0.08); g.globalAlpha = 0.85;
+    const col = mix(mix(pal.top, pal.bot, 0.25), '#000000', 0.22); g.globalAlpha = 1;
     if (hash(i * 7.7) > 0.4) { const flap = Math.sin(t * 0.9 + i) * 3; // manta
       for (let k = 0; k < 14; k++) { const wy = Math.round((k / 14) * flap); R(g, x - k, y - 6 + k * 0.4 + wy, 2, 8 - k * 0.45, col); R(g, x + k, y - 6 + k * 0.4 + wy, 2, 8 - k * 0.45, col); }
       R(g, x - 3, y - 8, 7, 10, col); R(g, x, y + 2, 1, 14, col); }
