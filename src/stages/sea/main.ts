@@ -41,7 +41,10 @@ const palIdx = (i: number): Pal => i < 0 ? INTRO_SC : i >= SCENES.length ? END_S
 // far / giants / near sample this at their own parallax positions, so each layer turns at a different moment
 const BLEND = 110, sstep = (v: number) => { v = Math.max(0, Math.min(1, v)); return v * v * (3 - 2 * v); };
 const lerpPal = (a: Pal, b: Pal, k: number): Pal => k <= 0 ? a : k >= 1 ? b : ({ top: mix(a.top, b.top, k), bot: mix(a.bot, b.bot, k), sand: mix(a.sand, b.sand, k), reef: (a.reef ?? 1) + ((b.reef ?? 1) - (a.reef ?? 1)) * k, kelp: (a.kelp ?? 1) + ((b.kelp ?? 1) - (a.kelp ?? 1)) * k, life: (a.life ?? 1) + ((b.life ?? 1) - (a.life ?? 1)) * k });
-const palAt = (wx: number): Pal => { const i = Math.round((wx - INTRO) / L), sx = INTRO + i * L, d = wx - sx; if (Math.abs(d) >= BLEND || i < 0 || i > SCENES.length) return palIdx(Math.floor((wx - INTRO) / L)); return lerpPal(palIdx(i - 1), palIdx(i), Math.round(sstep((d + BLEND) / (2 * BLEND)) * 24) / 24); };
+// k is quantised to 24 steps, so the blended palettes are memoised (env layers sample palAt dozens of times a frame)
+const PAL_IDX = new Map<number, Pal>(), PAL_MIX = new Map<number, Pal>();
+const palI = (i: number) => { const c = Math.max(-1, Math.min(SCENES.length, i)); let v = PAL_IDX.get(c); if (!v) { v = palIdx(c); PAL_IDX.set(c, v); } return v; };
+const palAt = (wx: number): Pal => { const i = Math.round((wx - INTRO) / L), sx = INTRO + i * L, d = wx - sx; if (Math.abs(d) >= BLEND || i < 0 || i > SCENES.length) return palI(Math.floor((wx - INTRO) / L)); const q = Math.round(sstep((d + BLEND) / (2 * BLEND)) * 24); if (q <= 0) return palI(i - 1); if (q >= 24) return palI(i); const key = i * 32 + q; let v = PAL_MIX.get(key); if (!v) { v = lerpPal(palI(i - 1), palI(i), q / 24); PAL_MIX.set(key, v); } return v; };
 const floorOf = (h: number) => h - Math.max(16, Math.round(h * 0.07));
 const GHOST = ['#e05a5a', '#4a9ad9', '#e8d04a'].map(c => silhouette(sharkForm('mad').frames[0], c));
 
@@ -55,7 +58,12 @@ let scene = -1, wipe: { k: number; s: Scene } | null = null, ending: { t: number
 const beatAt: number[] = SCENES.map(() => -1); // S.t when each scene's beat began
 const trail: { x: number; y: number }[] = [];
 // v03d: one bridge object per seam (BRIDGES[i] sits at the seam into scene i; 0 = in from the jelly stage)
-const BR: BState[] = BRIDGES.map((_, i) => { const seam = INTRO + i * L, rx = seam - (i ? 120 : 60); return { ph: (at && i < at - 1 ? 2 : 0) as 0 | 1 | 2, x: rx, y: floorOf(screen.h) * 0.42, k: at && i < at - 1 ? 1 : 0, rx, ry: 0, t: 0 }; });
+const BR: BState[] = BRIDGES.map((_, i) => {
+  const seam = INTRO + i * L, rx = seam - (i ? 120 : 60), fl = floorOf(screen.h);
+  // ?at=N: the seams already behind the shark show their B object resting in its scene (not stuck at the top of the sea)
+  if (at && i < at - 1) { const x = seam + 146, y = fl * BRIDGES[i].rest; return { ph: 2 as const, x, y, k: 1, rx: x, ry: y, t: 0 }; }
+  return { ph: 0 as const, x: rx, y: fl * 0.42, k: 0, rx, ry: 0, t: 0 };
+});
 function updateBridges(dt: number) {
   const nose = S.x + SW - 6, floor = floorOf(screen.h);
   BR.forEach((b, i) => {
@@ -179,6 +187,21 @@ function water(x0: number, x1: number, p: Pal, floor: number, oy = 0) {
   for (let b = 0; b < bands; b++) { const y0 = Math.round(oy + (floor * b) / bands), y1 = Math.round(oy + (floor * (b + 1)) / bands); R(g, x0, y0, x1 - x0, y1 - y0, lerpHex(p.top, p.bot, (b / (bands - 1)) ** 1.15)); }
   R(g, x0, oy + floor, x1 - x0, screen.h - floor + 2, p.sand);
 }
+// v03d: the cross-blended water of one seam, baked once per (seam, size): 2 px columns with a continuous k (no 1/24 bricks),
+// the same 14 bands as water(); drawn with one drawImage instead of ~1600 fillRects a frame
+const SEAMW = new Map<string, HTMLCanvasElement>();
+function seamWater(i: number, h: number, floor: number) {
+  const key = `${i}|${h}|${floor}`; let c = SEAMW.get(key); if (c) return c;
+  if (SEAMW.size > 40) SEAMW.clear();
+  c = document.createElement('canvas'); c.width = BLEND * 2; c.height = h + 2; const m = c.getContext('2d')!; const A = palI(i - 1), B = palI(i), bands = 14;
+  for (let x = 0; x < BLEND * 2; x += 2) {
+    const k = sstep((x + 1) / (2 * BLEND));
+    for (let b = 0; b < bands; b++) { const y0 = Math.round((floor * b) / bands), y1 = Math.round((floor * (b + 1)) / bands), e = (b / (bands - 1)) ** 1.15; m.fillStyle = lerpHex(lerpHex6(A.top, A.bot, e), lerpHex6(B.top, B.bot, e), k); m.fillRect(x, y0, 2, y1 - y0); }
+    m.fillStyle = lerpHex(A.sand, B.sand, k); m.fillRect(x, floor, 2, h - floor + 2);
+  }
+  SEAMW.set(key, c); return c;
+}
+const lerpHex6 = (a: string, b: string, k: number) => mix(a, b, Math.round(k * 1000) / 1000);
 const FE = 90; // feather half-width: a 180 px cross-dissolve, wide enough for the big opaque sets (Kill Bill room, garden)
 const LAYER = document.createElement('canvas'); let LG: CanvasRenderingContext2D | null = null;
 const layer = (w: number, h: number) => { if (LAYER.width !== w || LAYER.height !== h || !LG) { LAYER.width = w; LAYER.height = h; LG = LAYER.getContext('2d')!; LG.imageSmoothingEnabled = false; } return LG; };
@@ -199,7 +222,7 @@ function render() {
   for (const s of strips) { const wd = s.i === -1 ? INTRO : s.i === 99 ? w + 400 : L; water(Math.max(0, s.x0), Math.min(w, s.x0 + wd), s.p, floor, oy); }
   for (let i = 0; i <= SCENES.length; i++) { // seams (v03d): the water cross-blends column by column over 2×BLEND px
     const sx = Math.round(INTRO + i * L - cam); if (sx < -BLEND || sx > w + BLEND) continue;
-    for (let x = Math.max(0, sx - BLEND); x < Math.min(w, sx + BLEND); x += 2) water(x, x + 2, palAt(x + cam), floor, oy);
+    g.drawImage(seamWater(i, h, floor), sx - BLEND, oy);
   }
   g.save(); g.translate(0, oy);
   giants(g, w, h, t, cam, palAt); far(g, w, h, floor, cam, palAt);
@@ -208,7 +231,9 @@ function render() {
   // v03d: every scene's own layers (seabed life + back, then front) are drawn into an offscreen layer and feathered into
   // their neighbours with complementary ordered-dither ramps (FE px either side of the seam): a cross-dissolve, no edge
   const feather = (x0: number, wd: number, f: (lg: CanvasRenderingContext2D) => void) => {
-    if (x0 > w + FE || x0 + wd < -FE) return; const lg = layer(w, h); lg.clearRect(0, 0, w, h); f(lg);
+    if (x0 > w + FE || x0 + wd < -FE) return;
+    if (Math.round(x0) + FE <= 0 && Math.round(x0 + wd) - FE >= w) { f(g); return; } // no ramp on screen: draw straight in
+    const lg = layer(w, h); lg.clearRect(0, 0, w, h); f(lg);
     lg.globalCompositeOperation = 'destination-out'; const a = Math.round(x0), b = Math.round(x0 + wd);
     if (a - FE > 0) lg.fillRect(0, 0, a - FE, h); lg.drawImage(RAMP[1], a - FE, 0);
     lg.drawImage(RAMP[0], b - FE, 0); lg.fillRect(b + FE, 0, Math.max(0, w - b - FE), h);
