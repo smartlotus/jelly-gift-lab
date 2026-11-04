@@ -1,9 +1,9 @@
-// /sea/ review grids (v03b): each film scene frozen mid-beat (?at=N&p=..&beat=..), 3x3 → review/v03c/sea-grid[-land].png
+// /sea/ review grids (v03b): each film scene frozen mid-beat (?at=N&p=..&beat=..), 3x3 → review/v03d/sea-grid[-land].png
 // node tools/sea-shots.mjs [WxH] [base]
 import puppeteer from 'puppeteer-core';
 import { execFileSync } from 'node:child_process';
 const [W, H] = (process.argv[2] || '390x844').split('x').map(Number), base = process.argv[3] || 'http://localhost:8811/';
-const land = W > H, dir = 'review/v03c';
+const land = W > H, dir = 'review/v03d';
 const b = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: 'new', args: ['--no-sandbox'] });
 const p = await b.newPage(); await p.setViewport({ width: W, height: H, deviceScaleFactor: 2 });
 const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()));
