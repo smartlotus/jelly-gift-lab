@@ -11,9 +11,9 @@ export function onSound(f: (on: boolean) => void) { subs.push(f); }
 export function unlock(): AudioContext | null {
   if (!ctx) {
     const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext; if (!AC) return null;
-    ctx = new AC(); master = ctx.createGain(); master.gain.value = on ? 0.6 : 0; master.connect(ctx.destination);
+    try { ctx = new AC(); } catch { return null; } master = ctx.createGain(); master.gain.value = on ? 0.6 : 0; master.connect(ctx.destination);
   }
-  if (ctx.state === 'suspended') void ctx.resume();
+  if (ctx.state === 'suspended') ctx.resume().catch(() => { /* no audio device: stay silent */ });
   return ctx;
 }
 export const out = () => master;

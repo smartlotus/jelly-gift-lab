@@ -138,3 +138,105 @@ export function gate(): Promise<boolean> {
     if (!coarse) setTimeout(() => inputs[0].focus(), 500);
   });
 }
+
+// ---- v03f: three more puzzles (each a different kind) + small cards ------------------------------------------------
+//   musicBox():  listen + play back (memory): the music box plays "two tigers" in two phrases; tap the keys in order
+//   candles():   a 3×3 Lights-Out on the crypt slab (logic): a tap flips a candle and its neighbours; light all nine
+//   codeLock():  four digit wheels (knowledge + clues): our day one, 0503; collected note pieces fill in digits
+const NOTES = [523.25, 587.33, 659.25, 698.46, 783.99];
+const KEY_COL = ['#f4a7b9', '#ffd45c', '#9cc8ee', '#8fcb9b', '#e4dcf5'];
+export function musicBox(): Promise<void> {
+  return new Promise(resolve => {
+    const PHRASES = [[0, 1, 2, 0], [2, 3, 4]];
+    const f = frame('pz-music', `
+      <p class="pz-q" data-i18n="night.pz.music"></p>
+      <div class="pz-mbox"><div class="pz-drum"></div></div>
+      <div class="pz-keys">${NOTES.map((_, i) => `<button type="button" class="pz-key" data-k="${i}" style="--c:${KEY_COL[i]}" aria-label="${i + 1}"><b></b><span>${'do re mi fa sol'.split(' ')[i]}</span></button>`).join('')}</div>
+      <div class="pz-acts"><button type="button" class="pz-again" data-i18n="night.pz.music.again"></button><span class="pz-dots"></span></div>`);
+    const keys = [...f.el.querySelectorAll<HTMLButtonElement>('.pz-key')];
+    let phrase = 0, pos = 0, miss = 0, busy = true, done = false;
+    const light = (k: number, ms = 360) => { keys[k].classList.add('lit'); pzSfx.note(NOTES[k]); setTimeout(() => keys[k].classList.remove('lit'), ms); };
+    const dots = () => { f.el.querySelector('.pz-dots')!.innerHTML = PHRASES[phrase].map((_, i) => `<i class="${i < pos ? 'on' : ''}"></i>`).join(''); };
+    const play = () => { busy = true; pos = 0; dots(); f.el.querySelector('.pz-mbox')!.classList.add('spin');
+      PHRASES[phrase].forEach((k, i) => setTimeout(() => light(k), 500 + i * 520));
+      setTimeout(() => { busy = false; f.el.querySelector('.pz-mbox')!.classList.remove('spin'); if (miss >= 2) keys[PHRASES[phrase][0]].classList.add('hint'); }, 500 + PHRASES[phrase].length * 520); };
+    const finish = () => { if (done) return; done = true; f.say('night.pz.music.ok', 'ok'); pzSfx.ok(); f.el.classList.add('solved'); setTimeout(() => void f.close().then(resolve), 1300); };
+    keys.forEach(b => b.addEventListener('click', () => {
+      if (busy || done) return; const k = +b.dataset.k!; light(k, 220); keys.forEach(x => x.classList.remove('hint'));
+      if (k === PHRASES[phrase][pos]) { pos++; dots(); if (miss >= 2 && pos < PHRASES[phrase].length) keys[PHRASES[phrase][pos]].classList.add('hint');
+        if (pos === PHRASES[phrase].length) { if (++phrase === PHRASES.length) finish(); else { f.say('night.pz.music.next'); setTimeout(play, 700); } } return; }
+      miss++; pzSfx.nope(); shake(f.el.querySelector('.pz-keys')!); f.say(miss >= 2 ? 'night.pz.music.hint' : 'night.pz.music.no', miss >= 2 ? 'hint' : '');
+      if (miss >= 5) { setTimeout(finish, 600); return; } setTimeout(play, 800);
+    }));
+    f.el.querySelector('.pz-again')!.addEventListener('click', () => { if (!busy && !done) play(); });
+    setTimeout(play, 700);
+  });
+}
+
+export function candles(): Promise<void> {
+  return new Promise(resolve => {
+    const on = Array(9).fill(true); const sol = new Set([0, 4, 8]); // scrambled by tapping the diagonal -> tapping it again solves
+    const flip = (i: number) => { const r = Math.floor(i / 3), c = i % 3; for (const [dr, dc] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) { const rr = r + dr, cc = c + dc; if (rr >= 0 && rr < 3 && cc >= 0 && cc < 3) on[rr * 3 + cc] = !on[rr * 3 + cc]; } };
+    sol.forEach(flip);
+    const FLAME = ['..y..', '.yoy.', '.yoy.', '..o..'], CAN = ['wwwww', 'wwwww', 'wwwww', 'wwwww', 'wwwww', 'ddddd'];
+    const f = frame('pz-candles', `
+      <p class="pz-q" data-i18n="night.pz.candles"></p>
+      <div class="pz-slab">${on.map((_, i) => `<button type="button" class="pz-c" data-i="${i}" aria-label="${i + 1}"><span class="pz-fl">${pix(FLAME, { y: '#ffd45c', o: '#ff9a3c' })}</span>${pix(CAN, { w: '#efe6d2', d: '#b9ab92' })}</button>`).join('')}</div>`);
+    const btns = [...f.el.querySelectorAll<HTMLButtonElement>('.pz-c')];
+    const sync = () => btns.forEach((b, i) => b.classList.toggle('on', on[i]));
+    sync(); let taps = 0, done = false, hinted = false;
+    const finish = () => { if (done) return; done = true; on.fill(true); sync(); f.el.classList.add('solved'); f.say('night.pz.candles.ok', 'ok'); pzSfx.ok(); setTimeout(() => void f.close().then(resolve), 1400); };
+    btns.forEach((b, i) => b.addEventListener('click', () => {
+      if (done) return; flip(i); if (sol.has(i)) sol.delete(i); else sol.add(i); taps++; pzSfx.whoosh(on[i]); sync();
+      btns.forEach(x => x.classList.remove('hint'));
+      if (on.every(Boolean)) { finish(); return; }
+      if (taps >= 6) { if (!hinted) { hinted = true; f.say('night.pz.candles.hint', 'hint'); } const nx = [...sol][0]; if (nx !== undefined) btns[nx].classList.add('hint'); }
+      if (taps >= 22) setTimeout(finish, 500);
+    }));
+  });
+}
+
+/** 4 wheels (0-9). `have` = which of the 4 digits the collected notes show. */
+export function codeLock(have: boolean[]): Promise<void> {
+  return new Promise(resolve => {
+    const CODE = [0, 5, 0, 3];
+    const notes = CODE.map((d, i) => `<i class="${have[i] ? 'got' : ''}">${have[i] ? d : '?'}</i>`).join('');
+    const f = frame('pz-code', `
+      <div class="pz-lock">${pix(LOCK, LOCK_PAL)}</div>
+      <div class="pz-board">
+        <p class="pz-q" data-i18n="night.pz.code"></p>
+        <div class="pz-notes" aria-hidden="true">${notes}</div>
+        <div class="pz-digits">${CODE.map((_, i) => `<span class="pz-wheel" data-i="${i}"><button type="button" class="pz-up" data-i18n-aria="night.pz.up"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button><b class="pz-d">0</b><button type="button" class="pz-dn" data-i18n-aria="night.pz.down"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></span>`).join('')}</div>
+        <button type="button" class="pz-open" data-i18n="night.pz.open"></button>
+      </div>`);
+    const v = [0, 0, 0, 0]; const ds = [...f.el.querySelectorAll<HTMLElement>('.pz-d')];
+    const sync = () => ds.forEach((d, i) => { d.textContent = String(v[i]); });
+    let miss = 0, done = false;
+    f.el.querySelectorAll<HTMLElement>('.pz-wheel').forEach((w, i) => {
+      const step = (s: number) => { if (done) return; v[i] = (v[i] + s + 10) % 10; sync(); w.classList.remove('tick'); void w.offsetWidth; w.classList.add('tick'); pzSfx.tap(0); };
+      w.querySelector('.pz-up')!.addEventListener('click', () => step(1)); w.querySelector('.pz-dn')!.addEventListener('click', () => step(-1));
+      w.addEventListener('wheel', e => { e.preventDefault(); step(e.deltaY < 0 ? 1 : -1); }, { passive: false });
+    });
+    const finish = (auto: boolean) => { if (done) return; done = true; CODE.forEach((d, i) => { v[i] = d; }); sync(); f.el.classList.add('solved');
+      f.say(auto ? 'night.pz.code.auto' : 'night.pz.code.ok', 'ok'); pzSfx.click(); setTimeout(() => pzSfx.ok(), 160); setTimeout(() => void f.close().then(resolve), 1600); };
+    const check = () => {
+      if (done) return;
+      if (v.every((d, i) => d === CODE[i])) { finish(false); return; }
+      miss++; pzSfx.click(); setTimeout(() => pzSfx.nope(), 90); shake(f.el.querySelector('.pz-lock')!);
+      f.say(miss >= 5 ? 'night.pz.code.hint3' : miss >= 3 ? 'night.pz.code.hint2' : miss >= 2 ? 'night.pz.code.hint' : 'night.pz.code.no', miss >= 2 ? 'hint' : '');
+      if (miss >= 5) { v[0] = 0; v[1] = 5; sync(); }
+      if (miss >= 7) setTimeout(() => finish(true), 900);
+    };
+    f.el.querySelector('.pz-open')!.addEventListener('click', check);
+    window.addEventListener('keydown', function k(e) { if (done) { window.removeEventListener('keydown', k); return; } if (e.key === 'Enter') check(); });
+  });
+}
+
+/** a found item: a quick card (tap anywhere / 2.6 s) */
+export function foundCard(titleKey: string, body: string): Promise<void> {
+  return new Promise(resolve => {
+    const f = frame('pz-found', `<p class="pz-q" data-i18n="${titleKey}"></p><div class="pz-paper">${body}</div><p class="pz-tap" data-i18n="night.tap"></p>`);
+    let gone = false; const close = () => { if (gone) return; gone = true; void f.close().then(resolve); };
+    pzSfx.ok(); setTimeout(() => f.el.addEventListener('click', close), 350); setTimeout(close, 3400);
+  });
+}

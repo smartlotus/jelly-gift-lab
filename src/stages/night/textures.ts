@@ -6,6 +6,8 @@ export const T = {
   grassTop: 0, grassSide: 1, dirt: 2, stone: 3, cobble: 4, path: 5, oakSide: 6, oakTop: 7,
   birchSide: 8, leaves: 9, tallGrass: 10, flower: 11, mushroom: 12, pig: 13, planks: 14, bars: 15,
   darkLeaves: 16, mossy: 17, pigFace: 18, snout: 19, fur: 20, paw: 21, torch: 22, flame: 23, sign: 24, bluebell: 25,
+  // v03f: the branching night (house, graveyard, tunnel, pink path)
+  grave: 26, dplanks: 27, paper: 28, window: 29, ppath: 30, podzol: 31,
 } as const;
 export const COLS = 8, ROWS = 4, TS = 16;
 
@@ -52,6 +54,18 @@ const tiles: Record<number, Px> = {
   [T.torch]: (x, _y, r) => (x === 0 || x === 15 ? '#3e2c1c' : r() < .2 ? '#5a4128' : '#7a5a37'),
   [T.flame]: (x, y) => { const d = Math.hypot(x - 7.5, (y - 9) * .8); return d < 3 ? '#fff6d0' : d < 5.5 ? '#ffd45c' : d < 8 ? '#ff9a3c' : '#e0612a'; },
   [T.sign]: tilesPlanks,
+  // gravestone face: pale stone, darker rim, a little carved cross
+  [T.grave]: (x, y, r) => { if (x === 0 || x === 15 || y === 0) return '#5d6166'; if ((x === 7 || x === 8) && y >= 3 && y <= 10) return '#4b4f54'; if (y === 5 && x >= 5 && x <= 10) return '#4b4f54'; return r() < .1 ? '#8e9297' : pick(r, ['#9da1a6', '#a6aaae', '#959a9f']); },
+  // dark oak planks (floors, roofs, the old house)
+  [T.dplanks]: (x, y, r) => { if (y % 4 === 3) return '#2a1d12'; if ((x + (y >> 2) * 5) % 8 === 0) return '#2a1d12'; return r() < .15 ? '#4a3420' : pick(r, ['#3d2a19', '#45301d', '#382616']); },
+  // faded wallpaper: dusty rose stripes with tiny flowers
+  [T.paper]: (x, y, r) => { if ((x === 3 || x === 11) && y % 8 === 4) return '#a8707c'; const s2 = x % 8 < 4; return r() < .08 ? '#6e5458' : s2 ? '#8a6a6e' : '#7c5f63'; },
+  // window: dark glass in a wooden frame, one faint highlight
+  [T.window]: (x, y) => { if (x === 0 || x === 15 || y === 0 || y === 15 || x === 7 || x === 8 || y === 7 || y === 8) return '#4c3722'; if (x - y === 3 && x < 7) return '#5d6f8a'; return '#1a2333'; },
+  // the hidden pink path: soft pink gravel with a few bright pebbles
+  [T.ppath]: (_x, _y, r) => { const v = r(); return v < .1 ? '#fff4f6' : v < .45 ? '#f4a7b9' : v < .8 ? '#f9c6cf' : '#ee8fa6'; },
+  // podzol (graveyard ground)
+  [T.podzol]: (_x, _y, r) => (r() < .3 ? pick(r, ['#4a3a2a', '#3f3124']) : pick(r, ['#5a4632', '#614b35', '#523f2d', '#3f4a33'])),
 };
 function tilesPlanks(x: number, y: number, r: () => number) { return tiles[T.planks](x, y, r); }
 
