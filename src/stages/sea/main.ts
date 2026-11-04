@@ -14,7 +14,7 @@ import { frameAt, draw, silhouette } from '../../shared/pixel/sprite';
 import { bayer } from '../../shared/dawn';
 import { sharkForm, SW, SH, type Form } from './shark';
 import { SCENES, L, R, fish, type Ctx, type Scene, type Pose } from './scenes';
-import { far, rays, motes, life, near, type Pal } from './env';
+import { far, giants, rays, motes, life, near, type Pal } from './env';
 import * as dict from './dict';
 import './style.css';
 
@@ -144,7 +144,7 @@ function render() {
     for (let y = 0; y < floor; y += 2) for (let dx = 0; dx < 16; dx += 2) if (bayer(dx >> 1, y >> 1) > dx / 16) R(g, x0 + dx, y + oy, 2, 2, lerpHex(prev.top, prev.bot, Math.min(1, y / floor)));
   }
   g.save(); g.translate(0, oy);
-  far(g, w, h, floor, cam, palAt);
+  giants(g, w, h, t, cam, palAt); far(g, w, h, floor, cam, palAt);
   rays(g, w, h, t, cam, ending ? 1 - Math.min(1, ending.t / 3) : 1);
   const clip = (x0: number, wd: number, f: () => void) => { g.save(); g.beginPath(); g.rect(Math.round(x0), -h, wd, h * 3); g.clip(); f(); g.restore(); };
   for (const s of strips) { const wd = s.i === -1 ? INTRO : s.i === 99 ? w + 400 : L; clip(s.x0, wd, () => life({ g, t, w, h, x0: s.x0, L: wd, floor, cam }, s.id, s.p)); }

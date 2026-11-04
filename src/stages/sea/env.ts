@@ -54,6 +54,22 @@ export function far(g: CanvasRenderingContext2D, w: number, h: number, floor: nu
     for (let y = 0; y < ht; y += 2) { const k = y / ht, hw = tall ? wd / 2 * (1 - 0.35 * k) * (k > 0.92 ? 0.8 : 1) : wd / 2 * Math.sqrt(Math.max(0, 1 - k * k)); const jit = Math.round(Math.sin(i * 7 + Math.floor(y / 6)) * 1.5); R(g, sx - hw + jit, floor - y - 2, hw * 2, 2, col); }
   }
 }
+/** big gentle shapes far up in the open water (mantas, a whale), so tall portrait screens never feel empty */
+export function giants(g: CanvasRenderingContext2D, w: number, h: number, t: number, cam: number, palAt: (worldX: number) => Pal) {
+  const P = 0.12, step = 260, first = Math.floor((cam * P) / step) - 1;
+  for (let i = first; i < first + Math.ceil(w / step) + 2; i++) {
+    const x = i * step - cam * P + hash(i * 3.3) * 120 + Math.sin(t * 0.1 + i) * 20 - t * 1.5, y = h * (0.1 + hash(i * 5.1) * 0.22) + Math.sin(t * 0.4 + i) * 4, pal = palAt(x + cam);
+    const col = mix(mix(pal.top, pal.bot, 0.3), '#000000', 0.08); g.globalAlpha = 0.85;
+    if (hash(i * 7.7) > 0.4) { const flap = Math.sin(t * 0.9 + i) * 3; // manta
+      for (let k = 0; k < 14; k++) { const wy = Math.round((k / 14) * flap); R(g, x - k, y - 6 + k * 0.4 + wy, 2, 8 - k * 0.45, col); R(g, x + k, y - 6 + k * 0.4 + wy, 2, 8 - k * 0.45, col); }
+      R(g, x - 3, y - 8, 7, 10, col); R(g, x, y + 2, 1, 14, col); }
+    else { // whale
+      for (let k = 0; k < 46; k++) { const hh = 9 * Math.sin(Math.PI * Math.min(1, (k + 4) / 44)) ** 0.7; R(g, x + k, y - hh * 0.6, 1, hh * 1.4, col); }
+      R(g, x - 6, y - 5 + Math.round(Math.sin(t * 0.8 + i) * 2), 6, 3, col); R(g, x - 6, y + 2 + Math.round(Math.sin(t * 0.8 + i) * 2), 6, 3, col); R(g, x + 26, y + 6, 6, 3, col);
+    }
+    g.globalAlpha = 1;
+  }
+}
 /** caustic light rays from the surface + a shimmering surface band at the top */
 export function rays(g: CanvasRenderingContext2D, w: number, h: number, t: number, cam: number, k = 1) {
   if (k <= 0) return;
