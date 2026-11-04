@@ -227,3 +227,5 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
   - `tools/check-pages.mjs` 现在检查全部 8 个页面 + sea/sky/coop 的到达参数（全部 OK、无 console 错误）。
 - **检查 / 截图**：`node tools/seam-shots.mjs 390x844|844x390` → `review/v03d/seams-grid[-land].png`（每个交界鲨鱼顶着物品的瞬间）；`node tools/bridge-strip.mjs <场景 1..15> [WxH]` → `review/v03d/strip-<N>.png`（一次穿越的时间条，`__pause/__steps` 确定性步进）；`node tools/sea-shots.mjs` 现在写到 `review/v03d/`（15 个 beat）；`node tools/sea-perf.mjs`（帧间隔）；旅程 `node tools/journey-v03.mjs`（果冻 → 彩蛋 → 入海 → /sea/，无错误）。
 - **已知不足 / 下一步建议**：真机（iPhone/安卓）手感、帧率、声音音量仍未实测；竖屏 NPC 仍偏小；杀死比尔青叶屋这类不透明大布景在交界处是 90 px 抖动溶解，像素感较强（风格上可接受）；声音只在第一次触摸/按键后开始（iOS 规则），完全不碰屏幕自动漂流时保持安静。
+
+**v03d 已交付（2026-11-03）**：master `645b4d8`（合并 v03d-bridges，PR #1），tag `v03d`；公开仓库 `smartlotus/jelly-gift` main `92521fd`。线上 8 个页面 `node tools/check-pages.mjs https://smartlotus.github.io/jelly-gift/` 全部 OK。还原点：`v01`、`v02`、`v03`、`v03b`、`v03c`、`v03d`。
