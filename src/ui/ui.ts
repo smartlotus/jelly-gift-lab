@@ -1,12 +1,14 @@
 import type { Colourway } from '../core/look';
 import type { Readouts, Metric } from '../app/engine';
 import { t, type Key } from '../i18n/i18n';
+import { progress as curtainProgress } from '../shared/curtain';
 
 const $ = (id: string) => document.getElementById(id)!;
 
 export function setProgress(p: number) {
   ($('bar') as HTMLElement).style.width = `${Math.round(p * 100)}%`;
   $('pct').textContent = `${Math.round(p * 100)}`;
+  curtainProgress(p);
 }
 export function hideLoader() { $('loader').classList.add('done'); }
 export function showFail() { $('fail').hidden = false; $('loader').classList.add('done'); }

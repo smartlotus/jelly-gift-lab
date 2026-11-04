@@ -6,6 +6,7 @@ import { markReached, go, prefetchNext, params, from } from '../../shared/flow';
 import { register, t, onLang } from '../../shared/i18n';
 import { mountChrome, startCard } from '../../shared/chrome';
 import { irisIn, irisOut, dissolve } from '../../shared/transition';
+import { hold, progress as curtainProgress } from '../../shared/curtain';
 import { blip } from '../../shared/audio';
 import { PixelScreen } from '../../shared/pixel/screen';
 import { startLoop } from '../../shared/pixel/loop';
@@ -64,6 +65,16 @@ const viewerP = import('./viewer').then(m => {
   void viewer.load('figure-pig');
   return viewer;
 });
+
+// v03e: the loading curtain waits (with a progress bar) for three.js + the first figure, at most ~8 s, then the iris opens
+{
+  const release = hold(), since = performance.now();
+  const poll = () => {
+    const p = viewer ? viewer.progress('figure-pig') : 0; curtainProgress(0.15 + 0.85 * p);
+    if ((viewer && viewer.ready('figure-pig')) || performance.now() - since > 8000) { curtainProgress(1); release(); } else setTimeout(poll, 80);
+  };
+  curtainProgress(0.08); poll(); viewerP.catch(() => release());
+}
 
 let landT = 1, t0 = 0, started = false, leaving = false, actLock = false, near: Exhibit | null = null, bang = 0, flicker = 0, flickered = false, prefetched = false, walkIn = 0;
 input.enabled = false;

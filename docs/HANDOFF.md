@@ -229,3 +229,18 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 - **已知不足 / 下一步建议**：真机（iPhone/安卓）手感、帧率、声音音量仍未实测；竖屏 NPC 仍偏小；杀死比尔青叶屋这类不透明大布景在交界处是 90 px 抖动溶解，像素感较强（风格上可接受）；声音只在第一次触摸/按键后开始（iOS 规则），完全不碰屏幕自动漂流时保持安静。
 
 **v03d 已交付（2026-11-03）**：master `645b4d8`（合并 v03d-bridges，PR #1），tag `v03d`；公开仓库 `smartlotus/jelly-gift` main `92521fd`。线上 8 个页面 `node tools/check-pages.mjs https://smartlotus.github.io/jelly-gift/` 全部 OK。还原点：`v01`、`v02`、`v03`、`v03b`、`v03c`、`v03d`。
+
+## v03e — 果冻页在 iPhone 上打不开 + 全站加载过渡（分支 `v03e-jelly-fix-transitions` → master，tag `v03e`）
+用户反馈（iPhone Safari 截图）：果冻页整屏只剩一片粉色；页面之间切换没有加载动画过渡。
+**还原**：上一版 = tag `v03d`（`git checkout v03d && GIFT_DEPLOY=1 scripts/deploy_pages.sh /workspace/jelly/jelly-gift` 回滚线上）。
+
+- **根因（果冻页一片粉）**：那片粉色是从夜路过来时的「到达粉幕」（`.pink-veil`，z-index 90，main.ts 一启动就盖上，等第一帧画好才收拢到小猪身上）。iOS 26 的 Safari 开始提供 `navigator.gpu`，所以页面优先走 WebGPU 路径；WebKit 的 WebGPU 在 `createComputePipelineAsync` / 多个 compute 命令缓冲在途时会**无错误地挂住**（WebKit bug 311598 等同类报告），`boot()` 永远不结束 → 粉幕永远不收。就算报错，失败提示 `.fail`（z-index 11）也被粉幕盖住。在 WebKit 无头（Playwright WPE，无 WebGPU）里 WebGL2 路径完全正常，证实问题只在 WebGPU 分支。（无法在本机跑 iOS 的 WebGPU，挂起点按上述已知 bug 推断；修法对挂起和报错两种情况都成立。）
+- **修复（`src/main.ts`）**：所有 WebKit（iOS 上所有浏览器 + Safari）默认走已验证的 **WebGL2** 路径（`?backend=webgpu` 可强制试 WebGPU）；其他浏览器仍先试 WebGPU，但 adapter/device 5 s、WebGPU 初始化 12 s 超时后自动退回 WebGL2；启动失败时加载幕变成「哎呀，这一页卡住了 · 再试一次 / 跳到下一站」，永远不会白屏/粉屏。旧 `.pink-veil` 不再创建，到达的粉色由共享加载幕承担（收拢到小猪的动画不变）。
+- **全站加载过渡（新，`src/shared/curtain-inline.ts` + `src/shared/curtain.ts`）**：
+  - 每个页面的 `<body>` 开头由 vite 插件 `gift-curtain` **内联**一块加载幕（样式+脚本都内联，第一帧就有，不等 CSS/JS）：一只 16×13 的像素果冻小猪在上一页关上的颜色上一蹦一蹦（steps 动画 + 挤压拉伸 + 影子），下面是下一站的名字（中/英随语言）和三个像素点；重页面（小店 3D 模型、果冻网格）有像素进度条。
+  - 离开：`go()` 在原有出场动画（光圈/溶解）之后调用 `cover(to)`：小猪幕在关上的颜色上淡入，颜色写进 `sessionStorage['gift.curtain']`；新页面内联脚本读到同一颜色，所以两页之间是**同一块幕、同一只小猪**，没有闪白。
+  - 到达：`irisIn()` / `dissolve(0)` 先等 `curtain.gate`（`hold()` 未释放就一直等），再让幕淡出、光圈打开；没有到达动画的页面（海、从彩蛋来的星空、`?skip`）在画完两帧后自动淡出。小店 `hold()` 到 three.js + 第一个手办加载完（最多 8 s，进度条）。果冻页 `manual()`，第一帧画好后淡出（从夜路来时收拢成小猪）。
+  - 安全网：揭幕前出现脚本/资源错误 → 2.5 s 后变成重试/跳过卡片；20 s 还没好 → 显示「还在努力加载…」和同样两个按钮（加载仍在继续）。`pageshow`（bfcache 返回）时立即撤掉幕和关着的光圈。`prefers-reduced-motion` 下无动画、瞬切。
+- **检查 / 截图**（Playwright WebKit，iPhone 15 模拟；Playwright 装在 `/workspace/jelly/pw`，WebKit 依赖库解压在 `/opt/wk` 并加入 ldconfig）：`node tools/wk-check.mjs http://localhost:8811/ <outdir> webkit` 全部 8 页 + 两种果冻入口均揭幕、无 console 错误；`tools/wk-flow.mjs`（夜路 → 果冻 过渡帧 + 返回）；`tools/wk-fail.mjs`（模拟网格 404 → 失败卡片）。桌面 Chrome 下果冻页仍走 WebGPU（hi，23841 tets）正常。
+  - `review/v03e/webkit-pages-grid.png`（上排：每页加载幕；下排：揭幕后）、`transition-night-to-jelly.png`、`transition-meadow-to-shop.png`、`webkit-jelly-1-ready.png`、`webkit-jelly-fail-card.png`。
+- **已知不足**：iOS 真机需要再看一次（WebGL2 路径在真 iPhone GPU 上的帧率；加载幕中文字用系统宋体，因为 `fonts-src/` 里没有源 ttf，未重新子集化字体）。

@@ -7,30 +7,44 @@ import { GLPath } from './app/glpath';
 import type { Path } from './app/path';
 import * as UI from './ui/ui';
 import { hasSensors, askPermission, needsPermission } from './app/tilt';
-// journey arrival: the night stage's kawaii flip closed its iris on pink, so open from pink (before the loader shows)
+import * as Curtain from './shared/curtain';
+// v03e: this page reveals the shared loading curtain itself (after the first frames), never on the auto timer
+Curtain.manual();
+// journey arrival: the night stage's kawaii flip closed its iris on pink, so the curtain arrives pink (its colour is handed
+// over by curtain.ts cover()). Once the pig stands there, that pink gathers into it (strawberry, the same pink) and dissolves:
+// a radial mask shrinking onto where the pig stands (see pinkInto()).
 const fromNight = new URLSearchParams(location.search).get('from') === 'night';
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-// journey arrival: the night stage's kawaii flip closed on pink. Hold that pink over the loader, then let it gather into the
-// jelly pig (strawberry, the same pink) and dissolve — a radial mask shrinking onto where the pig stands (see pinkInto()).
-const pink = fromNight ? (() => { const v = document.createElement('div'); v.className = 'pink-veil'; document.body.appendChild(v); return v; })() : null;
 function pinkInto(x: number, y: number, r: number) {
-  if (!pink) return;
-  if (reduceMotion) { pink.remove(); return; }
+  const pink = Curtain.element();
+  if (!pink || !Curtain.showing()) return;
+  if (!fromNight || reduceMotion) { void Curtain.reveal(fromNight ? 0 : 520); return; }
+  pink.classList.add('gcc-solid'); pink.style.transition = 'none';
   const R = Math.hypot(innerWidth, innerHeight), t0 = performance.now(), D = 1500;
   const tick = (now: number) => {
     const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3); // cubic-out
     const rad = R * (1 - e) + r * e, soft = 40 + 80 * e;
-    pink.style.setProperty('--mx', `${x}px`); pink.style.setProperty('--my', `${y}px`);
-    pink.style.setProperty('--mr', `${rad}px`); pink.style.setProperty('--ms', `${rad + soft}px`);
+    const m = `radial-gradient(circle at ${x}px ${y}px, #000 ${rad}px, transparent ${rad + soft}px)`;
+    pink.style.setProperty('-webkit-mask-image', m); pink.style.setProperty('mask-image', m);
     pink.style.opacity = String(k < 0.55 ? 1 : 1 - (k - 0.55) / 0.45);
-    if (k < 1) requestAnimationFrame(tick); else pink.remove();
+    if (k < 1) requestAnimationFrame(tick); else { Curtain.reveal(0); pink.style.removeProperty('-webkit-mask-image'); pink.style.removeProperty('mask-image'); pink.style.opacity = ''; pink.style.transition = ''; pink.classList.remove('gcc-solid'); }
   };
   requestAnimationFrame(tick);
+}
+/** reject after ms (WebKit's WebGPU can hang without an error: createComputePipelineAsync / onSubmittedWorkDone) */
+function within<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
+  return new Promise<T>((res, rej) => { const t = setTimeout(() => rej(new Error(`${what} timed out after ${ms} ms`)), ms); p.then(v => { clearTimeout(t); res(v); }, e => { clearTimeout(t); rej(e); }); });
 }
 
 I18N.apply();
 const params = new URLSearchParams(location.search);
 const isMobile = matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod|Mobile|MicroMessenger/i.test(navigator.userAgent);
+// v03e: every iOS browser and Safari is WebKit. iOS 26 Safari exposes navigator.gpu, but its WebGPU hung this page's compute
+// pipelines (no error, no frame: the pink arrival curtain stayed forever). WebKit uses the proven WebGL2 path unless
+// ?backend=webgpu asks otherwise; everyone else still tries WebGPU first, now with timeouts and a WebGL2 fallback.
+const ua = navigator.userAgent;
+const isWebKit = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  || (/AppleWebKit/i.test(ua) && !/Chrome|Chromium|Edg|OPR|Android/i.test(ua));
 
 async function fetchWithProgress(url: string, onP: (p: number) => void): Promise<ArrayBuffer> {
   const res = await fetch(url);
@@ -46,13 +60,17 @@ async function fetchWithProgress(url: string, onP: (p: number) => void): Promise
 }
 
 async function tryWebGPU(): Promise<{ adapter: GPUAdapter; device: GPUDevice } | null> {
-  if (params.get('backend') === 'webgl2') return null;
+  const want = params.get('backend');
+  if (want === 'webgl2') return null;
+  if (isWebKit && want !== 'webgpu') return null;
   if (!('gpu' in navigator)) return null;
   try {
-    const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
-    if (!adapter) return null;
-    const device = await adapter.requestDevice({ requiredLimits: { maxStorageBuffersPerShaderStage: Math.min(8, adapter.limits.maxStorageBuffersPerShaderStage) } });
-    return { adapter, device };
+    return await within((async () => {
+      const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
+      if (!adapter) return null;
+      const device = await adapter.requestDevice({ requiredLimits: { maxStorageBuffersPerShaderStage: Math.min(8, adapter.limits.maxStorageBuffersPerShaderStage) } });
+      return { adapter, device };
+    })(), 5000, 'WebGPU adapter');
   } catch (e) { console.info('WebGPU unavailable:', e); return null; }
 }
 
@@ -67,7 +85,7 @@ async function boot() {
   let canvas = document.getElementById('gl') as HTMLCanvasElement;
   const ready = CHARACTERS.filter(c => c.ready);
   let ch: CharacterEntry = ready.find(c => c.id === params.get('char')) ?? ready[0];
-  let prog = 0.05; UI.setProgress(prog);
+  UI.setProgress(0.05);
   const gpu = await tryWebGPU();
   let path: Path | null = null; let level = '';
   const dprCap = +(params.get('dpr') || (isMobile ? 2 : 2));
@@ -90,7 +108,7 @@ async function boot() {
   const bootP = (p: number) => UI.setProgress(0.05 + p * 0.85);
   if (gpu) {
     level = params.get('q') || (isMobile ? 'md' : 'hi'); kind = 'webgpu';
-    try { path = await makePath(ch, bootP); } catch (e) {
+    try { path = await within(makePath(ch, bootP), 12000, 'WebGPU init'); } catch (e) {
       console.warn('WebGPU path failed, falling back to WebGL2:', e); path = null;
       // a canvas keeps its first context type: swap in a fresh element for WebGL2
       const fresh = canvas.cloneNode(false) as HTMLCanvasElement; canvas.replaceWith(fresh); canvas = fresh;
@@ -208,13 +226,12 @@ async function boot() {
   engine.start();
   requestAnimationFrame(() => requestAnimationFrame(() => {
     UI.hideLoader();
-    if (pink) { // gather the pink onto the pig: its rest-pose centre projected to the screen
-      const a = engine.path.asset.nodes; let cx = 0, cy = 0, cz = 0; const n = a.length / 3; for (let i = 0; i < a.length; i += 3) { cx += a[i]; cy += a[i + 1]; cz += a[i + 2]; }
-      const p = engine.project([cx / n, cy / n, cz / n]);
-      pinkInto(p.x, p.y, Math.min(innerWidth, innerHeight) * 0.18);
-    }
+    // gather the arrival pink onto the pig (its rest-pose centre projected to the screen); otherwise a plain fade
+    const a = engine.path.asset.nodes; let cx = 0, cy = 0, cz = 0; const n = a.length / 3; for (let i = 0; i < a.length; i += 3) { cx += a[i]; cy += a[i + 1]; cz += a[i + 2]; }
+    const p = engine.project([cx / n, cy / n, cz / n]);
+    pinkInto(p.x, p.y, Math.min(innerWidth, innerHeight) * 0.18);
   }));
   (window as any).__jellyReady = { backend: path.kind, level, tets: path.asset.meta.tets };
 }
 
-boot().catch((e) => { console.error(e); UI.showFail(); });
+boot().catch((e) => { console.error(e); UI.showFail(); Curtain.fail(e); });

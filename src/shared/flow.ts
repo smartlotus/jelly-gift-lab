@@ -8,6 +8,7 @@
 //   coop    /coop/    stage 7 · the pig + cat co-op level (one phone by default, two phones optional) = the finale
 //   (ar     /ar/      side room of the shop: the figure on a real table; returns to the same exhibit)
 // vite base is './' so every URL here is RELATIVE (works under https://smartlotus.github.io/jelly-gift/ and any host).
+import { cover } from './curtain';
 export type StageId = 'meadow' | 'shop' | 'night' | 'jelly' | 'sea' | 'sky' | 'coop' | 'ar';
 export const STAGES: readonly StageId[] = ['meadow', 'shop', 'night', 'jelly', 'sea', 'sky', 'coop'];
 const PATH: Record<StageId, string> = { meadow: '', shop: 'shop/', night: 'night/', jelly: 'jelly/', sea: 'sea/', sky: 'sky/', coop: 'coop/', ar: 'ar/' };
@@ -56,6 +57,7 @@ export async function go(to: StageId | null = nextStage(), outro?: () => Promise
   if (!to) return;
   markReached(to);
   if (outro) await outro();
+  await cover(to); // v03e: the loading curtain (pig hopping on the closed colour) bridges the page load
   location.assign(stageUrl(to, { from: here, ...extra }));
 }
 /** where this page was entered from (?from=...), for arrival animations */
