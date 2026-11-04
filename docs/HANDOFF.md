@@ -289,3 +289,5 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 - **结果**：WebKit iPhone 15 模拟下 `full`（三条路 + 环路 + 地图快进 + 6 个谜题 + 5 张贴纸 → 隐藏结局）和 `ends`（末班车 / 被抓到 / 树屋，均交接到 /jelly/）全程无 console 错误；`tools/wk-night-extra.mjs`（每个谜题特写、续玩卡、中文界面）无错误。软件渲染下行走时 50–62 fps，每帧 25–115 draw calls、13–43k 三角形。自动玩家（时间×4）一次全收集通关的游戏内时间约 10 分钟；真人首次游玩预计 10–15 分钟（只走一条路、硬猜密码约 6–8 分钟）。
 - 截图：`review/v03f/routes-grid.jpg`（起点→岔路→贴纸→三条路→地图→大门→空地）、`puzzles-grid.jpg`（八音盒 / 九蜡烛 / 屁股日铁栅 / 0503 密码 / 中文续玩卡与路口）、`endings-grid.jpg`（三个结局与绘本页）、`fork.jpg`、`best-ending.jpg`。
 - **已知不足 / 需真机看**：真 iPhone 上的帧率与触控手感（按住走 + 拖动看 + 点贴纸的力度）、各区域合成音的音量平衡、隐藏贴纸是否太难找（①在起点小路右侧粉方块上，②在森林窄小道中段，③在走廊楼梯，④在墓碑间左侧，⑤在隧道墙上——都需要稍微转头看）。
+
+**v03f 已交付（2026-11-04）**：master `4350aeb`（合并 v03f-night-expansion，PR #3），tag `v03f`；公开仓库 `smartlotus/jelly-gift` main `8ebed76`。线上 8 页 WebKit iPhone 15 模拟全部揭幕、无错误；线上夜路三个结局（`wk-night.mjs https://smartlotus.github.io/jelly-gift/ <out> ends`）都交接到 /jelly/、无 console 错误。还原点：… `v03e`、`v03f`。
