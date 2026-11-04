@@ -26,13 +26,16 @@ function vista(c: Ctx, id: string, sky: string[], land: Land, refl = 0.32) {
   for (let b = 0; b < 8; b++) { const k = b / 7, i = Math.min(sky.length - 2, Math.floor(k * (sky.length - 1))), f = k * (sky.length - 1) - i; R(o, 0, Math.round(WL * b / 8), w, Math.ceil(WL / 8) + 1, mix(sky[i], sky[i + 1], f)); }
   const ax = Math.round(c.x0 * 0.55 + c.L * 0.45);
   land(o, w, WL, ax, c);
-  const wl = Math.round(WL * a), top = wl - WL; // the picture slides down with the waterline
-  g.drawImage(off, 0, top);
+  // the waterline also eases down from the strip's own edges (60 px ramps), so in wide views the vista never ends in a cut
+  const wl = Math.round(WL * a), ramp = 60, xa = Math.max(0, Math.floor(c.x0)), xb = Math.min(w, Math.ceil(c.x0 + c.L));
+  const wlAt = (x: number) => Math.round(wl * ease(Math.min((x - c.x0) / ramp, (c.x0 + c.L - x) / ramp, 1)));
+  for (let x = xa; x < xb; x += 2) { const wc = wlAt(x); if (wc <= 0) continue; g.drawImage(off, x, WL - wc, 2, wc, x, 0, 2, wc); }
+  g.save(); g.beginPath(); g.rect(c.x0 + ramp, 0, Math.max(0, c.L - ramp * 2), h); g.clip();
   const rh = Math.min(WL, Math.round(h * 0.2)); // reflection: flipped rows, rippling, fading with depth
   for (let y = 0; y < rh; y++) { const k = y / rh, dx = Math.round(Math.sin(t * 2.2 + y * 0.45) * (0.6 + k * 2)); g.globalAlpha = refl * (1 - k) * a; g.drawImage(off, 0, WL - 1 - y, w, 1, dx, wl + y, w, 1); }
-  g.globalAlpha = 1;
-  for (let x = 0; x < w; x += 2) R(g, x, wl + Math.round(Math.sin(x * 0.13 + t * 2) * 0.7), 2, 1, 'rgba(255,255,255,.55)');
-  for (let i = 0; i < 10; i++) { g.globalAlpha = 0.4; R(g, (i * 47 + t * 9) % w, wl + 2 + (i % 3) * 2, 4, 1, '#ffffff'); } g.globalAlpha = 1;
+  g.restore(); g.globalAlpha = 1;
+  for (let x = xa; x < xb; x += 2) { const wc = wlAt(x); if (wc > 0) R(g, x, wc + Math.round(Math.sin(x * 0.13 + t * 2) * 0.7), 2, 1, 'rgba(255,255,255,.55)'); }
+  for (let i = 0; i < 10; i++) { const x = (i * 47 + t * 9) % w, wc = wlAt(x); if (wc > 0) { g.globalAlpha = 0.4; R(g, x, wc + 2 + (i % 3) * 2, 4, 1, '#ffffff'); } } g.globalAlpha = 1;
 }
 const tri = (g: G, x: number, y: number, hw: number, ht: number, c: string) => { for (let j = 0; j < ht; j++) { const k = j / ht; R(g, x - hw * k, y - ht + j, hw * 2 * k + 1, 1, c); } };
 const hills = (g: G, W: number, base: number, amp: number, ph: number, sc: number, col: string, off = 0) => { for (let x = 0; x < W; x += 2) { const hh = amp * (0.55 + 0.45 * Math.sin((x + off) * sc + ph)) * (0.7 + 0.3 * Math.sin((x + off) * sc * 2.3 + ph * 3)); R(g, x, base - hh, 2, hh, col); } };
