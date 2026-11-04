@@ -14,7 +14,7 @@ export interface Ctx { g: CanvasRenderingContext2D; t: number; w: number; h: num
 export interface Pose { dy?: number; slow?: number; boost?: number }
 export type Wipe = 'iris' | 'blinds' | 'portal' | 'train' | 'glitch' | 'slash' | 'shards' | 'heart' | 'dither';
 export interface Scene { id: string; zh: string; en: string; year: number; top: string; bot: string; sand: string; env: Omit<Pal, 'top' | 'bot' | 'sand'>; wipe: Wipe; wipeCol: string; form: Form; beat: { at: number; dur: number }; back(c: Ctx): void; front?(c: Ctx): void; pose?(c: Ctx): Pose }
-export const L = 420;
+export const L = 520;
 export { R, fish };
 
 const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
@@ -60,7 +60,7 @@ function disc4(put: (x: number, y: number, c: string) => void, x: number, y: num
 const SELF = ['#e05a5a', '#f2a33a', '#e8d04a', '#5ab86a', '#4a9ad9', '#8a6ad9', '#d96ab8'];
 
 // ---------- the scenes, in order (playful → action → tender) ----------
-export const SCENES: Scene[] = [
+export const FILMS: Scene[] = [
   { // 1 · The Cat Returns — golden hour over the Cat Kingdom: towers, lanterns, a parade carrying the Cat King; the Baron
     //     waits on the way, raises his hat and bows; the shark (cat ears, top hat, cane) bows back
     id: 'cat', zh: '猫的报恩', en: 'The Cat Returns', year: 2002, top: '#3b3560', bot: '#c98a62', sand: '#e3b27a', env: { reef: 0.7, kelp: 0.5 }, wipe: 'iris', wipeCol: '#f3d9a0', form: 'baron', beat: { at: 0.36, dur: 4.5 },

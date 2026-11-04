@@ -3,7 +3,7 @@
 // v03b: a living sea (env.ts: far / mid / near layers, caustics, plankton, schools, jellyfish, seabed), a bigger shark
 // that changes FORM per film with a pixel-dissolve + sparkles (shark.ts), and one short NPC beat per film (scenes.ts).
 // Controls: hold / drag anywhere = swim towards the finger; let go = it drifts on by itself (never stuck, no failing).
-// Keyboard: arrows / WASD. Dev: ?at=<1..9> start in a scene · ?end = the ending · ?auto = swims fast by itself ·
+// Keyboard: arrows / WASD. Dev: ?at=<1..15> start in a scene · ?end = the ending · ?auto = swims fast by itself ·
 // ?beat=<seconds> (with ?at) = freeze that scene's beat at that time, for screenshots.
 import { register, lang, onLang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
@@ -13,7 +13,12 @@ import { startLoop } from '../../shared/pixel/loop';
 import { frameAt, draw, silhouette } from '../../shared/pixel/sprite';
 import { bayer } from '../../shared/dawn';
 import { sharkForm, SW, SH, type Form } from './shark';
-import { SCENES, L, R, fish, type Ctx, type Scene, type Pose } from './scenes';
+import { FILMS, L, R, fish, type Ctx, type Scene, type Pose } from './scenes';
+import { TRAVEL } from './travel';
+// the run (v03c): films interleaved with the places we've been — west to east across Liaoning, then Jilin, home last
+const byId = (id: string) => [...FILMS, ...TRAVEL].find(s => s.id === id)!;
+const SCENES: Scene[] = ['cat', 'jinzhou', 'thief', 'yixian', 'endgame', 'shenyang', 'busan', 'raccoon', 'jilin', 'bill', 'changbai', 'mad', 'drama', 'still', 'changchun'].map(byId);
+const IDX = (id: string) => SCENES.findIndex(s => s.id === id), I_STILL = IDX('still'), I_MAD = IDX('mad');
 import { far, giants, rays, motes, life, near, type Pal } from './env';
 import * as dict from './dict';
 import './style.css';
@@ -34,7 +39,7 @@ const floorOf = (h: number) => h - Math.max(16, Math.round(h * 0.07));
 const GHOST = ['#e05a5a', '#4a9ad9', '#e8d04a'].map(c => silhouette(sharkForm('mad').frames[0], c));
 
 // ---------- state ----------
-const at = Math.max(0, Math.min(9, +(params.get('at') || 0)));
+const at = Math.max(0, Math.min(SCENES.length, +(params.get('at') || 0)));
 const auto = params.has('auto'), freezeBeat = params.has('beat') ? +(params.get('beat') || 0) : null;
 const P0 = +(params.get('p') || 0);
 const S = { x: at ? INTRO + (at - 1) * L + 10 + P0 * L : 30, y: at ? screen.h * 0.45 : -SH, vx: 0, vy: 0, t: 0 };
@@ -49,6 +54,10 @@ const setForm = (f: Form) => { if (f === form) return; prevForm = form; form = f
 const MASKS = Array.from({ length: 17 }, (_, n) => { const c = document.createElement('canvas'); c.width = SW; c.height = SH; const m = c.getContext('2d')!; m.fillStyle = '#000'; for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) if (bayer(x, y) * 16 < n) m.fillRect(x, y, 1, 1); return c; });
 const tmp = document.createElement('canvas'); tmp.width = SW; tmp.height = SH; const tg = tmp.getContext('2d')!;
 function drawShark(x: number, y: number, t: number) {
+  if (Math.abs(tilt) > 0.01) { g.save(); g.translate(x + SW / 2, y + SH / 2); g.rotate(tilt); drawSharkRaw(-SW / 2, -SH / 2, t); g.restore(); return; }
+  drawSharkRaw(x, y, t);
+}
+function drawSharkRaw(x: number, y: number, t: number) {
   const fr = frameAt(sharkForm(form), t);
   if (morph >= 1) { draw(g, fr, x, y); return; }
   const n = Math.round(morph * 16), old = frameAt(sharkForm(prevForm), t);
@@ -62,12 +71,12 @@ setTimeout(() => veil.remove(), 2200);
 const title = document.createElement('div'); title.className = 'sea-title'; title.innerHTML = '<b></b><i></i>'; document.body.appendChild(title);
 let titleT = 0;
 function showTitle(s: Scene) {
-  title.querySelector('b')!.textContent = lang === 'zh' ? s.zh : s.en; title.querySelector('i')!.textContent = String(s.year);
+  title.querySelector('b')!.textContent = lang === 'zh' ? s.zh : s.en; title.querySelector('i')!.textContent = s.year ? String(s.year) : '';
   title.classList.add('on'); clearTimeout(titleT); titleT = window.setTimeout(() => title.classList.remove('on'), 3400);
 }
 onLang(() => { if (scene >= 0 && scene < SCENES.length) title.querySelector('b')!.textContent = lang === 'zh' ? SCENES[scene].zh : SCENES[scene].en; });
-if (freezeBeat !== null && at === 9) followers = 6;
-if (params.has('end')) { S.x = END0 + 4; cam = S.x - 80; followers = 14; }
+if (freezeBeat !== null && at - 1 === I_STILL) followers = 6;
+if (params.has('end')) { S.x = END0 + 4; S.y = screen.h * 0.5; S.vx = 40; cam = S.x - 80; followers = 14; }
 
 // ---------- input ----------
 const toWorld = (e: PointerEvent) => { const p = screen.toLogical(e.clientX, e.clientY); return { x: p.x + cam, y: p.y }; };
@@ -91,14 +100,16 @@ function update(dt: number) {
   const i = Math.floor((S.x + SW / 2 - INTRO) / L);
   const pose: Pose = i >= 0 && i < SCENES.length ? SCENES[i].pose?.(ctxOf(i)) ?? {} : {};
   poseDy += ((pose.dy ?? 0) - poseDy) * Math.min(1, dt * 8);
-  const slow = (i === 8 ? 0.55 : 1) * (pose.slow ?? 1), drift = (auto ? 140 : 22) * slow + (pose.boost ?? 0);
+  const inBeat = pose.slow !== undefined || pose.boost !== undefined, slow = (i === I_STILL ? 0.7 : 1) * (pose.slow ?? 1), drift = (auto ? 140 : 30) * slow + (pose.boost ?? 0) * 0.7;
   let ax = 0, ay = 0; const lane = screen.h * (screen.w < screen.h ? 0.55 : 0.46);
   if (intro) { S.y += (lane - S.y) * Math.min(1, dt * 1.6); S.vx += (18 - S.vx) * dt; }
-  else if (held) { const dx = held.x - (S.x + SW / 2), dy = held.y - (S.y + SH / 2); ax = Math.max(-1, Math.min(1, dx / 40)) * 170; ay = Math.max(-1, Math.min(1, dy / 30)) * 170; }
+  else if (held) { const dx = held.x - (S.x + SW / 2), dy = held.y - (S.y + SH / 2); ax = Math.max(-1, Math.min(1, dx / 40)) * 130; ay = Math.max(-1, Math.min(1, dy / 30)) * 150; }
   else if (keys.size) { ax = ((keys.has('arrowright') || keys.has('d')) ? 1 : 0) - ((keys.has('arrowleft') || keys.has('a')) ? 1 : 0); ay = ((keys.has('arrowdown') || keys.has('s')) ? 1 : 0) - ((keys.has('arrowup') || keys.has('w')) ? 1 : 0); ax *= 170; ay *= 170; if (!ax) ax = (drift - S.vx) * 2; }
   else { ax = (drift - S.vx) * 1.5; ay = ((lane + Math.sin(S.t * 0.7) * 10) - S.y) * 0.8 - S.vy * 1.2; } // drift on
   if (!intro) { S.vx += ax * dt; S.vy += ay * dt; }
-  const max = (auto ? 160 : 84) * (i === 8 ? 0.6 : 1) + (pose.boost ?? 0); S.vx = Math.max(-50, Math.min(max, S.vx)) * (1 - dt * 0.8); S.vy = Math.max(-70, Math.min(70, S.vy)) * (1 - dt * 1.6);
+  // v03c: ~30% slower than v03b (84 → 58); while a beat plays even a held finger is eased down (never below 45 %), so the
+  // moment is seen; it stays responsive (vertical moves and steering are untouched)
+  const max = (auto ? 160 : 58) * (i === I_STILL ? 0.8 : 1) * (inBeat ? Math.max(0.45, pose.slow ?? 1) : 1) + (pose.boost ?? 0) * 0.7; S.vx = Math.max(-50, Math.min(max, S.vx)) * (1 - dt * 0.8); S.vy = Math.max(-70, Math.min(70, S.vy)) * (1 - dt * 1.6);
   S.x += S.vx * dt; if (!intro) S.y += S.vy * dt;
   S.x = Math.max(cam + 2, S.x); S.y = Math.min(floor - SH + 6, Math.max(intro ? -SH : 4, S.y));
   const lead = screen.w < screen.h ? 0.26 : 0.34; // portrait: keep the shark further left, the film ahead in view
@@ -108,19 +119,34 @@ function update(dt: number) {
   if (ni !== scene) { const prev = scene; scene = ni; if (ni >= 0 && ni < SCENES.length && ni > prev) { wipe = { k: reduced ? 2 : 0, s: SCENES[ni] }; showTitle(SCENES[ni]); setForm(SCENES[ni].form); } if (ni >= SCENES.length) setForm('plain'); }
   if (i >= 0 && i < SCENES.length && beatAt[i] < 0 && ctxOf(i).p >= SCENES[i].beat.at) beatAt[i] = S.t;
   if (wipe) { wipe.k += dt / 1.1; if (wipe.k > 1.45) wipe = null; }
-  if (beatAt[8] >= 0) followers = Math.max(followers, Math.min(16, Math.floor(1 + (S.t - beatAt[8] - 3) * 2.2)));
-  if (S.x > END0 + 10) { ending = { t: 0 }; title.classList.remove('on'); setForm('plain'); }
+  if (beatAt[I_STILL] >= 0) followers = Math.max(followers, Math.min(16, Math.floor(1 + (S.t - beatAt[I_STILL] - 3) * 2.2)));
+  if (S.x > END0 + 10) startEnding();
 }
-// the ending: the shark (back to its plain self, and the little fish that found it) rises to the surface and looks up
-let camY = 0;
+// the ending (v03c, smoother): one eased curve from wherever the shark is up to just under the surface — it keeps its
+// forward momentum at first (Hermite start speed = its speed), bends upward, tilts its body gradually along the path,
+// slows to a stop with its eyes above the water and its nose a little raised; the camera follows on a soft spring,
+// the light rays brighten towards the surface; then a held moment with the stars before the hand-off to /sky/.
+let camY = 0, tilt = 0;
+let path: { p: number[][]; c: number; D: number } | null = null;
+function startEnding() {
+  ending = { t: 0 }; title.classList.remove('on'); setForm('plain');
+  const h = screen.h, w = screen.w, surf = -h * 0.06, tx = cam + w * 0.62 - SW / 2, ty = surf - 13, v0 = Math.max(10, S.vx);
+  const P = [[S.x, S.y], [S.x + Math.max(50, v0 * 1.4), S.y + 6], [tx, ty + h * 0.45], [tx, ty]];
+  const len = Math.hypot(P[1][0] - P[0][0], P[1][1] - P[0][1]) + Math.hypot(P[2][0] - P[1][0], P[2][1] - P[1][1]) + Math.hypot(P[3][0] - P[2][0], P[3][1] - P[2][1]);
+  const D = 8.5; path = { p: P, c: Math.min(1.4, (v0 * D) / Math.max(1, len * 0.75)), D };
+}
+const bez = (P: number[][], s: number, k: 0 | 1) => { const u = 1 - s; return u * u * u * P[0][k] + 3 * u * u * s * P[1][k] + 3 * u * s * s * P[2][k] + s * s * s * P[3][k]; };
 function updateEnding(dt: number) {
-  const e = ending!; e.t += dt; const h = screen.h, T = e.t; poseDy *= 0.9;
-  const k = Math.min(1, T / 6), ease = k < .5 ? 4 * k ** 3 : 1 - (-2 * k + 2) ** 3 / 2;
-  camY = -h * 0.62 * ease;
-  const surf = -h * 0.06, ty = surf - 13, tx = cam + screen.w * 0.5 - SW / 2;
-  S.x += (tx - S.x) * Math.min(1, dt * 0.8); S.y += (ty - S.y) * Math.min(1, dt * (0.35 + 0.5 * k));
+  const e = ending!, pth = path!; e.t += dt; const h = screen.h, w = screen.w; poseDy *= 0.9;
+  const u = Math.min(1, e.t / pth.D), c = pth.c, s = (c - 2) * u ** 3 + (3 - 2 * c) * u ** 2 + c * u; // Hermite: matched start speed, zero end speed
+  const nx = bez(pth.p, s, 0), ny = bez(pth.p, s, 1), dx = nx - S.x, dy = ny - S.y; S.x = nx; S.y = ny;
+  const along = dx * dx + dy * dy > 0.0004 ? Math.max(-1.0, Math.min(0.25, Math.atan2(dy, Math.max(0.4, dx)))) : 0;
+  const want = u < 0.9 ? along * 0.85 : -0.22 * Math.min(1, (u - 0.9) / 0.1 + (e.t - pth.D > 0 ? 1 : 0)); // nose up to look at the sky
+  tilt += (want - tilt) * Math.min(1, dt * 2.4);
+  const camYt = Math.min(0, S.y + 13 - h * 0.56); camY += (camYt - camY) * Math.min(1, dt * 2.2);
+  cam += ((S.x + SW / 2 - w * 0.5) - cam) * Math.min(1, dt * 1.1);
   trail.unshift({ x: S.x, y: S.y }); if (trail.length > 220) trail.pop();
-  if (T > 8.6 && !left) { left = true; const hz = Math.max(0.3, Math.min(0.8, screen.toClient(0, surf - camY).y / innerHeight)); /* window terms: the canvas may be letterboxed */ void go('sky', () => new Promise(r => setTimeout(r, 60)), { hz: hz.toFixed(3) }); }
+  if (e.t > pth.D + 2.2 && !left) { left = true; const hz = Math.max(0.3, Math.min(0.8, screen.toClient(0, -h * 0.06 - camY).y / innerHeight)); /* window terms: the canvas may be letterboxed */ void go('sky', () => new Promise(r => setTimeout(r, 60)), { hz: hz.toFixed(3) }); }
 }
 
 // ---------- render ----------
@@ -145,14 +171,14 @@ function render() {
   }
   g.save(); g.translate(0, oy);
   giants(g, w, h, t, cam, palAt); far(g, w, h, floor, cam, palAt);
-  rays(g, w, h, t, cam, ending ? 1 - Math.min(1, ending.t / 3) : 1);
+  rays(g, w, h, t, cam, ending && path ? 1 + 0.9 * Math.min(1, ending.t / path.D) : 1);
   const clip = (x0: number, wd: number, f: () => void) => { g.save(); g.beginPath(); g.rect(Math.round(x0), -h, wd, h * 3); g.clip(); f(); g.restore(); };
   for (const s of strips) { const wd = s.i === -1 ? INTRO : s.i === 99 ? w + 400 : L; clip(s.x0, wd, () => life({ g, t, w, h, x0: s.x0, L: wd, floor, cam }, s.id, s.p)); }
   g.restore();
   for (const s of strips) if (s.i >= 0 && s.i < SCENES.length) { const c = ctxOf(s.i); c.sy = Math.round(S.y + oy + poseDy); c.floor = floor + oy; clip(s.x0, L, () => SCENES[s.i].back(c)); }
   const sx = Math.round(S.x - cam), sy = Math.round(S.y + oy + poseDy);
   // Mad Detective: three of his own selves trail behind the detective
-  if (scene === 6) for (let k = 0; k < 3; k++) { const q = trail[Math.min(trail.length - 1, 14 + k * 12)]; if (!q) continue; g.globalAlpha = 0.32; draw(g, GHOST[k], q.x - cam - 10 - k * 4, q.y + oy + Math.sin(t * 2 + k) * 3); g.globalAlpha = 1; }
+  if (scene === I_MAD) for (let k = 0; k < 3; k++) { const q = trail[Math.min(trail.length - 1, 14 + k * 12)]; if (!q) continue; g.globalAlpha = 0.32; draw(g, GHOST[k], q.x - cam - 10 - k * 4, q.y + oy + Math.sin(t * 2 + k) * 3); g.globalAlpha = 1; }
   // Still Life (and after): the little fish that came to keep it company (the first one is the lonely one, now gold)
   for (let k = 0; k < Math.min(16, followers); k++) { const q = trail[Math.min(trail.length - 1, 16 + k * 9)]; if (!q) continue; fish(g, q.x - cam - 4 + Math.sin(t * 1.3 + k) * 6, q.y + oy + SH / 2 + ((k * 7) % 17) - 8 + Math.cos(t + k) * 3, k === 0 || k % 4 === 0 ? '#e9c46a' : '#c9d2da', 1); }
   drawShark(sx, sy, t * (held ? 1.5 : 1));
