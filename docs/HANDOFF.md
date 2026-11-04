@@ -286,3 +286,6 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 `?at=<节点>`（S F W1 W2 H0–H3 E1–E3 G G2 BUS END TREE；`kawaii`/`chase`/`caught` 仍可用）· `&give=1`（纸条+蜡烛+谜题）/ `&give=all`（再加 5 张贴纸）· `&fresh=1` 清进度 · `&skip=1` 跳开始卡 · `&dev` 显示 fps/位置/draw calls。`window.__night` 测试钩子。
 ### 测试
 `tools/wk-night.mjs <base> <outdir> <forest|house|grave|full|ends> [look]`（Playwright WebKit，iPhone 15 模拟）：自动按住前进、解谜、转头点贴纸、选路、用地图快进，走完三条路 + 三个结局。WebKit 启动需要 `GIO_USE_PROXY_RESOLVER=dummy GSETTINGS_BACKEND=memory`（已写进各脚本；没有它网络进程因缺少 gnome proxy schema 崩溃，所有页面加载报 internal error）。
+- **结果**：WebKit iPhone 15 模拟下 `full`（三条路 + 环路 + 地图快进 + 6 个谜题 + 5 张贴纸 → 隐藏结局）和 `ends`（末班车 / 被抓到 / 树屋，均交接到 /jelly/）全程无 console 错误；`tools/wk-night-extra.mjs`（每个谜题特写、续玩卡、中文界面）无错误。软件渲染下行走时 50–62 fps，每帧 25–115 draw calls、13–43k 三角形。自动玩家（时间×4）一次全收集通关的游戏内时间约 10 分钟；真人首次游玩预计 10–15 分钟（只走一条路、硬猜密码约 6–8 分钟）。
+- 截图：`review/v03f/routes-grid.jpg`（起点→岔路→贴纸→三条路→地图→大门→空地）、`puzzles-grid.jpg`（八音盒 / 九蜡烛 / 屁股日铁栅 / 0503 密码 / 中文续玩卡与路口）、`endings-grid.jpg`（三个结局与绘本页）、`fork.jpg`、`best-ending.jpg`。
+- **已知不足 / 需真机看**：真 iPhone 上的帧率与触控手感（按住走 + 拖动看 + 点贴纸的力度）、各区域合成音的音量平衡、隐藏贴纸是否太难找（①在起点小路右侧粉方块上，②在森林窄小道中段，③在走廊楼梯，④在墓碑间左侧，⑤在隧道墙上——都需要稍微转头看）。
