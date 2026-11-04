@@ -39,6 +39,7 @@ const NOTE = ['wwwwwwwwwwwwwww.', 'wllllllllllllww.', 'wwwwwwwwwwwwwwww', 'wllll
 export type PickKind = 'note' | 'candle' | 'sticker';
 export interface Pickup { id: string; kind: PickKind; obj: Object3D; hit: Object3D; pos: Vector3; shown: boolean; taken: boolean }
 
+function dotTex() { const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d')!; const gr = g.createRadialGradient(16, 16, 0, 16, 16, 16); gr.addColorStop(0, '#fff'); gr.addColorStop(.35, 'rgba(255,255,255,.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 32, 32); return new CanvasTexture(c); }
 export function makeProps(scene: Scene, lang: Lang) {
   const root = new Group(); scene.add(root);
   const ups: ((dt: number, t: number) => void)[] = [];
@@ -146,17 +147,15 @@ export function makeProps(scene: Scene, lang: Lang) {
   // 4 owl eyes in the hollow tree -> a little heart of fireflies
   const owl = [glow('255,214,90', 0.45, 0), glow('255,214,90', 0.45, 0)];
   const [ox, oz] = [NODES.W2.x + 2.6, NODES.W2.z - 4.5]; owl.forEach((s, i) => { s.position.set(ox + (i ? 0.32 : -0.32), 2.6, oz); root.add(s); });
-  const heartPts = (() => { const n = 26, p = new Float32Array(n * 3); const g = new BufferGeometry(); g.setAttribute('position', new Float32BufferAttribute(p, 3));
-    const m = new PointsMaterial({ size: 0.16, color: '#ffe38a', map: (owl[0].material as SpriteMaterial).map, blending: AdditiveBlending, transparent: true, depthWrite: false, opacity: 0 });
-    const pts = new Points(g, m); pts.frustumCulled = false; root.add(pts); return { pts, p, m, n }; })();
+  const heartPts = (() => { const n = 26, sp: Sprite[] = []; const m = glow('255,227,138', 0.3, 0).material as SpriteMaterial; const g = new Group();
+    for (let i = 0; i < n; i++) { const q = new Sprite(m); q.scale.setScalar(0.26); g.add(q); sp.push(q); } root.add(g); return { sp, m, n }; })();
   let owlT = -1;
   ups.push((dt) => { if (owlT < 0) return; owlT += dt;
     const blink = owlT < 1.8 ? (Math.floor(owlT * 2.2) % 3 === 2 ? 0 : 1) : 0; owl.forEach(s => { (s.material as SpriteMaterial).opacity = blink; });
     const k = Math.max(0, Math.min(1, (owlT - 1.8) / 1.6)), e = k * k * (3 - 2 * k);
     heartPts.m.opacity = owlT > 1.8 ? Math.min(1, (owlT - 1.8) * 2) * (owlT > 7 ? Math.max(0, 1 - (owlT - 7) / 1.5) : 1) : 0;
     for (let i = 0; i < heartPts.n; i++) { const a = (i / heartPts.n) * Math.PI * 2; const hx = 16 * Math.pow(Math.sin(a), 3) / 16, hy = (13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a)) / 16;
-      const sx = ox + (i & 1 ? 0.32 : -0.32), sy = 2.6; heartPts.p.set([lerp(sx, ox + hx * 0.9, e), lerp(sy, 2.9 + hy * 0.9 + owlT * 0.05, e), oz], i * 3); }
-    heartPts.pts.geometry.attributes.position.needsUpdate = true; });
+      const sx = ox + (i & 1 ? 0.32 : -0.32), sy = 2.6; heartPts.sp[i].position.set(lerp(sx, ox + hx * 0.9, e), lerp(sy, 2.9 + hy * 0.9 + owlT * 0.05, e), oz); } });
 
   // 5 bats in the tunnel -> pink hearts
   const batT = pixTex(BAT, { b: '#121216', w: '#d23a4e' }, 2), heartT = pixTex(HEART, { p: '#f7a9bb' }, 2);
@@ -182,28 +181,27 @@ export function makeProps(scene: Scene, lang: Lang) {
     ups.push((dt, t) => { if (bus.visible) driver.animate(dt, 0, 0, t); }); }
   let busT = -1; const busStop = NODES.BUS;
   ups.push(dt => { if (busT < 0) return; busT += dt; bus.visible = true; const k = Math.min(1, busT / 5), e = 1 - Math.pow(1 - k, 3);
-    bus.position.set(lerp(-60, busStop.x - 1, e), 0, -172); bus.rotation.y = 0; });
+    bus.position.set(lerp(-75, busStop.x - 11, e), 0, -172); bus.rotation.y = 0; });
 
   // ---- the tree house (hidden best ending) ---------------------------------------------------------------------------
   const lanterns: Sprite[] = [];
   for (let s = 3; s < EDGE.tree.len; s += 3.2) for (const side of [-1, 1]) { const [x, z] = beside(EDGE.tree, s, side * 1.9); const l = glow('249,160,190', 1.2, 0); l.position.set(x, 1.1, z); root.add(l); lanterns.push(l); }
   const bush = new Group(); { const leafM = new MeshLambertMaterial({ map: tileTexture(T.leaves), transparent: true, alphaTest: 0.5 }); const [x, z] = at(EDGE.tree, 3.2);
     for (let i = 0; i < 9; i++) { const b = box(1, 1, 1, leafM); b.position.set(x - 1 + (i % 3), 0.5 + Math.floor(i / 3) * 0.8 - (i > 5 ? 0.3 : 0), z + (i % 2) * 0.4); bush.add(b); } root.add(bush); }
-  const treePig = makePig(); treePig.setEyes(0); treePig.root.position.set(-4.4, 6, -189.4); treePig.root.scale.setScalar(0.62); treePig.root.rotation.y = 0.4; root.add(treePig.root);
-  const treeHeart = (() => { const n = 64, p = new Float32Array(n * 3), seeds: number[][] = []; for (let i = 0; i < n; i++) seeds.push([Math.random() * 20 - 10, Math.random() * 6, Math.random() * 12 - 6, Math.random() * 6]);
-    const g = new BufferGeometry(); g.setAttribute('position', new Float32BufferAttribute(p, 3));
-    const m = new PointsMaterial({ size: 0.2, color: '#ffe38a', map: (owl[0].material as SpriteMaterial).map, blending: AdditiveBlending, transparent: true, depthWrite: false, opacity: 0 });
-    const pts = new Points(g, m); pts.frustumCulled = false; root.add(pts); return { p, seeds, m, pts, n }; })();
+  const treePig = makePig(); treePig.setEyes(0); treePig.root.position.set(-4.2, 6, -188.5); treePig.root.scale.setScalar(0.62); treePig.root.rotation.y = 0.15; root.add(treePig.root);
+  // the firefly heart: little glow sprites (Points were too small to read on a phone)
+  const treeHeart = (() => { const n = 44, seeds: number[][] = [], sp: Sprite[] = []; const base = glow('255,227,138', 0.5, 0); const m = base.material as SpriteMaterial;
+    const g = new Group(); for (let i = 0; i < n; i++) { seeds.push([Math.random() * 20 - 10, Math.random() * 6, Math.random() * 12 - 6, Math.random() * 6]); const q = new Sprite(m); q.scale.setScalar(0.5); g.add(q); sp.push(q); }
+    g.visible = false; root.add(g); return { seeds, m, g, sp, n }; })();
   let unlockK = 0, unlocked = false, treeT = -1;
   ups.push((dt, t) => {
     if (unlocked && unlockK < 1) { unlockK = Math.min(1, unlockK + dt / 1.6); bush.scale.setScalar(Math.max(0.001, 1 - unlockK)); if (unlockK >= 1) bush.visible = false; }
     lanterns.forEach((l, i) => { (l.material as SpriteMaterial).opacity = unlockK * (0.55 + 0.25 * Math.sin(t * 2 + i)); });
     treePig.root.visible = unlocked; if (unlocked) treePig.animate(dt, 0, 0, t);
-    if (treeT >= 0) { treeT += dt; const k = Math.min(1, treeT / 4), e = k * k * (3 - 2 * k); treeHeart.m.opacity = Math.min(1, treeT);
+    if (treeT >= 0) { treeT += dt; const k = Math.min(1, treeT / 4), e = k * k * (3 - 2 * k); treeHeart.g.visible = true; treeHeart.m.opacity = Math.min(1, treeT);
       for (let i = 0; i < treeHeart.n; i++) { const a = (i / treeHeart.n) * Math.PI * 2, s = treeHeart.seeds[i];
-        const hx = 16 * Math.pow(Math.sin(a), 3) / 16 * 2.6, hy = (13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a)) / 16 * 2.6;
-        treeHeart.p.set([lerp(-4 + s[0], -4.5 + hx, e) + Math.sin(t + s[3]) * 0.05 * (1 - e), lerp(1 + s[1], 9.5 + hy, e), lerp(-186 + s[2], -188.5, e)], i * 3); }
-      treeHeart.pts.geometry.attributes.position.needsUpdate = true; }
+        const hx = 16 * Math.pow(Math.sin(a), 3) / 16 * 1.9, hy = (13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a)) / 16 * 1.9;
+        treeHeart.sp[i].position.set(lerp(-4 + s[0], -3.6 + hx, e) + Math.sin(t + s[3]) * 0.05 * (1 - e), lerp(1 + s[1], 7.6 + hy, e), lerp(-180 + s[2], -184.2, e)); treeHeart.sp[i].scale.setScalar(0.42 + 0.12 * Math.sin(t * 3 + s[3])); } }
   });
 
   return {
@@ -215,6 +213,7 @@ export function makeProps(scene: Scene, lang: Lang) {
     get busHere() { return busT > 5; },
     unlockTree(instant = false) { unlocked = true; if (instant) { unlockK = 1; bush.visible = false; } },
     treeScene() { treeT = 0; },
+    get dbgHeart() { return { t: treeT, op: treeHeart.m.opacity, p: treeHeart.sp[0].position.toArray() }; },
     setLang(l: Lang) { lang = l; for (const s of signs) { s.mat.map?.dispose(); s.mat.map = signTexture(l === 'zh' ? s.zh : s.en); s.mat.needsUpdate = true; } gate.setLang(l); },
     update(dt: number, t: number) { for (const u of ups) u(dt, t); },
     /** lamp spots for the one extra point light: [x, y, z, colour, intensity] */

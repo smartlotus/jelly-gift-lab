@@ -37,6 +37,7 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const touch = matchMedia('(pointer: coarse)').matches;
 const at0 = params.get('at');
 const EYE = 1.62, WALK = 2.05;
+const TS = dev ? Math.min(8, Math.max(0.25, +(params.get('ts') ?? 1) || 1)) : 1; // dev: time scale for tests
 const angDiff = (a: number, b: number) => Math.atan2(Math.sin(a - b), Math.cos(a - b));
 
 if (at0 === 'kawaii') showKawaii(document.body, (params.get('end') as Ending) || 'caught'); else void boot();
@@ -198,7 +199,7 @@ async function boot() {
     // pass-through: two ways, not a stop -> keep walking
     if (!NODES[n].stop && list.length === 2 && fromEdge) {
       const next = list.find(x => !(x.e === fromEdge && ((x.dir === 1 && cur.dir === -1) || (x.dir === -1 && cur.dir === 1)))) ?? list[0];
-      cur = { e: next.e, s: next.s, dir: next.dir }; node = null; setPhase('walk'); return;
+      cur = { e: next.e, s: next.s, dir: next.dir }; node = null; if (!S.edges.includes(next.e.id)) { S.edges.push(next.e.id); save(); } setPhase('walk'); area(); return;
     }
     setPhase('node'); ui.setBack(false);
     const face = camYaw;
@@ -209,9 +210,8 @@ async function boot() {
       return { key, label: lbl, back: !!back, ang: angDiff(exitYaw(x), face), locked: (x.e.id === 'tree' && lockedTree()) || (x.e.id === 'tun' && !S.candle),
         glow: (n === 'W1' && x.e.id === 'w12') || (x.e.id === 'tree' && !lockedTree()) };
     }), key => {
-      const [id, d] = key.split(':'); const e = EDGE[id], dir = (+d) as 1 | -1;
+      const [id, d] = key.split(':'); const e = EDGE[id], dir = (+d) as 1 | -1; if (!S.edges.includes(id)) { S.edges.push(id); save(); }
       ui.hideChoices(); cur = { e, s: dir === 1 ? 0 : e.len, dir }; node = null; idle = 0; noInput = 0; setPhase('walk'); ui.setBack(true, turnBack);
-      if (!S.edges.includes(id)) { S.edges.push(id); save(); }
       area();
     });
   }
@@ -286,6 +286,7 @@ async function boot() {
       }
       for (const [eid, bs, bd, id, fn] of BEATS) if (eid === cur.e.id && (bd === 0 || bd === cur.dir) && !S.scares.includes(id) && ((s0 < bs && s1 >= bs) || (s0 > bs && s1 <= bs))) { S.scares.push(id); save(); fn(); if ((phase as Phase) === 'puzzle' || (phase as Phase) === 'chase') { cur.s = s1; return; } }
       cur.s = s1;
+      if (phase === 'walk' && cur.e.id === 'tree' && cur.dir === 1 && cur.s >= cur.e.len - 5) { cur.s = cur.e.len - 5; speed = 0; endTree(); return; }
       if (phase === 'chase' && cur.s >= cur.e.len - 2.4) { cur.s = cur.e.len - 2.4; setPhase('dead'); sayIt('night.dead', true); }
       else if ((cur.dir === 1 && cur.s >= cur.e.len) || (cur.dir === -1 && cur.s <= 0)) { const n = cur.dir === 1 ? cur.e.b : cur.e.a; cur.s = Math.max(0, Math.min(cur.e.len, cur.s)); arrive(n, cur.e); }
     }
@@ -293,7 +294,8 @@ async function boot() {
     const half = Math.floor(bob / Math.PI); if (half !== lastStepHalf && speed > 0.3) { lastStepHalf = half; sfx.step(phase === 'chase'); }
     if (keys.has('ArrowLeft') || keys.has('KeyA')) { yawOff += dt * 1.8; lastLook = T; }
     if (keys.has('ArrowRight') || keys.has('KeyD')) { yawOff -= dt * 1.8; lastLook = T; }
-    if (phase !== 'turn' && phase !== 'face' && phase !== 'static' && phase !== 'node' && ptrs.size === 0 && T - lastLook > 1.2) {
+    if (phase === 'scene' && ending === 'best') { yawOff -= angDiff(yawOff, 0) * Math.min(1, dt * 1.5); pitch += (0.62 - pitch) * Math.min(1, dt * 1.2); }
+    else if (phase !== 'turn' && phase !== 'face' && phase !== 'static' && phase !== 'node' && ptrs.size === 0 && T - lastLook > 1.2) {
       yawOff = Math.atan2(Math.sin(yawOff), Math.cos(yawOff)); yawOff -= yawOff * Math.min(1, dt * 1.6); pitch -= pitch * Math.min(1, dt * 1.6);
     }
     // the camera turns smoothly onto the path direction
@@ -391,7 +393,7 @@ async function boot() {
     let bl = null as null | [number, number, number, string, number], bd = 18;
     for (const L of props.lamps) { const d = Math.hypot(L[0] - px, L[2] - pz); if (d < bd) { bd = d; bl = L; } }
     if (bl && !(bl[4] === 8 && lockedTree() && ending !== 'best')) { lamp.position.set(bl[0], bl[1], bl[2]); lamp.color.set(bl[3]); lamp.intensity = bl[4] * Math.min(1, (18 - bd) / 6) * (0.85 + 0.15 * Math.sin(tt * 7)); } else lamp.intensity = 0;
-    if (phase === 'scene' && ending === 'bus' && props.busHere) { lamp.position.set(-30, 2, -172); lamp.color.set('#ffe9b8'); lamp.intensity = 12; }
+    if (phase === 'scene' && ending === 'bus' && props.busHere) { lamp.position.set(-33, 2.2, -172); lamp.color.set('#ffe9b8'); lamp.intensity = 12; }
     // fireflies near the camera
     for (let i = 0; i < FF; i++) { const [fx, fz, fy, ph] = ffBase[i]; const near = Math.abs(fx - px) < 30 && Math.abs(fz - pz) < 30;
       ffPos[i * 3] = fx + Math.sin(tt * 0.5 + ph) * 0.6; ffPos[i * 3 + 1] = fy + Math.sin(tt * 0.8 + ph * 2) * 0.3; ffPos[i * 3 + 2] = fz + Math.cos(tt * 0.4 + ph) * 0.6;
@@ -406,7 +408,7 @@ async function boot() {
     u.uRed.value = phase === 'face' ? 0.35 : phase === 'chase' || phase === 'dead' ? 0.1 : 0;
     u.uBlack.value = phase === 'card' ? 0.55 : phase === 'boot' ? Math.max(0, 1 - pt / 0.9) * 0.6 : 0;
     u.uShake.value.set(phase === 'turn' ? (Math.random() - 0.5) * 0.01 : 0, 0);
-    renderer.setRenderTarget(rt); renderer.setClearColor(fog.color, 1); renderer.clear();
+    renderer.info.autoReset = false; renderer.info.reset(); renderer.setRenderTarget(rt); renderer.setClearColor(fog.color, 1); renderer.clear();
     renderer.render(scene, cam);
     if (phase !== 'face' && phase !== 'static') { renderer.clearDepth(); renderer.render(hand.scene, hand.cam); }
     renderer.setRenderTarget(null); u.tDiffuse.value = rt.texture; renderer.clear(); renderer.render(post.scene, post.cam);
@@ -419,15 +421,15 @@ async function boot() {
     raf = requestAnimationFrame(frame);
     let dt = Math.min(0.05, (now - last) / 1000); last = now;
     if (window.__pause) { dt = 0; if (window.__steps) { window.__steps--; dt = 1 / 60; } }
-    if (dt > 0) update(dt);
+    if (dt > 0) update(dt * TS);
     if (phase !== 'done') render();
-    if (fpsEl) { frames++; if (now - fpsT > 500) { const [x, z] = pos(); fpsEl.textContent = `${Math.round(frames * 1000 / (now - fpsT))} fps · ${cur.e.id} ${cur.s.toFixed(1)}/${cur.e.len.toFixed(0)} · (${x.toFixed(0)},${z.toFixed(0)}) · ${phase}`; frames = 0; fpsT = now; } }
+    if (fpsEl) { frames++; if (now - fpsT > 500) { const [x, z] = pos(); fpsEl.textContent = `${Math.round(frames * 1000 / (now - fpsT))} fps · ${cur.e.id} ${cur.s.toFixed(1)}/${cur.e.len.toFixed(0)} · (${x.toFixed(0)},${z.toFixed(0)}) · ${phase} · ${renderer.info.render.calls}dc ${(renderer.info.render.triangles / 1000).toFixed(0)}k`; frames = 0; fpsT = now; } }
   };
   const stop = () => cancelAnimationFrame(raf);
   document.addEventListener('visibilitychange', () => { if (document.hidden) { stop(); keys.clear(); ptrs.clear(); } else if (phase !== 'done') { last = performance.now(); raf = requestAnimationFrame(frame); } });
   raf = requestAnimationFrame(frame);
   black.style.opacity = '0';
-  (window as unknown as { __night: unknown }).__night = { get phase() { return phase; }, get edge() { return cur.e.id; }, get s() { return cur.s; }, get node() { return node; }, save: () => S, mapXY: (id: string) => (window as unknown as { __mapHits: Record<string, [number, number]> }).__mapHits?.[id], lookAtSticker() { for (const p of props.pickups.values()) { if (p.kind !== 'sticker' || p.taken || !p.obj.visible || p.pos.distanceTo(cam.position) > 8) continue; const dx = p.pos.x - cam.position.x, dz = p.pos.z - cam.position.z; yawOff = angDiff(Math.atan2(-dx, -dz), camYaw); pitch = Math.atan2(p.pos.y - cam.position.y, Math.hypot(dx, dz)); lastLook = T + 3; return p.id; } return null; }, stickersOnScreen() { const r: [number, number][] = []; for (const p of props.pickups.values()) { if (p.kind !== 'sticker' || p.taken || !p.obj.visible || p.pos.distanceTo(cam.position) > 8.5) continue; const v = p.obj.getWorldPosition(new Vector3()).project(cam); if (v.z < 1 && Math.abs(v.x) < 0.9 && Math.abs(v.y) < 0.9) r.push([(v.x + 1) / 2 * innerWidth, (1 - v.y) / 2 * innerHeight]); } return r; }, goto(n: NodeId) { placeAt(n); arrive(n, null); }, walkTo(e: string, s: number, dir: 1 | -1 = 1) { cur = { e: EDGE[e], s, dir }; camYaw = yawAt(cur.e, s, dir); node = null; ui.hideChoices(); setPhase('walk'); area(); } };
+  (window as unknown as { __night: unknown }).__night = { get phase() { return phase; }, get edge() { return cur.e.id; }, get s() { return cur.s; }, get node() { return node; }, save: () => S, heart: () => props.dbgHeart, pickups: () => [...props.pickups.values()].map(p => ({ id: p.id, vis: p.obj.visible, taken: p.taken, d: +p.pos.distanceTo(cam.position).toFixed(1), pos: p.pos.toArray().map(v => +v.toFixed(1)) })), mapXY: (id: string) => (window as unknown as { __mapHits: Record<string, [number, number]> }).__mapHits?.[id], lookAtSticker() { for (const p of props.pickups.values()) { if (p.kind !== 'sticker' || p.taken || !p.obj.visible || p.pos.distanceTo(cam.position) > 8) continue; const dx = p.pos.x - cam.position.x, dz = p.pos.z - cam.position.z; yawOff = angDiff(Math.atan2(-dx, -dz), camYaw); pitch = Math.atan2(p.pos.y - cam.position.y, Math.hypot(dx, dz)); lastLook = T + 3; return p.id; } return null; }, stickersOnScreen() { const r: [number, number][] = []; for (const p of props.pickups.values()) { if (p.kind !== 'sticker' || p.taken || !p.obj.visible || p.pos.distanceTo(cam.position) > 8.5) continue; const v = p.obj.getWorldPosition(new Vector3()).project(cam); if (v.z < 1 && Math.abs(v.x) < 0.9 && Math.abs(v.y) < 0.9) r.push([(v.x + 1) / 2 * innerWidth, (1 - v.y) / 2 * innerHeight]); } return r; }, goto(n: NodeId) { placeAt(n); arrive(n, null); }, walkTo(e: string, s: number, dir: 1 | -1 = 1) { cur = { e: EDGE[e], s, dir }; camYaw = yawAt(cur.e, s, dir); node = null; ui.hideChoices(); setPhase('walk'); area(); } };
   release(); curtainProgress(1);
 
   // ---- start card (sound switch + "start over" when there is a save) ---------------------------------------------------

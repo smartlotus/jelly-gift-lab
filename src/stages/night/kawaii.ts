@@ -23,7 +23,7 @@ export function showKawaii(root: HTMLElement = document.body, end: Ending = 'cau
   const el = document.createElement('section'); el.className = `kw kw-${end}`; el.setAttribute('aria-live', 'polite');
   const title = t(end === 'caught' ? 'night.caught' : `night.end.${end}`);
   const tilt = [-4, 3, -2, 4, -3, 2, -1, 3];
-  const letters = [...title].map((ch, i) => `<span style="--i:${i};--t:${tilt[i % tilt.length]}deg">${ch}</span>`).join('');
+  const letters = [...title].map((ch, i) => `<span style="--i:${i};--t:${tilt[i % tilt.length]}deg">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
   const rnd = (a: number, b: number) => a + Math.random() * (b - a);
   let float = '';
   for (let i = 0; i < (end === 'best' ? 28 : 16); i++) float += `<i class="kw-f" style="left:${rnd(2, 96)}%;--d:${rnd(7, 13)}s;--del:${-rnd(0, 12)}s;--s:${rnd(.5, 1.25)};--x:${rnd(-30, 30)}px">${hsvg(['#F7A9BB', '#FBCAD5', '#FFFFFF', '#F3B6C4'][i % 4])}</i>`;
