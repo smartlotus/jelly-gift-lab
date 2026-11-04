@@ -15,10 +15,13 @@ import { en as seaEn } from './src/stages/sea/dict.ts';
 // Static <title> placeholders %T:key% come from the English dictionaries (JS swaps them per language at runtime).
 const EN: Record<string, string> = { ...DICT.en, ...sharedEn, ...meadowEn, ...shopEn, ...nightEn, ...skyEn, ...arEn, ...coopEn, ...seaEn };
 const i18nHtml = () => ({ name: 'i18n-html', transformIndexHtml: (html: string) => html.replace(/%T:([\w.-]+)%/g, (_, k) => EN[k] ?? k) });
+import { curtainMarkup } from './src/shared/curtain-inline.ts';
+// v03e: the loading curtain is inlined right after <body> on every page (first paint, before any CSS/JS loads)
+const curtain = () => ({ name: 'gift-curtain', transformIndexHtml: (html: string) => html.replace(/<body([^>]*)>/, (m) => m + curtainMarkup()) });
 const page = (p: string) => resolve(import.meta.dirname, p);
 export default defineConfig({
   base: './',
-  plugins: [i18nHtml()],
+  plugins: [i18nHtml(), curtain()],
   build: {
     target: 'es2020', assetsInlineLimit: 0, chunkSizeWarningLimit: 800,
     rollupOptions: { input: { meadow: page('index.html'), shop: page('shop/index.html'), night: page('night/index.html'), jelly: page('jelly/index.html'), sky: page('sky/index.html'), ar: page('ar/index.html'), coop: page('coop/index.html'), sea: page('sea/index.html') } },
