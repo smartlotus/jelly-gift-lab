@@ -244,3 +244,5 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 - **检查 / 截图**（Playwright WebKit，iPhone 15 模拟；Playwright 装在 `/workspace/jelly/pw`，WebKit 依赖库解压在 `/opt/wk` 并加入 ldconfig）：`node tools/wk-check.mjs http://localhost:8811/ <outdir> webkit` 全部 8 页 + 两种果冻入口均揭幕、无 console 错误；`tools/wk-flow.mjs`（夜路 → 果冻 过渡帧 + 返回）；`tools/wk-fail.mjs`（模拟网格 404 → 失败卡片）。桌面 Chrome 下果冻页仍走 WebGPU（hi，23841 tets）正常。
   - `review/v03e/webkit-pages-grid.png`（上排：每页加载幕；下排：揭幕后）、`transition-night-to-jelly.png`、`transition-meadow-to-shop.png`、`webkit-jelly-1-ready.png`、`webkit-jelly-fail-card.png`。
 - **已知不足**：iOS 真机需要再看一次（WebGL2 路径在真 iPhone GPU 上的帧率；加载幕中文字用系统宋体，因为 `fonts-src/` 里没有源 ttf，未重新子集化字体）。
+
+**v03e 已交付（2026-11-04）**：master `4b7c368`（合并 v03e-jelly-fix-transitions，PR #2），tag `v03e`；公开仓库 `smartlotus/jelly-gift` main `514c0b5`。线上 8 页在 WebKit iPhone 15 模拟下全部揭幕、无 console 错误（`/workspace/jelly/pw/check.mjs https://smartlotus.github.io/jelly-gift/ <out> webkit`；本机 WPE 无可用 TLS，脚本让 node 代取线上文件）。还原点：… `v03d`、`v03e`。

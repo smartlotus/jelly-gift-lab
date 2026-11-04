@@ -4,8 +4,9 @@ const out = process.argv[3] || '/workspace/jelly/shots/v03e';
 const eng = process.argv[4] || 'webkit';
 import fs from 'fs'; fs.mkdirSync(out, { recursive: true });
 const pages = (process.argv[5] || 'meadow:,shop:shop/,night:night/,jelly:jelly/?from=night,jellyplain:jelly/,sea:sea/?from=jelly,sky:sky/,coop:coop/,ar:ar/').split(',').map(s => s.split(/:(.*)/s));
-const b = eng === 'webkit' ? await webkit.launch() : await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-webgpu-adapter=swiftshader'] });
-const ctx = await b.newContext({ ...devices['iPhone 15'] });
+const b = eng === 'webkit' ? await webkit.launch({ env: { ...process.env, GIO_EXTRA_MODULES: '/opt/wk/usr/lib/x86_64-linux-gnu/gio/modules' } }) : await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-webgpu-adapter=swiftshader'] });
+const ctx = await b.newContext({ ...devices['iPhone 15'], ignoreHTTPSErrors: true });
+if (base.startsWith('https')) await ctx.route(u => /^https?:/.test(u.href), async r => { try { r.fulfill({ response: await r.fetch() }); } catch (e) { r.abort(); } }); // WPE here lacks a working TLS stack: node fetches the live files
 let bad = 0;
 for (const [name, path] of pages) {
   const p = await ctx.newPage(); const errs = [];
