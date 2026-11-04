@@ -23,9 +23,11 @@ const IDX = (id: string) => SCENES.findIndex(s => s.id === id), I_STILL = IDX('s
 import { far, giants, rays, motes, life, near, type Pal } from './env';
 import { mix } from './art';
 import * as dict from './dict';
+import { sfx } from './sfx';
+import { onSound } from '../../shared/audio';
 import './style.css';
 
-register(dict); markReached('sea'); mountChrome({ sound: false, theme: 'dark' });
+register(dict); markReached('sea'); mountChrome({ theme: 'dark' }); // v03d: the sound switch is back (sfx.ts; muted by default)
 const host = document.getElementById('sea')!;
 const screen = new PixelScreen({ host, minW: 210, minH: 180, maxH: 640 });
 let hostBg = '';
@@ -54,7 +56,7 @@ const auto = params.has('auto'), freezeBeat = params.has('beat') ? +(params.get(
 const P0 = +(params.get('p') || 0);
 const S = { x: at ? INTRO + (at - 1) * L + 10 + P0 * L : 30, y: at ? screen.h * 0.45 : -SH, vx: 0, vy: 0, t: 0 };
 let cam = Math.max(0, S.x - 80), touched = false, held: { x: number; y: number } | null = null; const keys = new Set<string>();
-let scene = -1, wipe: { k: number; s: Scene } | null = null, ending: { t: number } | null = null, left = false;
+let splashed = false, scene = -1, wipe: { k: number; s: Scene } | null = null, ending: { t: number } | null = null, left = false;
 const beatAt: number[] = SCENES.map(() => -1); // S.t when each scene's beat began
 const trail: { x: number; y: number }[] = [];
 // v03d: one bridge object per seam (BRIDGES[i] sits at the seam into scene i; 0 = in from the jelly stage)
@@ -68,12 +70,12 @@ function updateBridges(dt: number) {
   const nose = S.x + SW - 6, floor = floorOf(screen.h);
   BR.forEach((b, i) => {
     const seam = INTRO + i * L; if (Math.abs(seam - S.x) > 700) return; const sz = bridgeSize(i); b.t += dt;
-    if (b.ph === 0) { b.y = floor * 0.42 + Math.sin(b.t * 1.2 + i) * 4; if (nose >= b.x - 2) b.ph = 1; }
+    if (b.ph === 0) { b.y = floor * 0.42 + Math.sin(b.t * 1.2 + i) * 4; if (nose >= b.x - 2) { b.ph = 1; sfx.pick(); } }
     else if (b.ph === 1) { // carried on the shark's nose across the seam, turning into B on the way
       const tx = nose - 2, ty = S.y + poseDy + SH * 0.5 - sz.h / 2 + Math.sin(S.t * 3) * 1.5;
       b.x += (tx - b.x) * Math.min(1, dt * 6); b.y += (ty - b.y) * Math.min(1, dt * 4);
       b.k = Math.max(b.k, sstep((nose - seam + 30) / 90));
-      if (nose > seam + 120) { b.ph = 2; b.k = 1; b.rx = b.x + 26; b.ry = floor * BRIDGES[i].rest; }
+      if (nose > seam + 120) { b.ph = 2; b.k = 1; sfx.turned(); b.rx = b.x + 26; b.ry = floor * BRIDGES[i].rest; }
     } else { b.x += (b.rx - b.x) * Math.min(1, dt * 0.7); b.y += (b.ry + Math.sin(b.t * 1.1 + i) * 3 - b.y) * Math.min(1, dt * 0.6); }
   });
 }
@@ -110,11 +112,12 @@ if (params.has('end')) { S.x = END0 + 4; S.y = screen.h * 0.5; S.vx = 40; cam = 
 
 // ---------- input ----------
 const toWorld = (e: PointerEvent) => { const p = screen.toLogical(e.clientX, e.clientY); return { x: p.x + cam, y: p.y }; };
-screen.canvas.addEventListener('pointerdown', e => { touched = true; held = toWorld(e); screen.canvas.setPointerCapture(e.pointerId); });
+screen.canvas.addEventListener('pointerdown', e => { touched = true; sfx.start(); held = toWorld(e); screen.canvas.setPointerCapture(e.pointerId); });
 screen.canvas.addEventListener('pointermove', e => { if (held) held = toWorld(e); });
 const up = () => { held = null; };
 screen.canvas.addEventListener('pointerup', up); screen.canvas.addEventListener('pointercancel', up);
-window.addEventListener('keydown', (e: KeyboardEvent) => { keys.add(e.key.toLowerCase()); touched = true; });
+window.addEventListener('keydown', (e: KeyboardEvent) => { keys.add(e.key.toLowerCase()); touched = true; sfx.start(); });
+onSound(v => v ? sfx.start() : undefined); // the chrome switch runs inside a tap, so the context can start right there
 window.addEventListener('keyup', (e: KeyboardEvent) => keys.delete(e.key.toLowerCase()));
 
 // ---------- update ----------
@@ -146,11 +149,11 @@ function update(dt: number) {
   cam += (Math.max(cam, S.x - screen.w * lead) - cam) * Math.min(1, dt * 4); // the camera only follows forward
   trail.unshift({ x: S.x, y: S.y }); if (trail.length > 220) trail.pop();
   const ni = Math.max(-1, Math.min(SCENES.length, i));
-  if (ni !== scene) { const prev = scene; scene = ni; if (ni >= 0 && ni < SCENES.length && ni > prev) { wipe = { k: reduced ? 2 : 0, s: SCENES[ni] }; showTitle(SCENES[ni]); setForm(SCENES[ni].form); } if (ni >= SCENES.length) setForm('plain'); }
+  if (ni !== scene) { const prev = scene; scene = ni; if (ni >= 0 && ni < SCENES.length && ni > prev) { wipe = { k: reduced ? 2 : 0, s: SCENES[ni] }; showTitle(SCENES[ni]); setForm(SCENES[ni].form); sfx.scene(ni); } if (ni >= SCENES.length) setForm('plain'); }
   if (i >= 0 && i < SCENES.length && beatAt[i] < 0 && ctxOf(i).p >= SCENES[i].beat.at) beatAt[i] = S.t;
   if (wipe) { wipe.k += dt / 1.1; if (wipe.k > 1.45) wipe = null; }
   if (beatAt[I_STILL] >= 0) followers = Math.max(followers, Math.min(16, Math.floor(1 + (S.t - beatAt[I_STILL] - 3) * 2.2)));
-  updateBridges(dt);
+  updateBridges(dt); sfx.tick(S.t, held || keys.size ? Math.min(1, S.vx / 50) : 0);
   if (S.x > END0 + 10) startEnding();
 }
 // the ending (v03c, smoother): one eased curve from wherever the shark is up to just under the surface — it keeps its
@@ -177,7 +180,8 @@ function updateEnding(dt: number) {
   const camYt = Math.min(0, S.y + 13 - h * 0.56); camY += (camYt - camY) * Math.min(1, dt * 2.2);
   cam += ((S.x + SW / 2 - w * 0.5) - cam) * Math.min(1, dt * 1.1);
   trail.unshift({ x: S.x, y: S.y }); if (trail.length > 220) trail.pop(); updateBridges(dt);
-  if (e.t > pth.D + 2.2 && !left) { left = true; const hz = Math.max(0.3, Math.min(0.8, screen.toClient(0, -h * 0.06 - camY).y / innerHeight)); /* window terms: the canvas may be letterboxed */ void go('sky', () => new Promise(r => setTimeout(r, 60)), { hz: hz.toFixed(3) }); }
+  sfx.tick(S.t, 0); sfx.rise(u); if (u >= 1 && !splashed) { splashed = true; sfx.splash(); }
+  if (e.t > pth.D + 2.2 && !left) { left = true; sfx.fade(); const hz = Math.max(0.3, Math.min(0.8, screen.toClient(0, -h * 0.06 - camY).y / innerHeight)); /* window terms: the canvas may be letterboxed */ void go('sky', () => new Promise(r => setTimeout(r, 60)), { hz: hz.toFixed(3) }); }
 }
 
 // ---------- render ----------
