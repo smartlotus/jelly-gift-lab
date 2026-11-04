@@ -70,4 +70,35 @@ export const pzSfx = {
   ok() { init(); [784, 988, 1319].forEach((f, i) => tone(f, 0.3, 0.05, 'sine', i * 0.08)); },
   click() { init(); noise(0.05, 2400, 4, 0.08, 'bandpass'); tone(1800, 0.04, 0.03, 'square'); },
   creak() { init(); tone(140, 1.1, 0.05, 'sawtooth', 0, 60, 0.2); noise(0.9, 500, 6, 0.03, 'bandpass', 0.1); },
+  /** music-box note: bright sine + a tine overtone, long soft tail */
+  note(f: number) { init(); tone(f, 1.1, 0.07, 'sine'); tone(f * 4, 0.25, 0.012, 'sine'); },
+  whoosh(lit: boolean) { init(); noise(0.18, lit ? 1600 : 700, 1.2, 0.05, 'bandpass'); if (lit) tone(880, 0.12, 0.02, 'triangle'); },
+};
+// v03f: area ambience + the cute scares (all soft; no screams, no loud stingers)
+let amb: { g: GainNode; f: BiquadFilterNode; kind: string } | null = null; let nextAmb = 0;
+export const night = {
+  /** forest | house | grave | tunnel | clear | road | pink | end */
+  area(kind: string) {
+    if (!init() || !ctx || !bus || !noiseBuf) return;
+    if (!amb) { const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true; const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.7; const g = ctx.createGain(); g.gain.value = 0; s.connect(f).connect(g).connect(bus); s.start(); amb = { g, f, kind: '' }; }
+    if (amb.kind === kind) return; amb.kind = kind;
+    const t = ctx.currentTime, [fr, v] = ({ house: [260, 0.05], tunnel: [140, 0.08], grave: [520, 0.045], pink: [900, 0.015], road: [300, 0.03] } as Record<string, [number, number]>)[kind] ?? [400, 0.0];
+    amb.f.frequency.setTargetAtTime(fr, t, 0.8); amb.g.gain.setTargetAtTime(v, t, 0.8);
+    cricketsOn = kind === 'forest' || kind === 'clear' || kind === 'pink' || kind === 'road';
+  },
+  tick(t: number) {
+    if (!ctx || !amb || t < nextAmb) return;
+    const k = amb.kind;
+    if (k === 'house') { nextAmb = t + 3 + Math.random() * 5; if (Math.random() < .5) tone(95 + Math.random() * 40, 0.9, 0.025, 'sawtooth', 0, 40, 0.25); else { tone(1800, 0.03, 0.02, 'square'); tone(1500, 0.03, 0.015, 'square', 0.5); } }
+    else if (k === 'tunnel') { nextAmb = t + 0.8 + Math.random() * 2.2; tone(1200 + Math.random() * 900, 0.12, 0.035, 'sine', 0, -500); }
+    else if (k === 'grave') { nextAmb = t + 6 + Math.random() * 7; tone(420, 0.35, 0.03, 'sine', 0, -40, 0.06); tone(340, 0.5, 0.03, 'sine', 0.42, -30, 0.06); } // owl: hoo-hoo
+    else nextAmb = t + 2;
+  },
+  boing() { init(); tone(180, 0.5, 0.09, 'sine', 0, 520, 0.01); tone(260, 0.35, 0.04, 'triangle', 0.05, 380); },
+  horn() { init(); tone(420, 0.16, 0.06, 'square', 0, 60); tone(520, 0.5, 0.06, 'square', 0.17, -40); noise(0.4, 3000, 0.5, 0.03, 'highpass', 0.1); },
+  ooo() { init(); tone(330, 1.2, 0.05, 'sine', 0, 140, 0.3); tone(332, 1.2, 0.03, 'triangle', 0.05, 120, 0.3); },
+  flutter() { init(); for (let i = 0; i < 10; i++) noise(0.04, 2400, 2, 0.03, 'bandpass', i * 0.06); },
+  sparkle() { init(); [1568, 1976, 2349, 3136].forEach((f, i) => tone(f, 0.22, 0.04, 'triangle', i * 0.06)); },
+  engine(on: boolean) { if (!init()) return; if (on) { tone(55, 4.5, 0.06, 'sawtooth', 0, 25, 1.5); noise(4.5, 160, 0.8, 0.05, 'lowpass'); } else { noise(0.6, 900, 1, 0.05, 'bandpass'); tone(700, 0.25, 0.04, 'sine', 0.1, -300); } },
+  pickup() { init(); tone(988, 0.12, 0.05, 'triangle'); tone(1319, 0.3, 0.05, 'triangle', 0.09); },
 };

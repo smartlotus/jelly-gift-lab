@@ -11,6 +11,7 @@ const G: Record<string, string> = {
   L: '10000100001000010000100001000011111', M: '10001110111010110101100011000110001', N: '10001110011010110011100011000110001',
   O: '01110100011000110001100011000101110', P: '11110100011000111110100001000010000', R: '11110100011000111110101001001010001',
   S: '01111100001000001110000010000111110', T: '11111001000010000100001000010000100', Y: '10001100010101000100001000010000100',
+  F: '11111100001000011110100001000010000', '>': '10000010000010000010001000100010000',
   '.': '00000000000000000000000000110001100', '-': '00000000000000011111000000000000000',
 };
 export function makeHud(host: HTMLElement) {
@@ -31,7 +32,7 @@ export function makeHud(host: HTMLElement) {
   const W1 = 'rgba(246,244,238,.92)';
   return {
     /** t seconds of footage; low = battery warning blink; on = recording (false during boot) */
-    draw(t: number, opts: { rec: boolean; low: boolean; alpha: number }) {
+    draw(t: number, opts: { rec: boolean; low: boolean; alpha: number; ff?: boolean }) {
       g.clearRect(0, 0, W, H); if (opts.alpha <= 0) return; g.globalAlpha = opts.alpha;
       const m = 10, L = 12;
       g.fillStyle = W1;
@@ -40,7 +41,7 @@ export function makeHud(host: HTMLElement) {
       }
       const ox = m + 6, oy = m + 6;
       if (opts.rec && Math.floor(t * 1.4) % 2 === 0) { g.fillStyle = '#ff3b4a'; g.beginPath(); g.arc(ox + 3, oy + 3, 3, 0, Math.PI * 2); g.fill(); }
-      text(opts.rec ? 'REC' : 'STBY', ox + 10, oy, W1);
+      text(opts.ff ? '>> FF' : opts.rec ? 'REC' : 'STBY', ox + 10, oy, W1);
       const s = Math.floor(t), tc = `00:${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
       text(tc, ox, oy + 11, W1);
       // battery (bottom-right corner, above touch area on phones it's just a tiny glyph)
