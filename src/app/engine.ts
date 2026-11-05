@@ -1,3 +1,4 @@
+import { Alive } from './alive';
 import { m4 } from '../core/math';
 import { FRAME_FLOATS, F } from '../render/frame';
 import type { Path } from './path';
@@ -35,6 +36,9 @@ export class Engine {
   idle: { at: number[]; lift: number[]; period: number; duration: number; radius: number; offset?: number; wave?: number } | null = null;
   private idleT = 0; private autoGrab = false; private autoP0 = [0, 0, 0];
   act!: Float32Array; actuation!: Actuation;
+  /** v03g: idle life for the piglet/cat (null = the character's own actuation.activation drives its muscles) */
+  alive: Alive | null = null;
+  private reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   simTime = 0; last = 0; running = false; time = 0;
   colour!: Colourway; colourMix = 1; prevColour!: Colourway;
   readouts: Readouts = { massG: 0, volumeMl: 0, metrics: [] };
@@ -62,6 +66,8 @@ export class Engine {
     this.volRatio = a.meta.surfVolume / a.meta.tetVolume;
     this.righting = null; this.rest = null; this.beads.clear(); this.grab.active = false; this.grab.twist = 0;
     this.autoGrab = false; this.idleT = 0; this.idle = ch.idle ?? null; this.simTime = 0;
+    this.alive = ch.id === 'pig' || ch.id === 'cat' ? new Alive(ch.id, this.reducedMotion) : null;
+    if (this.alive) this.alive.hop = n => this.celebrate(n, 0.5);
     this.mode = 'none'; this.pointers.clear();
     const c = ch.camera; const y = this.mobilePortrait ? c.mobileYaw ?? c.yaw : c.yaw, p = this.mobilePortrait ? c.mobilePitch ?? c.pitch : c.pitch;
     this.cam.target = [...c.target]; this.cam.yaw = this.camGoal.yaw = y; this.cam.pitch = this.camGoal.pitch = p; this.cam.zoom = this.camGoal.zoom = 1;
@@ -140,7 +146,7 @@ export class Engine {
 
   update(dt: number) {
     this.simTime += Math.min(dt, 1 / 60);
-    this.actuation.activation(this.simTime, this.act);
+    if (!this.alive) this.actuation.activation(this.simTime, this.act);
     // twist relaxes after the wheel stops when not holding
     if (this.wheelTimer > 0) { this.wheelTimer -= dt; if (this.wheelTimer <= 0 && this.pointers.size === 0) { this.grab.active = false; this.grab.twist = 0; } }
     const nodes = this.path.nodes();
@@ -151,11 +157,19 @@ export class Engine {
       this.tilt = this.righting.update(nodes.data, nodes.stride, Math.min(dt, 1 / 60), this.grab.active && !this.autoGrab, this.spin);
     }
     this.updateSensor(Math.min(dt, 1 / 30));
+    this.updateAlive(Math.min(dt, 1 / 30));
     this.path.step({ dt: Math.min(dt, 1 / 60), act: this.act, grab: this.grab, beads: this.beads.pos, beadCount: this.beads.count, spin: this.spin, acc: this.acc, box: this.box });
     this.updateCamera(dt);
     this.writeFrame();
     this.path.render(this.frame, 1.0, this.time);
     this.updateReadouts(dt);
+  }
+
+  private updateAlive(dt: number) {
+    const a = this.alive; if (!a) return;
+    const busy = this.pointers.size > 0 || this.wheelTimer > 0 || (this.grab.active && !this.autoGrab) || this.sensor.on;
+    a.update(dt, busy, this.act);
+    if (!this.sensor.on) for (let i = 0; i < 3; i++) this.acc[i] += a.acc[i];
   }
 
   /** tilt/shake -> acceleration; walls = what the camera sees around the rest pose, in the camera's floor frame */
