@@ -7,6 +7,7 @@
 import * as A from 'astronomy-engine';
 import { register, t, onLang, apply, lang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
+import { openCinema } from './cinema';
 import { irisIn } from '../../shared/transition';
 import { drawDawn, DAWN_LINES } from '../../shared/dawn';
 import { go, from as cameFrom, markReached } from '../../shared/flow';
@@ -263,7 +264,7 @@ function drawMoon(v: V3, sun: V3, frac: number, day: number) {
 // ---------- UI ----------
 const ui = document.createElement('div'); ui.className = 'sk-ui';
 ui.innerHTML = `<header class="sk-head"><p class="sk-date"></p><p class="sk-place"></p><p class="sk-moon"></p></header>
-<footer class="sk-foot"><button type="button" class="sk-next"><span data-i18n="sky.next"></span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M10 7l5 5-5 5"/></svg></button><div class="sk-seg" role="group"><button type="button" data-k="0"></button><button type="button" data-k="1"></button><button type="button" data-k="2"></button></div>
+<footer class="sk-foot"><button type="button" class="sk-film" data-i18n="sky.film">Our film</button><button type="button" class="sk-next"><span data-i18n="sky.next"></span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M10 7l5 5-5 5"/></svg></button><div class="sk-seg" role="group"><button type="button" data-k="0"></button><button type="button" data-k="1"></button><button type="button" data-k="2"></button></div>
 <dl class="sk-rec"><dt data-i18n="sky.again" class="sk-rec-h"></dt><div><dt data-i18n="sky.r.stars"></dt><dd data-r="stars"></dd></div><div><dt data-i18n="sky.r.moon"></dt><dd data-r="moon"></dd></div><div><dt data-i18n="sky.r.planets"></dt><dd data-r="planets"></dd></div></dl></footer>
 <div class="sk-tools"><button type="button" class="sk-sun" data-i18n-aria="sky.hideDay" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6L18 18M6 18l1.4-1.4M16.6 7.4L18 6"/><path class="sk-slash" d="M4 20L20 4"/></svg></button>
 <button type="button" class="sk-gyro" data-i18n-aria="sky.gyro" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="8.5"/><path d="M12 5.5l2.2 6.5L12 18.5 9.8 12z"/></svg></button></div>`;
@@ -363,7 +364,9 @@ requestAnimationFrame(loop);
 if (!still && !reduced && cameFrom !== 'jelly') void irisIn(innerWidth / 2, innerHeight / 2, 900, '#04060b'); // from the egg: already black, the stars rise out of it
 // onward -> the co-op finale: a slow fade through black, then the pixel iris opens there
 const next = $<HTMLButtonElement>('.sk-next');
-setTimeout(() => next.classList.add('on'), still ? 0 : cameFrom === 'jelly' ? 9000 : 4000);
+const film = $<HTMLButtonElement>('.sk-film');
+film.addEventListener('click', () => openCinema());
+setTimeout(() => { next.classList.add('on'); film.classList.add('on'); }, still ? 0 : cameFrom === 'jelly' ? 9000 : 4000);
 next.addEventListener('click', () => {
   if (leave) return; raise = null; gyro = false;
   if (reduced) { void go('coop', undefined, { hz: '0.66' }); return; }

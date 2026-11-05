@@ -4,11 +4,12 @@
 import { raster } from '../../shared/pixel/sprite';
 import { EXHIBITS } from './exhibits';
 
-export const WORLD_W = 1120, WORLD_H = 192, FLOOR_Y = 160;
+export const WORLD_W = 1480, WORLD_H = 192, FLOOR_Y = 160;
 export const ENTRY = { x: 12, y: 104, w: 32, h: 56 };
-export const BACKDOOR = { x: 1048, y: 104, w: 32, h: 56 };
+export const BACKDOOR = { x: 1408, y: 104, w: 32, h: 56 };
 export const FRIDGE = { x: 604, y: 74, w: 64, h: 86 };
-export const LAMPS = [272, 432, 816];
+export const FRIDGE2 = { x: 1290, y: 74, w: 64, h: 86 }; // v03h: lotus30 reliefs
+export const LAMPS = [272, 432, 816, 1000, 1160];
 
 type G = CanvasRenderingContext2D;
 const R = (g: G, x: number, y: number, w: number, h: number, c: string) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
@@ -200,6 +201,11 @@ export function buildShop() {
   R(g, fx + 7, fy + 32, 2, 16, '#ECECF0'); R(g, fx + 9, fy + 32, 1, 16, '#B8BCC4');
   R(g, fx + fw / 2 - 5, fy + 4, 10, 2, '#ECECF0'); R(g, fx + fw / 2 - 5, fy + 5, 10, 1, '#C9CCD3');
   R(g, fx + 6, fy + 81, 4, 5, '#8F8487'); R(g, fx + fw - 10, fy + 81, 4, 5, '#8F8487');
+  // v03h: a second fridge for the Lotus30 relief magnets
+  const F2 = FRIDGE2;
+  R(g, F2.x, F2.y, F2.w, F2.h, '#F4D9E4'); R(g, F2.x + 2, F2.y + 2, F2.w - 4, 22, '#E8C5D4');
+  R(g, F2.x + 2, F2.y + 26, F2.w - 4, F2.h - 30, '#F8E4EC');
+  R(g, F2.x + F2.w - 6, F2.y + 34, 3, 18, '#D9A9BC'); R(g, F2.x + F2.w - 6, F2.y + 60, 3, 18, '#D9A9BC');
   // a taped polaroid on the freezer door
   R(g, fx + 41, fy + 6, 13, 16, 'rgba(120,70,80,0.18)'); R(g, fx + 40, fy + 5, 13, 16, '#FFFFFF'); R(g, fx + 41, fy + 6, 11, 10, '#FBE3E8'); g.drawImage(HEART, fx + 43, fy + 8);
   R(g, fx + 44, fy + 4, 5, 2, 'rgba(255,240,200,0.85)');
