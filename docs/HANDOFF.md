@@ -321,3 +321,5 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 - 烟花声与「没选过声音默认响一次」的取舍：若觉得突兀，改 `egg.ts` 里 `soundChosen()` 那两行。
 - 小猪没有尾巴肌肉（形状里没有）；眨眼没做（lo 档网格眼睛太小，会糊）。
 - 预热没有预取果冻的 2–4 MB `.bin`（档位运行时才定），靠 700 ms 后的小猪幕兜底。
+
+**v03g 已交付（2026-11-04）**：PR #4 合并，master `1859ad3`，tag `v03g`；公开仓库 `smartlotus/jelly-gift` main `f44121e`（jelly-gift-site@1859ad3）。线上 8 页 + 两个果冻入口 WebKit iPhone 15 模拟全部揭幕、无 console error。回滚：`git checkout v03f && GIFT_DEPLOY=1 scripts/deploy_pages.sh /workspace/jelly/jelly-gift`。排队中：v03h（建模页完整展示 + 200 天动画）与全站音效审计。
