@@ -4,6 +4,7 @@ import { t, lang, onLang } from '../../shared/i18n';
 import { AR_ICON, isArId, quickLook, openQuickLook } from '../../shared/ar';
 import { go } from '../../shared/flow';
 import { dissolve } from '../../shared/transition';
+import * as Sfx from '../../shared/sfx';
 import { EXHIBITS, colourOf, type Exhibit, type ExhibitId } from './exhibits';
 import type { Viewer, Rect } from './viewer';
 // v02: the AR button is part of the journey: on every device for the three printed figures. iOS -> AR Quick Look on the
@@ -65,15 +66,15 @@ export class Inspect {
     el.addEventListener('click', e => {
       const b = (e.target as HTMLElement).closest('button'); if (!b) return;
       if (b.classList.contains('si-close')) this.onClose();
-      else if (b.classList.contains('si-prev')) this.browse(-1);
-      else if (b.classList.contains('si-next')) this.browse(1);
-      else if (b.dataset.k === 'reset') v.reset();
-      else if (b.dataset.k === 'split') v.toggleSplit();
-      else if (b.dataset.k === 'spin') { v.autoSpin = !v.autoSpin; this.sync(); }
-      else if (b.dataset.k === 'light') v.cycleMood();
-      else if (b.dataset.k === 'flip') { const on = v.flipBack(); b.setAttribute('aria-pressed', String(on)); }
-      else if (b.dataset.k === 'ar' && isArId(this.id)) { b.classList.remove('suggest'); if (quickLook()) openQuickLook(this.id); else { const id = this.id; void go('ar', () => dissolve(1, 650, AR_PAPER), { m: id }); } }
-      else if (b.dataset.sw !== undefined) v.solo(b.dataset.sw || null);
+      else if (b.classList.contains('si-prev')) { Sfx.turn(); this.browse(-1); }
+      else if (b.classList.contains('si-next')) { Sfx.turn(); this.browse(1); }
+      else if (b.dataset.k === 'reset') { Sfx.jellyReset(); v.reset(); }
+      else if (b.dataset.k === 'split') { Sfx.split(b.getAttribute('aria-pressed') !== 'true'); v.toggleSplit(); }
+      else if (b.dataset.k === 'spin') { v.autoSpin = !v.autoSpin; v.autoSpin ? Sfx.toggleOn() : Sfx.toggleOff(); this.sync(); }
+      else if (b.dataset.k === 'light') { Sfx.lamp(); v.cycleMood(); }
+      else if (b.dataset.k === 'flip') { Sfx.whoosh(); const on = v.flipBack(); b.setAttribute('aria-pressed', String(on)); }
+      else if (b.dataset.k === 'ar' && isArId(this.id)) { Sfx.place(); b.classList.remove('suggest'); if (quickLook()) openQuickLook(this.id); else { const id = this.id; void go('ar', () => dissolve(1, 650, AR_PAPER), { m: id }); } }
+      else if (b.dataset.sw !== undefined) { Sfx.jellyColour(); v.solo(b.dataset.sw || null); }
     });
     window.addEventListener('keydown', e => {
       if (!this.open) return;

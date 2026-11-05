@@ -4,6 +4,7 @@
 import { asset } from '../../shared/flow';
 import { soundOn, unlock, onSound } from '../../shared/audio';
 import { apply } from '../../shared/i18n';
+import { tap } from '../../shared/sfx';
 
 let open = false;
 export function openCinema() {
@@ -34,7 +35,7 @@ export function openCinema() {
   v.addEventListener('pause', () => playBtn.classList.remove('off'));
   v.addEventListener('play', () => playBtn.classList.add('off'));
   const close = () => {
-    v.pause(); root.classList.add('out');
+    tap(); v.pause(); root.classList.add('out');
     setTimeout(() => { root.remove(); open = false; }, 420);
   };
   root.querySelector('[data-a="close"]')!.addEventListener('click', close);

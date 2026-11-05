@@ -59,7 +59,7 @@ cam.snap(cat.x, cat.y, scr.w, scr.h);
 
 let viewer: Viewer | null = null, inspect: Inspect | null = null;
 const viewerP = import('./viewer').then(m => {
-  viewer = new m.Viewer(glHost); inspect = new Inspect(viewer);
+  viewer = new m.Viewer(glHost); inspect = new Inspect(viewer); (window as unknown as { __shopViewer: unknown }).__shopViewer = viewer;
   inspect.onClose = closeInspect;
   viewer.onJoin = () => { blip(1318, 0.08, 'sine', 0.08); setTimeout(() => blip(1760, 0.16, 'sine', 0.06), 70); }; viewer.onClosed = () => { input.enabled = started && !leaving; actLock = true; };
   void viewer.load('figure-pig');

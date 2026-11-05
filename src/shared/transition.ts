@@ -1,6 +1,7 @@
 // Page-to-page transitions: a stepped (pixel-feel) iris over everything, DOM-based so it works above Canvas2D, three.js
 // and the jelly page alike. irisOut() before navigating away, irisIn() when a stage boots.
 import { gate, reveal } from './curtain';
+import { arrive, whoosh } from './sfx';
 let el: HTMLDivElement | null = null;
 function veil(colour: string) {
   if (!el) { el = document.createElement('div'); el.className = 'gift-iris'; el.style.cssText = 'position:fixed;inset:0;z-index:100;pointer-events:none'; document.body.appendChild(el); } // inline: also used on the jelly page (no chrome.css)
@@ -25,9 +26,10 @@ function circle(x: number, y: number, r: number) {
   return pts.join(', ');
 }
 /** close the iris onto (x,y) css px (default centre) */
-export const irisOut = (x = innerWidth / 2, y = innerHeight / 2, ms = 650, colour = '#141414') => run(1, 0, ms, x, y, colour);
+export const irisOut = (x = innerWidth / 2, y = innerHeight / 2, ms = 650, colour = '#141414') => { whoosh(true); return run(1, 0, ms, x, y, colour); };
 /** open from black at page start */
 export async function irisIn(x = innerWidth / 2, y = innerHeight / 2, ms = 650, colour = '#141414') {
+  arrive();
   await gate; veil(colour).style.clipPath = ''; veil(colour).style.opacity = '1'; // the closed iris is up under the curtain
   void reveal(320); // v03e: the loading curtain lifts off the closed iris, which then opens
   return run(0, 1, ms, x, y, colour);

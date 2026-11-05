@@ -3,6 +3,7 @@
 // camcorder-style map with fast-forward travel to places already visited, and a small toast line.
 import { t, apply } from '../../shared/i18n';
 import { EDGES, NODES, type NodeId } from './map';
+import { sfx, pzSfx } from './sfx';
 
 export interface Choice { key: string; label: string; ang: number; locked?: boolean; glow?: boolean; back?: boolean }
 const arrow = (deg: number) => `<svg viewBox="0 0 24 24" style="transform:rotate(${deg}deg)" aria-hidden="true"><path d="M12 20V5M5.5 11.5L12 5l6.5 6.5"/></svg>`;
@@ -17,14 +18,14 @@ export function makeUI(host: HTMLElement) {
     <p class="nv-toast"></p>`;
   apply(box); stop(box.querySelector('.nv-inv')!); stop(box.querySelector('.nv-choices')!); stop(box.querySelector('.nv-back')!);
   const choices = box.querySelector<HTMLElement>('.nv-choices')!, back = box.querySelector<HTMLButtonElement>('.nv-back')!, toastEl = box.querySelector<HTMLElement>('.nv-toast')!;
-  let onBack = () => {}; back.addEventListener('click', () => onBack());
-  let onMap = () => {}; box.querySelector('.nv-map')!.addEventListener('click', () => onMap());
+  let onBack = () => {}; back.addEventListener('click', () => { pzSfx.whoosh(false); onBack(); });
+  let onMap = () => {}; box.querySelector('.nv-map')!.addEventListener('click', () => { sfx.rustle(); onMap(); });
   let toastT = 0;
   return {
     showChoices(list: Choice[], pick: (key: string) => void) {
       const sorted = [...list].sort((a, b) => b.ang - a.ang); // left -> right
       choices.innerHTML = sorted.map(c => `<button type="button" class="nv-c${c.locked ? ' locked' : ''}${c.glow ? ' glow' : ''}${c.back ? ' back' : ''}" data-k="${c.key}">${arrow(-c.ang * 180 / Math.PI)}<span>${c.label}</span></button>`).join('');
-      choices.querySelectorAll<HTMLButtonElement>('.nv-c').forEach(b => b.addEventListener('click', () => pick(b.dataset.k!)));
+      choices.querySelectorAll<HTMLButtonElement>('.nv-c').forEach(b => b.addEventListener('click', () => { b.classList.contains('locked') ? pzSfx.nope() : pzSfx.tap(1); pick(b.dataset.k!); }));
       choices.classList.add('on');
     },
     hideChoices() { choices.classList.remove('on'); choices.innerHTML = ''; },
@@ -74,12 +75,12 @@ export function openMap(cur: { x: number; z: number }, nodes: string[], edges: s
   const [cx, cy] = P(cur.x, cur.z); g.fillStyle = '#ff5a76'; g.beginPath(); g.arc(cx, cy, 6, 0, Math.PI * 2); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.stroke();
   const close = () => { el.classList.remove('on'); setTimeout(() => el.remove(), 300); };
   requestAnimationFrame(() => { el.classList.add('on'); const r = cv.getBoundingClientRect(); (window as unknown as { __mapHits: unknown }).__mapHits = Object.fromEntries(hits.map(h => [h.id, [r.left + h.x, r.top + h.y]])); });
-  el.querySelector('.nv-mapx')!.addEventListener('click', close);
+  el.querySelector('.nv-mapx')!.addEventListener('click', () => { pzSfx.whoosh(false); close(); });
   if (restart) { const b = document.createElement('button'); b.type = 'button'; b.className = 'nv-restart'; b.dataset.i18n = 'night.restart'; el.querySelector('.nv-mapin')!.appendChild(b); apply(b); b.addEventListener('click', () => { close(); restart(); }); }
   cv.addEventListener('click', e => {
     if (!canGo) return; const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
     let best: NodeId | null = null, bd = 26; for (const h of hits) { const d = Math.hypot(h.x - x, h.y - y); if (d < bd) { bd = d; best = h.id; } }
-    if (best) { close(); travel(best); }
+    if (best) { pzSfx.whoosh(true); close(); travel(best); }
   });
   return close;
 }

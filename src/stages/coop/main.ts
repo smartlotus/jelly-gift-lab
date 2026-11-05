@@ -17,7 +17,24 @@ import { Pad, mountPads } from './controls';
 import { Link } from './net';
 import { qrCanvas, scan } from './qr';
 import * as dict from './dict';
+import * as Sfx from '../../shared/sfx';
 import './style.css';
+
+/** v03i: listen to the shared sim (host/solo step or guest snapshot) and play the edges — jumps, landings, plates, gate, steps, finale */
+function coopEars() {
+  let prev: { g: boolean[]; vy: number[]; pl: boolean[]; gate: boolean; steps: boolean; end: boolean } | null = null;
+  return (sim: Sim) => {
+    const now = { g: sim.b.map(b => b.ground), vy: sim.b.map(b => b.vy), pl: sim.plates.slice(), gate: sim.gate > 0.5, steps: sim.steps, end: sim.end >= 0 };
+    if (prev) {
+      now.g.forEach((g, i) => { if (prev!.g[i] && !g && now.vy[i] < -40) Sfx.jump(now.vy[i] < -360); else if (!prev!.g[i] && g && prev!.vy[i] > 120) Sfx.land(); });
+      now.pl.forEach((p, i) => { if (p !== prev!.pl[i] && sim.L.plates[i]?.kind !== 'heart') Sfx.plate(p); else if (p && !prev!.pl[i]) Sfx.softChime(); });
+      if (now.gate !== prev.gate) Sfx.gate(now.gate);
+      if (now.steps && !prev.steps) Sfx.stepsUp();
+      if (now.end && !prev.end) Sfx.coopWin();
+    }
+    prev = now;
+  };
+}
 
 register(dict);
 const ICON = {
@@ -36,7 +53,7 @@ const head = (who: 'pig' | 'cat', k = 6) => { const s = who === 'pig' ? pigSprit
 const bc = 'BroadcastChannel' in window ? new BroadcastChannel('jelly-coop') : null;
 const hashCode = location.hash.slice(1);
 if (/^a[zr]/.test(hashCode)) {
-  mountChrome({ sound: false });
+  mountChrome(); // v03i: sound switch on
   bc?.postMessage({ a: hashCode }); try { localStorage.setItem('jelly.coop.answer', JSON.stringify({ a: hashCode, t: Date.now() })); } catch { /* */ }
   const d = document.createElement('div'); d.className = 'cp-relay'; d.append(head('cat'), head('pig'));
   const p = document.createElement('p'); p.dataset.i18n = 'coop.linked'; d.append(p); document.body.append(d); apply(); onLang(() => apply());
@@ -78,13 +95,14 @@ function dawnArrive() {
 }
 
 function boot() {
-  mountChrome({ sound: false });
+  mountChrome(); // v03i: sound switch on
   const gameEl = document.getElementById('coop')!;
   const ui = document.createElement('div'); ui.className = 'cp-ui'; document.body.appendChild(ui);
   const preview = params.has('preview');
 
   // ================= play =================
   function play(role: 'solo' | 'host' | 'guest', link?: Link, remoteW = 0) {
+    const ears = coopEars(); if (role !== 'solo') Sfx.coopJoin();
     ui.innerHTML = ''; document.body.classList.add('cp-playing');
     try { void (navigator as Navigator & { wakeLock?: { request(t: string): Promise<unknown> } }).wakeLock?.request('screen'); } catch { /* */ }
     // minH > world height: smaller pixels, a wider view, and room under the picture for the thumbs
@@ -99,12 +117,12 @@ function boot() {
     const lost = document.createElement('div'); lost.className = 'cp-lost'; lost.innerHTML = ICON.link; lost.hidden = true; document.body.appendChild(lost);
     // the finale: hearts across the screens, then two quiet choices — again, or the whole journey from the start
     const home = document.createElement('button'); home.type = 'button'; home.className = 'cp-home'; home.innerHTML = ICON.home; home.dataset.i18nAria = 'coop.home'; home.hidden = true; document.body.appendChild(home);
-    home.addEventListener('click', () => { link?.close(); void go('meadow', () => reduced ? Promise.resolve() : irisOut(tapX, tapY, 700)); });
+    home.addEventListener('click', () => { Sfx.tap(); link?.close(); void go('meadow', () => reduced ? Promise.resolve() : irisOut(tapX, tapY, 700)); });
     // one phone (the default in the journey) can still become two: a small two-phones button, top left
     if (role === 'solo') { const lk = document.createElement('button'); lk.type = 'button'; lk.className = 'cp-tolink'; lk.innerHTML = ICON.duo; lk.dataset.i18nAria = 'coop.duo'; document.body.appendChild(lk);
       lk.addEventListener('click', () => void (reduced ? Promise.resolve() : irisOut(tapX, tapY, 480, '#f6efe4')).then(() => location.assign(`${location.pathname}?${new URLSearchParams({ ...(params.get('lang') ? { lang: params.get('lang')! } : {}), duo: '1' })}`))); }
     apply();
-    again.addEventListener('click', () => { if (role !== 'guest') void iris(() => { sim = new Sim(view); again.hidden = true; }, '#FFF8EE'); });
+    again.addEventListener('click', () => { Sfx.tap(); if (role !== 'guest') void iris(() => { sim = new Sim(view); again.hidden = true; }, '#FFF8EE'); });
     // network
     const remote = { ax: 0, held: false, seq: 0, last: 0 };
     let snapA: number[] | null = null, snapB: number[] | null = null, tB = 0;
@@ -115,7 +133,7 @@ function boot() {
         else if (o.k === 's' && o.s) { snapA = snapB; snapB = o.s; tB = performance.now(); }
         else if (o.k === 'w' && o.w) otherW = o.w;
       };
-      link.onClose = () => { lost.hidden = false; remote.ax = 0; remote.held = false; };
+      link.onClose = () => { Sfx.coopFail(); lost.hidden = false; remote.ax = 0; remote.held = false; };
       scr.onResize(() => link.send({ k: 'w', w: scr.w })); link.send({ k: 'w', w: scr.w });
     }
     const auto = params.has('auto');
@@ -132,7 +150,7 @@ function boot() {
       const a: PIn = auto ? autoIn(0) : padIn(pads[0]);
       const b: PIn = auto ? autoIn(1) : role === 'solo' ? padIn(pads[1]) : { ax: remote.ax, held: remote.held, hit: remote.seq !== remote.last };
       remote.last = remote.seq;
-      sim.step([a, b], dt);
+      sim.step([a, b], dt); ears(sim);
       if (role === 'host' && n % 2 === 0) link?.send({ k: 's', s: sim.snapshot() });
       again.hidden = !(sim.end > 7);
       if (home.hidden !== !(sim.end > 7)) home.hidden = !(sim.end > 7);
@@ -142,7 +160,7 @@ function boot() {
         // render ~one snapshot behind, interpolating positions + camera (30 Hz -> smooth 60 Hz)
         const k = snapA ? Math.min(1, (performance.now() - tB) / 33) : 1, s = snapB.slice();
         if (snapA) for (const i of [0, 1, 6, 7, 12]) s[i] = snapA[i] + (snapB[i] - snapA[i]) * k;
-        sim.load(s); art.render(scr.ctx, sim, sim.camX + otherW, scr.w, scr.h); if (home.hidden !== !(sim.end > 7)) home.hidden = !(sim.end > 7);
+        sim.load(snapB); ears(sim); sim.load(s); art.render(scr.ctx, sim, sim.camX + otherW, scr.w, scr.h); if (home.hidden !== !(sim.end > 7)) home.hidden = !(sim.end > 7);
       } else art.render(scr.ctx, sim, sim.camX + (role === 'host' ? 0 : 0), scr.w, scr.h);
     });
     (window as unknown as { __coop: unknown }).__coop = { get sim() { return sim; }, role, scr };
@@ -205,7 +223,7 @@ function boot() {
     s.done.then(then).catch(e => { console.warn(e); box.hidden = true; ui.querySelector('.cp-qr')?.removeAttribute('hidden'); });
   }
   ui.addEventListener('click', e => {
-    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-m]'); if (!b) return;
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-m]'); if (!b) return; Sfx.tap();
     const m = b.dataset.m;
     if (m === 'duo') void host();
     else if (m === 'solo') { link?.close(); void iris(() => play('solo')); }

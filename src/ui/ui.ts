@@ -1,5 +1,7 @@
 import type { Colourway } from '../core/look';
 import { t, type Key } from '../i18n/i18n';
+import * as Sfx from '../shared/sfx';
+import { soundOn, setSound, unlock, onSound } from '../shared/audio';
 import { progress as curtainProgress } from '../shared/curtain';
 
 const $ = (id: string) => document.getElementById(id)!;
@@ -63,9 +65,16 @@ export function showHint(touch: boolean) {
 }
 export function fadeHint() { $('hint').classList.add('gone'); }
 export function setColophon(s: string) { $('colophon').textContent = s; }
+/** v03i: the jelly page's own speaker (same shared switch as every other stage; muted until she taps it) */
+export function bindSound() {
+  const b = document.getElementById('snd'); if (!b) return;
+  const mark = () => b.setAttribute('aria-pressed', String(soundOn()));
+  b.addEventListener('click', () => { unlock(); const next = !soundOn(); setSound(next); next ? Sfx.toggleOn() : Sfx.toggleOff(); mark(); });
+  onSound(mark); mark();
+}
 export function bindLang(current: string, onPick: (l: 'zh' | 'en') => void) {
-  const btns = document.querySelectorAll<HTMLButtonElement>('.lang button');
+  const btns = document.querySelectorAll<HTMLButtonElement>('.lang button[data-lang]');
   const mark = (l: string) => btns.forEach(b => { const on = b.dataset.lang === l; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
-  btns.forEach(b => b.addEventListener('click', () => { onPick(b.dataset.lang as 'zh' | 'en'); mark(b.dataset.lang!); }));
+  btns.forEach(b => b.addEventListener('click', () => { Sfx.tap(); onPick(b.dataset.lang as 'zh' | 'en'); mark(b.dataset.lang!); }));
   mark(current);
 }

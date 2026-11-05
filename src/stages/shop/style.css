@@ -53,6 +53,10 @@ html[lang="zh-CN"] .shop-whisper { font-family: var(--serif); font-style: normal
 .si-bar button[aria-pressed="true"] { color: var(--ink); background: rgba(20,20,20,.07); }
 .si-bar svg { width: 20px; height: 20px; }
 .si-bar .si-prev, .si-bar .si-next { width: 40px; }
+/* v03i: text pills (Flip / Studio link) match the icon buttons — no browser-blue underline */
+.si-bar a.si-btn, .si-bar button[data-k="flip"] { width: auto; min-width: 44px; height: 44px; padding: 0 10px; border-radius: 999px; display: grid; place-items: center; color: var(--ink-2); text-decoration: none; font-size: 13px; letter-spacing: .06em; }
+.si-bar a.si-btn[hidden] { display: none; }
+.si-bar a.si-btn:hover { color: var(--ink); }
 .si-light i { position: absolute; right: 9px; bottom: 9px; width: 5px; height: 5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px rgba(20,20,20,.25); transition: background .3s var(--ease); }
 .si-light[data-mood="1"] i { background: #9CC8EE; } .si-light[data-mood="2"] i { background: #F2B25C; }
 .si-sw { opacity: .85; }

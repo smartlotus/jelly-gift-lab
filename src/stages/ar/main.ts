@@ -10,9 +10,10 @@ import { params, from, go } from '../../shared/flow';
 import { AR_IDS, AR_ICON, isArId, quickLook, webxrAR, openQuickLook, type ArId } from '../../shared/ar';
 import { loadFigure } from './models';
 import * as dict from './dict';
+import * as Sfx from '../../shared/sfx';
 import './style.css';
 
-register(dict); mountChrome({ sound: false });
+register(dict); mountChrome(); // v03i: sound switch on (turntable / place / back sounds)
 const host = document.getElementById('ar')!;
 const r = new WebGLRenderer({ antialias: true, alpha: true }); r.setPixelRatio(Math.min(devicePixelRatio, 2)); r.setSize(innerWidth, innerHeight);
 r.toneMapping = NeutralToneMapping; r.toneMappingExposure = 0.95; r.shadowMap.enabled = true; r.shadowMap.type = PCFShadowMap; r.setClearColor(0, 0);
@@ -54,9 +55,9 @@ async function show(i: number) {
   cam.userData.ty = s.y * 0.46;
   for (const id2 of AR_IDS) if (!figs.has(id2)) void loadFigure(id2).then(g => figs.set(id2, g)); // warm the rest
 }
-ui.querySelector('.ar-dots')!.addEventListener('click', e => { const b = (e.target as HTMLElement).closest('button'); if (b) void show(AR_IDS.indexOf(b.dataset.id as ArId)); });
+ui.querySelector('.ar-dots')!.addEventListener('click', e => { const b = (e.target as HTMLElement).closest('button'); if (b) { Sfx.turn(); void show(AR_IDS.indexOf(b.dataset.id as ArId)); } });
 btn.addEventListener('click', async () => {
-  btn.classList.remove('ping'); void btn.offsetWidth; btn.classList.add('ping');
+  btn.classList.remove('ping'); void btn.offsetWidth; btn.classList.add('ping'); Sfx.place();
   const id = AR_IDS[idx];
   if (mode === 'ql') { openQuickLook(id); return; }
   if (mode === 'xr' && shown) {
@@ -69,8 +70,8 @@ btn.addEventListener('click', async () => {
 let px = 0, p0 = 0, t0 = 0, drag = false;
 r.domElement.addEventListener('pointerdown', e => { drag = true; px = p0 = e.clientX; t0 = performance.now(); r.domElement.setPointerCapture(e.pointerId); });
 r.domElement.addEventListener('pointermove', e => { if (!drag) return; spin += (e.clientX - px) * 0.012; spinV = 0; px = e.clientX; });
-r.domElement.addEventListener('pointerup', e => { drag = false; const dx = e.clientX - p0, dt = performance.now() - t0; if (Math.abs(dx) > 70 && dt < 280) { spin -= dx * 0.012; void show(idx + (dx < 0 ? 1 : -1)); } spinV = 0.25; });
-window.addEventListener('keydown', e => { if (e.code === 'ArrowRight') void show(idx + 1); if (e.code === 'ArrowLeft') void show(idx - 1); });
+r.domElement.addEventListener('pointerup', e => { drag = false; const dx = e.clientX - p0, dt = performance.now() - t0; if (Math.abs(dx) > 70 && dt < 280) { spin -= dx * 0.012; Sfx.turn(); void show(idx + (dx < 0 ? 1 : -1)); } spinV = 0.25; });
+window.addEventListener('keydown', e => { if (e.code === 'ArrowRight') { Sfx.turn(); void show(idx + 1); } if (e.code === 'ArrowLeft') { Sfx.turn(); void show(idx - 1); } });
 
 let last = performance.now(), camD = 4, camY = 0.2;
 function loop() {
@@ -90,6 +91,6 @@ if (from === 'shop') {
   const back = document.createElement('button'); back.type = 'button'; back.className = 'ar-back'; back.dataset.i18nAria = 'ar.back';
   back.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 6l-6 6 6 6"/></svg>';
   document.body.appendChild(back); apply();
-  back.addEventListener('click', () => void go('shop', () => dissolve(1, 600, '#eeece8'), { ex: AR_IDS[idx] }));
+  back.addEventListener('click', () => { Sfx.tap(); }); back.addEventListener('click', () => void go('shop', () => dissolve(1, 600, '#eeece8'), { ex: AR_IDS[idx] }));
 } else void irisIn(innerWidth / 2, innerHeight / 2, 700, '#eeece8');
 void t; void isArId;

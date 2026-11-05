@@ -1,4 +1,5 @@
 import * as Audio from './shared/audio';
+import * as Sfx from './shared/sfx';
 import './ui/style.css';
 import * as I18N from './i18n/i18n';
 import { decodeAsset } from './sim/mesh';
@@ -140,19 +141,22 @@ async function boot() {
     UI.setActiveCharacter(c.id);
     shroomEl.classList.toggle('off', c.id !== 'shark'); // the mushroom (easter egg) belongs to the last specimen only
     nudgeNext(c.id);
-    UI.buildColourways(c.colourways, cw => { engine.setColour(cw); veilTone(); });
+    UI.buildColourways(c.colourways, cw => { engine.setColour(cw); veilTone(); Sfx.jellyColour(); });
     label(c); veilTone();
   };
   const veilTone = () => { const b = engine.colour.bgBot, t = engine.colour.bgTop; const h = (v: number[]) => `rgb(${v.map(x => Math.round(255 * Math.pow(Math.min(1, x), 1 / 2.2))).join(',')})`; document.documentElement.style.setProperty('--veil', `linear-gradient(${h(t)}, ${h(b)})`); };
   engine.onFirstInteract = () => UI.fadeHint();
+  engine.onGrab = () => Sfx.jellyGrab();
+  engine.onRelease = () => Sfx.jellyRelease();
+  engine.onTwist = () => Sfx.jellyTwist();
   dress(ch);
   I18N.onLang(() => label(ch));
-  UI.bindLang(I18N.lang, l => I18N.setLang(l));
+  UI.bindLang(I18N.lang, l => I18N.setLang(l)); UI.bindSound();
   let switching = false; var nudgeT = 0;
   const switchTo = async (id: string) => {
     const next = CHARACTERS.find(c => c.id === id && c.ready);
     if (!next || next === ch || switching) return;
-    switching = true; UI.setActiveCharacter(id);
+    switching = true; UI.setActiveCharacter(id); Sfx.jellySwitch();
     try {
       const [, p] = await Promise.all([UI.veil(true), makePath(next, () => {})]);
       engine.stop(); const old = engine.path; engine.setCharacter(p, next); old.dispose(); ch = next;
@@ -220,7 +224,7 @@ async function boot() {
       else { grav.setAttribute('aria-pressed', 'true'); addEventListener('pointerup', e => { if (!grav.contains(e.target as Node) && !engine.sensor.on) void turnOn(); }, { once: true }); }
     }
   }
-  document.getElementById('reset')!.addEventListener('click', () => engine.reset());
+  document.getElementById('reset')!.addEventListener('click', () => { engine.reset(); Sfx.jellyReset(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) engine.stop(); else engine.start(); });
   engine.start();
   requestAnimationFrame(() => requestAnimationFrame(() => {

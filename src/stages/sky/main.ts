@@ -8,6 +8,7 @@ import * as A from 'astronomy-engine';
 import { register, t, onLang, apply, lang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
 import { openCinema } from './cinema';
+import * as Sfx from '../../shared/sfx';
 import { irisIn } from '../../shared/transition';
 import { drawDawn, DAWN_LINES } from '../../shared/dawn';
 import { go, from as cameFrom, markReached } from '../../shared/flow';
@@ -19,7 +20,7 @@ import LINES from './data/lines.json';
 import * as dict from './dict';
 import './style.css';
 
-register(dict); mountChrome({ sound: false, theme: 'dark' });
+register(dict); mountChrome({ theme: 'dark' }); // v03i: the switch is back here too (twinkles, dawn, and the film's own sound follow it)
 const host = document.getElementById('sky')!;
 const cv = document.createElement('canvas'); host.appendChild(cv);
 const g = cv.getContext('2d')!;
@@ -290,10 +291,10 @@ function render() {
 }
 ui.querySelector('.sk-seg')!.addEventListener('click', e => {
   const b = (e.target as HTMLElement).closest('button'); if (!b) return; const j = +b.dataset.k!; if (j === cur) return;
-  from = shown; cur = j; kT = still || reduced ? 1 : 0; render(); ensureRec(j);
+  Sfx.twinkle(); from = shown; cur = j; kT = still || reduced ? 1 : 0; render(); ensureRec(j);
 });
 const sunBtn = $<HTMLButtonElement>('.sk-sun');
-sunBtn.addEventListener('click', () => { hideDay = !hideDay; sunBtn.setAttribute('aria-pressed', String(hideDay)); });
+sunBtn.addEventListener('click', () => { hideDay = !hideDay; hideDay ? Sfx.toggleOff() : Sfx.toggleOn(); sunBtn.setAttribute('aria-pressed', String(hideDay)); });
 onLang(() => { apply(); render(); });
 apply(); render();
 
@@ -338,7 +339,7 @@ if ('DeviceOrientationEvent' in window && matchMedia('(pointer: coarse)').matche
 gbtn.addEventListener('click', async () => {
   const D = DeviceOrientationEvent as DOE;
   if (D.requestPermission) { try { if (await D.requestPermission() !== 'granted') return; } catch { return; } }
-  gyro = !gyro; gbtn.classList.toggle('on', gyro);
+  gyro = !gyro; gbtn.classList.toggle('on', gyro); Sfx.tap();
 });
 window.addEventListener('deviceorientation', e => {
   if (!gyro || e.beta == null) return;
@@ -365,12 +366,12 @@ if (!still && !reduced && cameFrom !== 'jelly') void irisIn(innerWidth / 2, inne
 // onward -> the co-op finale: a slow fade through black, then the pixel iris opens there
 const next = $<HTMLButtonElement>('.sk-next');
 const film = $<HTMLButtonElement>('.sk-film');
-film.addEventListener('click', () => openCinema());
+film.addEventListener('click', () => { Sfx.softChime(); openCinema(); });
 setTimeout(() => { next.classList.add('on'); film.classList.add('on'); }, still ? 0 : cameFrom === 'jelly' ? 9000 : 4000);
 next.addEventListener('click', () => {
   if (leave) return; raise = null; gyro = false;
   if (reduced) { void go('coop', undefined, { hz: '0.66' }); return; }
-  leave = { t: 0, alt0: view.alt, fov0: view.fov, tgt: 13 }; document.body.classList.add('sk-leaving');
+  leave = { t: 0, alt0: view.alt, fov0: view.fov, tgt: 13 }; Sfx.dawn(); document.body.classList.add('sk-leaving');
 });
 // one continuous motion (3.4 s): 0–1.6 s the view sinks to the horizon (cubic in-out) and widens a little; from 0.8 s the
 // picture pixelates in steps (the meadow's resolution); from 1.7 s it settles, band by band, into the shared dawn frame;
