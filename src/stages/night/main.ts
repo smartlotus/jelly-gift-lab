@@ -10,7 +10,7 @@ import {
 } from 'three';
 import { markReached, params, dev, prefetchNext } from '../../shared/flow';
 import { register, t, apply, lang, onLang } from '../../shared/i18n';
-import { mountChrome } from '../../shared/chrome';
+import { mountChrome, flashSound } from '../../shared/chrome';
 import { soundOn, setSound, unlock, onSound } from '../../shared/audio';
 import { irisIn } from '../../shared/transition';
 import { hold, progress as curtainProgress } from '../../shared/curtain';
@@ -435,12 +435,16 @@ async function boot() {
 
   // ---- start card (sound switch + "start over" when there is a save) ---------------------------------------------------
   const begin = () => { setPhase('boot'); sfx.start(); if (at0 === 'chase') { cur = { e: EDGE.end, s: 5.5, dir: 1 }; camYaw = yawAt(cur.e, cur.s, 1); } if (at0 === 'caught') { cur = { e: EDGE.end, s: EDGE.end.len - 2.6, dir: 1 }; camYaw = yawAt(cur.e, cur.s, 1); stalk = true; pig.root.visible = true; pigGap = 3; setPhase('dead'); } };
-  if (params.has('skip') || (at0 && at0 !== 'resume')) { void irisIn(); begin(); return; }
+  if (params.has('skip') || (at0 && at0 !== 'resume')) { void irisIn(); begin();
+  // v03h: a quiet one-time pulse of the chrome sound switch (no card) if she hasn't turned sound on yet
+  setTimeout(() => flashSound(), 1400); return; }
   // v03g: no title card. The night simply opens (audio unlocks on her first touch — chrome.ts — and the sound switch is in
   // the top-right chrome). If she has a save, a small pill says where she stopped; "start over" also lives in the map.
   const startOver = () => { try { localStorage.setItem('gift.night.v3', JSON.stringify(fresh(S.endings))); } catch { /* */ } const u = new URL(location.href); u.searchParams.set('fresh', '1'); location.replace(u.toString()); };
   restartNight = startOver;
   void irisIn(); begin();
+  // v03h: a quiet one-time pulse of the chrome sound switch (no card) if she hasn't turned sound on yet
+  setTimeout(() => flashSound(), 1400);
   if (startNode && hasProgress(prev)) {
     const r = document.createElement('p'); r.className = 'n-resume';
     r.innerHTML = `<span>${t('night.resume').replace('{p}', t(`night.place.${startNode}`))}</span><button type="button" data-i18n="night.restart"></button>`;
