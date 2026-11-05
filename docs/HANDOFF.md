@@ -323,3 +323,23 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 - 预热没有预取果冻的 2–4 MB `.bin`（档位运行时才定），靠 700 ms 后的小猪幕兜底。
 
 **v03g 已交付（2026-11-04）**：PR #4 合并，master `1859ad3`，tag `v03g`；公开仓库 `smartlotus/jelly-gift` main `f44121e`（jelly-gift-site@1859ad3）。线上 8 页 + 两个果冻入口 WebKit iPhone 15 模拟全部揭幕、无 console error。回滚：`git checkout v03f && GIFT_DEPLOY=1 scripts/deploy_pages.sh /workspace/jelly/jelly-gift`。排队中：v03h（建模页完整展示 + 200 天动画）与全站音效审计。
+
+## v03h — Lotus30 建模完整展示 + 200 天纪念日影片（分支 `v03h-shop-models-anniv` → master，tag `v03h`）
+
+### 做了什么
+1. **夜路声音开关闪一下**（承接 v03g 决策）：进入夜路约 1.4 s 后，右上角声音开关轻柔闪 3 下（无文案卡片）；`sessionStorage['gift.sound.nudge']` 保证只闪一次；已开声音则不闪。
+2. **/shop/ 加入 Notion「臭猪臭猫｜手办与浮雕冰箱贴」完整 4 款**：
+   - `pig-fig` / `cat-fig` 立体手办、`pig-relief` / `cat-relief` 浮雕冰箱贴（meshopt GLB，各约 110–190 KB）。
+   - 小店世界加长到 1480 px，第二台冰箱挂两枚浮雕；检视模式可「拆分颜色」、浮雕可「看背面」转到磁铁槽；检视里链到完整展厅。
+   - 原有 5 件（figure/magnet/pair）保留。
+3. **独立公开展厅仓库** `smartlotus/lotus30-figures-web`（用户要求新开 GitHub 仓库）：https://smartlotus.github.io/lotus30-figures-web/ —— 4 款完整交互（旋转/拆色/隐藏单色/翻背面）+ 效果图廊。源 STL/3MF/Blender 不进公开仓。
+4. **200 天纪念日影片**：放在 **/sky/**（她正看着第 200 天的星空，最贴情绪）。按钮「我们的 200 天」打开影院层；H.264 720p + faststart + poster，约 **12 MB**（原 v2 1080p 56 MB）；`playsinline`、轻触播放、跟随全站声音开关。
+
+### 资源
+- `public/models/{pig,cat}-{fig,relief}.glb` + `public/models/lotus30-posters/`
+- `public/media/anniv-200.mp4` + `anniv-200-poster.jpg`
+- 私有源：`/workspace/jelly/notion/models.zip`、`anniv.zip`；私有仓 `lotus30-figures-reliefs`
+
+### 已知不足
+- WPE 软件渲染下打开影院偶发崩溃（真机 iOS 应正常）；浮雕「看背面」角度还可再调。
+- 小店里新旧两套「敲电脑 / 看书」并存，若觉得重复可以后收成一排。
