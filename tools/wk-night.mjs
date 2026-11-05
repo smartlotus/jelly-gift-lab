@@ -61,8 +61,8 @@ async function tapStickers() { // tap any visible un-taken sticker within reach 
 }
 const t0 = Date.now();
 await p.goto(base + 'night/?fresh=1&dev&ts=' + (process.env.TS || 1), { waitUntil: 'load' });
-await W(2500); await shot('00-card');
-await p.mouse.click(195, 600); await W(2200); await shot('01-start');
+await W(2500); await shot('00-open');
+await W(2200); await shot('01-start');
 const route = only || 'forest';
 console.log('route', route);
 // start -> fork (mushrooms puzzle on the way)

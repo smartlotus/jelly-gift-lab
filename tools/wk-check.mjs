@@ -19,9 +19,10 @@ for (const [name, path] of pages) {
   for (let i = 0; i < 60 && !gone; i++) { await p.waitForTimeout(500); gone = await p.evaluate(() => { const c = document.getElementById('gift-curtain'); return !c || c.classList.contains('gcc-gone'); }); }
   const dt = Date.now() - t0;
   await p.waitForTimeout(2500);
-  const st = await p.evaluate(() => ({ jr: window.__jellyReady, fail: document.getElementById('gift-curtain')?.className, errs: window.__curtain?.errors }));
+  const late = await p.evaluate(() => document.getElementById('gift-curtain')?.classList.contains('gcc-late'));
+  const st = await p.evaluate(() => ({ late: undefined, jr: window.__jellyReady, fail: document.getElementById('gift-curtain')?.className, errs: window.__curtain?.errors }));
   await p.screenshot({ path: `${out}/${eng}-${name}-1-ready.png` });
-  console.log(name, gone ? `revealed ${dt}ms` : 'CURTAIN STUCK', JSON.stringify(st), errs.length ? '\n   ' + errs.join('\n   ') : '');
+  console.log(name, 'pigShown=' + late, gone ? `revealed ${dt}ms` : 'CURTAIN STUCK', JSON.stringify(st), errs.length ? '\n   ' + errs.join('\n   ') : '');
   if (!gone || errs.some(e => e.startsWith('error') || e.startsWith('pageerror'))) bad++;
   await p.close();
 }
