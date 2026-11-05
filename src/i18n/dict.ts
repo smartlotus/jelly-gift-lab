@@ -29,7 +29,7 @@ const en = {
   'egg.kicker': 'Jelly Studies',
   'egg.line': 'Happy 200 days, {name}.',
   'egg.replay': 'Replay', 'egg.close': 'Close', 'egg.sea': 'Into the sea',
-  'egg.aria': 'Anniversary',
+  'egg.aria': 'Anniversary', 'egg.sound': 'Sound',
 };
 const zh: Record<keyof typeof en, string> = {
   'meta.title': '果冻标本',
@@ -59,7 +59,7 @@ const zh: Record<keyof typeof en, string> = {
   'egg.kicker': '果冻标本',
   'egg.line': '200 天纪念日快乐，{name}',
   'egg.replay': '重播', 'egg.close': '关闭', 'egg.sea': '入海',
-  'egg.aria': '纪念日',
+  'egg.aria': '纪念日', 'egg.sound': '声音',
 };
 export type Key = keyof typeof en;
 export const DICT: Record<Lang, Record<Key, string>> = { en, zh };

@@ -1,3 +1,4 @@
+import * as Audio from './shared/audio';
 import './ui/style.css';
 import * as I18N from './i18n/i18n';
 import { decodeAsset } from './sim/mesh';
@@ -177,7 +178,7 @@ async function boot() {
   const shroom = document.getElementById('shroom')!;
   const egg = () => import('./egg/egg');
   shroom.addEventListener('pointerenter', () => { egg(); }, { once: true });
-  shroom.addEventListener('click', async () => { (await egg()).openEgg(shroom, engine); });
+  shroom.addEventListener('click', async () => { Audio.unlock(); (await egg()).openEgg(shroom, engine); }); // unlock inside the tap: iOS only starts audio from a gesture
   // Journey arrival (/jelly/?from=night): once the shark is shown, a quiet glint on the mushroom after ~6 s (then every ~16 s),
   // at a moment she isn't dragging; stops once she found it. The egg leads on to /sea/.
   // dragging; stops once she found it. The egg leads on to /sky/ (抬头 / Look up).
