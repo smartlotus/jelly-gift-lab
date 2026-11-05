@@ -291,3 +291,33 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 - **已知不足 / 需真机看**：真 iPhone 上的帧率与触控手感（按住走 + 拖动看 + 点贴纸的力度）、各区域合成音的音量平衡、隐藏贴纸是否太难找（①在起点小路右侧粉方块上，②在森林窄小道中段，③在走廊楼梯，④在墓碑间左侧，⑤在隧道墙上——都需要稍微转头看）。
 
 **v03f 已交付（2026-11-04）**：master `4350aeb`（合并 v03f-night-expansion，PR #3），tag `v03f`；公开仓库 `smartlotus/jelly-gift` main `8ebed76`。线上 8 页 WebKit iPhone 15 模拟全部揭幕、无错误；线上夜路三个结局（`wk-night.mjs https://smartlotus.github.io/jelly-gift/ <out> ends`）都交接到 /jelly/、无 console 错误。还原点：… `v03e`、`v03f`。
+
+## v03g — 果冻页「活」起来 + 烟花 + 无标题卡的丝滑转场（分支 `v03g-alive-fireworks-seamless` → master，tag `v03g`）
+用户 iPhone 反馈（截图 `feedback/t11-*.jpg`）：小猪/小猫不像鲨鱼那样「活」；右上角手机图标和蘑菇重叠；统计行和投喂没必要；烟花要更好看；不喜欢每章的标题卡/加载幕里的站名。
+
+### 做了什么
+1. **小猪 / 小猫的「生命感」**（`src/app/alive.ts`，`Engine.updateAlive`）：全部是**给真实软体仿真的轻输入**，不是顶点动画，所以是果冻自然的反应。
+   - 肌肉通道（沿用原来的 4 个，GPU 路径最多 4 通道）：随机事件驱动——小猪 嗅鼻子 / 左右耳抖 / 左看右看（鼻子领头）；小猫 尾巴不停的慵懒摆动（速度与幅度漂移 + 偶尔甩尾）/ 好奇歪头（有时再朝另一边）/ 耳朵抖动。
+   - 整体：用与重力感应同一路的**额外加速度**（`acc`）做 呼吸（小猪 3.1 s，小猫 3.8 s）、一直在漂移的轻微倾斜、随机侧摇（衰减振荡）、下蹲弹一下、小猫的伸懒腰；跳跃复用已有的「隐形手」`celebrate()`（先下蹲预备 0.13 s 再起跳，30% 连跳两下）。
+   - 所有间隔随机（`Math.random`，只在主线程算，worker/GPU 只收结果）。**不跟用户拖拽打架**：触摸/拖/滚轮/开着重力感应 → 0.09 s 内淡出、清空事件，静止 1.1 s 后以 0.5 s 渐入；切换角色时重建。
+   - `prefers-reduced-motion`：幅度约 30–55%，无跳跃/下蹲/伸展。鲨鱼保持原来的 `actuation.activation + idle`。
+   - 实测（WebKit iPhone 15，lo 档 3144 tets）：小猪身高 ±5%，头偏移约 ±5% 身高；小猫身高 ±4%，头倾 ±0.035。调参入口：`alive.ts` 里 `br`（呼吸）、`sway(amp)`、各 `due(key, min, max)`。
+2. **右上角重叠**：手机（重力）按钮与蘑菇现在**并排**在标签行最右（各 44×44，间隔 4 px，竖屏 390×844 / 430×932 实测矩形不相交）；语言切换留在最上面。
+3. **删掉统计行 + 投喂**：`index.html` 去掉 `.readouts` 与 `#bait`；`ui.ts/main.ts/engine.ts` 相应清理（`updateReadouts` 在没有订阅者时直接返回，省每帧体积求和）。底部只剩一行：色板（+ 名称）在左，复位在右；角色多了很多空间，提示语挪到底部行上方。
+4. **蘑菇烟花重做**（`src/egg/egg.ts/.css`）：糖果粉彩（草莓/桃/奶油黄/薰衣草/薄荷/奶白/深玫瑰），9 发错开：牡丹、环、**爱心**（含大心 + 内小心的终场 + 彩屑雨）、**五角星**、垂柳、噼啪闪（四角星闪光）；火箭尾迹、爆点柔光、粒子上限 640、不再整屏 destination-out 淡出（逐帧 clearRect + 拖尾线段）；结束后粉色光点（偶有小爱心）缓缓上升；夜幕改玫瑰紫。**合成音**（`audio.ts` 新增 `tone()`/`noise()`/`soundChosen()`）：火箭口哨、圆润的「砰」+ 小铃音 + 噼啪高频闪烁，带立体声定位；蘑菇点击里同步 `unlock()`（iOS 手势规则）；声音开关与全站共用——**从没碰过开关时，蘑菇这一下默认响一次（不写入存储）**，卡片右上角有声音按钮。reduced-motion 仍只给卡片。
+5. **转场 / 无标题卡**：
+   - 删掉全部章节标题卡（草地「出发吧，小猫」、小店「我为你做的小东西」、夜路「别回头」）与加载幕里的「下一站」名字（`startCard` 已删；`gcc-to`、小圆点也删）。
+   - 加载幕先是**纯色承接**（上一页关闭时的颜色，sessionStorage 传递），**只有等待超过 700 ms**（`LATE_MS`）才淡入像素小猪 + 进度条；`reveal/cover/pageshow` 都清定时器；20 s 慢提示与「再试一次 / 跳到下一站」兜底不变。
+   - **预热下一页**：`flow.ts warm()`——接近出口（`nearExit/prefetchNext`）和 `go()` 开始时就 fetch 下一页 HTML（与跳转同 URL，命中缓存）并解析出 module 脚本与样式，注入 `modulepreload` / `preload as=style`；`saveData` 时跳过。
+   - **音频解锁折进第一次触摸**：`mountChrome` 全局捕获 `pointerdown/keydown/touchend` 一次性 `unlock()`，各页不再需要「轻触开始」。
+   - 夜路：直接开场；有存档时顶部一个小药丸「上次停在：××  [从头开始]」（8.5 s 后淡去），「从头开始」也放进了地图面板底部。
+   - bfcache 返回不卡幕（实测 `goBack` 后 `gcc-out gcc-gone`）；reduced-motion 下无动画。
+### 测试（WebKit iPhone 15 模拟）
+- `tools/wk-check.mjs`：8 页 + 两个果冻入口全部揭幕、无 console error；除果冻（软件渲染慢）外都不显示小猪。`tools/wk-slow.mjs`：JS 延迟 1.5 s → 450 ms 时小猪不可见，1350 ms 时 `gcc-late`。
+- `tools/wk-night.mjs`（`TS=4 … forest`）无卡片开场并走到 G，无 error；`wk-night-extra.mjs` 4 个谜题 + 中文续玩药丸。`wk-flow.mjs` 夜路 → 果冻粉色承接 → 返回。`jelly-shot.mjs`（390×844 / 430×932 布局与矩形）、`alive.mjs`（身体指标 + 帧）、`egg.mjs`（烟花）。
+- 截图：`review/v03g/`（jelly-layout-390-430 / alive-pig-frames / alive-cat-frames / fireworks-iphone / transition-iris-curtain / pages-ready-no-cards / night-resume-pill）。
+### 已知不足 / 需真机看
+- 真机 60 fps：软件渲染下只能验证形状与逻辑，烟花粒子量、生命感的力度与节奏需要在真 iPhone 上调（`MAXP`、`sway` 幅度、呼吸 acc）。
+- 烟花声与「没选过声音默认响一次」的取舍：若觉得突兀，改 `egg.ts` 里 `soundChosen()` 那两行。
+- 小猪没有尾巴肌肉（形状里没有）；眨眼没做（lo 档网格眼睛太小，会糊）。
+- 预热没有预取果冻的 2–4 MB `.bin`（档位运行时才定），靠 700 ms 后的小猪幕兜底。

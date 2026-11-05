@@ -6,7 +6,9 @@ let on = (() => { if (new URLSearchParams(location.search).get('sound') === '1')
 let ctx: AudioContext | null = null; let master: GainNode | null = null;
 const subs: ((on: boolean) => void)[] = [];
 export const soundOn = () => on;
-export function setSound(v: boolean) { on = v; try { localStorage.setItem(STORE, v ? '1' : '0'); } catch { /* */ } if (master) master.gain.value = v ? 0.6 : 0; subs.forEach(f => f(v)); }
+/** has she ever flipped the switch (or was ?sound=1 given)? Unset = muted by default, but a deliberate tap may offer sound */
+export const soundChosen = () => { try { return localStorage.getItem(STORE) !== null; } catch { return true; } };
+export function setSound(v: boolean, persist = true) { on = v; if (persist) try { localStorage.setItem(STORE, v ? '1' : '0'); } catch { /* */ } if (master) master.gain.value = v ? 0.6 : 0; subs.forEach(f => f(v)); }
 export function onSound(f: (on: boolean) => void) { subs.push(f); }
 export function unlock(): AudioContext | null {
   if (!ctx) {
@@ -24,4 +26,26 @@ export function blip(freq: number, dur = 0.08, type: OscillatorType = 'square', 
   o.type = type; o.frequency.setValueAtTime(freq, t0); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq + slide), t0 + dur);
   g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
   o.connect(g).connect(master); o.start(t0); o.stop(t0 + dur + 0.02);
+}
+
+/** a sounding note with a start delay and stereo pan: tone(880, .3, 'sine', .1, { at: .2, slide: -300, pan: -.5 }) */
+export function tone(freq: number, dur = 0.2, type: OscillatorType = 'sine', vol = 0.12, o: { at?: number; slide?: number; pan?: number; attack?: number } = {}) {
+  if (!on || !ctx || !master) return;
+  const t0 = ctx.currentTime + (o.at ?? 0), osc = ctx.createOscillator(), g = ctx.createGain(); const a = o.attack ?? 0.004;
+  osc.type = type; osc.frequency.setValueAtTime(freq, t0); if (o.slide) osc.frequency.exponentialRampToValueAtTime(Math.max(30, freq + o.slide), t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + a); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  let n: AudioNode = g; if (o.pan && ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, o.pan)); g.connect(p); n = p; }
+  osc.connect(g); n.connect(master); osc.start(t0); osc.stop(t0 + dur + 0.03);
+}
+let noiseBuf: AudioBuffer | null = null;
+/** filtered noise burst (pops, whooshes, taps): noise(.25, .2, { freq: 900, to: 200, q: 0.8, type: 'lowpass', at: 0 }) */
+export function noise(dur = 0.2, vol = 0.15, o: { freq?: number; to?: number; q?: number; type?: BiquadFilterType; at?: number; pan?: number; attack?: number } = {}) {
+  if (!on || !ctx || !master) return;
+  if (!noiseBuf) { noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  const t0 = ctx.currentTime + (o.at ?? 0), src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+  src.buffer = noiseBuf; src.loop = true; f.type = o.type ?? 'lowpass'; f.Q.value = o.q ?? 0.7; f.frequency.setValueAtTime(o.freq ?? 1200, t0);
+  if (o.to) f.frequency.exponentialRampToValueAtTime(Math.max(40, o.to), t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + (o.attack ?? 0.004)); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  let n: AudioNode = g; if (o.pan && ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, o.pan)); g.connect(p); n = p; }
+  src.connect(f).connect(g); n.connect(master); src.start(t0, Math.random() * 0.5); src.stop(t0 + dur + 0.03);
 }

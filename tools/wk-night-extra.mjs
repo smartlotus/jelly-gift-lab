@@ -21,6 +21,6 @@ await p.screenshot({ path: `${out}/pz-code.png` }); await p.close();
 p = await page('night/?at=E3&skip=1', seed({ ...S0, candle: true })); await p.evaluate(() => [...document.querySelectorAll('.nv-c')].find(x => x.dataset.k.startsWith('tun:1')).click());
 await p.mouse.move(195, 420); await p.mouse.down(); for (let i = 0; i < 30; i++) { await W(500); if (await p.$('.pz-gate')) break; } await p.mouse.up(); await W(800); await p.screenshot({ path: `${out}/pz-grate.png` }); await p.close();
 // resume card + Chinese
-p = await page('night/', seed({ ...S0, node: 'W2', nodes: ['S', 'F', 'W1', 'W2'], edges: ['fw', 'w12'], notes: [true, false, false], stickers: ['st1'] }, 'zh')); await p.screenshot({ path: `${out}/resume-zh.png` });
-await p.mouse.click(195, 640); await W(4000); await p.screenshot({ path: `${out}/w2-zh.png` }); await p.close();
+p = await page('night/', seed({ ...S0, node: 'W2', nodes: ['S', 'F', 'W1', 'W2'], edges: ['fw', 'w12'], notes: [true, false, false], stickers: ['st1'] }, 'zh')); await W(1800); await p.screenshot({ path: `${out}/resume-zh.png` });
+await W(4000); await p.screenshot({ path: `${out}/w2-zh.png` }); await p.close();
 console.log(errs.length ? errs.join('\n') : 'NO ERRORS'); await b.close();

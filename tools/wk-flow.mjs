@@ -1,7 +1,7 @@
 import { webkit, devices } from 'playwright';
 const base = process.argv[2] || 'http://localhost:8811/';
-const out = '/workspace/jelly/shots/v03e'; const tag = process.argv[3] || 'flow';
-const b = await webkit.launch(); const ctx = await b.newContext({ ...devices['iPhone 15'], locale: 'zh-CN' });
+const out = '/workspace/jelly/shots/v03g/flow'; const tag = process.argv[3] || 'flow';
+const b = await webkit.launch({ env: { ...process.env, GIO_USE_PROXY_RESOLVER: 'dummy', GSETTINGS_BACKEND: 'memory' } }); const ctx = await b.newContext({ ...devices['iPhone 15'], locale: 'zh-CN' });
 const p = await ctx.newPage(); const errs = [];
 p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); }); p.on('pageerror', e => errs.push('pageerror ' + e.message));
 p.on('framenavigated', f => { if (f === p.mainFrame()) console.log('nav', f.url()); });

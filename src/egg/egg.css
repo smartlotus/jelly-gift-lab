@@ -2,13 +2,13 @@
 @font-face { font-family: 'Playfair Egg'; src: url('../assets/fonts/PlayfairDisplay-sub.woff2') format('woff2'); font-weight: 400 900; font-style: normal; font-display: swap; }
 @font-face { font-family: 'Playfair Egg'; src: url('../assets/fonts/PlayfairDisplay-Italic-sub.woff2') format('woff2'); font-weight: 400 900; font-style: italic; font-display: swap; }
 
-.egg { --ivory: #f2ede3; --ivory-2: rgba(242,237,227,.68); --ivory-3: rgba(242,237,227,.28); --gold: #d9bc82;
+.egg { --ivory: #fff3ee; --ivory-2: rgba(255,243,238,.72); --ivory-3: rgba(255,243,238,.3); --gold: #f4b9cc;
   --e: cubic-bezier(.16,.84,.24,1);
   position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; color: var(--ivory);
   padding: calc(28px + var(--sat)) calc(24px + var(--sar)) calc(28px + var(--sab)) calc(24px + var(--sal)); }
 .egg-night { position: absolute; inset: 0; opacity: 0; transition: opacity 1.3s ease;
-  background: radial-gradient(120% 90% at 50% 42%, rgba(30,27,24,.80) 0%, rgba(14,13,12,.90) 55%, rgba(8,8,7,.96) 100%);
-  -webkit-backdrop-filter: blur(7px) saturate(.8); backdrop-filter: blur(7px) saturate(.8); }
+  background: radial-gradient(120% 90% at 50% 40%, rgba(58,26,44,.80) 0%, rgba(30,13,26,.91) 55%, rgba(14,6,13,.97) 100%);
+  -webkit-backdrop-filter: blur(7px) saturate(.9); backdrop-filter: blur(7px) saturate(.9); }
 .egg-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .egg.act1 .egg-night { opacity: 1; }
 
@@ -84,3 +84,11 @@
 .egg.tide .egg-card { opacity: 0; transform: translateY(-10vh); transition: opacity 1.4s ease .3s, transform 2.4s cubic-bezier(.45,0,.2,1); }
 .egg.tide .egg-fx { transform: translateY(-20vh); opacity: 0; transition: transform 2.4s cubic-bezier(.45,0,.2,1), opacity 1.8s ease .4s; }
 @media (prefers-reduced-motion: reduce) { .egg-up svg, .egg-water i { animation: none; } .egg.tide .egg-water { transition: none; } }
+
+/* v03g: sound switch, top right — the same shared switch every stage uses */
+.egg-snd { position: absolute; z-index: 2; top: calc(10px + var(--sat)); right: calc(10px + var(--sar)); width: 44px; height: 44px; display: grid; place-items: center; color: var(--ivory-2); opacity: 0; transition: opacity 1s ease .6s, color .3s; }
+.egg.act1 .egg-snd { opacity: 1; }
+.egg-snd:hover, .egg-snd:focus-visible { color: var(--ivory); outline: none; }
+.egg-snd svg { width: 22px; height: 22px; }
+.egg-snd .w { opacity: 0; transition: opacity .3s; } .egg-snd .x { opacity: .9; transition: opacity .3s; }
+.egg-snd[aria-pressed="true"] .w { opacity: 1; } .egg-snd[aria-pressed="true"] .x { opacity: 0; }

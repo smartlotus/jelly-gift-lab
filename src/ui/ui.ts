@@ -1,5 +1,4 @@
 import type { Colourway } from '../core/look';
-import type { Readouts, Metric } from '../app/engine';
 import { t, type Key } from '../i18n/i18n';
 import { progress as curtainProgress } from '../shared/curtain';
 
@@ -36,26 +35,6 @@ export function labelColourways() {
   const name = document.querySelector('.cw-name')!; if (cwList.length) name.textContent = t(`cw.${cwActive}` as Key);
 }
 
-const fmt = (v: number, d: number) => v.toFixed(d);
-let shown: Readouts | null = null; let metricDefs: Metric[] = [];
-/** (re)build the readout strip: mass, volume + the character's own measurements */
-export function buildReadouts(metrics: Metric[]) {
-  metricDefs = metrics; shown = null;
-  const root = document.querySelector('.readouts')!;
-  const cell = (id: string, lab: Key, unit: Key) =>
-    `<div class="ro"><span class="lab">${t(lab)}</span><span class="val"><span id="${id}">—</span><small>${t(unit)}</small></span></div>`;
-  root.innerHTML = cell('ro-mass', 'ro.mass', 'u.g') + cell('ro-vol', 'ro.vol', 'u.ml') + metrics.map((m, i) => cell(`ro-m${i}`, `m.${m.id}` as Key, 'u.cm')).join('');
-}
-export function updateReadouts(r: Readouts) {
-  // gentle easing so the numbers breathe with the jelly instead of flickering
-  if (!shown || shown.metrics.length !== r.metrics.length) shown = { ...r, metrics: [...r.metrics] };
-  const k = 0.45;
-  shown.massG += (r.massG - shown.massG) * k; shown.volumeMl += (r.volumeMl - shown.volumeMl) * k;
-  r.metrics.forEach((v, i) => { shown!.metrics[i] += (v - shown!.metrics[i]) * k; });
-  $('ro-mass').textContent = fmt(shown.massG, 1);
-  $('ro-vol').textContent = fmt(shown.volumeMl, 1);
-  shown.metrics.forEach((v, i) => { const el = document.getElementById(`ro-m${i}`); if (el) el.textContent = fmt(v, metricDefs[i]?.decimals ?? 2); });
-}
 export function setMasthead(id: string, num: string) {
   const name = t(`title.${id}` as Key);
   document.querySelector('.title em')!.textContent = name;

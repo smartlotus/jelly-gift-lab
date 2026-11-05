@@ -1,3 +1,4 @@
+import * as Audio from './shared/audio';
 import './ui/style.css';
 import * as I18N from './i18n/i18n';
 import { decodeAsset } from './sim/mesh';
@@ -130,7 +131,7 @@ async function boot() {
     UI.setColophon(I18N.t('colophon', { backend: I18N.t(kind === 'webgpu' ? 'backend.webgpu' : 'backend.webgl2'), tets: engine.path.asset.meta.tets.toLocaleString('en-US') }));
   };
   const label = (c: CharacterEntry) => {
-    UI.setMasthead(c.id, c.num); UI.labelColourways(); UI.buildReadouts(c.metrics);
+    UI.setMasthead(c.id, c.num); UI.labelColourways();
     canvas.setAttribute('aria-label', I18N.t('aria.canvas', { name: I18N.t(`title.${c.id}` as I18N.Key) }));
     UI.showHint(isMobile); colophon();
   };
@@ -143,7 +144,6 @@ async function boot() {
     label(c); veilTone();
   };
   const veilTone = () => { const b = engine.colour.bgBot, t = engine.colour.bgTop; const h = (v: number[]) => `rgb(${v.map(x => Math.round(255 * Math.pow(Math.min(1, x), 1 / 2.2))).join(',')})`; document.documentElement.style.setProperty('--veil', `linear-gradient(${h(t)}, ${h(b)})`); };
-  engine.onReadouts = r => UI.updateReadouts(r);
   engine.onFirstInteract = () => UI.fadeHint();
   dress(ch);
   I18N.onLang(() => label(ch));
@@ -178,7 +178,7 @@ async function boot() {
   const shroom = document.getElementById('shroom')!;
   const egg = () => import('./egg/egg');
   shroom.addEventListener('pointerenter', () => { egg(); }, { once: true });
-  shroom.addEventListener('click', async () => { (await egg()).openEgg(shroom, engine); });
+  shroom.addEventListener('click', async () => { Audio.unlock(); (await egg()).openEgg(shroom, engine); }); // unlock inside the tap: iOS only starts audio from a gesture
   // Journey arrival (/jelly/?from=night): once the shark is shown, a quiet glint on the mushroom after ~6 s (then every ~16 s),
   // at a moment she isn't dragging; stops once she found it. The egg leads on to /sea/.
   // dragging; stops once she found it. The egg leads on to /sky/ (抬头 / Look up).
@@ -220,7 +220,6 @@ async function boot() {
       else { grav.setAttribute('aria-pressed', 'true'); addEventListener('pointerup', e => { if (!grav.contains(e.target as Node) && !engine.sensor.on) void turnOn(); }, { once: true }); }
     }
   }
-  document.getElementById('bait')!.addEventListener('click', () => { engine.dropBait(); UI.fadeHint(); });
   document.getElementById('reset')!.addEventListener('click', () => engine.reset());
   document.addEventListener('visibilitychange', () => { if (document.hidden) engine.stop(); else engine.start(); });
   engine.start();
