@@ -372,3 +372,5 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 ### 已知不足
 - iOS 新页面在第一次触摸前 AudioContext 不能启动，所以 `irisIn` 抵达音只有在本页已触摸过后才会响（v03g 的首触解锁仍在）。
 - /coop/ 进入时 WebKit 控制台有一条 `NotAllowedError`（无手势 resume，v03h 线上就有，无害）。
+
+**v03i 已交付（2026-11-04）**：PR #6 合并，master `52caa2d`，tag `v03i`；`smartlotus/jelly-gift` main `1c2d5de`。线上 WebKit iPhone 15 模拟：所有新增音效点均发声（v03i-check.mjs，BASE=线上），Lotus30 检视为彩色且立起。展厅 `lotus30-figures-web` PR #1 → main `9602a08`，gh-pages `de48437`。回滚：`git checkout v03h && GIFT_DEPLOY=1 scripts/deploy_pages.sh /workspace/jelly/jelly-gift`。
