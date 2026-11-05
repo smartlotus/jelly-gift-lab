@@ -73,7 +73,7 @@ export function bindSound() {
   onSound(mark); mark();
 }
 export function bindLang(current: string, onPick: (l: 'zh' | 'en') => void) {
-  const btns = document.querySelectorAll<HTMLButtonElement>('.lang button');
+  const btns = document.querySelectorAll<HTMLButtonElement>('.lang button[data-lang]');
   const mark = (l: string) => btns.forEach(b => { const on = b.dataset.lang === l; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
   btns.forEach(b => b.addEventListener('click', () => { Sfx.tap(); onPick(b.dataset.lang as 'zh' | 'en'); mark(b.dataset.lang!); }));
   mark(current);
