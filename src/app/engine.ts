@@ -44,6 +44,7 @@ export class Engine {
   readouts: Readouts = { massG: 0, volumeMl: 0, metrics: [] };
   metrics: Metric[] = []; character!: CharacterSetup;
   onReadouts?: (r: Readouts) => void;
+  onGrab?: () => void; onRelease?: () => void; onTwist?: () => void;
   onFirstInteract?: () => void;
   lockstep = new URLSearchParams(location.search).has('lockstep');
   fps = 0; simHz = 0; rafFps = 0; frames = 0; fpsT = 0; frameMs = 0; private pres0 = 0; private sim0 = 0;
@@ -401,7 +402,7 @@ export class Engine {
       this.firstInteract();
       if (this.pointers.size === 1) {
         const hit = this.pick(e.clientX, e.clientY);
-        if (hit) { this.mode = 'grab'; this.startGrab(hit.node, hit.p, 0.075); }
+        if (hit) { this.mode = 'grab'; this.startGrab(hit.node, hit.p, 0.075); this.onGrab?.(); }
         else { this.mode = 'orbit'; this.orbitStart = { x: e.clientX, y: e.clientY, yaw: this.camGoal.yaw, pitch: this.camGoal.pitch }; }
       } else if (this.pointers.size === 2) {
         const [a, b] = [...this.pointers.values()];
@@ -430,7 +431,7 @@ export class Engine {
     });
     const up = (e: PointerEvent) => {
       this.pointers.delete(e.pointerId);
-      if (this.pointers.size === 0) { this.mode = 'none'; this.grab.active = false; this.grab.twist = 0; }
+      if (this.pointers.size === 0) { if (this.mode === 'grab' || this.mode === 'twist') this.onRelease?.(); this.mode = 'none'; this.grab.active = false; this.grab.twist = 0; }
       else if (this.mode === 'twist') { this.mode = 'grab'; }
       else if (this.mode === 'pinch') { this.mode = 'none'; }
     };
@@ -445,7 +446,7 @@ export class Engine {
         this.startGrab(hit.node, hit.p, 0.11);
       }
       this.grab.twist = Math.max(-2.2, Math.min(2.2, this.grab.twist + dy * 0.004));
-      this.wheelTimer = 0.7;
+      this.wheelTimer = 0.7; this.onTwist?.();
     }, { passive: false });
   }
 

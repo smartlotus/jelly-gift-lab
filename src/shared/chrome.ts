@@ -4,6 +4,7 @@
 import './chrome.css';
 import { apply, lang, onLang, setLang, t, type Lang } from './i18n';
 import { onSound, setSound, soundOn, unlock } from './audio';
+import * as Sfx from './sfx';
 
 export function mountChrome(opts: { sound?: boolean; theme?: 'light' | 'dark' } = {}) {
   document.documentElement.dataset.theme = opts.theme ?? 'light';
@@ -18,8 +19,8 @@ export function mountChrome(opts: { sound?: boolean; theme?: 'light' | 'dark' } 
   };
   bar.addEventListener('click', e => {
     const b = (e.target as HTMLElement).closest('button'); if (!b) return;
-    if (b.dataset.lang) setLang(b.dataset.lang as Lang);
-    else if (b.classList.contains('gc-sound')) { unlock(); setSound(!soundOn()); }
+    if (b.dataset.lang) { setLang(b.dataset.lang as Lang); Sfx.tap(); }
+    else if (b.classList.contains('gc-sound')) { unlock(); const next = !soundOn(); setSound(next); next ? Sfx.toggleOn() : Sfx.toggleOff(); }
   });
   onLang(sync); onSound(sync); apply(); sync();
   // invisible audio unlock: the very first gesture anywhere on the page creates/resumes the shared AudioContext (iOS rule)

@@ -9,6 +9,7 @@
 //   (ar     /ar/      side room of the shop: the figure on a real table; returns to the same exhibit)
 // vite base is './' so every URL here is RELATIVE (works under https://smartlotus.github.io/jelly-gift/ and any host).
 import { cover } from './curtain';
+import { whoosh } from './sfx';
 export type StageId = 'meadow' | 'shop' | 'night' | 'jelly' | 'sea' | 'sky' | 'coop' | 'ar';
 export const STAGES: readonly StageId[] = ['meadow', 'shop', 'night', 'jelly', 'sea', 'sky', 'coop'];
 const PATH: Record<StageId, string> = { meadow: '', shop: 'shop/', night: 'night/', jelly: 'jelly/', sea: 'sea/', sky: 'sky/', coop: 'coop/', ar: 'ar/' };
@@ -75,6 +76,7 @@ export function prefetchNext(id: StageId = here) { const n = nextStage(id); if (
 export async function go(to: StageId | null = nextStage(), outro?: () => Promise<void>, extra: Record<string, string> = {}) {
   if (!to) return;
   markReached(to); warm(to, extra); // the outro (iris close, dissolve) is time to fetch the next page's code
+  whoosh(true);
   if (outro) await outro();
   await cover(to); // v03e: the loading curtain (pig hopping on the closed colour) bridges the page load
   location.assign(stageUrl(to, { from: here, ...extra }));

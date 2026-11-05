@@ -17,7 +17,24 @@ import { Pad, mountPads } from './controls';
 import { Link } from './net';
 import { qrCanvas, scan } from './qr';
 import * as dict from './dict';
+import * as Sfx from '../../shared/sfx';
 import './style.css';
+
+/** v03i: listen to the shared sim (host/solo step or guest snapshot) and play the edges — jumps, landings, plates, gate, steps, finale */
+function coopEars() {
+  let prev: { g: boolean[]; vy: number[]; pl: boolean[]; gate: boolean; steps: boolean; end: boolean } | null = null;
+  return (sim: Sim) => {
+    const now = { g: sim.b.map(b => b.ground), vy: sim.b.map(b => b.vy), pl: sim.plates.slice(), gate: sim.gate > 0.5, steps: sim.steps, end: sim.end >= 0 };
+    if (prev) {
+      now.g.forEach((g, i) => { if (prev!.g[i] && !g && now.vy[i] < -40) Sfx.jump(now.vy[i] < -360); else if (!prev!.g[i] && g && prev!.vy[i] > 120) Sfx.land(); });
+      now.pl.forEach((p, i) => { if (p !== prev!.pl[i] && sim.L.plates[i]?.kind !== 'heart') Sfx.plate(p); else if (p && !prev!.pl[i]) Sfx.softChime(); });
+      if (now.gate !== prev.gate) Sfx.gate(now.gate);
+      if (now.steps && !prev.steps) Sfx.stepsUp();
+      if (now.end && !prev.end) Sfx.coopWin();
+    }
+    prev = now;
+  };
+}
 
 register(dict);
 const ICON = {
@@ -85,6 +102,7 @@ function boot() {
 
   // ================= play =================
   function play(role: 'solo' | 'host' | 'guest', link?: Link, remoteW = 0) {
+    const ears = coopEars(); if (role !== 'solo') Sfx.coopJoin();
     ui.innerHTML = ''; document.body.classList.add('cp-playing');
     try { void (navigator as Navigator & { wakeLock?: { request(t: string): Promise<unknown> } }).wakeLock?.request('screen'); } catch { /* */ }
     // minH > world height: smaller pixels, a wider view, and room under the picture for the thumbs
@@ -115,7 +133,7 @@ function boot() {
         else if (o.k === 's' && o.s) { snapA = snapB; snapB = o.s; tB = performance.now(); }
         else if (o.k === 'w' && o.w) otherW = o.w;
       };
-      link.onClose = () => { lost.hidden = false; remote.ax = 0; remote.held = false; };
+      link.onClose = () => { Sfx.coopFail(); lost.hidden = false; remote.ax = 0; remote.held = false; };
       scr.onResize(() => link.send({ k: 'w', w: scr.w })); link.send({ k: 'w', w: scr.w });
     }
     const auto = params.has('auto');
@@ -132,7 +150,7 @@ function boot() {
       const a: PIn = auto ? autoIn(0) : padIn(pads[0]);
       const b: PIn = auto ? autoIn(1) : role === 'solo' ? padIn(pads[1]) : { ax: remote.ax, held: remote.held, hit: remote.seq !== remote.last };
       remote.last = remote.seq;
-      sim.step([a, b], dt);
+      sim.step([a, b], dt); ears(sim);
       if (role === 'host' && n % 2 === 0) link?.send({ k: 's', s: sim.snapshot() });
       again.hidden = !(sim.end > 7);
       if (home.hidden !== !(sim.end > 7)) home.hidden = !(sim.end > 7);
@@ -142,7 +160,7 @@ function boot() {
         // render ~one snapshot behind, interpolating positions + camera (30 Hz -> smooth 60 Hz)
         const k = snapA ? Math.min(1, (performance.now() - tB) / 33) : 1, s = snapB.slice();
         if (snapA) for (const i of [0, 1, 6, 7, 12]) s[i] = snapA[i] + (snapB[i] - snapA[i]) * k;
-        sim.load(s); art.render(scr.ctx, sim, sim.camX + otherW, scr.w, scr.h); if (home.hidden !== !(sim.end > 7)) home.hidden = !(sim.end > 7);
+        sim.load(snapB); ears(sim); sim.load(s); art.render(scr.ctx, sim, sim.camX + otherW, scr.w, scr.h); if (home.hidden !== !(sim.end > 7)) home.hidden = !(sim.end > 7);
       } else art.render(scr.ctx, sim, sim.camX + (role === 'host' ? 0 : 0), scr.w, scr.h);
     });
     (window as unknown as { __coop: unknown }).__coop = { get sim() { return sim; }, role, scr };
