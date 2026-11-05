@@ -247,6 +247,7 @@ export class Engine {
     return [x, y, z];
   }
   updateReadouts(dt: number) {
+    if (!this.onReadouts) return; // v03g: the stats row is gone; skip the per-tet volume sums
     this.roT += dt; if (this.roT < 0.1) return; this.roT = 0;
     const nd = this.path.nodes(); if (!nd) return;
     const a = this.path.asset; const { data, stride } = nd; const T = a.tets;

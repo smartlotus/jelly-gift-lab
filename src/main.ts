@@ -130,7 +130,7 @@ async function boot() {
     UI.setColophon(I18N.t('colophon', { backend: I18N.t(kind === 'webgpu' ? 'backend.webgpu' : 'backend.webgl2'), tets: engine.path.asset.meta.tets.toLocaleString('en-US') }));
   };
   const label = (c: CharacterEntry) => {
-    UI.setMasthead(c.id, c.num); UI.labelColourways(); UI.buildReadouts(c.metrics);
+    UI.setMasthead(c.id, c.num); UI.labelColourways();
     canvas.setAttribute('aria-label', I18N.t('aria.canvas', { name: I18N.t(`title.${c.id}` as I18N.Key) }));
     UI.showHint(isMobile); colophon();
   };
@@ -143,7 +143,6 @@ async function boot() {
     label(c); veilTone();
   };
   const veilTone = () => { const b = engine.colour.bgBot, t = engine.colour.bgTop; const h = (v: number[]) => `rgb(${v.map(x => Math.round(255 * Math.pow(Math.min(1, x), 1 / 2.2))).join(',')})`; document.documentElement.style.setProperty('--veil', `linear-gradient(${h(t)}, ${h(b)})`); };
-  engine.onReadouts = r => UI.updateReadouts(r);
   engine.onFirstInteract = () => UI.fadeHint();
   dress(ch);
   I18N.onLang(() => label(ch));
@@ -220,7 +219,6 @@ async function boot() {
       else { grav.setAttribute('aria-pressed', 'true'); addEventListener('pointerup', e => { if (!grav.contains(e.target as Node) && !engine.sensor.on) void turnOn(); }, { once: true }); }
     }
   }
-  document.getElementById('bait')!.addEventListener('click', () => { engine.dropBait(); UI.fadeHint(); });
   document.getElementById('reset')!.addEventListener('click', () => engine.reset());
   document.addEventListener('visibilitychange', () => { if (document.hidden) engine.stop(); else engine.start(); });
   engine.start();
