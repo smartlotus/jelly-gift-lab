@@ -27,3 +27,13 @@ export function mountChrome(opts: { sound?: boolean; theme?: 'light' | 'dark' } 
   addEventListener('pointerdown', first, true); addEventListener('keydown', first, true); addEventListener('touchend', first, true);
   return bar;
 }
+
+/** one-time soft pulse on the sound toggle (no text). Used by night on first entry when sound is still off. */
+export function flashSound(times = 3) {
+  const b = document.querySelector<HTMLButtonElement>('.gift-chrome .gc-sound');
+  if (!b || soundOn()) return;
+  try { if (sessionStorage.getItem('gift.sound.nudge') === '1') return; sessionStorage.setItem('gift.sound.nudge', '1'); } catch { /* */ }
+  b.classList.add('nudge');
+  setTimeout(() => b.classList.remove('nudge'), 900 * times + 400);
+}
+

@@ -53,3 +53,12 @@ html[lang="zh-CN"] .gk-title { font-style: normal; font-family: var(--serif); fo
 .touchpad button svg { width: 26px; height: 26px; }
 .touchpad .tp-a { width: 80px; height: 80px; }
 .touchpad button[hidden] { display: none; }
+
+/* v03h: one soft pulse of the sound toggle on night entry — no card, no text */
+.gc-sound.nudge { animation: gc-snd-nudge 2.6s var(--ease) 1; }
+@keyframes gc-snd-nudge {
+  0%, 100% { color: var(--ink-2); text-shadow: none; transform: none; }
+  12%, 38%, 64% { color: var(--ink); text-shadow: 0 0 10px rgba(255,200,160,.55); transform: scale(1.08); }
+  25%, 51%, 77% { color: var(--ink-2); text-shadow: none; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .gc-sound.nudge { animation: none; color: var(--ink); } }

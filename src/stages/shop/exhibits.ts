@@ -1,6 +1,6 @@
 // The four printed objects on display (data from lotus-3d-figures docs/PROJECT_README_v5.md §4).
 // Each GLB has one mesh per colour part, named 'NN_key' (e.g. '08_pink'); COLOURS maps key -> filament hex + names.
-export type ExhibitId = 'figure-pig' | 'figure-cat' | 'magnet-pig' | 'magnet-cat' | 'pair';
+export type ExhibitId = 'figure-pig' | 'figure-cat' | 'magnet-pig' | 'magnet-cat' | 'pair' | 'cat-fig' | 'pig-fig' | 'cat-relief' | 'pig-relief';
 export interface Exhibit {
   id: ExhibitId; no: string; kind: 'figure' | 'magnet' | 'pair';
   size: string;          // X × Y × Z mm (print bed axes)
@@ -16,6 +16,11 @@ export const EXHIBITS: Exhibit[] = [
   { id: 'magnet-cat', no: '04', kind: 'magnet', size: '70.1 × 55.0 × 8.9', parts: 15, x: 651, y: 129, box: 36 },
   // the couple set on the counter: dovetailed pig + cat that slide together (the half hearts on the seam make one heart)
   { id: 'pair', no: '05', kind: 'pair', size: '121.8 × 31.9 × 47.8', parts: 21, x: 816, y: 121, box: 78 },
+  // v03h · Lotus30 Notion set (complete figures + reliefs with magnet slots)
+  { id: 'pig-fig', no: '06', kind: 'figure', size: '84.0 × 53.0 × 66.0', parts: 17, x: 1000, y: 124, box: 88 },
+  { id: 'cat-fig', no: '07', kind: 'figure', size: '82.0 × 50.0 × 68.3', parts: 15, x: 1160, y: 124, box: 88 },
+  { id: 'pig-relief', no: '08', kind: 'magnet', size: '67.8 × 56.4 × 8.1', parts: 16, x: 1310, y: 129, box: 40 },
+  { id: 'cat-relief', no: '09', kind: 'magnet', size: '69.0 × 65.0 × 7.6', parts: 15, x: 1350, y: 129, box: 40 },
 ];
 /** pair = two GLBs; the cat sits at +60.8493 mm X when assembled (lotus-3d-figures README v5, dx) */
 export const PAIR_DX = 0.608493;
@@ -44,5 +49,11 @@ export const COLOURS: Record<string, { hex: string; en: string; zh: string }> = 
   cover: { hex: '#9CC8EE', en: 'Book blue', zh: '书封蓝' },
 };
 /** the magnet-cat plate is lavender, not mint */
-export const colourOf = (ex: ExhibitId, key: string) => (key === 'plate' && ex === 'magnet-cat' ? { hex: '#E4DCF5', en: 'Lavender', zh: '薰衣草' } : COLOURS[key] ?? { hex: '#ccc', en: key, zh: key });
+export const colourOf = (ex: ExhibitId, key: string) => {
+  if (key === 'plate' && ex === 'magnet-cat') return { hex: '#E4DCF5', en: 'Lavender', zh: '薰衣草' };
+  if (COLOURS[key]) return COLOURS[key];
+  // v03h: lotus30 meshes are named NN_<hex> — use the hex itself
+  if (/^[0-9a-fA-F]{6}$/.test(key)) return { hex: '#' + key.toLowerCase(), en: '#' + key.toLowerCase(), zh: '#' + key.toLowerCase() };
+  return { hex: '#ccc', en: key, zh: key };
+};
 export const partKey = (meshName: string) => meshName.replace(/^\d+_/, '').replace(/[._]\d+$/, '');

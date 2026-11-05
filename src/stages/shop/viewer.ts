@@ -74,6 +74,14 @@ export class Viewer {
     { k: '#ffc89a', kp: [-3.2, 1.3, 2.0], ki: 2.0, env: 0.3, exp: 0.9 },
   ];
   cycleMood() { this.mood = (this.mood + 1) % Viewer.MOODS.length; this.onChange(); return this.mood; }
+  /** v03h: for relief magnets, tween to the back so the magnet pockets show */
+  private flipped = false;
+  flipBack() {
+    const m = this.current && this.models.get(this.current); if (!m || !m.magnet) return false;
+    this.flipped = !this.flipped;
+    const a = this.pose(), b = { az: this.flipped ? Math.PI : 0, el: this.flipped ? 0.35 : 0.12, d: D, m: INSPECT_M };
+    this.tween = { t: 0, dur: 0.7, a, b, spinA: m.spin, spinB: 0 }; m.spin = 0; this.autoSpin = false; this.onChange(); return this.flipped;
+  }
   private stepMood(dt: number) {
     const m = Viewer.MOODS[this.mode === 'display' ? 0 : this.mood], T = this.moodT, a = Math.min(1, dt * 4);
     T.k.lerp(new Color(m.k), a); T.kp.lerp(new Vector3(m.kp[0], m.kp[1], m.kp[2]), a); T.ki += (m.ki - T.ki) * a; T.env += (m.env - T.env) * a; T.exp += (m.exp - T.exp) * a;
@@ -145,7 +153,7 @@ export class Viewer {
     } catch { /* best effort */ } finally { m.root.visible = false; }
   }
   private prepare(id: ExhibitId, gs: Object3D): Model {
-    const magnet = id.startsWith('magnet');
+    const magnet = id.startsWith('magnet') || id.endsWith('-relief');
     const root = new Group(), norm = new Group(), orient = new Group();
     orient.add(gs); norm.add(orient); root.add(norm); this.scene.add(root); root.visible = false;
     if (magnet) orient.rotation.x = Math.PI / 2;                  // relief lies flat on the bed (print up = +Y) -> face the viewer

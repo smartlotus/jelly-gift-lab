@@ -55,6 +55,8 @@ export class Inspect {
           <button type="button" class="si-btn" data-k="split" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1"/><rect x="14" y="14" width="6.5" height="6.5" rx="1"/></svg></button>
           <button type="button" class="si-btn" data-k="spin" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="8.5" ry="3.6"/><path d="M15.5 6.6l2.6 1.9-2.4 2"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg></button>
           <button type="button" class="si-btn si-light" data-k="light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6"/></svg><i></i></button>
+          <button type="button" class="si-btn" data-k="flip" hidden data-i18n="shop.i.flip">Flip</button>
+          <a class="si-btn si-out" data-k="showcase" href="https://smartlotus.github.io/lotus30-figures-web/" target="_blank" rel="noopener" hidden data-i18n="shop.showcase">Studio</a>
           <button type="button" class="si-btn si-ar" data-k="ar" hidden>${AR_ICON}</button>
           <button type="button" class="si-next" data-i18n-aria="shop.i.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 5l7 7-7 7"/></svg></button>
         </nav>
@@ -69,6 +71,7 @@ export class Inspect {
       else if (b.dataset.k === 'split') v.toggleSplit();
       else if (b.dataset.k === 'spin') { v.autoSpin = !v.autoSpin; this.sync(); }
       else if (b.dataset.k === 'light') v.cycleMood();
+      else if (b.dataset.k === 'flip') { const on = v.flipBack(); b.setAttribute('aria-pressed', String(on)); }
       else if (b.dataset.k === 'ar' && isArId(this.id)) { b.classList.remove('suggest'); if (quickLook()) openQuickLook(this.id); else { const id = this.id; void go('ar', () => dissolve(1, 650, AR_PAPER), { m: id }); } }
       else if (b.dataset.sw !== undefined) v.solo(b.dataset.sw || null);
     });
@@ -123,6 +126,9 @@ export class Inspect {
     this.el.querySelector('[data-k="split"]')!.setAttribute('aria-pressed', String(v.split()));
     this.el.querySelector('[data-k="spin"]')!.setAttribute('aria-pressed', String(v.autoSpin));
     this.el.querySelector<HTMLButtonElement>('[data-k="ar"]')!.hidden = !isArId(this.id);
+    const isLotus = !!this.id && (this.id.endsWith('-relief') || this.id.endsWith('-fig'));
+    const flip = this.el.querySelector<HTMLButtonElement>('[data-k="flip"]'); if (flip) flip.hidden = !(this.id && this.id.endsWith('-relief'));
+    const show = this.el.querySelector<HTMLElement>('[data-k="showcase"]'); if (show) show.hidden = !isLotus;
     const lb = this.el.querySelector<HTMLElement>('[data-k="light"]')!; lb.dataset.mood = String(v.mood); this.fill();
   }
 }
