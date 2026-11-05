@@ -53,7 +53,7 @@ const head = (who: 'pig' | 'cat', k = 6) => { const s = who === 'pig' ? pigSprit
 const bc = 'BroadcastChannel' in window ? new BroadcastChannel('jelly-coop') : null;
 const hashCode = location.hash.slice(1);
 if (/^a[zr]/.test(hashCode)) {
-  mountChrome({ sound: false });
+  mountChrome(); // v03i: sound switch on
   bc?.postMessage({ a: hashCode }); try { localStorage.setItem('jelly.coop.answer', JSON.stringify({ a: hashCode, t: Date.now() })); } catch { /* */ }
   const d = document.createElement('div'); d.className = 'cp-relay'; d.append(head('cat'), head('pig'));
   const p = document.createElement('p'); p.dataset.i18n = 'coop.linked'; d.append(p); document.body.append(d); apply(); onLang(() => apply());
@@ -95,7 +95,7 @@ function dawnArrive() {
 }
 
 function boot() {
-  mountChrome({ sound: false });
+  mountChrome(); // v03i: sound switch on
   const gameEl = document.getElementById('coop')!;
   const ui = document.createElement('div'); ui.className = 'cp-ui'; document.body.appendChild(ui);
   const preview = params.has('preview');
@@ -117,12 +117,12 @@ function boot() {
     const lost = document.createElement('div'); lost.className = 'cp-lost'; lost.innerHTML = ICON.link; lost.hidden = true; document.body.appendChild(lost);
     // the finale: hearts across the screens, then two quiet choices — again, or the whole journey from the start
     const home = document.createElement('button'); home.type = 'button'; home.className = 'cp-home'; home.innerHTML = ICON.home; home.dataset.i18nAria = 'coop.home'; home.hidden = true; document.body.appendChild(home);
-    home.addEventListener('click', () => { link?.close(); void go('meadow', () => reduced ? Promise.resolve() : irisOut(tapX, tapY, 700)); });
+    home.addEventListener('click', () => { Sfx.tap(); link?.close(); void go('meadow', () => reduced ? Promise.resolve() : irisOut(tapX, tapY, 700)); });
     // one phone (the default in the journey) can still become two: a small two-phones button, top left
     if (role === 'solo') { const lk = document.createElement('button'); lk.type = 'button'; lk.className = 'cp-tolink'; lk.innerHTML = ICON.duo; lk.dataset.i18nAria = 'coop.duo'; document.body.appendChild(lk);
       lk.addEventListener('click', () => void (reduced ? Promise.resolve() : irisOut(tapX, tapY, 480, '#f6efe4')).then(() => location.assign(`${location.pathname}?${new URLSearchParams({ ...(params.get('lang') ? { lang: params.get('lang')! } : {}), duo: '1' })}`))); }
     apply();
-    again.addEventListener('click', () => { if (role !== 'guest') void iris(() => { sim = new Sim(view); again.hidden = true; }, '#FFF8EE'); });
+    again.addEventListener('click', () => { Sfx.tap(); if (role !== 'guest') void iris(() => { sim = new Sim(view); again.hidden = true; }, '#FFF8EE'); });
     // network
     const remote = { ax: 0, held: false, seq: 0, last: 0 };
     let snapA: number[] | null = null, snapB: number[] | null = null, tB = 0;
@@ -223,7 +223,7 @@ function boot() {
     s.done.then(then).catch(e => { console.warn(e); box.hidden = true; ui.querySelector('.cp-qr')?.removeAttribute('hidden'); });
   }
   ui.addEventListener('click', e => {
-    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-m]'); if (!b) return;
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-m]'); if (!b) return; Sfx.tap();
     const m = b.dataset.m;
     if (m === 'duo') void host();
     else if (m === 'solo') { link?.close(); void iris(() => play('solo')); }

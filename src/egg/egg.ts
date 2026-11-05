@@ -6,6 +6,7 @@ import './egg.css';
 import { t, lang } from '../i18n/i18n';
 import { go } from '../shared/flow';
 import * as Audio from '../shared/audio';
+import * as Sfx from '../shared/sfx';
 
 type Celebrant = { celebrate?: (times?: number, gap?: number) => void };
 const NAME = 'lushiva';
@@ -211,7 +212,7 @@ export function openEgg(trigger?: HTMLElement, scene?: Celebrant) {
   (root.querySelector('[data-a="close"]') as HTMLButtonElement)?.focus({ preventScroll: true });
   const bind = () => {
     root.querySelector('[data-a="close"]')!.addEventListener('click', close);
-    root.querySelector('[data-a="replay"]')!.addEventListener('click', run);
+    root.querySelector('[data-a="replay"]')!.addEventListener('click', () => { Sfx.tap(); run(); });
     root.querySelector('.egg-num')!.addEventListener('click', run);
     const snd = root.querySelector('[data-a="snd"]') as HTMLButtonElement;
     snd.addEventListener('click', () => { Audio.unlock(); Audio.setSound(!Audio.soundOn()); snd.setAttribute('aria-pressed', String(Audio.soundOn())); if (Audio.soundOn()) Audio.tone(988, 0.3, 'triangle', 0.06); });
@@ -221,11 +222,11 @@ export function openEgg(trigger?: HTMLElement, scene?: Celebrant) {
   let leavingUp = false;
   const lookUp = () => {
     if (leavingUp) return; leavingUp = true; removeEventListener('keydown', onKey); timers.forEach(clearTimeout);
-    root.classList.add('tide');
+    root.classList.add('tide'); Sfx.tide();
     void go('sea', () => new Promise(r => setTimeout(r, reduce ? 10 : 2600)));
   };
   const close = () => {
-    root.classList.add('leaving'); removeEventListener('keydown', onKey);
+    Sfx.whoosh(); root.classList.add('leaving'); removeEventListener('keydown', onKey);
     timers.forEach(clearTimeout);
     setTimeout(() => { fx?.stop(); root.remove(); open = false; trigger?.focus({ preventScroll: true }); }, reduce ? 10 : 900);
   };

@@ -6,6 +6,7 @@
 // Look: NeutralToneMapping + RoomEnvironment PMREM (procedural, no HDR file) + a warm key light with soft PCF shadows,
 // matte-PLA material (rough, faint sheen) with 0.2 mm print layer lines that fade in only when you zoom close.
 // All models are normalised to a radius-1 sphere centred at the origin, so one camera/light rig fits all.
+import * as Sfx from '../../shared/sfx';
 import {
   WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, MeshPhysicalMaterial, MeshBasicMaterial, ShadowMaterial, PMREMGenerator,
   DirectionalLight, NeutralToneMapping, PlaneGeometry, CanvasTexture, Box3, Vector3, Matrix4, PCFShadowMap, MathUtils,
@@ -370,7 +371,7 @@ export class Viewer {
       const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), dt = performance.now() - down.t; down = null;
       if (moved > 8 || dt > 300) return;
       const now = performance.now();
-      if (now - lastTap < 320) { lastTap = 0; this.reset(); } else { lastTap = now; this.squish(); }
+      if (now - lastTap < 320) { lastTap = 0; this.reset(); Sfx.jellyReset(); } else { lastTap = now; this.squish(); Sfx.squish(); }
     };
     this.canvas.addEventListener('pointerup', up); this.canvas.addEventListener('pointercancel', () => { pointers = Math.max(0, pointers - 1); down = null; });
   }

@@ -10,7 +10,8 @@ export const toggleOn = () => { if (!go()) return; tone(988, 0.22, 'triangle', 0
 export const toggleOff = () => { if (!go()) return; tone(660, 0.18, 'triangle', 0.05, { slide: -220 }); };
 
 /** page transitions / iris */
-export const whoosh = (deep = false) => { if (!go()) return; noise(deep ? 0.55 : 0.35, deep ? 0.07 : 0.045, { type: 'lowpass', freq: deep ? 500 : 900, to: 120, q: 0.6 }); tone(deep ? 110 : 180, deep ? 0.5 : 0.32, 'sine', 0.03, { slide: deep ? -60 : -90 }); };
+let lastWhoosh = 0;
+export const whoosh = (deep = false) => { const n = performance.now(); if (n - lastWhoosh < 400 || !go()) return; lastWhoosh = n; noise(deep ? 0.55 : 0.35, deep ? 0.07 : 0.045, { type: 'lowpass', freq: deep ? 500 : 900, to: 120, q: 0.6 }); tone(deep ? 110 : 180, deep ? 0.5 : 0.32, 'sine', 0.03, { slide: deep ? -60 : -90 }); };
 export const arrive = () => { if (!go()) return; tone(523, 0.35, 'sine', 0.035); later(90, () => tone(784, 0.4, 'sine', 0.025)); };
 
 /** jelly soft-body */
@@ -35,3 +36,11 @@ export const coopFail = () => { if (!go()) return; blip(180, 0.25, 'sawtooth', 0
 /** sky / quiet pages */
 export const softChime = () => { if (!go()) return; tone(784, 0.4, 'sine', 0.04); later(100, () => tone(1175, 0.5, 'sine', 0.03)); };
 export const tick = () => { if (!go()) return; blip(1200, 0.03, 'square', 0.03); };
+export const twinkle = () => { if (!go()) return; [1568, 2093, 2637].forEach((f, i) => later(i * 60, () => tone(f, 0.5, 'sine', 0.018, { pan: (i - 1) * 0.5 }))); };
+export const dawn = () => { if (!go()) return; noise(3.2, 0.03, { type: 'lowpass', freq: 300, to: 2400, q: 0.5, attack: 1.2 }); [262, 330, 392, 523].forEach((f, i) => later(600 + i * 450, () => tone(f, 1.4, 'sine', 0.03, { attack: 0.3 }))); };
+export const turn = () => { if (!go()) return; noise(0.22, 0.03, { type: 'bandpass', freq: 1200, to: 600, q: 1.2 }); blip(700, 0.05, 'sine', 0.03); };
+export const place = () => { if (!go()) return; blip(196, 0.12, 'sine', 0.06, -40); later(110, () => tone(784, 0.35, 'sine', 0.04)); };
+export const squish = () => { if (!go()) return; blip(260, 0.12, 'sine', 0.05, 160); noise(0.1, 0.02, { type: 'bandpass', freq: 500, to: 250, q: 1 }); };
+export const split = (apart: boolean) => { if (!go()) return; [0, 60, 120].forEach((d, i) => later(d, () => blip(apart ? 600 + i * 150 : 900 - i * 150, 0.06, 'triangle', 0.035))); };
+export const lamp = () => { if (!go()) return; blip(2400, 0.02, 'square', 0.025); later(30, () => tone(330, 0.3, 'sine', 0.02)); };
+export const tide = () => { if (!go()) return; noise(2.6, 0.06, { type: 'lowpass', freq: 160, to: 900, q: 0.6, attack: 1.4 }); tone(73, 2.4, 'sine', 0.05, { slide: 37, attack: 1 }); later(1600, () => tone(587, 1.2, 'sine', 0.02)); };

@@ -151,7 +151,7 @@ async function boot() {
   engine.onTwist = () => Sfx.jellyTwist();
   dress(ch);
   I18N.onLang(() => label(ch));
-  UI.bindLang(I18N.lang, l => I18N.setLang(l));
+  UI.bindLang(I18N.lang, l => I18N.setLang(l)); UI.bindSound();
   let switching = false; var nudgeT = 0;
   const switchTo = async (id: string) => {
     const next = CHARACTERS.find(c => c.id === id && c.ready);
