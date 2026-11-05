@@ -155,6 +155,9 @@ export class Viewer {
   }
   private prepare(id: ExhibitId, gs: Object3D): Model {
     const magnet = id.startsWith('magnet') || id.endsWith('-relief');
+    // v03i fix: the Lotus30 GLBs came straight from 3MF (Z-up, colour in baseColorFactor, no texture) — bake Z-up -> Y-up into
+    // the children so the print-space maths below (+Y = print up) holds, and keep their own colours (see material below)
+    if (id.endsWith('-fig') || id.endsWith('-relief')) { const rx = new Matrix4().makeRotationX(-Math.PI / 2); [...gs.children].forEach(ch => { ch.applyMatrix4(rx); }); gs.updateMatrixWorld(true); }
     const root = new Group(), norm = new Group(), orient = new Group();
     orient.add(gs); norm.add(orient); root.add(norm); this.scene.add(root); root.visible = false;
     if (magnet) orient.rotation.x = Math.PI / 2;                  // relief lies flat on the bed (print up = +Y) -> face the viewer
@@ -174,7 +177,7 @@ export class Viewer {
       const src = mesh.material as Material & { map?: Texture | null; roughness?: number; metalness?: number; side: number };
       const metal = (src.metalness ?? 0) > 0.2;
       const mat = new MeshPhysicalMaterial({
-        map: src.map ?? null, roughness: metal ? 0.36 : 0.62, metalness: metal ? 0.55 : 0,
+        map: src.map ?? null, color: !src.map && /^[0-9a-f]{6}$/i.test(partKey(mesh.name)) ? new Color(`#${partKey(mesh.name)}`) : new Color('#ffffff'), roughness: metal ? 0.36 : 0.62, metalness: metal ? 0.55 : 0,
         sheen: metal ? 0 : 0.22, sheenRoughness: 0.85, sheenColor: new Color('#ffffff'), specularIntensity: metal ? 0.8 : 0.45,
         side: src.side,
       });

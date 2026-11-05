@@ -361,6 +361,11 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 
 已有且未改：草地（meadow）、小店行走/门铃/靠近、夜路全部氛围与谜题、海洋、彩蛋烟花（默认响一次，保持 v03g 决策）。
 
+### 顺带修复（v03h 遗留）
+- **/shop/ 检视器里 4 款 Lotus30 模型是灰色、手办躺倒**：GLB 来自 3MF，只有一个共享灰材质 + Z-up。现在每个零件按名字里的 hex（`NN_rrggbb`）着色，并把 Z-up 烘焙成 Y-up（`viewer.ts prepare()`）。
+- 检视栏「Flip / Studio」是浏览器默认蓝色下划线 → 改成与图标按钮一致的文字胶囊。
+- 独立展厅 `lotus30-figures-web` 同一问题：PR #1 修复（着色 + 立起 + 浮雕缩略图改用正面），gh-pages 普通提交部署（部署脚本改为不再 force-push）。
+
 ### 测试
 `/workspace/jelly/pw/v03i-check.mjs`（WebKit iPhone 15，注入脚本统计 oscillator/buffer 创建数）：上面每个交互都 ≥1 个发声节点；`BASE=https://smartlotus.github.io/jelly-gift/` 可跑线上。
 
