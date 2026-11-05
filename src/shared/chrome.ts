@@ -1,5 +1,6 @@
 // Shared page chrome for the journey stages: zh/EN switch + sound toggle (top right, same typography as the jelly page),
-// and a start card helper. Each stage calls mountChrome() once at boot.
+// (v03g: the per-stage title/start cards are gone). Each stage calls mountChrome() once at boot; it also folds the
+// iOS audio unlock invisibly into the first touch/key, so no page needs a "tap to start" card.
 import './chrome.css';
 import { apply, lang, onLang, setLang, t, type Lang } from './i18n';
 import { onSound, setSound, soundOn, unlock } from './audio';
@@ -21,21 +22,8 @@ export function mountChrome(opts: { sound?: boolean; theme?: 'light' | 'dark' } 
     else if (b.classList.contains('gc-sound')) { unlock(); setSound(!soundOn()); }
   });
   onLang(sync); onSound(sync); apply(); sync();
+  // invisible audio unlock: the very first gesture anywhere on the page creates/resumes the shared AudioContext (iOS rule)
+  const first = () => { unlock(); removeEventListener('pointerdown', first, true); removeEventListener('keydown', first, true); removeEventListener('touchend', first, true); };
+  addEventListener('pointerdown', first, true); addEventListener('keydown', first, true); addEventListener('touchend', first, true);
   return bar;
-}
-
-/** full-screen start card (title + tap/press to begin). Resolves on the first gesture (which also unlocks audio). */
-export function startCard(kicker: string, title: string, sub?: string): Promise<void> {
-  const c = document.createElement('div'); c.className = 'gift-card';
-  const touch = matchMedia('(pointer: coarse)').matches;
-  c.innerHTML = `<p class="gk-kicker" data-i18n="${kicker}"></p><h1 class="gk-title" data-i18n="${title}"></h1>${sub ? `<p class="gk-sub" data-i18n="${sub}"></p>` : ''}<p class="gk-go" data-i18n="${touch ? 'ui.tap' : 'ui.press'}"></p>`;
-  document.body.appendChild(c); apply(c);
-  return new Promise(res => {
-    const done = (e: Event) => {
-      if ((e.target as HTMLElement)?.closest?.('.gift-chrome')) return;
-      window.removeEventListener('pointerdown', done); window.removeEventListener('keydown', done);
-      unlock(); c.classList.add('out'); setTimeout(() => c.remove(), 600); res();
-    };
-    window.addEventListener('pointerdown', done); window.addEventListener('keydown', done);
-  });
 }

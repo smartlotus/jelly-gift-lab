@@ -10,7 +10,7 @@ import {
 } from 'three';
 import { markReached, params, dev, prefetchNext } from '../../shared/flow';
 import { register, t, apply, lang, onLang } from '../../shared/i18n';
-import { mountChrome, startCard } from '../../shared/chrome';
+import { mountChrome } from '../../shared/chrome';
 import { soundOn, setSound, unlock, onSound } from '../../shared/audio';
 import { irisIn } from '../../shared/transition';
 import { hold, progress as curtainProgress } from '../../shared/curtain';
@@ -42,10 +42,11 @@ const angDiff = (a: number, b: number) => Math.atan2(Math.sin(a - b), Math.cos(a
 
 if (at0 === 'kawaii') showKawaii(document.body, (params.get('end') as Ending) || 'caught'); else void boot();
 
+let restartNight: (() => void) | null = null; // set once the stage has booted (start over = fresh save)
 async function boot() {
   let renderer: WebGLRenderer;
   try { renderer = new WebGLRenderer({ antialias: false, powerPreference: 'high-performance' }); }
-  catch { void startCard('night.kicker', 'night.title', 'night.sub').then(() => showKawaii()); return; }
+  catch { showKawaii(); return; }
   const release = hold(); curtainProgress(0.05);
   const DPR = Math.min(devicePixelRatio || 1, 1.5);
   renderer.setPixelRatio(DPR); renderer.setSize(innerWidth, innerHeight); renderer.autoClear = false;
@@ -363,7 +364,7 @@ async function boot() {
     openMap({ x, z }, S.nodes, S.edges, canGo, n => {
       if (n === node) return; ffT = 0; night.flutter(); ui.hideChoices(); stalk = false; pig.root.visible = false;
       setTimeout(() => { placeAt(n); const ex = exits(n)[0]; arrive(n, null); void ex; ui.toast(t('night.ui.ff'), 1400); }, 450);
-    }, { tree: !lockedTree() });
+    }, { tree: !lockedTree() }, restartNight && hasProgress(S) ? restartNight : undefined);
   }
   ui.setMap(openTheMap);
 
@@ -435,24 +436,16 @@ async function boot() {
   // ---- start card (sound switch + "start over" when there is a save) ---------------------------------------------------
   const begin = () => { setPhase('boot'); sfx.start(); if (at0 === 'chase') { cur = { e: EDGE.end, s: 5.5, dir: 1 }; camYaw = yawAt(cur.e, cur.s, 1); } if (at0 === 'caught') { cur = { e: EDGE.end, s: EDGE.end.len - 2.6, dir: 1 }; camYaw = yawAt(cur.e, cur.s, 1); stalk = true; pig.root.visible = true; pigGap = 3; setPhase('dead'); } };
   if (params.has('skip') || (at0 && at0 !== 'resume')) { void irisIn(); begin(); return; }
-  void irisIn();
-  const card = startCard('night.kicker', 'night.title', 'night.sub');
-  const el = document.querySelector('.gift-card');
-  if (el) {
-    const p = document.createElement('p'); p.className = 'n-snd';
-    p.innerHTML = `<span data-i18n="night.sound"></span><span aria-hidden="true">🎧</span><button type="button" data-i18n="night.sound.on"></button>`;
-    const b = p.querySelector('button')!; const sync = () => b.setAttribute('aria-pressed', String(soundOn()));
-    b.addEventListener('pointerdown', e => e.stopPropagation());
-    b.addEventListener('click', e => { e.stopPropagation(); unlock(); setSound(!soundOn()); sync(); });
-    onSound(sync); sync();
-    el.insertBefore(p, el.querySelector('.gk-go')); apply(p);
-    if (startNode && hasProgress(prev)) {
-      const r = document.createElement('p'); r.className = 'n-resume';
-      r.innerHTML = `<span>${t('night.resume').replace('{p}', t(`night.place.${startNode}`))}</span><button type="button" data-i18n="night.restart"></button>`;
-      const rb = r.querySelector('button')!; rb.addEventListener('pointerdown', e => e.stopPropagation());
-      rb.addEventListener('click', e => { e.stopPropagation(); try { localStorage.setItem('gift.night.v3', JSON.stringify(fresh(S.endings))); } catch { /* */ } const u = new URL(location.href); u.searchParams.set('fresh', '1'); location.replace(u.toString()); });
-      el.insertBefore(r, el.querySelector('.gk-go')); apply(r);
-    }
+  // v03g: no title card. The night simply opens (audio unlocks on her first touch — chrome.ts — and the sound switch is in
+  // the top-right chrome). If she has a save, a small pill says where she stopped; "start over" also lives in the map.
+  const startOver = () => { try { localStorage.setItem('gift.night.v3', JSON.stringify(fresh(S.endings))); } catch { /* */ } const u = new URL(location.href); u.searchParams.set('fresh', '1'); location.replace(u.toString()); };
+  restartNight = startOver;
+  void irisIn(); begin();
+  if (startNode && hasProgress(prev)) {
+    const r = document.createElement('p'); r.className = 'n-resume';
+    r.innerHTML = `<span>${t('night.resume').replace('{p}', t(`night.place.${startNode}`))}</span><button type="button" data-i18n="night.restart"></button>`;
+    r.querySelector('button')!.addEventListener('click', startOver);
+    host.appendChild(r); apply(r);
+    setTimeout(() => { r.classList.add('on'); }, 900); setTimeout(() => { r.classList.remove('on'); setTimeout(() => r.remove(), 900); }, 8500);
   }
-  void card.then(begin);
 }

@@ -46,16 +46,35 @@ export function handleStageParam(): boolean {
   location.replace(stageUrl(id)); return true;
 }
 
-/** hint the browser to fetch the next page's HTML early (call when the player approaches the exit) */
-export function prefetchNext(id: StageId = here) {
-  const n = nextStage(id); if (!n) return;
-  const l = document.createElement('link'); l.rel = 'prefetch'; l.href = stageUrl(n); document.head.appendChild(l);
+/** warm the next stage so the hop feels like one continuous app (v03g): fetch its HTML (same URL go() will navigate to, so it
+ *  is a cache hit), then modulepreload its scripts and preload its stylesheets — read from that HTML, so it works with the
+ *  hashed filenames of any build. Safe to call repeatedly; never throws. */
+const warmed = new Set<string>();
+export function warm(id: StageId, extra: Record<string, string> = {}) {
+  const url = stageUrl(id, { from: here, ...extra }); if (warmed.has(url)) return; warmed.add(url);
+  try {
+    const conn = (navigator as unknown as { connection?: { saveData?: boolean } }).connection; if (conn?.saveData) return;
+    void fetch(url, { credentials: 'same-origin' }).then(r => (r.ok ? r.text() : '')).then(html => {
+      if (!html) return;
+      const doc = new DOMParser().parseFromString(html, 'text/html'); const base = new URL(url, location.href);
+      const seen = new Set<string>();
+      doc.querySelectorAll<HTMLElement>('script[type="module"][src], link[rel="modulepreload"], link[rel="stylesheet"]').forEach(el => {
+        const href = el.getAttribute('src') || el.getAttribute('href'); if (!href) return;
+        const u = new URL(href, base).href; if (u.slice(0, location.origin.length) !== location.origin || seen.has(u)) return; seen.add(u);
+        const l = document.createElement('link');
+        if (el.tagName === 'LINK' && (el as HTMLLinkElement).rel === 'stylesheet') { l.rel = 'preload'; l.as = 'style'; } else { l.rel = 'modulepreload'; }
+        l.href = u; document.head.appendChild(l);
+      });
+    }).catch(() => { warmed.delete(url); });
+  } catch { /* old browser: the curtain covers the load */ }
 }
+/** call when the player approaches the exit */
+export function prefetchNext(id: StageId = here) { const n = nextStage(id); if (n) warm(n); }
 
 /** leave for the next stage: optional outro (e.g. iris close) then navigate. */
 export async function go(to: StageId | null = nextStage(), outro?: () => Promise<void>, extra: Record<string, string> = {}) {
   if (!to) return;
-  markReached(to);
+  markReached(to); warm(to, extra); // the outro (iris close, dissolve) is time to fetch the next page's code
   if (outro) await outro();
   await cover(to); // v03e: the loading curtain (pig hopping on the closed colour) bridges the page load
   location.assign(stageUrl(to, { from: here, ...extra }));

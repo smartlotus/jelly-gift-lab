@@ -4,7 +4,7 @@
 // Dev: ?skip (no title card) · ?viewer (open the 3D viewer at once; browse all 4) · ?at=pig|cat|fridge|counter|door
 import { markReached, go, prefetchNext, params, from } from '../../shared/flow';
 import { register, t, onLang } from '../../shared/i18n';
-import { mountChrome, startCard } from '../../shared/chrome';
+import { mountChrome } from '../../shared/chrome';
 import { irisIn, irisOut, dissolve } from '../../shared/transition';
 import { hold, progress as curtainProgress } from '../../shared/curtain';
 import { blip } from '../../shared/audio';
@@ -194,5 +194,4 @@ const begin = () => {
   if (viewerOnly) void viewerP.then(() => openInspect('figure-pig'));
   if (backEx) void viewerP.then(() => viewer!.load(backEx.id)).then(() => openInspect(backEx.id));
 };
-if (params.has('skip') || viewerOnly || dev || backEx) begin();
-else void startCard('shop.kicker', 'shop.title', 'shop.sub').then(begin);
+begin(); // v03g: no title card — the door bell rings as the cat walks in

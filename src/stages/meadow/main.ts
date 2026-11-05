@@ -2,7 +2,7 @@
 // main.ts = page shell: chrome (zh/EN + sound), start card, HUD (heart counter), hints, the "Day 200" caption, exit.
 import { handleStageParam, markReached, reached, go, prefetchNext, params, dev } from '../../shared/flow';
 import { register, t, onLang, apply } from '../../shared/i18n';
-import { mountChrome, startCard } from '../../shared/chrome';
+import { mountChrome } from '../../shared/chrome';
 import { irisIn, irisOut } from '../../shared/transition';
 import { onSound, soundOn } from '../../shared/audio';
 import { mountTouch } from '../../shared/pixel/touch';
@@ -60,7 +60,7 @@ if (!handleStageParam()) {
 
   void irisIn();
   const begin = () => { resolveReady(); hint.classList.add('on'); music(soundOn()); };
-  if (skip) begin(); else void startCard('meadow.kicker', 'meadow.title', 'meadow.sub').then(begin);
+  begin(); // v03g: no title card — she lands straight in the level (audio unlocks on her first touch, see chrome.ts)
   onSound(v => music(v));
   void t;
 }

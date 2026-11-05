@@ -44,7 +44,7 @@ export function makeUI(host: HTMLElement) {
 export type UI = ReturnType<typeof makeUI>;
 
 /** the camcorder map: nodes + edges seen so far, "you are here", tap a visited place to fast-forward there */
-export function openMap(cur: { x: number; z: number }, nodes: string[], edges: string[], canGo: boolean, travel: (n: NodeId) => void, lockKeys: Record<string, boolean>) {
+export function openMap(cur: { x: number; z: number }, nodes: string[], edges: string[], canGo: boolean, travel: (n: NodeId) => void, lockKeys: Record<string, boolean>, restart?: () => void) {
   const el = document.createElement('section'); el.className = 'nv-mapov'; el.setAttribute('role', 'dialog');
   el.innerHTML = `<div class="nv-mapin"><p class="nv-mapt"><span class="rec">● REC</span> <span data-i18n="night.ui.map"></span></p><canvas></canvas><p class="nv-maph" data-i18n="${canGo ? 'night.ui.map.hint' : 'night.ui.map.no'}"></p><button type="button" class="nv-mapx" data-i18n="night.ui.close"></button></div>`;
   document.body.appendChild(el); apply(el); stop(el);
@@ -75,6 +75,7 @@ export function openMap(cur: { x: number; z: number }, nodes: string[], edges: s
   const close = () => { el.classList.remove('on'); setTimeout(() => el.remove(), 300); };
   requestAnimationFrame(() => { el.classList.add('on'); const r = cv.getBoundingClientRect(); (window as unknown as { __mapHits: unknown }).__mapHits = Object.fromEntries(hits.map(h => [h.id, [r.left + h.x, r.top + h.y]])); });
   el.querySelector('.nv-mapx')!.addEventListener('click', close);
+  if (restart) { const b = document.createElement('button'); b.type = 'button'; b.className = 'nv-restart'; b.dataset.i18n = 'night.restart'; el.querySelector('.nv-mapin')!.appendChild(b); apply(b); b.addEventListener('click', () => { close(); restart(); }); }
   cv.addEventListener('click', e => {
     if (!canGo) return; const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
     let best: NodeId | null = null, bd = 26; for (const h of hits) { const d = Math.hypot(h.x - x, h.y - y); if (d < bd) { bd = d; best = h.id; } }
