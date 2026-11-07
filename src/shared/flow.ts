@@ -5,14 +5,17 @@
 //   jelly   /jelly/   stage 4 · Jelly Studies (pig -> cat -> shark) + mushroom easter egg on the shark -> 入海 / Into the sea
 //   sea     /sea/     stage 5 · pixel ocean: the hammerhead swims through nine film homages, rises to the surface at night
 //   sky     /sky/     stage 6 · the real live sky over Changchun -> 一起玩 / Play together
-//   coop    /coop/    stage 7 · the pig + cat co-op level (one phone by default, two phones optional) = the finale
+//   coop    /coop/    stage 7 · the pig + cat co-op level (one phone by default, two phones optional)
+//   flower  /flower/  stroll · the cat walks a forest of 云南紫精灵 + 戴安娜粉玫瑰
+//   mushroom /mushroom/ stroll · a different, bioluminescent mushroom wood
+//   home    /home/    after coop: empty house, furnish it, then a future-life montage
 //   (ar     /ar/      side room of the shop: the figure on a real table; returns to the same exhibit)
 // vite base is './' so every URL here is RELATIVE (works under https://smartlotus.github.io/jelly-gift/ and any host).
 import { cover } from './curtain';
 import { whoosh } from './sfx';
-export type StageId = 'meadow' | 'shop' | 'night' | 'jelly' | 'sea' | 'sky' | 'coop' | 'ar';
-export const STAGES: readonly StageId[] = ['meadow', 'shop', 'night', 'jelly', 'sea', 'sky', 'coop'];
-const PATH: Record<StageId, string> = { meadow: '', shop: 'shop/', night: 'night/', jelly: 'jelly/', sea: 'sea/', sky: 'sky/', coop: 'coop/', ar: 'ar/' };
+export type StageId = 'meadow' | 'flower' | 'mushroom' | 'shop' | 'night' | 'jelly' | 'sea' | 'sky' | 'coop' | 'home' | 'ar';
+export const STAGES: readonly StageId[] = ['meadow', 'flower', 'mushroom', 'shop', 'night', 'jelly', 'sea', 'sky', 'coop', 'home'];
+const PATH: Record<StageId, string> = { meadow: '', flower: 'flower/', mushroom: 'mushroom/', shop: 'shop/', night: 'night/', jelly: 'jelly/', sea: 'sea/', sky: 'sky/', coop: 'coop/', home: 'home/', ar: 'ar/' };
 /** query params that survive page hops (language + dev switches) */
 const CARRY = ['lang', 'dev', 'sound', 'skip'];
 const PROGRESS = 'gift.progress';
@@ -42,7 +45,7 @@ export function markReached(id: StageId = here) {
 /** dev jump from the root link: ?stage=2|shop|3|night|4|jelly  -> redirects before the stage boots. Returns true if redirecting. */
 export function handleStageParam(): boolean {
   const s = params.get('stage'); if (!s || here !== 'meadow') return false;
-  const id = (/^\d$/.test(s) ? STAGES[+s - 1] : s) as StageId;
+  const id = (/^\d+$/.test(s) ? STAGES[+s - 1] : s) as StageId;
   if (!STAGES.includes(id) || id === 'meadow') return false;
   location.replace(stageUrl(id)); return true;
 }

@@ -2,7 +2,7 @@
 import puppeteer from 'puppeteer-core';
 const base = process.argv[2] || 'http://localhost:8811/', shot = process.argv[3];
 const b = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: 'new', args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
-for (const path of ['', 'shop/?skip', 'night/', 'jelly/?from=night&backend=webgl2', 'sea/', 'sea/?at=8', 'sea/?end', 'sky/', 'sky/?from=sea&hz=0.6', 'coop/', 'coop/?from=sky', 'ar/']) {
+for (const path of ['', 'flower/', 'mushroom/', 'shop/?skip', 'night/', 'jelly/?from=night&backend=webgl2', 'sea/', 'sea/?at=8', 'sea/?end', 'sky/', 'sky/?from=sea&hz=0.6', 'coop/', 'coop/?from=sky', 'home/', 'home/?at=room', 'ar/']) {
   const p = await b.newPage(); const errs = [];
   if (path === '' && shot) await p.setViewport({ width: 390, height: 844, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
   p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); }); p.on('pageerror', e => errs.push(e.message));

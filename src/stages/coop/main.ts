@@ -5,7 +5,7 @@
 import { register, apply, onLang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
 import { irisIn, irisOut } from '../../shared/transition';
-import { params, from, go, markReached } from '../../shared/flow';
+import { params, from, go, markReached, prefetchNext } from '../../shared/flow';
 import { PixelScreen } from '../../shared/pixel/screen';
 import { drawDawn, bayer, DAWN_LINES } from '../../shared/dawn';
 import { startLoop } from '../../shared/pixel/loop';
@@ -117,7 +117,9 @@ function boot() {
     const lost = document.createElement('div'); lost.className = 'cp-lost'; lost.innerHTML = ICON.link; lost.hidden = true; document.body.appendChild(lost);
     // the finale: hearts across the screens, then two quiet choices — again, or the whole journey from the start
     const home = document.createElement('button'); home.type = 'button'; home.className = 'cp-home'; home.innerHTML = ICON.home; home.dataset.i18nAria = 'coop.home'; home.hidden = true; document.body.appendChild(home);
-    home.addEventListener('click', () => { Sfx.tap(); link?.close(); void go('meadow', () => reduced ? Promise.resolve() : irisOut(tapX, tapY, 700)); });
+    let departing = false;
+    const onward = () => { if (departing) return; departing = true; Sfx.tap(); link?.close(); prefetchNext(); void go('home', () => reduced ? Promise.resolve() : irisOut(tapX, tapY, 800, '#f3ebe0')); };
+    home.addEventListener('click', onward);
     // one phone (the default in the journey) can still become two: a small two-phones button, top left
     if (role === 'solo') { const lk = document.createElement('button'); lk.type = 'button'; lk.className = 'cp-tolink'; lk.innerHTML = ICON.duo; lk.dataset.i18nAria = 'coop.duo'; document.body.appendChild(lk);
       lk.addEventListener('click', () => void (reduced ? Promise.resolve() : irisOut(tapX, tapY, 480, '#f6efe4')).then(() => location.assign(`${location.pathname}?${new URLSearchParams({ ...(params.get('lang') ? { lang: params.get('lang')! } : {}), duo: '1' })}`))); }
@@ -154,6 +156,8 @@ function boot() {
       if (role === 'host' && n % 2 === 0) link?.send({ k: 's', s: sim.snapshot() });
       again.hidden = !(sim.end > 7);
       if (home.hidden !== !(sim.end > 7)) home.hidden = !(sim.end > 7);
+      if (sim.end > 2) prefetchNext();
+      if (sim.end > 11.5 && !departing) onward();
     }, () => {
       if (role === 'guest') {
         if (!snapB) { scr.ctx.fillStyle = '#5EC4FF'; scr.ctx.fillRect(0, 0, scr.w, scr.h); return; }

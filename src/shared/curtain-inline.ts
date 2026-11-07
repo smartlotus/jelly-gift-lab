@@ -33,15 +33,18 @@ function pigSvg() {
 /** stage -> [default curtain colour (= the page's own first colour), zh label, en label] */
 export const CURTAIN_STAGES: Record<string, [string, string, string]> = {
   meadow: ['#5EC4FF', '草地', 'the meadow'],
+  flower: ['#f3d4e0', '花林', 'the flower wood'],
+  mushroom: ['#1a2830', '蘑菇林', 'the mushroom wood'],
   shop: ['#f6efe4', '小店', 'the shop'],
   night: ['#0b0b0c', '夜路', 'the night path'],
   jelly: ['#cfcdc8', '果冻标本', 'jelly studies'],
   sea: ['#0d2c3b', '海里', 'the sea'],
   sky: ['#04060b', '长春的天空', 'the sky'],
   coop: ['#5EC4FF', '一起玩', 'together'],
+  home: ['#f3ebe0', '小家', 'our home'],
   ar: ['#eeece8', '桌上', 'on the table'],
 };
-const NEXT: Record<string, string> = { meadow: 'shop/', shop: 'night/', night: 'jelly/', jelly: 'sea/', sea: 'sky/', sky: 'coop/', coop: '', ar: 'shop/' };
+const NEXT: Record<string, string> = { meadow: 'flower/', flower: 'mushroom/', mushroom: 'shop/', shop: 'night/', night: 'jelly/', jelly: 'sea/', sea: 'sky/', sky: 'coop/', coop: 'home/', home: '', ar: 'shop/' };
 /** the pig only appears if the page takes longer than this to be ready */
 export const LATE_MS = 700;
 const TXT = {

@@ -1,0 +1,8 @@
+html, body { background: #f3d4e0; }
+#flower { background: #f3d4e0; }
+.fl-hint { position: fixed; z-index: 20; left: 0; right: 0; bottom: calc(22px + var(--sab)); margin: 0; text-align: center;
+  color: rgba(62, 36, 48, .78); font-size: 12px; letter-spacing: .18em; text-shadow: 0 1px 0 rgba(255,244,240,.5);
+  opacity: 0; transition: opacity .9s var(--ease); pointer-events: none; }
+.fl-hint.on { opacity: .92; } .fl-hint.on.out { opacity: 0; }
+@media (pointer: coarse) { .fl-hint { bottom: calc(28px + var(--sab)); font-size: 11px; } }
+@media (prefers-reduced-motion: reduce) { .fl-hint { transition: none; } }
