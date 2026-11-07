@@ -30,4 +30,4 @@ hint.classList.add('on');
 const tick = () => { rustle(wood.t); if (!hinted && wood.x > 80) { hinted = true; setTimeout(() => hint.classList.add('out'), 1400); } };
 window.setInterval(tick, 240);
 setTimeout(() => hint.classList.add('out'), 7000);
-setTimeout(() => tell('story.flower.in'), 1200);
+if (new URLSearchParams(location.search).get('at') !== 'end') setTimeout(() => tell('story.flower.in'), 1200);

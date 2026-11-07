@@ -3,6 +3,12 @@
 > **Story edition (`smartlotus/jelly-gift-story`).** This file was copied from the stable implementation repo and then extended. The live public gift (`smartlotus/jelly-gift-site` / Pages `smartlotus/jelly-gift`) must stay on v03i. Do not merge this branch back there and do not run the old deploy script against `jelly-gift.git`.
 >
 > Plot beats: [`docs/STORY.md`](STORY.md). Visual and story work after the copy lives only in this repository.
+>
+> Working tree: `/workspace/jelly/jelly-gift-story`. Default branch `main`. The only remote is `https://github.com/smartlotus/jelly-gift-story.git` (private). Push with `git push origin main`.
+> Local preview: `npm install && npm run build && node tools/serve.mjs dist 8822`
+> Review screenshots and test report: [`review/story/`](../review/story/). Do not overwrite the preserved first-pass grids in `jelly-gift-site/review/v03j`.
+> Full review command (WebKit + Chromium): `GIO_USE_PROXY_RESOLVER=dummy GSETTINGS_BACKEND=memory node tools/story-review.mjs http://localhost:8822/ review/story`
+> GitHub Pages is not enabled on this private repo (`has_pages: false`). Do not flip visibility public just to host Pages; use the local static build instead.
 
 
 > 先读：本文件 → [`GIFT_PLAN.md`](./GIFT_PLAN.md)（设计与验收的唯一事实来源）→ 你负责的 [`status/<A|B|C>.md`](./status/)。

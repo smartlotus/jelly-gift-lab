@@ -112,26 +112,29 @@ function drawWalk(g: CanvasRenderingContext2D, w: number, h: number, t: number) 
   tree(g, 14, floor, th, 2); tree(g, 42, floor, th + 16, 5); tree(g, w - 18, floor, th + 4, 8); tree(g, w - 48, floor, th - 20, 3);
   g.fillStyle = '#6A8A52'; g.fillRect(0, floor, w, h - floor);
   g.fillStyle = '#C8B48A'; g.fillRect(0, floor - 4, w, 8);
-  const hx = w * 0.42 - k * 8;
-  const open = Math.max(0, (k - 0.52) / 0.34);
-  cottage(g, hx, floor, open, k > 0.58);
+  const hx = w * 0.38 - k * 6;
+  const open = Math.max(0, (k - 0.48) / 0.32);
+  cottage(g, hx, floor, open, k > 0.52);
   drawLisianthusBloom(g, hx - 10, floor - 28, 6.4, 0);
   drawDianaRose(g, hx + 108, floor - 30, 6.8, 1);
-  const x = w * 0.1 + k * (hx + 22 - w * 0.1);
-  figure(g, 'him', k > 0.78 ? 'stand' : 'hold', x, floor, false, t);
-  figure(g, 'her', k > 0.78 ? 'stand' : 'holdL', x + 20, floor, false, t);
+  const doorX = hx + 58;
+  const arrive = Math.min(1, k / 0.74);
+  const x = w * 0.10 + arrive * (doorX - 26 - w * 0.10);
+  const atDoor = k > 0.72;
+  figure(g, 'him', atDoor ? 'stand' : 'hold', x, floor, false, t);
+  figure(g, 'her', atDoor ? 'stand' : 'holdL', x + 20, floor, false, t);
 }
 
 function drawGreet(g: CanvasRenderingContext2D, w: number, h: number, t: number, layout: SavedItem[]) {
   drawFurnished(g, w, h, layout);
   const floor = Math.round(h * 0.62);
   const k = Math.min(1, t / 5.6);
-  figure(g, 'him', 'kneel', w * 0.30, floor, false, t);
-  figure(g, 'her', 'kneel', w * 0.46, floor, true, t);
-  const dogX = w + 8 - k * (w * 0.58);
-  const catX = w + 36 - k * (w * 0.46);
-  pet(g, 'collie', k < 0.86 ? 'walk' : 'extra', dogX, floor, true, t, 1.8);
-  pet(g, 'calico', k < 0.82 ? 'walk' : 'extra', catX, floor, true, t, 1.7);
+  figure(g, 'him', 'kneel', w * 0.24, floor, false, t);
+  figure(g, 'her', 'kneel', w * 0.38, floor, false, t);
+  const dogX = w + 10 - k * (w + 10 - (w * 0.48));
+  const catX = w + 40 - k * (w + 40 - (w * 0.56));
+  pet(g, 'collie', k < 0.88 ? 'walk' : 'extra', dogX, floor, true, t, 1.85);
+  pet(g, 'calico', k < 0.84 ? 'walk' : 'extra', catX, floor, true, t, 1.75);
 }
 
 function drawSofa(g: CanvasRenderingContext2D, w: number, h: number, t: number, layout: SavedItem[]) {
@@ -143,10 +146,10 @@ function drawSofa(g: CanvasRenderingContext2D, w: number, h: number, t: number, 
   const tvX = tv ? (tv.x / 320) * w : w * 0.18;
   g.fillStyle = `hsl(${200 + Math.sin(t * 9) * 20},48%,${58 + Math.sin(t * 13) * 8}%)`;
   g.fillRect(Math.round(tvX - 14), floor - 36, 28, 14);
-  figure(g, 'him', 'sit', sx - 16, floor - 16, false, t, 1.9);
-  figure(g, 'her', 'lean', sx + 14, floor - 16, false, t, 1.9);
-  pet(g, 'collie', 'extra', sx - 44, floor, false, t, 1.65);
-  pet(g, 'calico', 'extra', sx + 38, floor - 12, false, t, 1.55);
+  figure(g, 'him', 'sit', sx - 14, floor - 18, false, t, 1.9);
+  figure(g, 'her', 'sit', sx + 12, floor - 18, false, t, 1.9);
+  pet(g, 'collie', 'extra', sx - 48, floor, false, t, 1.65);
+  pet(g, 'calico', 'extra', sx + 40, floor - 10, false, t, 1.55);
 }
 
 function drawSleep(g: CanvasRenderingContext2D, w: number, h: number, t: number) {
@@ -226,8 +229,8 @@ function drawDawn(g: CanvasRenderingContext2D, w: number, h: number, t: number) 
     g.fill();
   }
   const stand = floor - 2;
-  figure(g, 'him', 'lean', w * 0.44, stand, false, t, 2.05);
-  figure(g, 'her', 'lean', w * 0.56, stand, false, t, 2.05);
+  figure(g, 'him', 'lean', w * 0.46, stand, false, t, 2.05);
+  figure(g, 'her', 'lean', w * 0.54, stand, false, t, 2.05);
 }
 
 function mix(a: string, b: string, k: number): string {

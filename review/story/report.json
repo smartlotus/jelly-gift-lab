@@ -1,0 +1,200 @@
+{
+  "bad": 0,
+  "results": [
+    {
+      "name": "shot:flower-phone",
+      "ok": true,
+      "detail": "{\"wander\":{\"x\":820},\"home\":null,\"whisper\":\"紫精灵和戴安娜……好像专门开给我们看的。\",\"whisperOn\":true,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:flower-430",
+      "ok": true,
+      "detail": "{\"wander\":{\"x\":820},\"home\":null,\"whisper\":\"紫精灵和戴安娜……好像专门开给我们看的。\",\"whisperOn\":true,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:flower-land",
+      "ok": true,
+      "detail": "{\"wander\":{\"x\":820},\"home\":null,\"whisper\":\"紫精灵和戴安娜……好像专门开给我们看的。\",\"whisperOn\":true,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:flower-end",
+      "ok": true,
+      "detail": "{\"wander\":{\"x\":3180},\"home\":null,\"whisper\":\"林子深处开始亮起来了。\",\"whisperOn\":true,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:flower-whisper",
+      "ok": true,
+      "detail": "{\"wander\":{\"x\":36},\"home\":null,\"whisper\":\"紫精灵和戴安娜……好像专门开给我们看的。\",\"whisperOn\":true,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:mushroom-phone",
+      "ok": true,
+      "detail": "{\"wander\":{\"x\":780},\"home\":null,\"whisper\":\"天暗了下来。这些蘑菇，一盏一盏的。\",\"whisperOn\":true,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:mushroom-430",
+      "ok": true,
+      "detail": "{\"wander\":{\"x\":780},\"home\":null,\"whisper\":\"天暗了下来。这些蘑菇，一盏一盏的。\",\"whisperOn\":true,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:mushroom-land",
+      "ok": true,
+      "detail": "{\"wander\":{\"x\":780},\"home\":null,\"whisper\":\"天暗了下来。这些蘑菇，一盏一盏的。\",\"whisperOn\":true,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:mushroom-end",
+      "ok": true,
+      "detail": "{\"wander\":{\"x\":3180},\"home\":null,\"whisper\":\"前面有灯。是你的小店。\",\"whisperOn\":true,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-approach",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"approach\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-approach-430",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"approach\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-approach-land",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"approach\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-found",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"approach\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"这里有一间空房子诶，我们可以布置一下\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-room-land",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"room\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-room-phone",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"room\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-room-430",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"room\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-transform",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"transform\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-walk",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"walk\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-walk-phone",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"walk\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-greet",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"greet\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-greet-phone",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"greet\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-sofa",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"sofa\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-sofa-phone",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"sofa\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-sleep",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"sleep\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-sleep-phone",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"sleep\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-snow",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"snow\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-dawn",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"dawn\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-dawn-phone",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"dawn\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"\"}"
+    },
+    {
+      "name": "shot:home-finale",
+      "ok": true,
+      "detail": "{\"wander\":null,\"home\":\"finale\",\"whisper\":\"\",\"whisperOn\":false,\"line\":\"\",\"finale\":\"我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。我的小臭猫。\"}"
+    },
+    {
+      "name": "room-persist",
+      "ok": true,
+      "detail": "{\"placed\":{\"ok\":true,\"n\":1},\"again\":true,\"errs\":[]}"
+    },
+    {
+      "name": "flower-keyboard-touch",
+      "ok": true,
+      "detail": "{\"x0\":36,\"x1\":68.16912380011226,\"x2\":72.03319739388694,\"errs\":[]}"
+    },
+    {
+      "name": "montage-skip-replay-reduced",
+      "ok": true,
+      "detail": "{\"before\":\"walk\",\"mid\":{\"phase\":\"finale\",\"finale\":true},\"after\":\"walk\",\"errs\":[]}"
+    },
+    {
+      "name": "webkit-chain",
+      "ok": true,
+      "detail": "[\"meadow\",\"flower\",\"mushroom\",\"shop\",\"ar\",\"night\",\"jelly\",\"sea\",\"sky\",\"coop\",\"home\"]"
+    },
+    {
+      "name": "webkit-audio-nongesture",
+      "ok": true,
+      "detail": "no NotAllowedError"
+    },
+    {
+      "name": "webkit-audio-gesture",
+      "ok": true,
+      "detail": "other=0"
+    },
+    {
+      "name": "chromium-chain",
+      "ok": true,
+      "detail": "[\"meadow\",\"flower\",\"mushroom\",\"shop\",\"ar\",\"night\",\"jelly\",\"sea\",\"sky\",\"coop\",\"home\"]"
+    },
+    {
+      "name": "chromium-audio-nongesture",
+      "ok": true,
+      "detail": "no NotAllowedError"
+    },
+    {
+      "name": "chromium-audio-gesture",
+      "ok": true,
+      "detail": "other=0"
+    },
+    {
+      "name": "chromium-greet-shot",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

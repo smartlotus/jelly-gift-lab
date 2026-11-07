@@ -70,28 +70,28 @@ function blob(g: CanvasRenderingContext2D, x: number, y: number, rx: number, ry:
 function bakeTree(th: Theme, h: number, w: number, seed: number, mush: boolean): HTMLCanvasElement {
   const c = document.createElement('canvas'); c.width = w; c.height = h;
   const g = c.getContext('2d')!;
-  const tx = (w / 2) | 0, tw = Math.max(4, (w * 0.12) | 0);
-  // trunk starts high so a tall tree can overflow the top of a portrait frame
-  g.fillStyle = th.trunk; g.fillRect(tx - (tw >> 1), (h * 0.08) | 0, tw, (h * 0.92) | 0);
-  g.fillStyle = th.trunkD; g.fillRect(tx - (tw >> 1), (h * 0.08) | 0, 2, (h * 0.92) | 0);
-  // a forked branch
+  const tx = (w / 2) | 0, tw = Math.max(6, (w * 0.15) | 0);
+  g.fillStyle = th.trunk; g.fillRect(tx - (tw >> 1), (h * 0.06) | 0, tw, (h * 0.94) | 0);
+  g.fillStyle = th.trunkD; g.fillRect(tx - (tw >> 1), (h * 0.06) | 0, 2, (h * 0.94) | 0);
   g.fillStyle = th.trunk;
-  g.fillRect(tx, (h * 0.28) | 0, (w * 0.22) | 0, 3);
-  g.fillRect(tx - (w * 0.18 | 0), (h * 0.36) | 0, (w * 0.18) | 0, 3);
-  const clumps = 8 + (seed % 5);
+  g.fillRect(tx, (h * 0.22) | 0, (w * 0.28) | 0, 4);
+  g.fillRect(tx - (w * 0.24 | 0), (h * 0.34) | 0, (w * 0.24) | 0, 4);
+  g.fillRect(tx + 2, (h * 0.48) | 0, (w * 0.18) | 0, 3);
+  const clumps = 11 + (seed % 4);
   for (let i = 0; i < clumps; i++) {
-    const cx = tx + Math.sin(seed * 1.3 + i * 1.9) * w * 0.32;
-    const cy = h * (0.08 + (i % 5) * 0.085);
-    const rx = w * (0.2 + ((seed + i) % 5) * 0.035);
-    const ry = rx * (0.7 + ((seed + i * 3) % 4) * 0.08);
+    const cx = tx + Math.sin(seed * 1.3 + i * 1.7) * w * 0.36;
+    const cy = h * (0.06 + (i / Math.max(1, clumps - 1)) * 0.52);
+    const rx = w * (0.22 + ((seed + i) % 5) * 0.04);
+    const ry = rx * (0.62 + ((seed + i * 3) % 4) * 0.08);
     blob(g, cx, cy, rx, ry, i % 2 ? th.canopy : th.canopyD);
   }
-  if (mush && seed % 2 === 0) drawShroom(g, tx + (tw >> 1) + 1, (h * 0.72) | 0, 'shelf', 5 + (seed % 3), seed, 1);
-  if (!mush && seed % 2 === 0) {
-    for (let y = (h * 0.88) | 0; y > ((h * 0.22) | 0); y -= 22) {
-      if ((seed + y) % 2 === 0) drawDianaRose(g, tx + tw + 3, y, 4.2 + (seed % 3) * 0.5, 0.9);
-      else drawLisianthusBloom(g, tx - tw - 4, y, 4 + (seed % 2) * 0.5, 0.1);
-    }
+  // one or two large blooms / shelf mushrooms near the lower trunk — not a dotted climb
+  if (mush) {
+    drawShroom(g, tx + (tw >> 1) + 3, (h * 0.78) | 0, 'shelf', 6 + (seed % 3), seed, 1);
+    if (seed % 3 === 0) drawShroom(g, tx - tw - 2, (h * 0.58) | 0, 'pin', 5, seed + 3, 0.9);
+  } else if (seed % 3 !== 1) {
+    if (seed % 2 === 0) drawDianaRose(g, tx + tw + 6, (h * 0.72) | 0, 6.4, 0.95);
+    else drawLisianthusBloom(g, tx - tw - 6, (h * 0.74) | 0, 6.0, -0.08);
   }
   return c;
 }
@@ -126,9 +126,9 @@ export function startWander(opts: WoodOpts) {
   const flowerSet: Cluster[] = [];
   const mushSet: MushCluster[] = [];
   if (theme === 'flower') {
-    for (let i = 0; i < 16; i++) flowerSet.push(bakeCluster(i % 2 === 0 ? 'diana' : 'lisi', 11 + i * 17, 1.35 + (i % 5 === 0 ? 0.35 : 0)));
+    for (let i = 0; i < 16; i++) flowerSet.push(bakeCluster(i % 2 === 0 ? 'diana' : 'lisi', 11 + i * 17, 1.7 + (i % 5 === 0 ? 0.4 : 0)));
   } else {
-    for (let i = 0; i < 16; i++) mushSet.push(bakeMushCluster(23 + i * 19, 1.3 + (i % 4 === 0 ? 0.25 : 0)));
+    for (let i = 0; i < 16; i++) mushSet.push(bakeMushCluster(23 + i * 19, 1.55 + (i % 4 === 0 ? 0.3 : 0)));
   }
   for (let i = 0; i < 22; i++) treesFar.push({ x: 24 + i * 155 + (i * 37) % 60, img: bakeTree(T, 260 + (i % 5) * 24, 72 + (i % 3) * 10, 50 + i * 9, theme === 'mushroom') });
   for (let i = 0; i < 26; i++) treesMid.push({ x: 8 + i * 132 + (i * 19) % 44, img: bakeTree(T, 390 + (i % 4) * 28, 84 + (i % 3) * 12, 90 + i * 13, theme === 'mushroom') });
@@ -389,12 +389,12 @@ export function startWander(opts: WoodOpts) {
       const img = critterFrame(c.kind, c.mode, time);
       const fly = c.kind === 'owl' && c.mode === 'fly';
       const feet = fly ? floorY - 52 - Math.sin(c.age * 1.6) * 7 : floorY;
-      blit(img, Math.round(c.x - ox), Math.round(feet), c.face < 0, 1.45);
+      blit(img, Math.round(c.x - ox), Math.round(feet), c.face < 0, 1.7);
     }
 
     // cat
     const catImg = catFrame(catSp, { vx: cat.vx, vy: 0, ground: true }, time, 1);
-    blit(catImg, Math.round(cat.x - ox + 8), Math.round(floor), cat.face < 0, 1.3);
+    blit(catImg, Math.round(cat.x - ox + 8), Math.round(floor), cat.face < 0, 1.5);
 
     stamp('fg', 1.18);
 
@@ -406,7 +406,7 @@ export function startWander(opts: WoodOpts) {
       else drawSpore(ctx, x, y, p.s, p.kind === 'fire');
     }
 
-    // enclosing canopy — two deep rows so portrait sky is a forest ceiling, not empty air
+    // enclosing canopy + a mid hanging layer so portrait woods are a tunnel, not trunks in open air
     ctx.fillStyle = T.canopyD;
     for (let i = 0; i < 16; i++) {
       const x = ((i * 46 - ox * 0.5) % (w + 90)) - 40;
@@ -416,6 +416,10 @@ export function startWander(opts: WoodOpts) {
     for (let i = 0; i < 12; i++) {
       const x = ((i * 58 - ox * 0.72 + 18) % (w + 80)) - 30;
       blob(ctx, x, 8 + (i % 2) * 6, 22 + (i % 3) * 5, 16, T.canopy);
+    }
+    for (let i = 0; i < 9; i++) {
+      const x = ((i * 70 - ox * 0.6 + 30) % (w + 100)) - 40;
+      blob(ctx, x, h * 0.30 + (i % 3) * 14, 26 + (i % 3) * 6, 18, i % 2 ? T.canopy : T.canopyD);
     }
     // close foliage left and right, so the walk sits inside the wood
     blob(ctx, 8, h * 0.42, 22, 48, T.fg);
