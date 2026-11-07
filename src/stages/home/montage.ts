@@ -9,7 +9,7 @@ import { drawDianaRose, drawLisianthusBloom } from '../wander/blooms';
 
 export const SCENE_IDS = ['walk', 'greet', 'sofa', 'sleep', 'snow', 'dawn'] as const;
 export type SceneId = typeof SCENE_IDS[number];
-const DURS: Record<SceneId, number> = { walk: 5.8, greet: 5.6, sofa: 5.8, sleep: 5.6, snow: 6.4, dawn: 8.2 };
+const DURS: Record<SceneId, number> = { walk: 7.2, greet: 5.6, sofa: 5.8, sleep: 5.6, snow: 6.4, dawn: 8.2 };
 const FADE = 0.7;
 
 export interface MontageApi {
@@ -95,7 +95,6 @@ function snowflakes(g: CanvasRenderingContext2D, w: number, h: number, t: number
 }
 
 function drawWalk(g: CanvasRenderingContext2D, w: number, h: number, t: number) {
-  const k = Math.min(1, t / 5.8);
   const floor = Math.round(h * 0.78);
   const sky = g.createLinearGradient(0, 0, 0, h);
   sky.addColorStop(0, '#C8B0C8'); sky.addColorStop(0.42, '#E8B898'); sky.addColorStop(1, '#F0C8A8');
@@ -111,17 +110,22 @@ function drawWalk(g: CanvasRenderingContext2D, w: number, h: number, t: number) 
   tree(g, 14, floor, th, 2); tree(g, 42, floor, th + 16, 5); tree(g, w - 18, floor, th + 4, 8); tree(g, w - 48, floor, th - 20, 3);
   g.fillStyle = '#6A8A52'; g.fillRect(0, floor, w, h - floor);
   g.fillStyle = '#C8B48A'; g.fillRect(0, floor - 4, w, 8);
-  const hx = w * 0.40 - k * 4;
-  const arrive = Math.min(1, k / 0.82);
-  const doorX = hx + 58;
-  const x = w * 0.08 + arrive * (doorX - 36 - w * 0.08);
-  const near = Math.max(0, Math.min(1, (k - 0.54) / (0.80 / 5.8)));
-  cottage(g, hx, floor, near, near > 0.2);
+  const hx = w * 0.40;
+  // Walk up, stop short of the door so the hinge stays visible, then open for 1.6s.
+  const walkT = 3.4;
+  const doorStart = 3.4;
+  const doorDur = 1.6;
+  const open = t <= doorStart ? 0 : Math.min(1, (t - doorStart) / doorDur);
+  cottage(g, hx, floor, open, open > 0);
   drawLisianthusBloom(g, hx - 10, floor - 28, 6.4, 0);
   drawDianaRose(g, hx + 108, floor - 30, 6.8, 1);
-  const atDoor = k > 0.84;
-  figure(g, 'him', atDoor ? 'stand' : 'hold', x, floor, false, t);
-  figure(g, 'her', atDoor ? 'stand' : 'holdL', x + 26, floor, false, t);
+  const startX = w * 0.08;
+  const pauseX = hx - 8;
+  const arrive = Math.min(1, t / walkT);
+  const x = startX + arrive * (pauseX - startX);
+  const paused = t >= walkT;
+  figure(g, 'him', paused ? 'stand' : 'hold', x, floor, false, t);
+  figure(g, 'her', paused ? 'stand' : 'holdL', x + 26, floor, false, t);
 }
 
 function drawGreet(g: CanvasRenderingContext2D, w: number, h: number, t: number, layout: SavedItem[]) {
@@ -280,10 +284,19 @@ export function createMontage(layout: SavedItem[]): MontageApi {
       const id = SCENE_IDS[idx]!;
       drawScene(id, g, w, h, t);
       if (t < FADE && idx > 0) {
-        if (buf.width !== w || buf.height !== h) { buf.width = w; buf.height = h; }
-        const bg = buf.getContext('2d')!;
-        drawScene(SCENE_IDS[idx - 1]!, bg, w, h, DURS[SCENE_IDS[idx - 1]!]!);
-        g.save(); g.globalAlpha = 1 - t / FADE; g.drawImage(buf, 0, 0); g.restore();
+        const prev = SCENE_IDS[idx - 1]!;
+        // Sleep is full of large filled rects (bed, window, light cone). Blitting it
+        // over the snow landscape reads as semi-transparent rectangular blocks on
+        // the sky / trees / roof. Dissolve through a dark veil instead.
+        if (prev === 'sleep' && id === 'snow') {
+          g.fillStyle = `rgba(16, 18, 24, ${(1 - t / FADE) * 0.55})`;
+          g.fillRect(0, 0, w, h);
+        } else {
+          if (buf.width !== w || buf.height !== h) { buf.width = w; buf.height = h; }
+          const bg = buf.getContext('2d')!;
+          drawScene(prev, bg, w, h, DURS[prev]!);
+          g.save(); g.globalAlpha = 1 - t / FADE; g.drawImage(buf, 0, 0); g.restore();
+        }
       }
     },
     skip() {

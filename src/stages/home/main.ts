@@ -154,8 +154,9 @@ fit(); window.addEventListener('resize', fit);
 void irisIn(innerWidth * 0.7, innerHeight * 0.6, 700, '#5EC4FF');
 void t;
 
-(window as unknown as { __home?: { phase: () => string; skip: () => void; save: () => void } }).__home = {
+(window as unknown as { __home?: { phase: () => string; skip: () => void; save: () => void; seek: (id: string, tt?: number) => void } }).__home = {
   phase: () => phase === 'montage' ? (montage?.scene ?? phase) : phase,
   skip: () => skip.click(),
   save: () => (window as unknown as { __homeRoom?: { save: () => void } }).__homeRoom?.save(),
+  seek: (id: string, tt = 0) => montage?.seek(id as 'walk', tt),
 };

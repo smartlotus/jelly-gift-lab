@@ -8,18 +8,23 @@ export function swingDoor(
   const o = Math.max(0, Math.min(1, open));
   g.fillStyle = '#3A322C';
   g.fillRect(x - 2, y - 1, w + 4, h + 1);
-  g.fillStyle = '#2A2420';
-  g.fillRect(x, y, w, h);
-  if (o > 0.02) {
-    const warm = 0.35 + 0.65 * o;
-    g.fillStyle = lit
-      ? `rgb(${Math.round(80 + 175 * warm)},${Math.round(70 + 160 * warm)},${Math.round(48 + 128 * warm)})`
-      : '#3A3228';
-    g.fillRect(x + 1, y + 1, w - 2, h - 2);
+  if (o > 0.001) {
+    // Always a warm interior once any gap exists — never a black pit.
+    const warm = lit ? (0.62 + 0.38 * o) : (0.42 + 0.22 * o);
+    g.fillStyle = `rgb(${Math.round(78 + 177 * warm)},${Math.round(58 + 152 * warm)},${Math.round(32 + 118 * warm)})`;
+    g.fillRect(x, y, w, h);
+    // brighter inner glow so the reveal reads as lamplight, not a void
+    const inset = 3;
+    g.fillStyle = `rgb(${Math.round(110 + 145 * warm)},${Math.round(88 + 130 * warm)},${Math.round(50 + 100 * warm)})`;
+    g.fillRect(x + inset, y + inset, Math.max(0, w - inset * 2), Math.max(0, h - inset * 2));
+  } else {
+    g.fillStyle = '#2A2420';
+    g.fillRect(x, y, w, h);
   }
-  const ang = o * Math.PI * 0.46;
-  const vis = Math.max(o > 0.94 ? 2 : 3, Math.round(w * Math.cos(ang)));
-  const skew = Math.round(Math.sin(ang) * Math.min(14, Math.round(h * 0.24)));
+  // Cap the swing so a wood slab stays readable (~30% width) instead of vanishing into a hole.
+  const ang = o * Math.PI * 0.40;
+  const vis = Math.max(Math.round(w * 0.30), Math.round(w * Math.cos(ang)));
+  const skew = Math.round(Math.sin(ang) * Math.min(18, Math.round(h * 0.30)));
   for (let i = 0; i < vis; i++) {
     const t = vis <= 1 ? 0 : i / (vis - 1);
     const top = y + Math.round(skew * t);
@@ -32,7 +37,7 @@ export function swingDoor(
     g.fillRect(x + 3, top + 6, vis - 6, 1);
     g.fillRect(x + 3, y + Math.round(h * 0.48), vis - 6, 1);
   }
-  if (o < 0.14 && vis > 10) {
+  if (o < 0.18 && vis > 10) {
     g.fillStyle = '#8A6A40';
     g.fillRect(x + vis - 6, y + Math.round(h * 0.55), 3, 4);
   }
