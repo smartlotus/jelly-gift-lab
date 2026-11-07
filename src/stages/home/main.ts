@@ -8,7 +8,6 @@ import { PixelScreen } from '../../shared/pixel/screen';
 import { startLoop } from '../../shared/pixel/loop';
 import { catSprites, catFrame } from '../../shared/pixel/cat';
 import { pigSprites, pigFrame } from '../../shared/pixel/pig';
-import { draw } from '../../shared/pixel/sprite';
 import { createApproach } from './approach';
 import { createRoom, drawFurnished, demoLayout, type Placed } from './room';
 import { createMontage, type MontageApi } from './montage';
@@ -26,7 +25,7 @@ const at = params.get('at') || '';
 let phase: Phase = at === 'room' || at === 'transform' || ['walk', 'greet', 'sofa', 'sleep', 'snow', 'dawn', 'finale'].includes(at) ? (at === 'room' ? 'room' : at === 'transform' ? 'transform' : 'montage') : 'approach';
 
 const host = document.getElementById('home')!;
-const screen = new PixelScreen({ host, minW: 240, minH: 170, maxH: 640 });
+const screen = new PixelScreen({ host, minW: 176, minH: 248, maxH: 640 });
 const catSp = catSprites();
 const pigSp = pigSprites();
 
@@ -57,7 +56,7 @@ function enterRoom() {
     leaveRoom();
   };
   if (params.has('furnish')) room.furnishDemo();
-  const fit = () => screen.configure(innerHeight > innerWidth ? { minW: 210, minH: 200 } : { minW: 300, minH: 160 });
+  const fit = () => screen.configure(innerHeight > innerWidth ? { minW: 210, minH: 200 } : { minW: 300, minH: 168 });
   fit();
 }
 
@@ -123,18 +122,21 @@ startLoop(dt => {
     room?.render(g, w, h);
   } else if (phase === 'transform') {
     drawFurnished(g, w, h, layout);
-    const floor = h - Math.max(16, Math.round(h * 0.14));
+    const floor = Math.round(h * 0.62);
     const k = Math.max(0, Math.min(1, (transformT - 0.6) / 2.4));
     g.save(); g.globalAlpha = 1 - k;
     const pig = pigFrame(pigSp, { vx: 0, vy: 0, ground: true }, transformT, 1);
     const cat = catFrame(catSp, { vx: 0, vy: 0, ground: true }, transformT, 1);
-    draw(g, pig, Math.round(w * 0.42 - 8), floor - 16, false);
-    draw(g, cat, Math.round(w * 0.55 - 8), floor - 16, false);
+    const blit = (img: HTMLCanvasElement, x: number) => {
+      g.save(); g.imageSmoothingEnabled = false; g.translate(x, floor); g.scale(1.4, 1.4); g.drawImage(img, 0, -img.height); g.restore();
+    };
+    blit(pig, Math.round(w * 0.38)); blit(cat, Math.round(w * 0.52));
     g.restore();
     g.save(); g.globalAlpha = k;
-    drawPerson(g, 'him', 'stand', w * 0.34, floor, false, transformT);
-    drawPerson(g, 'her', 'stand', w * 0.46, floor, false, transformT);
-    g.restore();
+    g.imageSmoothingEnabled = false;
+    g.translate(w * 0.36, floor); g.scale(1.7, 1.7); drawPerson(g, 'him', 'stand', 0, 0, false, transformT); g.restore();
+    g.save(); g.globalAlpha = k; g.imageSmoothingEnabled = false;
+    g.translate(w * 0.52, floor); g.scale(1.7, 1.7); drawPerson(g, 'her', 'stand', 0, 0, false, transformT); g.restore();
     g.fillStyle = '#FFE8A0';
     for (const s of spark) { g.globalAlpha = Math.max(0, s.life); g.fillRect(s.x | 0, s.y | 0, 2, 2); }
     g.globalAlpha = 1;
@@ -144,8 +146,8 @@ startLoop(dt => {
 });
 
 const fit = () => {
-  if (phase === 'room') screen.configure(innerHeight > innerWidth ? { minW: 210, minH: 200 } : { minW: 300, minH: 160 });
-  else screen.configure(innerHeight > innerWidth ? { minW: 220, minH: 186 } : { minW: 280, minH: 170 });
+  if (phase === 'room') screen.configure(innerHeight > innerWidth ? { minW: 210, minH: 200 } : { minW: 300, minH: 168 });
+  else screen.configure(innerHeight > innerWidth ? { minW: 176, minH: 248 } : { minW: 300, minH: 168 });
 };
 fit(); window.addEventListener('resize', fit);
 

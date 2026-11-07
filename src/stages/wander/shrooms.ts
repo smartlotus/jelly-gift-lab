@@ -19,12 +19,19 @@ function disc(g: CanvasRenderingContext2D, x: number, y: number, r: number, c: s
   g.fillStyle = c;
   for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) if (dx * dx + dy * dy <= rr) g.fillRect((x + dx) | 0, (y + dy) | 0, 1, 1);
 }
-/** additive-looking halo (drawn first, low-alpha via a paler colour since we stay opaque-pixel) */
+/** Smooth bioluminescent halo. Real alpha on the baked sprite — no hashed scribble. */
 function halo(g: CanvasRenderingContext2D, x: number, y: number, r: number, c: string) {
-  const R = Math.round(r);
-  for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
-    const d = (dx * dx + dy * dy) / (r * r);
-    if (d <= 1 && (dx * 13 + dy * 7 + (x * 3 + y) | 0) % 3 === 0) px(g, x + dx, y + dy, c);
+  const hex = parseInt(c.slice(1), 16);
+  const R = (hex >> 16) & 255, G = (hex >> 8) & 255, B = hex & 255;
+  const steps = Math.max(4, Math.round(r));
+  for (let i = steps; i >= 1; i--) {
+    const t = i / steps;
+    const a = 0.16 * (1 - t) * (1 - t) + 0.04 * (1 - t);
+    g.fillStyle = `rgba(${R},${G},${B},${a.toFixed(3)})`;
+    const rr = r * t, rad = Math.ceil(rr);
+    for (let dy = -rad; dy <= rad; dy++) for (let dx = -rad; dx <= rad; dx++) {
+      if (dx * dx + dy * dy <= rr * rr) g.fillRect((x + dx) | 0, (y + dy) | 0, 1, 1);
+    }
   }
 }
 

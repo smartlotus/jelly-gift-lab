@@ -64,11 +64,12 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
     sel.classList.add('on');
   };
 
+  const FURN_SCALE = 1.55;
   const bounds = (w: number, h: number) => {
-    const floor = h - Math.max(28, Math.round(h * 0.16));
-    const wall = Math.round(h * 0.28);
-    const left = 14, right = w - 14;
-    return { floor, wall, left, right, top: 18 };
+    const floor = Math.round(h * 0.58);
+    const wall = Math.round(h * 0.22);
+    const left = 18, right = w - 18;
+    return { floor, wall, left, right, top: 16, scale: FURN_SCALE };
   };
 
   const hit = (lx: number, ly: number, w: number, h: number): Placed | null => {
@@ -77,8 +78,10 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
       const it = items[i]!;
       const k = kindById(it.kind); if (!k) continue;
       const img = sprite(it.kind, it.flip);
-      const x = it.x - img.width / 2, y = (k.wall ? it.y : floor - it.y) - (k.wall ? 0 : img.height);
-      if (lx >= x && lx <= x + img.width && ly >= y && ly <= y + img.height) return it;
+      const sc = FURN_SCALE;
+      const dw = img.width * sc, dh = img.height * sc;
+      const x = it.x - dw / 2, y = (k.wall ? it.y : floor - it.y) - (k.wall ? 0 : dh);
+      if (lx >= x && lx <= x + dw && ly >= y && ly <= y + dh) return it;
     }
     return null;
   };
@@ -158,10 +161,10 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
     it.x = p.x - hold.dx;
     const k = kindById(it.kind);
     if (k?.wall) it.y = p.y - hold.dy;
-    else it.y = Math.max(0, (canvas.height - Math.max(28, Math.round(canvas.height * 0.16))) - (p.y - hold.dy) - (k?.h ?? 0) + (k?.h ?? 0));
+    else it.y = Math.max(0, (Math.round(canvas.height * 0.58)) - (p.y - hold.dy) - (k?.h ?? 0) + (k?.h ?? 0));
     // For floor items y is height above floor (feet). Recompute from pointer:
     if (!k?.wall) {
-      const floor = canvas.height - Math.max(28, Math.round(canvas.height * 0.16));
+      const floor = Math.round(canvas.height * 0.58);
       it.y = floor - p.y; // feet follow the finger's y, then clamp
     }
     clamp(it, canvas.width, canvas.height);
@@ -174,24 +177,31 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
 
   const drawRoom = (g: CanvasRenderingContext2D, w: number, h: number) => {
     const b = bounds(w, h);
-    // walls
-    g.fillStyle = '#F3E6D4'; g.fillRect(0, 0, w, b.floor);
-    g.fillStyle = '#E8D4BC'; g.fillRect(0, b.floor - 8, w, 8); // baseboard
-    // floor
-    g.fillStyle = '#C4A07A'; g.fillRect(0, b.floor, w, h - b.floor);
-    g.fillStyle = '#B08862';
-    for (let y = b.floor + 4; y < h; y += 5) g.fillRect(0, y, w, 1);
-    // window
-    const wx = (w * 0.62) | 0, wy = 16, ww = Math.min(70, (w * 0.22) | 0), wh = Math.min(42, (h * 0.22) | 0);
-    g.fillStyle = '#2E2A2B'; g.fillRect(wx, wy, ww, wh);
-    g.fillStyle = '#BFD6E8'; g.fillRect(wx + 2, wy + 2, ww - 4, wh - 4);
-    g.fillStyle = '#FFE6B8'; g.fillRect(wx + 2, wy + 2, (ww - 4) / 2, wh - 4);
-    g.fillStyle = '#2E2A2B'; g.fillRect(wx + ww / 2 - 1, wy, 2, wh); g.fillRect(wx, wy + wh / 2 - 1, ww, 2);
-    // curtains
-    g.fillStyle = '#E8B0C0'; g.fillRect(wx - 4, wy, 6, wh + 8); g.fillRect(wx + ww - 2, wy, 6, wh + 8);
-    // ceiling beam
-    g.fillStyle = '#C4A06A'; g.fillRect(0, 0, w, 5);
-    g.fillStyle = '#2E2A2B'; g.fillRect(0, 5, w, 1);
+    g.fillStyle = '#EEDCC6'; g.fillRect(0, 0, w, b.floor);
+    g.fillStyle = '#E2C8A8'; g.fillRect(0, b.floor - 22, w, 22);
+    g.fillStyle = '#C4A06A'; g.fillRect(0, b.floor - 3, w, 3);
+    // receding floor — nearer boards are taller
+    const fh = h - b.floor;
+    for (let i = 0; i < 14; i++) {
+      const t0 = i / 14, t1 = (i + 1) / 14;
+      const y0 = b.floor + t0 * t0 * fh, y1 = b.floor + t1 * t1 * fh;
+      g.fillStyle = i % 2 ? '#C4A07A' : '#D4B48A';
+      g.fillRect(0, y0 | 0, w, Math.max(1, (y1 - y0) | 0));
+      g.fillStyle = 'rgba(90,56,28,0.18)';
+      g.fillRect(0, y0 | 0, w, 1);
+    }
+    // window + warm shaft
+    const wx = (w * 0.58) | 0, wy = 10, ww = Math.min(78, (w * 0.26) | 0), wh = Math.min(48, Math.round(b.floor * 0.42));
+    g.fillStyle = 'rgba(255,214,140,0.16)';
+    g.beginPath(); g.moveTo(wx, wy + wh); g.lineTo(wx + ww, wy + wh); g.lineTo(wx + ww + 36, b.floor); g.lineTo(wx - 10, b.floor); g.fill();
+    g.fillStyle = '#6A5848'; g.fillRect(wx - 3, wy - 3, ww + 6, wh + 6);
+    g.fillStyle = '#9EC4E0'; g.fillRect(wx, wy, ww, wh);
+    g.fillStyle = '#FFE6B0'; g.fillRect(wx, wy, (ww / 2) | 0, wh);
+    g.fillStyle = '#E8F0C8'; g.fillRect(wx, wy + wh - 10, ww, 10);
+    g.fillStyle = '#6A5848'; g.fillRect(wx + ((ww / 2) | 0) - 1, wy, 2, wh); g.fillRect(wx, wy + ((wh / 2) | 0) - 1, ww, 2);
+    g.fillStyle = '#E8B0C0'; g.fillRect(wx - 6, wy, 8, wh + 10); g.fillRect(wx + ww - 2, wy, 8, wh + 10);
+    g.fillStyle = '#C4A06A'; g.fillRect(0, 0, w, 6);
+    g.fillStyle = '#2E2A2B'; g.fillRect(0, 6, w, 1);
   };
 
   const api: RoomApi = {
@@ -208,12 +218,15 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
       for (const it of order) {
         const k = kindById(it.kind); if (!k) continue;
         const img = sprite(it.kind, it.flip);
-        const x = Math.round(it.x - img.width / 2);
-        const y = k.wall ? Math.round(it.y) : Math.round(b.floor - it.y - img.height);
-        g.drawImage(img, x, y);
+        const sc = FURN_SCALE;
+        const dw = img.width * sc, dh = img.height * sc;
+        const x = Math.round(it.x - dw / 2);
+        const y = k.wall ? Math.round(it.y) : Math.round(b.floor - it.y - dh);
+        g.imageSmoothingEnabled = false;
+        g.drawImage(img, x, y, dw, dh);
         if (it.id === focus) {
           g.strokeStyle = `rgba(46,42,43,${0.45 + Math.sin(pulse * 4) * 0.2})`;
-          g.lineWidth = 1; g.strokeRect(x - 1, y - 1, img.width + 2, img.height + 2);
+          g.lineWidth = 1; g.strokeRect(x - 1, y - 1, dw + 2, dh + 2);
         }
       }
     },
@@ -262,31 +275,42 @@ export function demoLayout(): SavedItem[] {
 }
 
 export function drawFurnished(g: CanvasRenderingContext2D, w: number, h: number, items: SavedItem[], scale = 1) {
-  // reused by montage: paint a compact room using saved (or default) furniture
-  const floor = h - Math.max(16, Math.round(h * 0.14));
-  g.fillStyle = '#F3E6D4'; g.fillRect(0, 0, w, floor);
-  g.fillStyle = '#E8D2B8'; g.fillRect(0, floor - 22, w, 22); // wainscot
-  g.fillStyle = '#C4A07A'; g.fillRect(0, floor, w, h - floor);
+  const floor = Math.round(h * 0.62);
+  g.fillStyle = '#EEDCC6'; g.fillRect(0, 0, w, floor);
+  g.fillStyle = '#E2C8A8'; g.fillRect(0, floor - 22, w, 22);
+  const fh = h - floor;
+  for (let i = 0; i < 12; i++) {
+    const t0 = i / 12, t1 = (i + 1) / 12;
+    const y0 = floor + t0 * t0 * fh, y1 = floor + t1 * t1 * fh;
+    g.fillStyle = i % 2 ? '#C4A07A' : '#D4B48A';
+    g.fillRect(0, y0 | 0, w, Math.max(1, (y1 - y0) | 0));
+  }
   g.fillStyle = '#A88860'; g.fillRect(0, floor, w, 2);
-  // framed window with a bit of sky
-  const wx = (w * 0.62) | 0, wy = 8, ww = Math.min(52, w * 0.2), wh = Math.min(32, h * 0.2);
-  g.fillStyle = '#8AA8B8'; g.fillRect(wx - 3, wy - 3, ww + 6, wh + 6);
+  const wx = (w * 0.58) | 0, wy = 8, ww = Math.min(64, w * 0.24), wh = Math.min(40, h * 0.24);
+  g.fillStyle = 'rgba(255,214,140,0.18)';
+  g.beginPath(); g.moveTo(wx, wy + wh); g.lineTo(wx + ww, wy + wh); g.lineTo(wx + ww + 28, floor); g.lineTo(wx - 8, floor); g.fill();
+  g.fillStyle = '#6A5848'; g.fillRect(wx - 3, wy - 3, ww + 6, wh + 6);
   g.fillStyle = '#BFD6E8'; g.fillRect(wx, wy, ww, wh);
+  g.fillStyle = '#FFE6B0'; g.fillRect(wx, wy, (ww / 2) | 0, wh);
   g.fillStyle = '#E8F0C8'; g.fillRect(wx, wy + wh - 8, ww, 8);
-  g.fillStyle = '#D8C8A8'; g.fillRect(wx + (ww >> 1) - 1, wy, 2, wh); g.fillRect(wx, wy + (wh >> 1) - 1, ww, 2);
+  g.fillStyle = '#6A5848'; g.fillRect(wx + (ww >> 1) - 1, wy, 2, wh); g.fillRect(wx, wy + (wh >> 1) - 1, ww, 2);
+  g.fillStyle = '#E8B0C0'; g.fillRect(wx - 5, wy, 7, wh + 8); g.fillRect(wx + ww - 2, wy, 7, wh + 8);
   const list = items.length ? items : [
-    { kind: 'rug', x: w * 0.45, y: 6, flip: false },
-    { kind: 'sofa', x: w * 0.45, y: 12, flip: false },
+    { kind: 'rug', x: w * 0.48, y: 8, flip: false },
+    { kind: 'sofa', x: w * 0.48, y: 16, flip: false },
     { kind: 'tv', x: w * 0.18, y: 6, flip: false },
+    { kind: 'lamp', x: w * 0.68, y: 6, flip: false },
   ];
   const rank = (k?: string) => k === 'rug' ? 0 : k === 'furn' ? 1 : k === 'top' ? 2 : 3;
   const sorted = [...list].sort((a, b) => rank(kindById(a.kind)?.layer) - rank(kindById(b.kind)?.layer) || (b.y - a.y));
+  const sc = 1.55 * scale;
   for (const it of sorted) {
     const k = kindById(it.kind); if (!k) continue;
     const img = sprite(it.kind, it.flip);
-    const xx = Math.round((it.x / 320) * w - img.width / 2);
-    const y = k.wall ? Math.round((it.y / 180) * h) : floor - img.height - Math.round(it.y * 0.4);
-    g.drawImage(img, Math.max(-img.width + 4, Math.min(w - 4, xx)), y);
-    void scale;
+    const dw = img.width * sc, dh = img.height * sc;
+    const xx = Math.round((it.x / 320) * w - dw / 2);
+    const y = k.wall ? Math.round((it.y / 180) * h) : floor - dh - Math.round(it.y * 0.55);
+    g.imageSmoothingEnabled = false;
+    g.drawImage(img, Math.max(-dw + 4, Math.min(w - 4, xx)), y, dw, dh);
   }
 }

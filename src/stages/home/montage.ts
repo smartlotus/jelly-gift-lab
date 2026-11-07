@@ -1,9 +1,8 @@
-// Future-life montage: six animated scenes (not title cards) dissolving into each other,
+// Future-life montage: six animated scenes dissolving into each other,
 // then the final line fades in. Saved furniture is reused in the home / sofa frames.
-import { drawPerson } from './people';
+import { drawPerson, type Pose, type Who } from './people';
 import { drawFurnished } from './room';
 import { critterFrame } from '../../shared/pixel/fauna';
-import { draw } from '../../shared/pixel/sprite';
 import { type SavedItem } from './save';
 import { drawDianaRose, drawLisianthusBloom } from '../wander/blooms';
 
@@ -30,38 +29,64 @@ function disc(g: CanvasRenderingContext2D, x: number, y: number, r: number, c: s
   }
 }
 
+function figure(g: CanvasRenderingContext2D, who: Who, pose: Pose, x: number, y: number, flip: boolean, t: number, s = 1.85) {
+  g.save();
+  g.imageSmoothingEnabled = false;
+  g.translate(x, y);
+  g.scale(s, s);
+  drawPerson(g, who, pose, 0, 0, flip, t);
+  g.restore();
+}
+
+function pet(g: CanvasRenderingContext2D, kind: 'collie' | 'calico', pose: 'walk' | 'extra', x: number, floor: number, flip: boolean, t: number, s = 1.7) {
+  const img = critterFrame(kind, pose, t);
+  g.save();
+  g.imageSmoothingEnabled = false;
+  g.translate(x, floor);
+  g.scale(flip ? -s : s, s);
+  g.drawImage(img, flip ? -img.width : 0, -img.height);
+  g.restore();
+}
+
 function tree(g: CanvasRenderingContext2D, x: number, floor: number, ht: number, seed: number, winter = false) {
-  const tw = 3 + (seed % 2);
+  const tw = 4 + (seed % 2);
   g.fillStyle = winter ? '#4A3A32' : '#6A4E34';
   g.fillRect((x - (tw >> 1)) | 0, floor - ht + 16, tw, ht - 16);
   if (winter) {
-    g.fillStyle = '#E8EEF4';
-    disc(g, x, floor - ht + 12, 8 + (seed % 3), '#E8EEF4');
-    disc(g, x - 6, floor - ht + 18, 6, '#D8DEE8');
-    disc(g, x + 6, floor - ht + 16, 6, '#F4F6FA');
+    disc(g, x, floor - ht + 16, 16 + (seed % 5), '#E8EEF4');
+    disc(g, x - 12, floor - ht + 28, 12, '#D8DEE8');
+    disc(g, x + 12, floor - ht + 24, 12, '#F4F6FA');
+    disc(g, x, floor - ht + 36, 10, '#EEF2F6');
   } else {
-    disc(g, x, floor - ht + 10, 10 + (seed % 4), seed % 2 ? '#5E8444' : '#4A6E36');
-    disc(g, x - 8, floor - ht + 16, 8, '#4A6E36');
-    disc(g, x + 7, floor - ht + 14, 7, '#5E8444');
+    disc(g, x, floor - ht + 18, 18 + (seed % 5), seed % 2 ? '#5E8444' : '#4A6E36');
+    disc(g, x - 14, floor - ht + 32, 14, '#4A6E36');
+    disc(g, x + 13, floor - ht + 28, 13, '#5E8444');
+    disc(g, x, floor - ht + 48, 12, '#3E6230');
   }
 }
 
 function cottage(g: CanvasRenderingContext2D, hx: number, floor: number, open: number, lit: boolean) {
-  g.fillStyle = '#A87868'; g.fillRect(hx + 46, floor - 78, 7, 16);
-  g.fillStyle = '#E8D4B8'; g.fillRect(hx, floor - 58, 64, 58);
+  g.fillStyle = '#A87868'; g.fillRect(hx + 68, floor - 122, 12, 28);
+  g.fillStyle = '#8A5A4E'; g.fillRect(hx + 66, floor - 126, 16, 6);
+  g.fillStyle = '#E8D4B8'; g.fillRect(hx, floor - 88, 98, 88);
+  g.fillStyle = '#D4C0A4'; g.fillRect(hx + 98, floor - 82, 8, 82);
   g.fillStyle = '#B24A4A';
-  g.beginPath(); g.moveTo(hx - 6, floor - 56); g.lineTo(hx + 32, floor - 84); g.lineTo(hx + 70, floor - 56); g.fill();
+  g.beginPath(); g.moveTo(hx - 10, floor - 86); g.lineTo(hx + 50, floor - 128); g.lineTo(hx + 114, floor - 86); g.fill();
+  g.fillStyle = '#C45A5A';
+  g.beginPath(); g.moveTo(hx - 4, floor - 86); g.lineTo(hx + 50, floor - 118); g.lineTo(hx + 108, floor - 86); g.fill();
   g.fillStyle = lit ? '#FFE6B0' : '#3A3E48';
-  g.fillRect(hx + 8, floor - 44, 14, 12);
-  g.fillStyle = '#C8B898'; g.fillRect(hx + 14, floor - 44, 2, 12); g.fillRect(hx + 8, floor - 39, 14, 2);
-  g.fillStyle = '#2E2A2B'; g.fillRect(hx + 34, floor - 32, 16, 32);
-  g.fillStyle = '#C4A06A'; g.fillRect(hx + 34 + open * 12, floor - 32, Math.max(3, 16 - open * 12), 32);
-  if (open > 0.2) { g.fillStyle = '#FFE6B0'; g.fillRect(hx + 36, floor - 30, 8, 28); }
+  g.fillRect(hx + 12, floor - 70, 20, 16);
+  g.fillStyle = '#C8B898'; g.fillRect(hx + 21, floor - 70, 2, 16); g.fillRect(hx + 12, floor - 63, 20, 2);
+  g.fillStyle = '#2E2A2B'; g.fillRect(hx + 48, floor - 50, 24, 50);
+  g.fillStyle = '#C4A06A'; g.fillRect(hx + 48 + open * 18, floor - 50, Math.max(4, 24 - open * 18), 50);
+  if (open > 0.2) { g.fillStyle = '#FFE6B0'; g.fillRect(hx + 52, floor - 46, 12, 42); }
+  else { g.fillStyle = '#8A6A40'; g.fillRect(hx + 64, floor - 24, 3, 4); }
+  g.fillStyle = '#C8B48A'; g.fillRect(hx + 44, floor - 6, 32, 6);
 }
 
 function snowflakes(g: CanvasRenderingContext2D, w: number, h: number, t: number, heavy: boolean) {
   g.fillStyle = '#F8F8FC';
-  const n = heavy ? 110 : 40;
+  const n = heavy ? 70 : 28;
   for (let i = 0; i < n; i++) {
     const x = ((i * 97 + t * (12 + (i % 5))) % (w + 10)) - 5;
     const y = ((i * 53 + t * (18 + (i % 7))) % (h + 10)) - 5;
@@ -72,102 +97,99 @@ function snowflakes(g: CanvasRenderingContext2D, w: number, h: number, t: number
 
 function drawWalk(g: CanvasRenderingContext2D, w: number, h: number, t: number) {
   const k = Math.min(1, t / 5.8);
-  const floor = h - 22;
+  const floor = Math.round(h * 0.78);
   const sky = g.createLinearGradient(0, 0, 0, h);
-  sky.addColorStop(0, '#C8B0C8'); sky.addColorStop(0.45, '#E8B898'); sky.addColorStop(1, '#F0C8A8');
+  sky.addColorStop(0, '#C8B0C8'); sky.addColorStop(0.42, '#E8B898'); sky.addColorStop(1, '#F0C8A8');
   g.fillStyle = sky; g.fillRect(0, 0, w, h);
   g.fillStyle = '#FFE2A8';
-  const sunX = w * 0.82, sunY = h * 0.18;
-  for (let dy = -9; dy <= 9; dy++) for (let dx = -9; dx <= 9; dx++) if (dx * dx + dy * dy <= 81) g.fillRect((sunX + dx) | 0, (sunY + dy) | 0, 1, 1);
+  const sunX = w * 0.78, sunY = Math.max(20, floor - h * 0.48);
+  for (let dy = -11; dy <= 11; dy++) for (let dx = -11; dx <= 11; dx++) if (dx * dx + dy * dy <= 121) g.fillRect((sunX + dx) | 0, (sunY + dy) | 0, 1, 1);
   g.fillStyle = '#C88890';
-  g.beginPath(); g.moveTo(0, floor - 36);
-  for (let x = 0; x <= w; x += 12) g.lineTo(x, floor - 30 - Math.sin(x * 0.04) * 10);
+  g.beginPath(); g.moveTo(0, floor - h * 0.22);
+  for (let x = 0; x <= w; x += 12) g.lineTo(x, floor - h * 0.18 - Math.sin(x * 0.04) * h * 0.04);
   g.lineTo(w, h); g.lineTo(0, h); g.fill();
-  tree(g, 18, floor, 48, 2); tree(g, 46, floor, 62, 5); tree(g, w - 24, floor, 54, 8);
+  const th = Math.round(h * 0.72);
+  tree(g, 14, floor, th, 2); tree(g, 42, floor, th + 16, 5); tree(g, w - 18, floor, th + 4, 8); tree(g, w - 48, floor, th - 20, 3);
   g.fillStyle = '#6A8A52'; g.fillRect(0, floor, w, h - floor);
-  g.fillStyle = '#C8B48A'; g.fillRect(0, floor - 3, w, 6);
-  const hx = w * 0.68 - k * 18;
-  cottage(g, hx, floor, Math.max(0, (k - 0.58) / 0.32), k > 0.62);
-  drawLisianthusBloom(g, hx - 8, floor - 16, 4.6, 0);
-  drawDianaRose(g, hx + 70, floor - 17, 4.8, 1);
-  const x = 28 + k * (hx + 8 - 36);
-  drawPerson(g, 'him', 'hold', x, floor, false, t);
-  drawPerson(g, 'her', 'holdL', x + 15, floor, false, t);
+  g.fillStyle = '#C8B48A'; g.fillRect(0, floor - 4, w, 8);
+  const hx = w * 0.42 - k * 8;
+  const open = Math.max(0, (k - 0.52) / 0.34);
+  cottage(g, hx, floor, open, k > 0.58);
+  drawLisianthusBloom(g, hx - 10, floor - 28, 6.4, 0);
+  drawDianaRose(g, hx + 108, floor - 30, 6.8, 1);
+  const x = w * 0.1 + k * (hx + 22 - w * 0.1);
+  figure(g, 'him', k > 0.78 ? 'stand' : 'hold', x, floor, false, t);
+  figure(g, 'her', k > 0.78 ? 'stand' : 'holdL', x + 20, floor, false, t);
 }
 
 function drawGreet(g: CanvasRenderingContext2D, w: number, h: number, t: number, layout: SavedItem[]) {
   drawFurnished(g, w, h, layout);
-  const floor = h - Math.max(16, Math.round(h * 0.14));
+  const floor = Math.round(h * 0.62);
   const k = Math.min(1, t / 5.6);
-  drawPerson(g, 'him', 'kneel', w * 0.24, floor, false, t);
-  drawPerson(g, 'her', 'kneel', w * 0.36, floor, true, t);
-  const dogX = w + 10 - k * (w * 0.52);
-  const catX = w + 46 - k * (w * 0.46);
-  const dog = critterFrame('collie', k < 0.85 ? 'walk' : 'extra', t);
-  const kit = critterFrame('calico', k < 0.8 ? 'walk' : 'extra', t);
-  draw(g, dog, Math.round(dogX), floor - dog.height, true);
-  draw(g, kit, Math.round(catX), floor - kit.height, true);
+  figure(g, 'him', 'kneel', w * 0.30, floor, false, t);
+  figure(g, 'her', 'kneel', w * 0.46, floor, true, t);
+  const dogX = w + 8 - k * (w * 0.58);
+  const catX = w + 36 - k * (w * 0.46);
+  pet(g, 'collie', k < 0.86 ? 'walk' : 'extra', dogX, floor, true, t, 1.8);
+  pet(g, 'calico', k < 0.82 ? 'walk' : 'extra', catX, floor, true, t, 1.7);
 }
 
 function drawSofa(g: CanvasRenderingContext2D, w: number, h: number, t: number, layout: SavedItem[]) {
   drawFurnished(g, w, h, layout);
-  const floor = h - Math.max(16, Math.round(h * 0.14));
+  const floor = Math.round(h * 0.62);
   const sofa = layout.find(i => i.kind === 'sofa');
   const sx = sofa ? (sofa.x / 320) * w : w * 0.48;
   const tv = layout.find(i => i.kind === 'tv');
   const tvX = tv ? (tv.x / 320) * w : w * 0.18;
   g.fillStyle = `hsl(${200 + Math.sin(t * 9) * 20},48%,${58 + Math.sin(t * 13) * 8}%)`;
-  g.fillRect(Math.round(tvX - 9), floor - 22, 20, 9);
-  drawPerson(g, 'him', 'sit', sx - 12, floor - 8, false, t);
-  drawPerson(g, 'her', 'lean', sx + 10, floor - 8, false, t);
-  const dog = critterFrame('collie', 'extra', t);
-  const kit = critterFrame('calico', 'extra', t);
-  draw(g, dog, Math.round(sx - 36), floor - dog.height, false);
-  draw(g, kit, Math.round(sx + 28), floor - kit.height - 10, false);
+  g.fillRect(Math.round(tvX - 14), floor - 36, 28, 14);
+  figure(g, 'him', 'sit', sx - 16, floor - 16, false, t, 1.9);
+  figure(g, 'her', 'lean', sx + 14, floor - 16, false, t, 1.9);
+  pet(g, 'collie', 'extra', sx - 44, floor, false, t, 1.65);
+  pet(g, 'calico', 'extra', sx + 38, floor - 12, false, t, 1.55);
 }
 
 function drawSleep(g: CanvasRenderingContext2D, w: number, h: number, t: number) {
-  g.fillStyle = '#1A2230'; g.fillRect(0, 0, w, h);
-  const floor = h - 20;
-  g.fillStyle = '#2A2830'; g.fillRect(0, floor, w, h - floor);
-  g.fillStyle = '#8AA0C0'; g.fillRect(w * 0.68, 10, 40, 30);
-  g.fillStyle = '#C8D4E4'; g.fillRect(w * 0.68 + 18, 10, 3, 30); g.fillRect(w * 0.68, 23, 40, 3);
-  g.fillStyle = 'rgba(200,220,255,0.14)'; g.fillRect(w * 0.52, 10, 90, h);
-  g.fillStyle = '#C4A06A'; g.fillRect(w * 0.16, floor - 18, w * 0.60, 18);
-  g.fillStyle = '#E8D8C8'; g.fillRect(w * 0.18, floor - 22, w * 0.56, 12);
-  g.fillStyle = '#F4EEF2'; g.fillRect(w * 0.18, floor - 26, 16, 10); g.fillRect(w * 0.34, floor - 26, 16, 10);
-  const breathe = Math.sin(t * 1.4) * 0.6;
-  drawPerson(g, 'him', 'sleep', w * 0.38, floor - 16 + breathe, false, t);
-  drawPerson(g, 'her', 'sleep', w * 0.52, floor - 15 - breathe, false, t);
-  g.fillStyle = 'rgba(232,200,196,0.92)';
-  g.fillRect(w * 0.28, floor - 14, w * 0.38, 10);
-  const kit = critterFrame('calico', 'extra', t);
-  const dog = critterFrame('collie', 'extra', t);
-  draw(g, kit, Math.round(w * 0.22), floor - kit.height - 10, false);
-  draw(g, dog, Math.round(w * 0.70), floor - dog.height, true);
+  g.fillStyle = '#1C1826'; g.fillRect(0, 0, w, h);
+  const floor = Math.round(h * 0.72);
+  g.fillStyle = '#2A2430'; g.fillRect(0, floor, w, h - floor);
+  g.fillStyle = '#8AA0C0'; g.fillRect(w * 0.62, 12, 52, 38);
+  g.fillStyle = '#C8D4E4'; g.fillRect(w * 0.62 + 24, 12, 4, 38); g.fillRect(w * 0.62, 28, 52, 4);
+  g.fillStyle = 'rgba(200,220,255,0.16)';
+  g.beginPath(); g.moveTo(w * 0.62, 50); g.lineTo(w * 0.62 + 52, 50); g.lineTo(w * 0.88, floor); g.lineTo(w * 0.48, floor); g.fill();
+  g.fillStyle = '#8A6844'; g.fillRect(w * 0.08, floor - 28, w * 0.84, 28);
+  g.fillStyle = '#E8D8C8'; g.fillRect(w * 0.10, floor - 34, w * 0.80, 16);
+  g.fillStyle = '#F4EEF2'; g.fillRect(w * 0.12, floor - 40, 22, 14); g.fillRect(w * 0.32, floor - 40, 22, 14);
+  const breathe = Math.sin(t * 1.4) * 0.8;
+  figure(g, 'him', 'sleep', w * 0.40, floor - 22 + breathe, false, t, 1.95);
+  figure(g, 'her', 'sleep', w * 0.54, floor - 21 - breathe, false, t, 1.95);
+  g.fillStyle = 'rgba(232,200,196,0.94)';
+  g.fillRect(w * 0.22, floor - 20, w * 0.52, 14);
+  pet(g, 'calico', 'extra', w * 0.18, floor - 16, false, t, 1.55);
+  pet(g, 'collie', 'extra', w * 0.78, floor, true, t, 1.65);
 }
 
 function drawSnow(g: CanvasRenderingContext2D, w: number, h: number, t: number) {
   const sky = g.createLinearGradient(0, 0, 0, h);
   sky.addColorStop(0, '#6A7888'); sky.addColorStop(1, '#D0D8E4');
   g.fillStyle = sky; g.fillRect(0, 0, w, h);
-  const floor = h - 24;
-  tree(g, 22, floor, 58, 3, true);
-  tree(g, 58, floor, 72, 6, true);
-  tree(g, w - 30, floor, 64, 9, true);
-  tree(g, w - 70, floor, 50, 11, true);
-  cottage(g, w * 0.72, floor, 0, true);
-  g.fillStyle = '#F4F6FA'; g.fillRect(0, floor - 10, w, h - floor + 10);
+  const floor = Math.round(h * 0.78);
+  const th = Math.round(h * 0.74);
+  tree(g, 18, floor, th, 3, true);
+  tree(g, 52, floor, th + 18, 6, true);
+  tree(g, w - 22, floor, th + 8, 9, true);
+  tree(g, w - 56, floor, th - 16, 11, true);
+  cottage(g, w * 0.62, floor, 0, true);
+  g.fillStyle = '#F4F6FA'; g.fillRect(0, floor - 12, w, h - floor + 12);
   g.fillStyle = '#E4E8F0';
-  for (let i = 0; i < 6; i++) g.fillRect(i * 60, floor - 6 - (i % 3), 50, 8);
+  for (let i = 0; i < 6; i++) g.fillRect(i * 60, floor - 8 - (i % 3), 50, 10);
   snowflakes(g, w, h, t, true);
   const k = (t % 6.4) / 6.4;
-  const x = 16 + k * (w - 80);
+  const x = w * 0.08 + k * (w * 0.58);
   const bounce = Math.abs(Math.sin(t * 10)) * 2;
-  drawPerson(g, 'him', 'run', x, floor - bounce, false, t);
-  drawPerson(g, 'her', 'run', x + 14, floor - bounce, false, t);
-  const dog = critterFrame('collie', 'walk', t);
-  draw(g, dog, Math.round(x - 18), floor - dog.height - bounce, false);
+  figure(g, 'him', 'run', x, floor - bounce, false, t);
+  figure(g, 'her', 'run', x + 20, floor - bounce, false, t);
+  pet(g, 'collie', 'walk', x - 22, floor - bounce, false, t, 1.65);
 }
 
 function drawDawn(g: CanvasRenderingContext2D, w: number, h: number, t: number) {
@@ -179,34 +201,33 @@ function drawDawn(g: CanvasRenderingContext2D, w: number, h: number, t: number) 
   sky.addColorStop(0.7, mix('#3A4058', '#F8C888', rise));
   sky.addColorStop(1, mix('#3A4058', '#F8E0C8', rise));
   g.fillStyle = sky; g.fillRect(0, 0, w, h);
-  const floor = h * 0.72;
-  const sunY = floor + 6 - rise * (floor * 0.62);
-  const sx = w * 0.5, sr = 12 + rise * 6;
-  // glow
-  g.fillStyle = `rgba(255,200,120,${0.18 + rise * 0.22})`;
-  for (let dy = -sr * 2; dy <= sr * 2; dy++) for (let dx = -sr * 2; dx <= sr * 2; dx++) {
-    if (dx * dx + dy * dy <= (sr * 2) * (sr * 2) && (dx * dx + dy * dy) > sr * sr) {
-      if (((dx + dy) & 3) === 0) g.fillRect((sx + dx) | 0, (sunY + dy) | 0, 1, 1);
+  const floor = h * 0.70;
+  const sunY = floor + 6 - rise * (floor * 0.58);
+  const sx = w * 0.5, sr = 16 + rise * 8;
+  for (let i = 3; i >= 1; i--) {
+    const R = sr * (1 + i * 0.55);
+    g.fillStyle = `rgba(255,200,120,${(0.08 + rise * 0.08) / i})`;
+    for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
+      if (dx * dx + dy * dy <= R * R) g.fillRect((sx + dx) | 0, (sunY + dy) | 0, 1, 1);
     }
   }
   g.fillStyle = mix('#E8B070', '#FFE8A0', rise);
   for (let dy = -sr; dy <= sr; dy++) for (let dx = -sr; dx <= sr; dx++) if (dx * dx + dy * dy <= sr * sr) g.fillRect((sx + dx) | 0, (sunY + dy) | 0, 1, 1);
   g.fillStyle = mix('#1A2028', '#3A4A38', rise);
-  g.beginPath(); g.moveTo(0, floor + 8);
-  for (let x = 0; x <= w; x += 8) g.lineTo(x, floor - 10 - Math.sin(x * 0.04) * 12 - Math.sin(x * 0.01) * 6);
+  g.beginPath(); g.moveTo(0, floor + 10);
+  for (let x = 0; x <= w; x += 8) g.lineTo(x, floor - 14 - Math.sin(x * 0.04) * 16 - Math.sin(x * 0.01) * 8);
   g.lineTo(w, h); g.lineTo(0, h); g.fill();
-  // pine silhouettes
   g.fillStyle = mix('#12161C', '#2A3828', rise);
-  for (const px of [18, 42, w - 28, w - 52]) {
+  for (const px of [16, 44, w - 24, w - 52]) {
     g.beginPath();
-    g.moveTo(px, floor + 4);
-    g.lineTo(px + 7, floor - 36);
-    g.lineTo(px + 14, floor + 4);
+    g.moveTo(px, floor + 6);
+    g.lineTo(px + 10, floor - 56);
+    g.lineTo(px + 20, floor + 6);
     g.fill();
   }
-  const stand = floor - 4;
-  drawPerson(g, 'him', 'lean', w * 0.46, stand, false, t);
-  drawPerson(g, 'her', 'lean', w * 0.56, stand, false, t);
+  const stand = floor - 2;
+  figure(g, 'him', 'lean', w * 0.44, stand, false, t, 2.05);
+  figure(g, 'her', 'lean', w * 0.56, stand, false, t, 2.05);
 }
 
 function mix(a: string, b: string, k: number): string {

@@ -39,29 +39,24 @@ function petal(g: CanvasRenderingContext2D, x: number, y: number, len: number, h
   }
 }
 
-/** one open 紫精灵 bloom: side-on ruffled goblet (洋桔梗), not a hydrangea pom-pom. */
+/** one open 紫精灵 bloom: double lisianthus / 洋桔梗, rose-form when open.
+ *  Ruffled layered petals, paler throat, wavy edges. Not a hydrangea mound, not a campanula bell. */
 export function drawLisianthusBloom(g: CanvasRenderingContext2D, x: number, y: number, s: number, tilt = 0) {
-  const lean = Math.sin(tilt) * s * 0.18;
-  // green calyx
-  disc(g, x + lean * 0.4, y + s * 0.55, s * 0.2, LISI.leaf);
-  disc(g, x + lean * 0.4, y + s * 0.62, s * 0.14, LISI.leafD);
-  // goblet body: narrow at the calyx, widest at a ruffled rim
-  for (let i = -s * 0.15; i <= s * 0.55; i++) {
-    const tt = (i + s * 0.15) / (s * 0.7);
-    const w = s * (0.22 + 0.5 * Math.pow(tt, 0.85));
-    const cx = x + lean * (1 - tt);
-    for (let dx = -w; dx <= w; dx++) {
-      const edge = Math.abs(dx) > w - 0.7;
-      const col = tt > 0.72 ? LISI.outer : (tt < 0.25 ? LISI.inner : LISI.mid);
-      px(g, cx + dx, y + i, edge ? LISI.outer : col);
-    }
+  disc(g, x, y + s * 0.55, s * 0.22, LISI.leaf);
+  disc(g, x, y + s * 0.62, s * 0.14, LISI.leafD);
+  const outer = 6;
+  for (let i = 0; i < outer; i++) {
+    const a = tilt - Math.PI / 2 + (i / outer) * Math.PI * 2 + 0.2;
+    const len = s * (0.95 + 0.12 * Math.sin(i * 1.7 + tilt));
+    petal(g, x, y + s * 0.08, len, s * 0.34, a, LISI.outer, LISI.mid, LISI.inner);
   }
-  // ruffled rim — a few petal tips lifting off the cup
-  for (let i = -2; i <= 2; i++) {
-    const a = -Math.PI / 2 + i * 0.42 + tilt * 0.2;
-    petal(g, x + lean * 0.2, y - s * 0.12, s * 0.42, s * 0.16, a, LISI.outer, LISI.mid, LISI.throat);
+  const inner = 5;
+  for (let i = 0; i < inner; i++) {
+    const a = tilt - Math.PI / 2 + (i / inner) * Math.PI * 2 + 0.55;
+    petal(g, x, y + s * 0.02, s * 0.62, s * 0.22, a, LISI.mid, LISI.inner, LISI.throat);
   }
-  disc(g, x + lean * 0.15, y + s * 0.08, s * 0.18, LISI.throat);
+  disc(g, x, y - s * 0.02, s * 0.2, LISI.inner);
+  disc(g, x, y - s * 0.06, s * 0.1, LISI.throat);
 }
 
 /** tight lisianthus bud (the cultivar carries several buds per stem) */
@@ -78,27 +73,30 @@ export function drawLisianthusBud(g: CanvasRenderingContext2D, x: number, y: num
 
 /** 戴安娜: classic high-centred hybrid-tea rose, spiral petals, pointed bud */
 export function drawDianaRose(g: CanvasRenderingContext2D, x: number, y: number, s: number, open = 1) {
-  // high-centred hybrid tea seen in 3/4: a pointed cone, outer petals rolling out
-  const H = s * (1.15 + 0.15 * open);
-  for (let i = -H; i <= s * 0.35; i++) {
-    const tt = (i + H) / (H + s * 0.35);
-    // pointed tip, fullest just below the middle, slight tuck at the calyx
-    const w = Math.sin(tt * Math.PI) * s * (0.48 + 0.28 * open) * (0.7 + 0.45 * tt);
-    for (let dx = -w; dx <= w; dx++) {
-      const edge = Math.abs(dx) > w - 0.65;
-      const col = tt < 0.22 ? DIANA.heart : tt < 0.45 ? DIANA.inner : tt < 0.75 ? DIANA.mid : DIANA.outer;
-      px(g, x + dx, y + i, edge ? DIANA.inner : col);
-    }
+  // High-centred Yunnan cut rose “戴安娜”: outer petals shorter and recurved,
+  // inner petals longer, spiral climb to a pointed heart. Bright princess pink.
+  disc(g, x, y + s * 0.48, s * 0.18, DIANA.leaf);
+  // outer guard petals — shorter, rolling out (高心卷边)
+  const guards = 6;
+  for (let i = 0; i < guards; i++) {
+    const a = -Math.PI + 0.35 + (i / Math.max(1, guards - 1)) * (Math.PI - 0.7);
+    const flare = a + (a < -Math.PI / 2 ? -0.55 : 0.55) * (0.35 + 0.65 * open);
+    petal(g, x, y + s * 0.12, s * (0.7 + 0.25 * open), s * 0.28, flare, DIANA.mid, DIANA.outer, DIANA.hi);
   }
-  // rolled-out guard petals at the bowl
-  for (const side of [-1, 1]) {
-    petal(g, x + side * s * 0.1, y + s * 0.16, s * 0.85 * open, s * 0.26, Math.PI * 0.5 + side * (0.75 + 0.2 * open), DIANA.mid, DIANA.outer, DIANA.hi);
-    petal(g, x + side * s * 0.2, y + s * 0.28, s * 0.55 * open, s * 0.18, Math.PI * 0.5 + side * 1.15, DIANA.outer, DIANA.hi);
+  // spiral of inner petals (outer short → inner long), climbing to the high centre
+  const n = 7 + Math.round(open * 3);
+  for (let i = 0; i < n; i++) {
+    const tt = i / Math.max(1, n - 1);
+    const a = -Math.PI / 2 + i * 0.72;
+    const len = s * (0.38 + tt * 0.22 + (1 - tt) * 0.15 * open);
+    const lift = -s * (0.08 + tt * 0.42 * open);
+    const hw = s * (0.16 + (1 - tt) * 0.06);
+    const fill = tt < 0.35 ? DIANA.heart : tt < 0.65 ? DIANA.inner : DIANA.mid;
+    petal(g, x + Math.cos(a) * s * 0.06, y + lift, len, hw, a + (i % 2 ? 0.12 : -0.12), DIANA.inner, fill, DIANA.hi);
   }
-  // hint of spiral near the high centre
-  px(g, x - 1, y - H * 0.35, DIANA.hi);
-  px(g, x + 1, y - H * 0.2, DIANA.hi);
-  disc(g, x, y + s * 0.4, s * 0.16, DIANA.leaf);
+  // pointed high centre
+  petal(g, x, y - s * 0.5 * open, s * 0.38, s * 0.11, -Math.PI / 2 - 0.08, DIANA.heart, DIANA.inner);
+  petal(g, x, y - s * 0.46 * open, s * 0.32, s * 0.1, -Math.PI / 2 + 0.1, DIANA.inner, DIANA.mid);
 }
 
 export function drawDianaBud(g: CanvasRenderingContext2D, x: number, y: number, s: number) {

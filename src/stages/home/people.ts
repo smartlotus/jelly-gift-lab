@@ -48,7 +48,7 @@ function head(g: CanvasRenderingContext2D, who: Who, cx: number, cy: number, exp
     // side locks down to the collar, staying outside the cheeks
     for (let dy = -3; dy <= 8; dy++) {
       for (const s of [-1, 1]) {
-        const inset = dy < 3 ? 5 : 4;
+        const inset = dy < 3 ? 6 : 5;
         px(g, cx + s * inset, cy + dy, HAIR);
         px(g, cx + s * (inset + 1), cy + dy, dy === 8 ? INK : HAIR_H);
         if (dy > 2) px(g, cx + s * (inset + 2), cy + dy, INK);
