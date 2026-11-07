@@ -58,9 +58,11 @@ body.hm-decorating.hm-portrait.hm-turn-skip .hm-turn { display: none; }
 .hm-skip { right: calc(16px + var(--sar)); bottom: calc(16px + var(--sab)); }
 .hm-replay { left: calc(16px + var(--sal)); bottom: calc(16px + var(--sab)); display: none; }
 .hm-again { right: calc(16px + var(--sar)); bottom: calc(16px + var(--sab)); display: none; }
-body.hm-finale .hm-skip { display: none; }
-body.hm-finale .hm-replay, body.hm-finale .hm-again { display: inline-block; }
+body.hm-on-finale .hm-skip { display: none; }
+body.hm-on-finale .hm-replay, body.hm-on-finale .hm-again { display: inline-block; }
 
 @media (prefers-reduced-motion: reduce) {
   .hm-line, .hm-finale, .hm-hint, .hm-phone { transition: none; animation: none !important; }
 }
+
+body.hm-decorating .hm-skip { display: none; }

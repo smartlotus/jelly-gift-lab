@@ -219,20 +219,7 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
     },
     items: () => items,
     furnishDemo() {
-      items = [
-        { id: uid++, kind: 'rug', x: 120, y: 8, flip: false },
-        { id: uid++, kind: 'sofa', x: 120, y: 14, flip: false },
-        { id: uid++, kind: 'coffee', x: 122, y: 4, flip: false },
-        { id: uid++, kind: 'lamp', x: 160, y: 4, flip: false },
-        { id: uid++, kind: 'tv', x: 50, y: 6, flip: false },
-        { id: uid++, kind: 'bed', x: 240, y: 10, flip: false },
-        { id: uid++, kind: 'roses', x: 190, y: 4, flip: false },
-        { id: uid++, kind: 'lisi', x: 80, y: 4, flip: false },
-        { id: uid++, kind: 'cattree', x: 30, y: 4, flip: false },
-        { id: uid++, kind: 'dogbed', x: 200, y: 2, flip: false },
-        { id: uid++, kind: 'frame', x: 90, y: 22, flip: false },
-        { id: uid++, kind: 'lights', x: 150, y: 12, flip: false },
-      ];
+      items = demoLayout().map(i => ({ id: uid++, ...i }));
       persistLayout(items.map(({ kind, x, y, flip }) => ({ kind, x, y, flip })));
     },
     destroy() {
@@ -248,33 +235,58 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
   };
   syncSel(); apply();
   // expose for tests
-  (window as unknown as { __homeRoom?: { items: () => Placed[]; save: () => void } }).__homeRoom = {
+  (window as unknown as { __homeRoom?: { items: () => Placed[]; save: () => void; persist: () => void } }).__homeRoom = {
     items: () => items,
     save: () => { persistLayout(items.map(({ kind, x, y, flip }) => ({ kind, x, y, flip }))); onSave?.(items); },
+    persist: () => { persistLayout(items.map(({ kind, x, y, flip }) => ({ kind, x, y, flip }))); },
   };
   return api;
+}
+
+
+export function demoLayout(): SavedItem[] {
+  return [
+    { kind: 'rug', x: 148, y: 8, flip: false },
+    { kind: 'sofa', x: 148, y: 16, flip: false },
+    { kind: 'coffee', x: 150, y: 4, flip: false },
+    { kind: 'lamp', x: 188, y: 4, flip: false },
+    { kind: 'tv', x: 58, y: 6, flip: false },
+    { kind: 'bed', x: 250, y: 12, flip: false },
+    { kind: 'roses', x: 204, y: 4, flip: false },
+    { kind: 'lisi', x: 96, y: 4, flip: false },
+    { kind: 'cattree', x: 28, y: 4, flip: false },
+    { kind: 'dogbed', x: 214, y: 2, flip: false },
+    { kind: 'frame', x: 96, y: 22, flip: false },
+    { kind: 'lights', x: 160, y: 12, flip: false },
+  ];
 }
 
 export function drawFurnished(g: CanvasRenderingContext2D, w: number, h: number, items: SavedItem[], scale = 1) {
   // reused by montage: paint a compact room using saved (or default) furniture
   const floor = h - Math.max(16, Math.round(h * 0.14));
   g.fillStyle = '#F3E6D4'; g.fillRect(0, 0, w, floor);
+  g.fillStyle = '#E8D2B8'; g.fillRect(0, floor - 22, w, 22); // wainscot
   g.fillStyle = '#C4A07A'; g.fillRect(0, floor, w, h - floor);
-  g.fillStyle = '#BFD6E8'; g.fillRect((w * 0.62) | 0, 10, Math.min(48, w * 0.18), Math.min(28, h * 0.18));
+  g.fillStyle = '#A88860'; g.fillRect(0, floor, w, 2);
+  // framed window with a bit of sky
+  const wx = (w * 0.62) | 0, wy = 8, ww = Math.min(52, w * 0.2), wh = Math.min(32, h * 0.2);
+  g.fillStyle = '#8AA8B8'; g.fillRect(wx - 3, wy - 3, ww + 6, wh + 6);
+  g.fillStyle = '#BFD6E8'; g.fillRect(wx, wy, ww, wh);
+  g.fillStyle = '#E8F0C8'; g.fillRect(wx, wy + wh - 8, ww, 8);
+  g.fillStyle = '#D8C8A8'; g.fillRect(wx + (ww >> 1) - 1, wy, 2, wh); g.fillRect(wx, wy + (wh >> 1) - 1, ww, 2);
   const list = items.length ? items : [
     { kind: 'rug', x: w * 0.45, y: 6, flip: false },
     { kind: 'sofa', x: w * 0.45, y: 12, flip: false },
     { kind: 'tv', x: w * 0.18, y: 6, flip: false },
   ];
-  const sorted = [...list].sort((a, b) => (kindById(a.kind)?.layer === 'rug' ? -1 : 0) - (kindById(b.kind)?.layer === 'rug' ? -1 : 0) || a.y - b.y);
+  const rank = (k?: string) => k === 'rug' ? 0 : k === 'furn' ? 1 : k === 'top' ? 2 : 3;
+  const sorted = [...list].sort((a, b) => rank(kindById(a.kind)?.layer) - rank(kindById(b.kind)?.layer) || (b.y - a.y));
   for (const it of sorted) {
     const k = kindById(it.kind); if (!k) continue;
     const img = sprite(it.kind, it.flip);
-    const x = Math.round(it.x * (scale === 1 ? 1 : scale) - img.width / 2);
-    // saved coords were from the decorating screen — scale x into this frame
     const xx = Math.round((it.x / 320) * w - img.width / 2);
     const y = k.wall ? Math.round((it.y / 180) * h) : floor - img.height - Math.round(it.y * 0.4);
     g.drawImage(img, Math.max(-img.width + 4, Math.min(w - 4, xx)), y);
-    void x;
+    void scale;
   }
 }

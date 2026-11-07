@@ -10,7 +10,7 @@ import { catSprites, catFrame } from '../../shared/pixel/cat';
 import { pigSprites, pigFrame } from '../../shared/pixel/pig';
 import { draw } from '../../shared/pixel/sprite';
 import { createApproach } from './approach';
-import { createRoom, drawFurnished, type Placed } from './room';
+import { createRoom, drawFurnished, demoLayout, type Placed } from './room';
 import { createMontage, type MontageApi } from './montage';
 import { drawPerson } from './people';
 import { clearLayout, loadLayout, type SavedItem } from './save';
@@ -74,11 +74,12 @@ function leaveRoom() {
 function enterMontage() {
   phase = 'montage';
   line.classList.remove('on');
-  if (!layout.length) layout = loadLayout().items;
+  if (params.has('furnish')) layout = demoLayout();
+  else if (!layout.length) layout = loadLayout().items;
   montage = createMontage(layout);
   if (['walk', 'greet', 'sofa', 'sleep', 'snow', 'dawn', 'finale'].includes(at)) {
-    const target = at === 'finale' ? 6 : ['walk', 'greet', 'sofa', 'sleep', 'snow', 'dawn'].indexOf(at);
-    for (let i = 0; i < target; i++) montage.skip();
+    const startT = at === 'dawn' ? 5.5 : at === 'walk' ? 2.6 : at === 'greet' ? 3.6 : at === 'snow' ? 2.4 : at === 'finale' ? 1.2 : 1.8;
+    montage.seek(at as 'walk', startT);
   }
 }
 
@@ -91,7 +92,7 @@ skip.addEventListener('click', () => {
   else if (phase === 'transform') enterMontage();
   else if (phase === 'montage') montage?.skip();
 });
-replay.addEventListener('click', () => { finale.classList.remove('on'); document.body.classList.remove('hm-finale'); montage?.replay(); });
+replay.addEventListener('click', () => { finale.classList.remove('on'); document.body.classList.remove('hm-on-finale'); montage?.replay(); });
 again.addEventListener('click', () => { leaveHome(); void go('meadow', () => reducedMotion() ? Promise.resolve() : irisOut(innerWidth / 2, innerHeight / 2, 700, '#f3ebe0')); });
 
 const reduced = reducedMotion();
@@ -110,7 +111,7 @@ startLoop(dt => {
   } else {
     montage?.update(dt);
     if (montage?.scene === 'finale') {
-      document.body.classList.add('hm-finale');
+      document.body.classList.add('hm-on-finale');
       if ((montage.finaleT) > 0.8) finale.classList.add('on');
     }
   }
@@ -131,8 +132,8 @@ startLoop(dt => {
     draw(g, cat, Math.round(w * 0.55 - 8), floor - 16, false);
     g.restore();
     g.save(); g.globalAlpha = k;
-    drawPerson(g, 'him', 'stand', w * 0.42, floor, false, transformT);
-    drawPerson(g, 'her', 'stand', w * 0.55, floor, false, transformT);
+    drawPerson(g, 'him', 'stand', w * 0.34, floor, false, transformT);
+    drawPerson(g, 'her', 'stand', w * 0.46, floor, false, transformT);
     g.restore();
     g.fillStyle = '#FFE8A0';
     for (const s of spark) { g.globalAlpha = Math.max(0, s.life); g.fillRect(s.x | 0, s.y | 0, 2, 2); }

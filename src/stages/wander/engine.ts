@@ -64,13 +64,13 @@ function bakeTree(th: Theme, h: number, w: number, seed: number, mush: boolean):
   const c = document.createElement('canvas'); c.width = w; c.height = h;
   const g = c.getContext('2d')!;
   const tx = (w / 2) | 0, tw = Math.max(3, (w * 0.14) | 0);
-  g.fillStyle = th.trunk; g.fillRect(tx - (tw >> 1), (h * 0.38) | 0, tw, (h * 0.62) | 0);
-  g.fillStyle = th.trunkD; g.fillRect(tx - (tw >> 1), (h * 0.38) | 0, 1, (h * 0.62) | 0);
-  const blobs = 5 + (seed % 4);
+  g.fillStyle = th.trunk; g.fillRect(tx - (tw >> 1), (h * 0.18) | 0, tw, (h * 0.82) | 0);
+  g.fillStyle = th.trunkD; g.fillRect(tx - (tw >> 1), (h * 0.18) | 0, 1, (h * 0.82) | 0);
+  const blobs = 6 + (seed % 4);
   for (let i = 0; i < blobs; i++) {
-    const cx = tx + Math.sin(seed * 1.3 + i * 1.7) * w * 0.26;
-    const cy = h * (0.2 + (i % 3) * 0.08);
-    const r = w * (0.16 + ((seed + i) % 4) * 0.035);
+    const cx = tx + Math.sin(seed * 1.3 + i * 1.7) * w * 0.28;
+    const cy = h * (0.10 + (i % 4) * 0.09);
+    const r = w * (0.18 + ((seed + i) % 4) * 0.04);
     g.fillStyle = i % 2 ? th.canopy : th.canopyD;
     const R = r | 0;
     for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
@@ -78,6 +78,12 @@ function bakeTree(th: Theme, h: number, w: number, seed: number, mush: boolean):
     }
   }
   if (mush && seed % 2 === 0) drawShroom(g, tx + (tw >> 1) + 1, (h * 0.72) | 0, 'shelf', 4 + (seed % 3), seed, 1);
+  if (!mush && seed % 2 === 0) {
+    for (let y = (h * 0.85) | 0; y > ((h * 0.28) | 0); y -= 16) {
+      if ((seed + y) % 2 === 0) drawDianaRose(g, tx + tw + 2, y, 3.4 + (seed % 3) * 0.4, 0.85);
+      else drawLisianthusBloom(g, tx - tw - 3, y, 3.2 + (seed % 2) * 0.5, 0.1);
+    }
+  }
   return c;
 }
 
@@ -111,12 +117,12 @@ export function startWander(opts: WoodOpts) {
   const flowerSet: Cluster[] = [];
   const mushSet: MushCluster[] = [];
   if (theme === 'flower') {
-    for (let i = 0; i < 14; i++) flowerSet.push(bakeCluster(i % 2 === 0 ? 'diana' : 'lisi', 11 + i * 17, 1 + (i % 5 === 0 ? 0.2 : 0)));
+    for (let i = 0; i < 16; i++) flowerSet.push(bakeCluster(i % 2 === 0 ? 'diana' : 'lisi', 11 + i * 17, 1.15 + (i % 5 === 0 ? 0.25 : 0)));
   } else {
-    for (let i = 0; i < 16; i++) mushSet.push(bakeMushCluster(23 + i * 19, 1 + (i % 4 === 0 ? 0.18 : 0)));
+    for (let i = 0; i < 16; i++) mushSet.push(bakeMushCluster(23 + i * 19, 1.12 + (i % 4 === 0 ? 0.2 : 0)));
   }
-  for (let i = 0; i < 18; i++) treesFar.push({ x: 40 + i * 190 + (i * 37) % 70, img: bakeTree(T, 86 + (i % 5) * 8, 42 + (i % 3) * 6, 50 + i * 9, theme === 'mushroom') });
-  for (let i = 0; i < 22; i++) treesMid.push({ x: 10 + i * 160 + (i * 19) % 50, img: bakeTree(T, 108 + (i % 4) * 10, 50 + (i % 3) * 8, 90 + i * 13, theme === 'mushroom') });
+  for (let i = 0; i < 22; i++) treesFar.push({ x: 24 + i * 155 + (i * 37) % 60, img: bakeTree(T, 150 + (i % 5) * 18, 58 + (i % 3) * 8, 50 + i * 9, theme === 'mushroom') });
+  for (let i = 0; i < 26; i++) treesMid.push({ x: 8 + i * 132 + (i * 19) % 44, img: bakeTree(T, 188 + (i % 4) * 22, 68 + (i % 3) * 10, 90 + i * 13, theme === 'mushroom') });
   if (theme === 'flower') {
     flowerSet.forEach((cl, i) => {
       props.push({ x: 80 + i * 220 + (i * 47) % 80, img: cl.canvas, ax: cl.ax, layer: i % 3 === 0 ? 'fg' : 'near' });
@@ -384,6 +390,25 @@ export function startWander(opts: WoodOpts) {
       else drawSpore(ctx, x, y, p.s, p.kind === 'fire');
     }
 
+    // hanging canopy along the top of the frame so portrait views aren't empty sky
+    ctx.fillStyle = T.canopyD;
+    for (let i = 0; i < 14; i++) {
+      const x = ((i * 52 - ox * 0.55) % (w + 70)) - 30;
+      const r = 16 + (i % 4) * 5;
+      const cy = 6 + (i % 3) * 4;
+      for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+        if (dx * dx + dy * dy * 1.4 <= r * r && cy + dy < r + 8) ctx.fillRect((x + dx) | 0, (cy + dy) | 0, 1, 1);
+      }
+    }
+    ctx.fillStyle = T.canopy;
+    for (let i = 0; i < 10; i++) {
+      const x = ((i * 64 - ox * 0.7 + 20) % (w + 80)) - 36;
+      const r = 12 + (i % 3) * 4;
+      for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+        if (dx * dx * 0.7 + dy * dy <= r * r && dy < 6) ctx.fillRect((x + dx) | 0, (4 + dy) | 0, 1, 1);
+      }
+    }
+
     // soft vignette
     ctx.fillStyle = theme === 'flower' ? 'rgba(180,80,110,0.06)' : 'rgba(0,10,16,0.18)';
     ctx.fillRect(0, 0, w, 8); ctx.fillRect(0, h - 10, w, 10);
@@ -393,6 +418,10 @@ export function startWander(opts: WoodOpts) {
     screen,
     get x() { return cat.x; },
     get t() { return time; },
+    seek(x: number) {
+      cat.x = Math.max(8, Math.min(WORLD - 24, x));
+      cam.snap(cat.x + 8, floorOf(screen.h) - 16, screen.w, screen.h);
+    },
   };
   (window as unknown as { __wander?: typeof api }).__wander = api;
   return api;

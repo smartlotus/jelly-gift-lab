@@ -374,3 +374,70 @@ GIFT_DEPLOY=1 scripts/deploy_pages.sh   # 仅在 M8 完成后！会把线上根�
 - /coop/ 进入时 WebKit 控制台有一条 `NotAllowedError`（无手势 resume，v03h 线上就有，无害）。
 
 **v03i 已交付（2026-11-04）**：PR #6 合并，master `52caa2d`，tag `v03i`；`smartlotus/jelly-gift` main `1c2d5de`。线上 WebKit iPhone 15 模拟：所有新增音效点均发声（v03i-check.mjs，BASE=线上），Lotus30 检视为彩色且立起。展厅 `lotus30-figures-web` PR #1 → main `9602a08`，gh-pages `de48437`。回滚：`git checkout v03h && GIFT_DEPLOY=1 scripts/deploy_pages.sh /workspace/jelly/jelly-gift`。
+
+## v03j — 花林、蘑菇林与未来的家（分支 `v03j-forests-home`，审查中）
+
+在草地和小店之间插入两段散步，并在「一起玩」之后接一章空房子：布置未来的家，再变成更像参考照片的像素人，播放到第 2000 天的蒙太奇。
+
+**不要把本分支合并进 `jelly-gift-site` 的默认分支，也不要部署到旧的 `smartlotus/jelly-gift` Pages。** 旧稳定站保持 v03i 不动。审查通过后的下一阶段，是把完整代码（含本章）复制到一个新的私有仓（建议名 `jelly-gift-story`，截至 2026-11-07 该名尚未被占用），再为全书补情节衔接并优化顺序；本分支只做实现与审查。
+
+### 旅程顺序（本章落地，相对路径，便于日后整仓搬迁）
+`meadow → flower → mushroom → shop → night → jelly → sea → sky → coop → home`
+
+这样小猫从草地走进「她喜欢的东西」（花，再是蘑菇），再回到原来精心衔接的小店→天黑→果冻→海→天空→一起玩，最后发现空房子。没有改 shop→night「天黑了」、night→jelly 粉色、jelly→sea、sea→sky、sky→coop 黎明。`coop` 通关后按钮/自动续走去 `/home/`（「往前走走」）；coop 的「再来一次」仍重玩本关。
+
+### 花林 `/flower/`
+- 只有两种花：云南紫精灵（洋桔梗，向上的褶皱杯状、灰绿对生叶、一茎多头）和戴安娜粉玫瑰（偏高心形的粉色轮廓）。没有雏菊、 Lavender 穗或其它种类。
+- 多层视差、树冠垂下、树干上有攀爬的花；鹿 / 羊羔 / 边牧幼犬 / 小猫 / 猫头鹰会走过来看一眼再离开。
+- 触摸按住或拖动朝手指走，键盘 ← → / A D。
+- BGM `bloom`：原创 D 大调 6/8，由远及近淡入（情绪参考《猫的报恩》器乐，不抄旋律或录音）。
+
+### 蘑菇林 `/mushroom/`
+- 夜色、月光、多种发光菌（斑点、铃、针、伞、层架、锥），不是花林换色。孢子与荧光粒子。同样的动物与操作，BGM `grove`。
+- 出口虹膜切到小店。
+
+### 家 `/home/`
+1. 小猪和小猫沿路走，发现空房子。原句：「这里有一间空房子诶，我们可以布置一下」。
+2. 横屏布置小游戏（竖屏有可关掉的「转过来更好看」提示，不假设系统锁方向）：抽屉里选家具，拖、翻转、拿掉、撤销、重置；主按钮「保存布局」；`localStorage gift.home.layout.v1`。
+3. 保存后过场，变成更写实的像素人（女性中分肩下黑发、大眼睛、黑色拉链领、银色项链；男性竖起的头发、墨镜、白衣海军领、深色裤子）。参考照片只作私有绘制依据，从未进仓。原句：「也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。」
+4. 蒙太奇（动画场景，不是文字卡片）：牵手走回家开门；布置过的客厅 + 三花小猫和边牧来迎；沙发看电视；依偎睡着；大雪里并肩跑；靠在一起看日出。
+5. 终场原文渐显：「我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。我的小臭猫。」可再看一遍或从头再来（回草地）。
+
+### 音乐
+`src/shared/music.ts`：`bloom` / `grove` / `hearth` / `dream`。沿用全站静音默认、`gift.sound`、首次手势解锁、页面间交叉淡化。不要在无手势时强行起 `AudioContext`。
+
+### 开发钩子（相对 URL）
+- 花/菇：`?at=end` `?auto`；`window.__wander { x, t, seek }`
+- 家：`?at=approach|room|transform|walk|greet|sofa|sleep|snow|dawn|finale`，`?fresh=1` 清空布局，`?furnish=1` 填一套示范家具（蒙太奇页也会用这套，方便截图）。
+- `window.__home { phase, skip, save }`，`window.__homeRoom { items, save, persist }`（`persist` 只写入存储，不触发过场）。
+
+### 建议的全书情节（阶段 2 再做，本章未改顺序）
+四幕，用短对白和转场物件把现有体验串成一条路，而不是互不相干的网页：
+
+1. **邀请** meadow → flower（把将要送给她的花种进世界）→ mushroom（她的另一种喜欢，天色转晚）。
+2. **他做的东西** shop（+ `/ar/` 旁路）。
+3. **一起经历过的夜晚** night（好玩的惊吓）→ jelly → sea（共同的电影与地方）→ sky（长春的真实天空 + 200 天短片）。
+4. **以后** coop（一起玩）→ home 发现/布置 → 人的样子 → 第 2000 天蒙太奇。
+
+阶段 2 应保留已经调过的转场（尤其是「天黑了」和海平面），只在交界处加很小的情节节拍。新仓默认私有，用现有 `gh` 登录复制，不要原始照片或密钥，不要 mirror force-push。
+
+### 测试
+```
+npx tsc --noEmit
+npm run build
+# 预览 dist 后：
+GIO_USE_PROXY_RESOLVER=dummy GSETTINGS_BACKEND=memory node tools/v03j-shots.mjs http://localhost:8811/ review/v03j
+```
+WebKit iPhone 15：390×844 与 844×390。截图与拼图在 `review/v03j/`（`forests-grid.jpg` `home-grid.jpg` `montage-grid.jpg`）。房间持久化用例会先 `persist` 再打开不带 `?fresh=1` 的 `/home/?at=room`。
+
+### 已知不足
+- 紫精灵现在是向上的紫色杯状（不再是绣球），戴安娜是偏高心的粉色尖瓣，仍略接近风铃草 / 未完全打开的茶香玫瑰，而不是照片级的重瓣洋桔梗或螺旋绽放的切花。
+- 竖屏花林/蘑菇林在树冠和地面之间仍有一条空天空；横屏更满。
+- 发现房子、走路回家的野外比海洋/夜路页更简；室内蒙太奇是一条地平线上摆家具，墙面较空。
+- 迎接那场：宠物偏小，从画面右侧跑进已布置的房间，不是扑到脚边。
+- 女性头发能看见脸和中分，仍偏厚重。
+- 未重建 CJK 子集（`fonts-src` 里没有 ttf）；「诶」等字目前能显示，多半是系统回退。
+- 未在真机 iPhone 上跑 v03i 或本章。
+- `/coop/` 进入时 WebKit 仍可能打一条无手势的 `NotAllowedError`（旧问题，无害）。
+
+回滚（若误合）：回到 tag `v03i`。本章的回滚就是不合并、不部署。

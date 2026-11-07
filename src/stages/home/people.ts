@@ -4,7 +4,7 @@
 // (x, y) is feet-centre. flip = face left.
 
 export type Who = 'her' | 'him';
-export type Pose = 'stand' | 'walk' | 'run' | 'sit' | 'sleep' | 'lean' | 'kneel' | 'hold';
+export type Pose = 'stand' | 'walk' | 'run' | 'sit' | 'sleep' | 'lean' | 'kneel' | 'hold' | 'holdL';
 
 const SKIN = '#E6C2AE';
 const SKIN_S = '#D4A894';
@@ -37,24 +37,25 @@ function head(g: CanvasRenderingContext2D, who: Who, cx: number, cy: number, exp
   px(g, cx - 6, cy + 2, SKIN_S); px(g, cx + 6, cy + 2, SKIN_S);
 
   if (who === 'her') {
-    // center-parted volume, falling past the cheeks to the shoulders
-    for (let dy = -7; dy <= 8; dy++) {
-      const side = dy < -2 ? 6 : dy < 2 ? 7 : 6;
-      for (const s of [-1, 1]) {
-        for (let k = 3; k <= side; k++) {
-          const x = cx + s * k + (dy > 2 ? s * Math.min(2, (dy - 2) * 0.4) : 0);
-          const y = cy + dy;
-          if (dy === -7 && k < 5) px(g, x, y, HAIR);
-          else if (k >= 3) px(g, x, y, k === side || dy === -7 ? INK : (k === 3 && dy < 0 ? HAIR_H : HAIR));
-        }
+    // hair cap with a clear centre part, then thin shoulder-length curtains that do not cover the face
+    for (let dy = -8; dy <= -4; dy++) {
+      const w = dy === -8 ? 4 : dy === -7 ? 6 : 7;
+      for (let dx = -w; dx <= w; dx++) {
+        if (Math.abs(dx) <= 1 && dy >= -7) continue; // part
+        px(g, cx + dx, cy + dy, Math.abs(dx) === w || dy === -8 ? INK : HAIR);
       }
     }
-    // visible part
-    span(g, cx - 1, cy - 6, 3, SKIN);
-    px(g, cx, cy - 7, SKIN_S);
-    // face-framing strands
-    px(g, cx - 5, cy + 3, HAIR); px(g, cx + 5, cy + 3, HAIR);
-    px(g, cx - 5, cy + 5, HAIR); px(g, cx + 5, cy + 5, HAIR);
+    // side locks down to the collar, staying outside the cheeks
+    for (let dy = -3; dy <= 8; dy++) {
+      for (const s of [-1, 1]) {
+        const inset = dy < 3 ? 5 : 4;
+        px(g, cx + s * inset, cy + dy, HAIR);
+        px(g, cx + s * (inset + 1), cy + dy, dy === 8 ? INK : HAIR_H);
+        if (dy > 2) px(g, cx + s * (inset + 2), cy + dy, INK);
+      }
+    }
+    span(g, cx - 1, cy - 7, 3, SKIN);
+    px(g, cx, cy - 8, SKIN_S);
   } else {
     // tousled spikes going up and out
     const spikes = [-5, -3, -1, 1, 3, 5];
@@ -195,6 +196,9 @@ export function drawPerson(g: CanvasRenderingContext2D, who: Who, pose: Pose, x:
     if (pose === 'hold') {
       arm(g, who, cx + 5, torsoY + 2, 8, 1, 8);
       arm(g, who, cx - 5, torsoY + 2, -2, 6, 7);
+    } else if (pose === 'holdL') {
+      arm(g, who, cx - 5, torsoY + 2, -8, 1, 8);
+      arm(g, who, cx + 5, torsoY + 2, 2, 6, 7);
     } else if (pose === 'lean') {
       arm(g, who, cx + 5, torsoY + 2, 5, 3, 7);
       arm(g, who, cx - 5, torsoY + 2, -3, 5, 7);
@@ -202,7 +206,7 @@ export function drawPerson(g: CanvasRenderingContext2D, who: Who, pose: Pose, x:
       arm(g, who, cx - 5, torsoY + 2, -2, 6 + (moving ? -swing : 0) * 0.3, 8);
       arm(g, who, cx + 5, torsoY + 2, 2, 6 + (moving ? swing : 0) * 0.3, 8);
     }
-    if (pose === 'walk' || pose === 'run' || pose === 'stand' || pose === 'hold' || pose === 'lean') {
+    if (pose === 'walk' || pose === 'run' || pose === 'stand' || pose === 'hold' || pose === 'holdL' || pose === 'lean') {
       legs(g, who, cx, torsoY + torsoH, moving ? gait : 0, pose === 'run');
     }
   }

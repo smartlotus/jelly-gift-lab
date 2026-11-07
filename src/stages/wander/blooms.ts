@@ -39,21 +39,29 @@ function petal(g: CanvasRenderingContext2D, x: number, y: number, len: number, h
   }
 }
 
-/** one open 紫精灵 bloom: double ruffled cup, many petals, paler throat. Not a daisy. */
+/** one open 紫精灵 bloom: side-on ruffled goblet (洋桔梗), not a hydrangea pom-pom. */
 export function drawLisianthusBloom(g: CanvasRenderingContext2D, x: number, y: number, s: number, tilt = 0) {
-  const outer = 8;
-  for (let i = 0; i < outer; i++) {
-    const a = tilt - Math.PI / 2 + (i / outer) * Math.PI * 2 + 0.18;
-    const len = s * (1.15 + 0.12 * Math.sin(i * 2.3));
-    petal(g, x, y, len, s * 0.42, a, LISI.outer, LISI.mid, LISI.mid);
+  const lean = Math.sin(tilt) * s * 0.18;
+  // green calyx
+  disc(g, x + lean * 0.4, y + s * 0.55, s * 0.2, LISI.leaf);
+  disc(g, x + lean * 0.4, y + s * 0.62, s * 0.14, LISI.leafD);
+  // goblet body: narrow at the calyx, widest at a ruffled rim
+  for (let i = -s * 0.15; i <= s * 0.55; i++) {
+    const tt = (i + s * 0.15) / (s * 0.7);
+    const w = s * (0.22 + 0.5 * Math.pow(tt, 0.85));
+    const cx = x + lean * (1 - tt);
+    for (let dx = -w; dx <= w; dx++) {
+      const edge = Math.abs(dx) > w - 0.7;
+      const col = tt > 0.72 ? LISI.outer : (tt < 0.25 ? LISI.inner : LISI.mid);
+      px(g, cx + dx, y + i, edge ? LISI.outer : col);
+    }
   }
-  const inner = 6;
-  for (let i = 0; i < inner; i++) {
-    const a = tilt - Math.PI / 2 + (i / inner) * Math.PI * 2 + 0.5;
-    petal(g, x, y - s * 0.08, s * 0.72, s * 0.28, a, LISI.mid, LISI.inner, LISI.throat);
+  // ruffled rim — a few petal tips lifting off the cup
+  for (let i = -2; i <= 2; i++) {
+    const a = -Math.PI / 2 + i * 0.42 + tilt * 0.2;
+    petal(g, x + lean * 0.2, y - s * 0.12, s * 0.42, s * 0.16, a, LISI.outer, LISI.mid, LISI.throat);
   }
-  disc(g, x, y - s * 0.1, s * 0.22, LISI.inner);
-  disc(g, x, y - s * 0.12, s * 0.12, LISI.throat);
+  disc(g, x + lean * 0.15, y + s * 0.08, s * 0.18, LISI.throat);
 }
 
 /** tight lisianthus bud (the cultivar carries several buds per stem) */
@@ -70,20 +78,27 @@ export function drawLisianthusBud(g: CanvasRenderingContext2D, x: number, y: num
 
 /** 戴安娜: classic high-centred hybrid-tea rose, spiral petals, pointed bud */
 export function drawDianaRose(g: CanvasRenderingContext2D, x: number, y: number, s: number, open = 1) {
-  const n = 4 + Math.round(open * 9);
-  for (let i = 0; i < n; i++) {
-    const t = i / Math.max(1, n - 1);
-    const a = -Math.PI / 2 + i * 0.62 + 0.15;
-    const dist = s * (0.08 + t * 0.55 * Math.max(0.25, open));
-    const len = s * (0.4 + t * 0.7 * open);
-    const hw = s * (0.22 + t * 0.22);
-    const fill = t < 0.25 ? DIANA.inner : t < 0.6 ? DIANA.mid : DIANA.outer;
-    const rim = t < 0.4 ? DIANA.inner : DIANA.mid;
-    petal(g, x + Math.cos(a) * dist * 0.3, y + Math.sin(a) * dist * 0.25 - s * 0.08, len, hw, a, rim, fill, t > 0.75 ? DIANA.hi : undefined);
+  // high-centred hybrid tea seen in 3/4: a pointed cone, outer petals rolling out
+  const H = s * (1.15 + 0.15 * open);
+  for (let i = -H; i <= s * 0.35; i++) {
+    const tt = (i + H) / (H + s * 0.35);
+    // pointed tip, fullest just below the middle, slight tuck at the calyx
+    const w = Math.sin(tt * Math.PI) * s * (0.48 + 0.28 * open) * (0.7 + 0.45 * tt);
+    for (let dx = -w; dx <= w; dx++) {
+      const edge = Math.abs(dx) > w - 0.65;
+      const col = tt < 0.22 ? DIANA.heart : tt < 0.45 ? DIANA.inner : tt < 0.75 ? DIANA.mid : DIANA.outer;
+      px(g, x + dx, y + i, edge ? DIANA.inner : col);
+    }
   }
-  // high centre (the HT hallmark)
-  disc(g, x, y - s * 0.18, s * (0.16 + 0.06 * (1 - open)), DIANA.heart);
-  disc(g, x, y - s * 0.22, s * 0.08, DIANA.inner);
+  // rolled-out guard petals at the bowl
+  for (const side of [-1, 1]) {
+    petal(g, x + side * s * 0.1, y + s * 0.16, s * 0.85 * open, s * 0.26, Math.PI * 0.5 + side * (0.75 + 0.2 * open), DIANA.mid, DIANA.outer, DIANA.hi);
+    petal(g, x + side * s * 0.2, y + s * 0.28, s * 0.55 * open, s * 0.18, Math.PI * 0.5 + side * 1.15, DIANA.outer, DIANA.hi);
+  }
+  // hint of spiral near the high centre
+  px(g, x - 1, y - H * 0.35, DIANA.hi);
+  px(g, x + 1, y - H * 0.2, DIANA.hi);
+  disc(g, x, y + s * 0.4, s * 0.16, DIANA.leaf);
 }
 
 export function drawDianaBud(g: CanvasRenderingContext2D, x: number, y: number, s: number) {
@@ -125,12 +140,12 @@ export function drawLisianthusStem(g: CanvasRenderingContext2D, x: number, baseY
   stem(g, x + 1, baseY, top + 2, LISI.stemD, sway * 1.4);
   leafPair(g, x, baseY - h * 0.35, Math.max(3, h * 0.12), LISI.leaf, LISI.leafD, true);
   leafPair(g, x, baseY - h * 0.58, Math.max(3, h * 0.1), LISI.leaf, LISI.leafD, true);
-  const heads = 2 + (seed % 3);
+  const heads = 1 + (seed % 2); // one open cup, sometimes a second — not a hydrangea mound
   for (let i = 0; i < heads; i++) {
     const k = (i + 1) / (heads + 0.4);
     const ox = x + Math.sin(seed * 1.7 + i * 2.1) * (3 + h * 0.04) + sway * k * 2;
     const oy = top + 4 + i * (h * 0.09);
-    const sz = 3.2 + (h / 42) * 2.4 + (i === 0 ? 0.8 : 0);
+    const sz = 5.8 + (h / 36) * 3.4 + (i === 0 ? 1.4 : 0);
     if ((seed + i * 3) % 5 === 0) drawLisianthusBud(g, ox + 3, oy + 2, sz * 0.7);
     else drawLisianthusBloom(g, ox, oy, sz, Math.sin(seed + i) * 0.15);
   }
@@ -147,7 +162,7 @@ export function drawDianaStem(g: CanvasRenderingContext2D, x: number, baseY: num
   leafPair(g, x, baseY - h * 0.52, Math.max(3, h * 0.12), DIANA.leaf, DIANA.leafD, false);
   leafPair(g, x, baseY - h * 0.72, Math.max(2, h * 0.09), DIANA.leaf, DIANA.leafD, false);
   const ox = x + sway * 1.6, oy = top + 3;
-  const sz = 4.2 + (h / 40) * 2.8;
+  const sz = 6.8 + (h / 34) * 3.8;
   if (open < 0.35) drawDianaBud(g, ox, oy, sz * 0.85);
   else drawDianaRose(g, ox, oy, sz, open);
   if (seed % 3 === 0) drawDianaBud(g, ox + 5, oy + 7, sz * 0.45);
@@ -164,15 +179,15 @@ export interface Cluster {
 
 /** bake a little grove of one species (several stems, slightly varied) */
 export function bakeCluster(kind: FlowerKind, seed: number, scale = 1): Cluster {
-  const stems = 3 + (seed % 3);
-  const w = Math.round((28 + stems * 10) * scale);
-  const h = Math.round((52 + (seed % 4) * 6) * scale);
+  const stems = 2 + (seed % 2);
+  const w = Math.round((48 + stems * 20) * scale);
+  const h = Math.round((78 + (seed % 4) * 10) * scale);
   const c = document.createElement('canvas'); c.width = w; c.height = h;
   const g = c.getContext('2d')!;
   const base = h - 2;
   for (let i = 0; i < stems; i++) {
-    const x = Math.round(6 * scale + (i + 0.4) * ((w - 12 * scale) / stems) + ((seed * (i + 3)) % 5) - 2);
-    const hh = (34 + ((seed + i * 7) % 14)) * scale;
+    const x = Math.round(8 * scale + (i + 0.5) * ((w - 16 * scale) / stems));
+    const hh = (46 + ((seed + i * 7) % 18)) * scale;
     const sway = ((seed + i) % 5) - 2;
     const open = 0.45 + ((seed + i * 5) % 7) / 10;
     if (kind === 'lisi') drawLisianthusStem(g, x, base, hh, seed + i * 13, sway * 0.15);
