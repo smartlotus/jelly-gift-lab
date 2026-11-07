@@ -2,7 +2,7 @@
 // like a theme heard on the wind. The melody is newly written (D major, gentle 6/8) and is not a transcription of
 // any film cue. Layers gather slowly: air pad → soft ostinato → melody → bass/bells. Everything rides the shared
 // master gain (muted by default). Safe to start/stop/crossfade; respects visibility and prefers-reduced-motion density.
-import { out, unlock, soundOn, onSound } from './audio';
+import { out, unlock, soundOn, onSound, onUnlocked } from './audio';
 
 export type TuneId = 'bloom' | 'grove' | 'hearth' | 'dream';
 
@@ -227,6 +227,8 @@ function tryStart() {
   }
   armClock();
 }
+
+onUnlocked(() => { if (wanted && soundOn()) tryStart(); });
 
 onSound(v => {
   if (v) { fadingOut = false; tryStart(); }

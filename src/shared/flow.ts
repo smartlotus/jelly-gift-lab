@@ -1,15 +1,15 @@
 // Journey routing shared by every stage. Each stage is its own Vite page (multi-page app):
-//   meadow  /         stage 1 · bright Cat-Mario-style pixel platformer (the link she opens)
-//   shop    /shop/    stage 2 · pixel cat walks through a shop of lotus's 3D models
-//   night   /night/   stage 3 · blocky night walk, "caught" by the pig -> kawaii flip
-//   jelly   /jelly/   stage 4 · Jelly Studies (pig -> cat -> shark) + mushroom easter egg on the shark -> 入海 / Into the sea
-//   sea     /sea/     stage 5 · pixel ocean: the hammerhead swims through nine film homages, rises to the surface at night
-//   sky     /sky/     stage 6 · the real live sky over Changchun -> 一起玩 / Play together
-//   coop    /coop/    stage 7 · the pig + cat co-op level (one phone by default, two phones optional)
-//   flower  /flower/  stroll · the cat walks a forest of 云南紫精灵 + 戴安娜粉玫瑰
-//   mushroom /mushroom/ stroll · a different, bioluminescent mushroom wood
-//   home    /home/    after coop: empty house, furnish it, then a future-life montage
-//   (ar     /ar/      side room of the shop: the figure on a real table; returns to the same exhibit)
+//   meadow    /            invitation
+//   flower    /flower/     living bouquet forest (云南紫精灵 + 戴安娜粉玫瑰)
+//   mushroom  /mushroom/   luminous mushroom wood
+//   shop      /shop/       handmade keepsakes (AR side path returns here)
+//   night     /night/      night walk together
+//   jelly     /jelly/      relief / play
+//   sea       /sea/        remembered seas
+//   sky       /sky/        Changchun sky + 200-day film
+//   coop      /coop/       play together
+//   home      /home/       discover, furnish, transform, day-2000 life
+//   (ar       /ar/         shop side room; returns to shop)
 // vite base is './' so every URL here is RELATIVE (works at a domain root or any subpath, including a future Pages URL).
 import { cover } from './curtain';
 import { whoosh } from './sfx';

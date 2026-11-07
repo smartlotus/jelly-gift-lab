@@ -15,6 +15,7 @@ import { soundOn, setSound, unlock, onSound } from '../../shared/audio';
 import { irisIn } from '../../shared/transition';
 import { hold, progress as curtainProgress } from '../../shared/curtain';
 import * as dict from './dict';
+import { tell } from '../../shared/story';
 import { getAtlas } from './textures';
 import { buildWorld } from './world';
 import { EDGE, EDGES, NODES, at, yawAt, exits, exitYaw, type Edge, type NodeId } from './map';
@@ -453,3 +454,4 @@ async function boot() {
     setTimeout(() => { r.classList.add('on'); }, 900); setTimeout(() => { r.classList.remove('on'); setTimeout(() => r.remove(), 900); }, 8500);
   }
 }
+setTimeout(() => tell('story.night.in'), 1400);

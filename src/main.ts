@@ -10,6 +10,7 @@ import type { Path } from './app/path';
 import * as UI from './ui/ui';
 import { hasSensors, askPermission, needsPermission } from './app/tilt';
 import * as Curtain from './shared/curtain';
+import { tell, mountStory } from './shared/story';
 // v03e: this page reveals the shared loading curtain itself (after the first frames), never on the auto timer
 Curtain.manual();
 // journey arrival: the night stage's kawaii flip closed its iris on pink, so the curtain arrives pink (its colour is handed
@@ -238,3 +239,6 @@ async function boot() {
 }
 
 boot().catch((e) => { console.error(e); UI.showFail(); Curtain.fail(e); });
+
+mountStory();
+setTimeout(() => tell('story.jelly.in'), 1600);

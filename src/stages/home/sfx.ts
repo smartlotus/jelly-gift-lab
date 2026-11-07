@@ -3,7 +3,7 @@ import { startMusic, stopTune, chime } from '../../shared/music';
 import { place, whoosh } from '../../shared/sfx';
 
 export function startHomeAudio(which: 'hearth' | 'dream' = 'hearth') {
-  const go = () => { unlock(); if (soundOn()) startMusic(which); };
+  const go = () => { if (soundOn()) startMusic(which); };
   go();
   onSound(v => { if (v) startMusic(which); });
 }

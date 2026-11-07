@@ -21,6 +21,7 @@ import { EXHIBITS, type Exhibit, type ExhibitId } from './exhibits';
 import { Card, Inspect } from './ui';
 import type { Viewer, Rect, Slot } from './viewer';
 import * as dict from './dict';
+import { tell } from '../../shared/story';
 import './style.css';
 
 register(dict); mountChrome(); markReached();
@@ -195,3 +196,4 @@ const begin = () => {
   if (backEx) void viewerP.then(() => viewer!.load(backEx.id)).then(() => openInspect(backEx.id));
 };
 begin(); // v03g: no title card — the door bell rings as the cat walks in
+setTimeout(() => tell('story.shop.in'), 1400);

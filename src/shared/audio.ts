@@ -4,18 +4,36 @@
 const STORE = 'gift.sound';
 let on = (() => { if (new URLSearchParams(location.search).get('sound') === '1') return true; try { return localStorage.getItem(STORE) === '1'; } catch { return false; } })();
 let ctx: AudioContext | null = null; let master: GainNode | null = null;
+let gestured = false;
 const subs: ((on: boolean) => void)[] = [];
+const unlockedSubs: (() => void)[] = [];
 export const soundOn = () => on;
+export function markGesture() { gestured = true; }
+export function onUnlocked(f: () => void) { unlockedSubs.push(f); }
+function mayUnlock(): boolean {
+  try {
+    const ua = (navigator as Navigator & { userActivation?: { hasBeenActive?: boolean } }).userActivation;
+    if (ua && typeof ua.hasBeenActive === 'boolean' && ua.hasBeenActive) return true;
+  } catch { /* */ }
+  return gestured;
+}
 /** has she ever flipped the switch (or was ?sound=1 given)? Unset = muted by default, but a deliberate tap may offer sound */
 export const soundChosen = () => { try { return localStorage.getItem(STORE) !== null; } catch { return true; } };
 export function setSound(v: boolean, persist = true) { on = v; if (persist) try { localStorage.setItem(STORE, v ? '1' : '0'); } catch { /* */ } if (master) master.gain.value = v ? 0.6 : 0; subs.forEach(f => f(v)); }
 export function onSound(f: (on: boolean) => void) { subs.push(f); }
+let notifiedUnlock = false;
 export function unlock(): AudioContext | null {
+  if (!mayUnlock()) return ctx;
   if (!ctx) {
     const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext; if (!AC) return null;
     try { ctx = new AC(); } catch { return null; } master = ctx.createGain(); master.gain.value = on ? 0.6 : 0; master.connect(ctx.destination);
   }
-  if (ctx.state === 'suspended') ctx.resume().catch(() => { /* no audio device: stay silent */ });
+  if (ctx.state === 'suspended') ctx.resume().catch(() => { /* no audio device / no gesture: stay silent */ });
+  // Notify once so listeners (music) can start after a real gesture without re-entering unlock().
+  if (!notifiedUnlock) {
+    notifiedUnlock = true;
+    unlockedSubs.slice().forEach(f => f());
+  }
   return ctx;
 }
 export const out = () => master;

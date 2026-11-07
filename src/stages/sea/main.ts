@@ -23,6 +23,7 @@ const IDX = (id: string) => SCENES.findIndex(s => s.id === id), I_STILL = IDX('s
 import { far, giants, rays, motes, life, near, type Pal } from './env';
 import { mix } from './art';
 import * as dict from './dict';
+import { tell } from '../../shared/story';
 import { sfx } from './sfx';
 import { onSound } from '../../shared/audio';
 import './style.css';
@@ -298,3 +299,4 @@ function drawWipe(s: Scene, k: number, cx: number, cy: number) {
   g.globalAlpha = 1;
 }
 startLoop(update, render);
+setTimeout(() => tell('story.sea.in'), 1400);

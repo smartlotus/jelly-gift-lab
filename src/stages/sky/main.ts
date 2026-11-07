@@ -18,6 +18,7 @@ import { sky, skyAt, wall, recur, addDays, dayDiff, altDeg, azDeg, PLANETS, type
 import STARS from './data/stars.json';
 import LINES from './data/lines.json';
 import * as dict from './dict';
+import { tell } from '../../shared/story';
 import './style.css';
 
 register(dict); mountChrome({ theme: 'dark' }); // v03i: the switch is back here too (twinkles, dawn, and the film's own sound follow it)
@@ -404,3 +405,4 @@ function leavePost() {
   }
   g.imageSmoothingEnabled = false; g.drawImage(pix, 0, 0, W, H);
 }
+setTimeout(() => tell('story.sky.in'), 1400);

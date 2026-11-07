@@ -3,7 +3,7 @@ import { startMusic, stopTune, chime } from '../../shared/music';
 
 let dripAt = 0;
 export function startGroveAudio() {
-  const go = () => { unlock(); if (soundOn()) startMusic('grove'); };
+  const go = () => { if (soundOn()) startMusic('grove'); };
   go();
   onSound(v => { if (v) startMusic('grove'); });
 }

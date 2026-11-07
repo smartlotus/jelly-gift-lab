@@ -1,4 +1,4 @@
-// Stage 1 · Meadow - bright Cat-Mario-style pixel platformer -> heart fountain -> door -> /shop/ (docs/GIFT_PLAN.md §5.1).
+// Stage 1 · Meadow - bright Cat-Mario-style pixel platformer -> heart fountain -> door -> /flower/ (docs/GIFT_PLAN.md §5.1).
 // main.ts = page shell: chrome (zh/EN + sound), start card, HUD (heart counter), hints, the "Day 200" caption, exit.
 import { handleStageParam, markReached, reached, go, prefetchNext, params, dev } from '../../shared/flow';
 import { register, t, onLang, apply } from '../../shared/i18n';
@@ -8,6 +8,7 @@ import { onSound, soundOn } from '../../shared/audio';
 import { mountTouch } from '../../shared/pixel/touch';
 import { startMeadow } from './game';
 import { music } from './sfx';
+import { tell } from '../../shared/story';
 import * as dict from './dict';
 import './style.css';
 
@@ -50,7 +51,7 @@ if (!handleStageParam()) {
     firstMove: () => setTimeout(() => hint.classList.add('out'), 1800),
     fountain: () => { hud.classList.add('glow'); hint.classList.add('out'); },
     caption: () => { cap.classList.add('on'); setTimeout(() => cap.classList.remove('on'), 4200); },
-    nearExit: () => prefetchNext(),
+    nearExit: () => { prefetchNext(); tell('story.meadow.out'); },
     exit: (x, y) => { music(false); void go(undefined, () => irisOut(x, y, 700)); },
   }, { ready, at: params.get('at'), dev });
 

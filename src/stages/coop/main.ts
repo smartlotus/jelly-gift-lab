@@ -17,6 +17,7 @@ import { Pad, mountPads } from './controls';
 import { Link } from './net';
 import { qrCanvas, scan } from './qr';
 import * as dict from './dict';
+import { tell } from '../../shared/story';
 import * as Sfx from '../../shared/sfx';
 import './style.css';
 
@@ -239,3 +240,4 @@ function boot() {
   if (/^o[zr]/.test(hashCode)) void guest(hashCode); else if (params.has('duo')) void host(); else lobby();
   void irisIn(innerWidth / 2, innerHeight / 2, 650, '#f6efe4');
 }
+setTimeout(() => tell('story.coop.in'), 1400);

@@ -3,7 +3,8 @@
 // iOS audio unlock invisibly into the first touch/key, so no page needs a "tap to start" card.
 import './chrome.css';
 import { apply, lang, onLang, setLang, t, type Lang } from './i18n';
-import { onSound, setSound, soundOn, unlock } from './audio';
+import { onSound, setSound, soundOn, unlock, markGesture } from './audio';
+import { mountStory } from './story';
 import * as Sfx from './sfx';
 
 export function mountChrome(opts: { sound?: boolean; theme?: 'light' | 'dark' } = {}) {
@@ -12,6 +13,7 @@ export function mountChrome(opts: { sound?: boolean; theme?: 'light' | 'dark' } 
   bar.innerHTML = `${opts.sound === false ? '' : '<button type="button" class="gc-sound"></button><span class="gc-sep" aria-hidden="true"></span>'}
     <div class="gc-lang" role="group" data-i18n-aria="ui.lang"><button type="button" data-lang="zh" lang="zh-CN">中</button><span aria-hidden="true">/</span><button type="button" data-lang="en" lang="en">EN</button></div>`;
   document.body.appendChild(bar);
+  mountStory();
   const sync = () => {
     bar.querySelectorAll<HTMLButtonElement>('[data-lang]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
     const s = bar.querySelector<HTMLButtonElement>('.gc-sound');
@@ -24,7 +26,7 @@ export function mountChrome(opts: { sound?: boolean; theme?: 'light' | 'dark' } 
   });
   onLang(sync); onSound(sync); apply(); sync();
   // invisible audio unlock: the very first gesture anywhere on the page creates/resumes the shared AudioContext (iOS rule)
-  const first = () => { unlock(); removeEventListener('pointerdown', first, true); removeEventListener('keydown', first, true); removeEventListener('touchend', first, true); };
+  const first = () => { markGesture(); unlock(); removeEventListener('pointerdown', first, true); removeEventListener('keydown', first, true); removeEventListener('touchend', first, true); };
   addEventListener('pointerdown', first, true); addEventListener('keydown', first, true); addEventListener('touchend', first, true);
   return bar;
 }

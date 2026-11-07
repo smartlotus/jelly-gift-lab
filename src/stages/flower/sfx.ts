@@ -4,7 +4,7 @@ import { noise } from '../../shared/audio';
 
 let rustleAt = 0;
 export function startFlowerAudio() {
-  const go = () => { unlock(); if (soundOn()) startMusic('bloom'); };
+  const go = () => { if (soundOn()) startMusic('bloom'); };
   go();
   onSound(v => { if (v) startMusic('bloom'); });
 }

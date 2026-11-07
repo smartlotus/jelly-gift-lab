@@ -10,6 +10,7 @@ import { params, from, go } from '../../shared/flow';
 import { AR_IDS, AR_ICON, isArId, quickLook, webxrAR, openQuickLook, type ArId } from '../../shared/ar';
 import { loadFigure } from './models';
 import * as dict from './dict';
+import { tell } from '../../shared/story';
 import * as Sfx from '../../shared/sfx';
 import './style.css';
 
@@ -94,3 +95,4 @@ if (from === 'shop') {
   back.addEventListener('click', () => { Sfx.tap(); }); back.addEventListener('click', () => void go('shop', () => dissolve(1, 600, '#eeece8'), { ex: AR_IDS[idx] }));
 } else void irisIn(innerWidth / 2, innerHeight / 2, 700, '#eeece8');
 void t; void isArId;
+setTimeout(() => tell('story.ar.in'), 1400);

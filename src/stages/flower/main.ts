@@ -4,6 +4,7 @@ import { markReached, go, prefetchNext, reducedMotion } from '../../shared/flow'
 import { irisIn, irisOut } from '../../shared/transition';
 import { startWander } from '../wander/engine';
 import { startFlowerAudio, leaveFlower, rustle } from './sfx';
+import { tell } from '../../shared/story';
 import * as dict from './dict';
 import './style.css';
 
@@ -16,16 +17,17 @@ startFlowerAudio();
 let left = false, hinted = false;
 const wood = startWander({
   host, theme: 'flower',
-  onNearExit: () => prefetchNext(),
+  onNearExit: () => { prefetchNext(); tell('story.flower.out'); },
   onExit: (x, y) => {
     if (left) return; left = true; leaveFlower();
     void go('mushroom', () => reducedMotion() ? Promise.resolve() : irisOut(x, y, 720, '#c888a8'));
   },
 });
-const fit = () => wood.screen.configure(innerHeight > innerWidth ? { minW: 210, minH: 186 } : { minW: 280, minH: 176 });
+const fit = () => wood.screen.configure(innerHeight > innerWidth ? { minW: 176, minH: 248 } : { minW: 300, minH: 168 });
 fit(); window.addEventListener('resize', fit);
 void irisIn(innerWidth * 0.2, innerHeight * 0.72, 700, '#f3d4e0');
 hint.classList.add('on');
 const tick = () => { rustle(wood.t); if (!hinted && wood.x > 80) { hinted = true; setTimeout(() => hint.classList.add('out'), 1400); } };
 window.setInterval(tick, 240);
 setTimeout(() => hint.classList.add('out'), 7000);
+setTimeout(() => tell('story.flower.in'), 1200);
