@@ -10,7 +10,7 @@
 //   mushroom /mushroom/ stroll · a different, bioluminescent mushroom wood
 //   home    /home/    after coop: empty house, furnish it, then a future-life montage
 //   (ar     /ar/      side room of the shop: the figure on a real table; returns to the same exhibit)
-// vite base is './' so every URL here is RELATIVE (works under https://smartlotus.github.io/jelly-gift/ and any host).
+// vite base is './' so every URL here is RELATIVE (works at a domain root or any subpath, including a future Pages URL).
 import { cover } from './curtain';
 import { whoosh } from './sfx';
 export type StageId = 'meadow' | 'flower' | 'mushroom' | 'shop' | 'night' | 'jelly' | 'sea' | 'sky' | 'coop' | 'home' | 'ar';
@@ -89,5 +89,5 @@ export const from = params.get('from') as StageId | null;
 export const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** URL of a file in public/ (copied to the site root) from any stage page, e.g. asset('models/figure-pig.glb').
- *  Never use '/models/..' (absolute breaks under /jelly-gift/) or import.meta.env.BASE_URL (= './', document-relative). */
+ *  Never use '/models/..' (absolute paths break under a subpath) or import.meta.env.BASE_URL (= './', document-relative). */
 export const asset = (p: string) => `${rootRel}${p}`;

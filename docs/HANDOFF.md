@@ -1,5 +1,10 @@
 # HANDOFF · 交接文档（任何 AI / 开发者从这里接手）
 
+> **Story edition (`smartlotus/jelly-gift-story`).** This file was copied from the stable implementation repo and then extended. The live public gift (`smartlotus/jelly-gift-site` / Pages `smartlotus/jelly-gift`) must stay on v03i. Do not merge this branch back there and do not run the old deploy script against `jelly-gift.git`.
+>
+> Plot beats: [`docs/STORY.md`](STORY.md). Visual and story work after the copy lives only in this repository.
+
+
 > 先读：本文件 → [`GIFT_PLAN.md`](./GIFT_PLAN.md)（设计与验收的唯一事实来源）→ 你负责的 [`status/<A|B|C>.md`](./status/)。
 > **规则：每完成一个可运行的小步就 commit + `git push origin master`，并更新下面的状态表 / 你的 status 文件。** 额度随时可能中断，下一个人只看 GitHub。
 

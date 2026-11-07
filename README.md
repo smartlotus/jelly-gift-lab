@@ -1,3 +1,17 @@
+# jelly-gift-story
+
+Private **story edition** of the 200-day anniversary gift. This repository is a full copy of the journey (meadow → flower woods → mushroom woods → shop → night → jelly → sea → sky → coop → home) plus a through-line of small plot beats.
+
+It is **not** the live stable site. The unchanged public gift remains at `smartlotus/jelly-gift-site` (source) and `smartlotus/jelly-gift` (GitHub Pages). Do not merge this tree back into those remotes and do not deploy over the old Pages site.
+
+- Story intent and beat table: [`docs/STORY.md`](docs/STORY.md)
+- Engineering notes: [`docs/HANDOFF.md`](docs/HANDOFF.md)
+- All stage URLs are relative (`base: './'`). The site works at the domain root or under a subpath.
+- Local preview: `npm install && npm run build && npm run serve`
+- GitHub Pages for a *private* user repository may require a paid plan. Do not flip this repository public just to host Pages. If Pages cannot be enabled privately, use the local static build.
+
+---
+
 # Jelly Studies（果冻标本）— Hammerhead · Little Pig · Sleepy Cat
 
 > **200 天礼物旅程（进行中）**：本仓库现在是一个多页面网站——`/` 第一章像素闯关 → `/shop/` 3D 模型小店 → `/night/` 夜路整蛊 → `/jelly/` 本果冻页（终章）。
