@@ -1,6 +1,7 @@
 // Future-life montage: six animated scenes dissolving into each other,
 // then the final line fades in. Saved furniture is reused in the home / sofa frames.
 import { drawPerson, type Pose, type Who } from './people';
+import { swingDoor } from './door';
 import { drawFurnished } from './room';
 import { critterFrame } from '../../shared/pixel/fauna';
 import { type SavedItem } from './save';
@@ -29,11 +30,10 @@ function disc(g: CanvasRenderingContext2D, x: number, y: number, r: number, c: s
   }
 }
 
-function figure(g: CanvasRenderingContext2D, who: Who, pose: Pose, x: number, y: number, flip: boolean, t: number, s = 1.85, tilt = 0) {
+function figure(g: CanvasRenderingContext2D, who: Who, pose: Pose, x: number, y: number, flip: boolean, t: number, s = 1.85) {
   g.save();
   g.imageSmoothingEnabled = false;
-  g.translate(x, y);
-  if (tilt) g.rotate(tilt);
+  g.translate(Math.round(x), Math.round(y));
   g.scale(s, s);
   drawPerson(g, who, pose, 0, 0, flip, t);
   g.restore();
@@ -67,31 +67,6 @@ function tree(g: CanvasRenderingContext2D, x: number, floor: number, ht: number,
 }
 
 
-function swingDoor(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, open: number, lit: boolean) {
-  g.fillStyle = '#2E2A2B';
-  g.fillRect(x, y, w, h);
-  if (open > 0.04) {
-    g.fillStyle = lit ? '#FFE6B0' : '#3A3228';
-    g.fillRect(x + 2, y + 2, w - 4, h - 4);
-  }
-  const ang = Math.max(0, Math.min(1, open)) * Math.PI * 0.48;
-  const vis = Math.max(3, Math.round(w * Math.cos(ang)));
-  const skew = Math.round(Math.sin(ang) * 8);
-  g.fillStyle = '#C4A06A';
-  g.beginPath();
-  g.moveTo(x, y);
-  g.lineTo(x + vis, y + skew);
-  g.lineTo(x + vis, y + h);
-  g.lineTo(x, y + h);
-  g.fill();
-  g.fillStyle = '#A88858';
-  g.fillRect(x + vis - 2, y + skew, 2, h - skew);
-  if (open < 0.12) {
-    g.fillStyle = '#8A6A40';
-    g.fillRect(x + w - 6, y + Math.round(h * 0.55), 3, 4);
-  }
-}
-
 function cottage(g: CanvasRenderingContext2D, hx: number, floor: number, open: number, lit: boolean) {
   g.fillStyle = '#A87868'; g.fillRect(hx + 68, floor - 122, 12, 28);
   g.fillStyle = '#8A5A4E'; g.fillRect(hx + 66, floor - 126, 16, 6);
@@ -104,7 +79,7 @@ function cottage(g: CanvasRenderingContext2D, hx: number, floor: number, open: n
   g.fillStyle = lit ? '#FFE6B0' : '#3A3E48';
   g.fillRect(hx + 12, floor - 70, 20, 16);
   g.fillStyle = '#C8B898'; g.fillRect(hx + 21, floor - 70, 2, 16); g.fillRect(hx + 12, floor - 63, 20, 2);
-  swingDoor(g, hx + 48, floor - 50, 24, 50, open, lit);
+  swingDoor(g, hx + 46, floor - 54, 28, 54, open, lit);
   g.fillStyle = '#C8B48A'; g.fillRect(hx + 44, floor - 6, 32, 6);
 }
 
@@ -139,14 +114,14 @@ function drawWalk(g: CanvasRenderingContext2D, w: number, h: number, t: number) 
   const hx = w * 0.40 - k * 4;
   const arrive = Math.min(1, k / 0.82);
   const doorX = hx + 58;
-  const x = w * 0.08 + arrive * (doorX - 28 - w * 0.08);
-  const near = Math.max(0, Math.min(1, (k - 0.28) / 0.5));
-  cottage(g, hx, floor, near, near > 0.35);
+  const x = w * 0.08 + arrive * (doorX - 36 - w * 0.08);
+  const near = Math.max(0, Math.min(1, (k - 0.54) / (0.80 / 5.8)));
+  cottage(g, hx, floor, near, near > 0.2);
   drawLisianthusBloom(g, hx - 10, floor - 28, 6.4, 0);
   drawDianaRose(g, hx + 108, floor - 30, 6.8, 1);
-  const atDoor = k > 0.8;
+  const atDoor = k > 0.84;
   figure(g, 'him', atDoor ? 'stand' : 'hold', x, floor, false, t);
-  figure(g, 'her', atDoor ? 'stand' : 'holdL', x + 18, floor, false, t);
+  figure(g, 'her', atDoor ? 'stand' : 'holdL', x + 26, floor, false, t);
 }
 
 function drawGreet(g: CanvasRenderingContext2D, w: number, h: number, t: number, layout: SavedItem[]) {
@@ -155,19 +130,18 @@ function drawGreet(g: CanvasRenderingContext2D, w: number, h: number, t: number,
   const k = Math.min(1, t / 5.6);
   const sofa = layout.find(i => i.kind === 'sofa');
   const sofaX = sofa ? (sofa.x / 320) * w : w * 0.48;
-  // pair on the left, pets settle in the gap before the sofa — not on laps or cushions
-  const right = Math.min(sofaX - 108, w * 0.34);
-  const herX = Math.max(w * 0.28, right);
-  const himX = herX - Math.max(30, w * 0.13);
-  const dogSettle = herX + 30;
-  const catSettle = herX + 58;
+  // kneeling side by side; collie settles left of him, calico right of her
+  const herX = Math.min(sofaX - 130, w * 0.36);
+  const himX = herX - 48;
+  const dogSettle = himX - 46;
+  const catSettle = herX + 40;
   figure(g, 'him', 'kneel', himX, floor, false, t);
   figure(g, 'her', 'kneel', herX, floor, false, t);
   const rush = 1 - Math.pow(1 - Math.min(1, k / 0.72), 2);
-  const dogX = (w + 28) * (1 - rush) + dogSettle * rush;
-  const catX = (w + 56) * (1 - rush) + catSettle * rush;
-  pet(g, 'collie', k < 0.74 ? 'walk' : 'extra', dogX, floor, true, t, 1.85);
-  pet(g, 'calico', k < 0.78 ? 'walk' : 'extra', catX, floor, true, t, 1.75);
+  const dogX = (w + 40) * (1 - rush) + dogSettle * rush;
+  const catX = (w + 88) * (1 - rush) + catSettle * rush;
+  pet(g, 'collie', k < 0.74 ? 'walk' : 'extra', dogX, floor, true, t, 2.35);
+  pet(g, 'calico', k < 0.78 ? 'walk' : 'extra', catX, floor, true, t, 2.15);
 }
 
 function drawSofa(g: CanvasRenderingContext2D, w: number, h: number, t: number, layout: SavedItem[]) {
@@ -179,10 +153,10 @@ function drawSofa(g: CanvasRenderingContext2D, w: number, h: number, t: number, 
   const tvX = tv ? (tv.x / 320) * w : w * 0.18;
   g.fillStyle = `hsl(${200 + Math.sin(t * 9) * 20},48%,${58 + Math.sin(t * 13) * 8}%)`;
   g.fillRect(Math.round(tvX - 14), floor - 36, 28, 14);
-  figure(g, 'him', 'sit', sx - 12, floor - 8, false, t, 1.75);
-  figure(g, 'her', 'sit', sx + 10, floor - 8, false, t, 1.75);
-  pet(g, 'collie', 'extra', sx - 50, floor, false, t, 1.55);
-  pet(g, 'calico', 'extra', sx + 42, floor - 6, false, t, 1.45);
+  figure(g, 'him', 'sit', sx - 22, floor - 8, false, t, 1.7);
+  figure(g, 'her', 'sit', sx + 22, floor - 8, false, t, 1.7);
+  pet(g, 'collie', 'extra', sx - 62, floor, false, t, 2.05);
+  pet(g, 'calico', 'extra', sx + 58, floor - 4, false, t, 1.95);
 }
 
 function drawSleep(g: CanvasRenderingContext2D, w: number, h: number, t: number) {
@@ -197,8 +171,8 @@ function drawSleep(g: CanvasRenderingContext2D, w: number, h: number, t: number)
   g.fillStyle = '#E8D8C8'; g.fillRect(w * 0.10, floor - 34, w * 0.80, 16);
   g.fillStyle = '#F4EEF2'; g.fillRect(w * 0.16, floor - 28, 26, 16); g.fillRect(w * 0.30, floor - 26, 26, 14);
   const breathe = Math.sin(t * 1.4) * 0.6;
-  figure(g, 'him', 'sleep', w * 0.34, floor - 16 + breathe, false, t, 1.9);
-  figure(g, 'her', 'sleep', w * 0.46, floor - 14 - breathe, false, t, 1.9);
+  figure(g, 'him', 'sleep', w * 0.32, floor - 16 + breathe, false, t, 1.95);
+  figure(g, 'her', 'sleep', w * 0.48, floor - 14 - breathe, false, t, 1.95);
   g.fillStyle = 'rgba(232,200,196,0.94)';
   g.fillRect(w * 0.28, floor - 16, w * 0.42, 12);
   pet(g, 'calico', 'extra', w * 0.18, floor - 16, false, t, 1.55);
@@ -222,13 +196,14 @@ function drawSnow(g: CanvasRenderingContext2D, w: number, h: number, t: number) 
   snowflakes(g, w, h, t, true);
   const k = (t % 6.4) / 6.4;
   const x = w * 0.08 + k * (w * 0.58);
-  const bounce = Math.abs(Math.sin(t * 10)) * 2;
+  const bounce = Math.abs(Math.sin(t * 11)) * 2;
   figure(g, 'him', 'runHold', x, floor - bounce, false, t);
-  figure(g, 'her', 'runHoldL', x + 16, floor - bounce, false, t);
-  const claspY = floor - bounce - 22;
+  figure(g, 'her', 'runHoldL', x + 28, floor - bounce, false, t);
+  const claspY = floor - bounce - 24;
   g.fillStyle = '#E6C2AE';
-  g.fillRect(Math.round(x + 10), Math.round(claspY), 8, 2);
-  pet(g, 'collie', 'walk', x - 22, floor - bounce, false, t, 1.65);
+  g.fillRect(Math.round(x + 12), Math.round(claspY), 10, 2);
+  const dogBob = Math.abs(Math.sin(t * 14)) * 2;
+  pet(g, 'collie', 'walk', x - 74, floor - dogBob, false, t, 2.15);
 }
 
 function drawDawn(g: CanvasRenderingContext2D, w: number, h: number, t: number) {
@@ -265,8 +240,8 @@ function drawDawn(g: CanvasRenderingContext2D, w: number, h: number, t: number) 
     g.fill();
   }
   const stand = floor - 2;
-  figure(g, 'him', 'lean', w * 0.47, stand, false, t, 2.05, 0.16);
-  figure(g, 'her', 'lean', w * 0.53, stand, false, t, 2.05, -0.16);
+  figure(g, 'him', 'lean', w * 0.445, stand, false, t, 2.1);
+  figure(g, 'her', 'lean', w * 0.555, stand, false, t, 2.1);
 }
 
 function mix(a: string, b: string, k: number): string {

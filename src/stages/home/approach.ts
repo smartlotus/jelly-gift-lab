@@ -5,6 +5,7 @@ import { pigSprites, pigFrame } from '../../shared/pixel/pig';
 import { t } from '../../shared/i18n';
 import { opened } from './sfx';
 import { drawDianaRose, drawLisianthusBloom } from '../wander/blooms';
+import { swingDoor } from './door';
 
 export interface ApproachApi {
   update(dt: number): void;
@@ -33,31 +34,6 @@ function tree(g: CanvasRenderingContext2D, x: number, floor: number, h: number, 
 }
 
 
-function swingDoor(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, open: number, lit: boolean) {
-  g.fillStyle = '#2E2A2B';
-  g.fillRect(x, y, w, h);
-  if (open > 0.04) {
-    g.fillStyle = lit ? '#FFE6B0' : '#3A3228';
-    g.fillRect(x + 2, y + 2, w - 4, h - 4);
-  }
-  const ang = Math.max(0, Math.min(1, open)) * Math.PI * 0.48;
-  const vis = Math.max(3, Math.round(w * Math.cos(ang)));
-  const skew = Math.round(Math.sin(ang) * 8);
-  g.fillStyle = '#C4A06A';
-  g.beginPath();
-  g.moveTo(x, y);
-  g.lineTo(x + vis, y + skew);
-  g.lineTo(x + vis, y + h);
-  g.lineTo(x, y + h);
-  g.fill();
-  g.fillStyle = '#A88858';
-  g.fillRect(x + vis - 2, y + skew, 2, h - skew);
-  if (open < 0.12) {
-    g.fillStyle = '#8A6A40';
-    g.fillRect(x + w - 6, y + Math.round(h * 0.55), 3, 4);
-  }
-}
-
 function house(g: CanvasRenderingContext2D, hx: number, floor: number, open: number) {
   const hy = floor - 118;
   g.fillStyle = '#A87868'; g.fillRect(hx + 70, hy + 10, 12, 26);
@@ -73,7 +49,7 @@ function house(g: CanvasRenderingContext2D, hx: number, floor: number, open: num
   g.fillStyle = '#C8B898'; g.fillRect(hx + 19, hy + 46, 2, 18); g.fillRect(hx + 10, hy + 54, 20, 2);
   g.fillStyle = '#3A3E48'; g.fillRect(hx + 10, hy + 70, 16, 12);
   g.fillStyle = '#C8B898'; g.fillRect(hx + 17, hy + 70, 2, 12);
-  swingDoor(g, hx + 52, hy + 56, 24, 62, open, open > 0.15);
+  swingDoor(g, hx + 50, hy + 52, 28, 66, open, open > 0.12);
   g.fillStyle = '#C8B48A'; g.fillRect(hx + 46, floor - 6, 36, 6);
   // stoop plants already drawn by caller
 }
@@ -147,7 +123,7 @@ export function createApproach(): ApproachApi {
         g.fillRect(x + 2, floor - hh - 2, 1, hh - 1);
       }
       const hx = Math.min(w - 96, Math.max(70, Math.round(w * 0.46)));
-      house(g, hx, floor, phase === 'enter' ? Math.min(1, t0 * 1.4) : 0);
+      house(g, hx, floor, phase === 'enter' ? Math.min(1, t0 / 0.8) : 0);
       // a couple of the real bouquet flowers by the stoop
       drawLisianthusBloom(g, hx - 14, floor - 28, 7.2, -0.1);
       drawDianaRose(g, hx + 92, floor - 30, 7.6, 1);

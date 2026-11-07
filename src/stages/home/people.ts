@@ -129,17 +129,23 @@ function arm(g: CanvasRenderingContext2D, who: Who, x: number, y: number, dx: nu
 
 function legs(g: CanvasRenderingContext2D, who: Who, cx: number, y0: number, gait: number, run: boolean) {
   const col = who === 'her' ? '#2A2428' : PANT;
-  const a = Math.sin(gait) * (run ? 5 : 3);
+  const stride = run ? 8 : 6;
+  const lift = run ? 4 : 3;
+  const len = run ? 9 : 10;
   for (const side of [-1, 1]) {
-    const swing = side * a;
-    const x0 = cx + side * 2;
-    for (let i = 0; i < 10; i++) {
-      const x = x0 + swing * (i / 10);
-      const y = y0 + i;
-      span(g, x, y, 3, i === 0 || i === 9 ? INK : col);
+    const ang = gait + (side < 0 ? 0 : Math.PI);
+    const fwd = Math.sin(ang) * stride;
+    const up = Math.max(0, -Math.cos(ang)) * lift;
+    const hipX = cx + side * 2;
+    const footX = cx + fwd;
+    const footY = y0 + len - up;
+    for (let i = 0; i <= len; i++) {
+      const tt = i / len;
+      const x = hipX + (footX - hipX) * tt;
+      const y = y0 + (footY - y0) * tt;
+      span(g, x, y, 3, i === 0 || i === len ? INK : col);
     }
-    // shoes
-    span(g, x0 + swing - 1, y0 + 10, 4, INK);
+    span(g, footX - 1, footY, 4, INK);
   }
 }
 
@@ -153,73 +159,93 @@ export function drawPerson(g: CanvasRenderingContext2D, who: Who, pose: Pose, x:
   g.save();
   g.translate(x | 0, y | 0);
   if (flip) { g.scale(-1, 1); }
-  const gait = t * (pose === 'run' || pose === 'runHold' || pose === 'runHoldL' ? 10 : 7);
+  const isRun = pose === 'run' || pose === 'runHold' || pose === 'runHoldL';
+  const moving = pose === 'walk' || pose === 'hold' || pose === 'holdL' || isRun;
+  const gait = t * (isRun ? 11 : 8);
+  const bob = moving ? Math.round(Math.abs(Math.sin(gait)) * (isRun ? 2 : 1)) : 0;
+  if (bob) g.translate(0, -bob);
   const cx = 0;
-  const expr = pose === 'sleep' ? 'sleep' : pose === 'lean' || pose === 'sit' ? 'soft' : pose === 'run' || pose === 'runHold' || pose === 'runHoldL' || pose === 'walk' ? 'smile' : 'open';
+  const expr = pose === 'sleep' ? 'sleep' : pose === 'lean' || pose === 'sit' ? 'soft' : moving ? 'smile' : 'open';
 
   if (pose === 'sleep') {
-    // side-lying: head on the pillow (left), body stretched to the right
     const shirt = who === 'her' ? SHIRT : HIS;
     const col = who === 'her' ? '#2A2428' : PANT;
-    head(g, who, -12, -2, 'sleep');
-    for (let i = -5; i <= 16; i++) {
+    head(g, who, -14, -3, 'sleep');
+    for (let i = -6; i <= 20; i++) {
+      span(g, i, -2, 1, shirt);
       span(g, i, -1, 1, shirt);
       span(g, i, 0, 1, shirt);
-      span(g, i, 1, 1, i > 8 ? col : shirt);
+      span(g, i, 1, 1, i > 10 ? col : shirt);
       span(g, i, 2, 1, col);
+      span(g, i, 3, 1, col);
     }
-    span(g, 15, 2, 4, INK);
-    // near arm tucked along the body
-    span(g, -2, 3, 6, SKIN);
+    span(g, 19, 3, 5, INK);
+    span(g, -4, 4, 8, SKIN);
     g.restore();
     return;
   }
 
-  const headY = pose === 'sit' ? -16 : pose === 'kneel' ? -22 : (who === 'him' ? -28 : -26);
+  if (pose === 'lean') {
+    const dir = who === 'him' ? 1 : -1;
+    const headY = who === 'him' ? -27 : -25;
+    const torsoY = headY + 8;
+    head(g, who, cx + dir * 5, headY + 2, 'soft');
+    torso(g, who, cx + dir * 3, torsoY + 2, 12);
+    arm(g, who, cx + dir * 5, torsoY + 4, dir * 8, 4, 8);
+    arm(g, who, cx - dir * 5, torsoY + 3, -dir * 1, 7, 7);
+    const col = who === 'her' ? '#2A2428' : PANT;
+    for (let i = 0; i < 11; i++) {
+      span(g, cx + dir * 1 + (i < 6 ? -dir : dir), torsoY + 12 + i, 3, i === 0 || i === 10 ? INK : col);
+    }
+    span(g, cx + dir * 3 - 1, torsoY + 22, 4, INK);
+    span(g, cx - dir * 2 - 1, torsoY + 22, 4, INK);
+    g.restore();
+    return;
+  }
+
+  const headY = pose === 'sit' ? -18 : pose === 'kneel' ? -20 : (who === 'him' ? -28 : -26);
   const torsoY = headY + 8;
-  const torsoH = pose === 'sit' ? 8 : pose === 'kneel' ? 10 : 12;
+  const torsoH = pose === 'sit' ? 9 : pose === 'kneel' ? 11 : 12;
 
   if (pose === 'sit') {
-    // low sit: hips on the seat, thighs forward, head just above the torso
     const col = who === 'her' ? '#2A2428' : PANT;
-    for (let i = 0; i < 10; i++) span(g, cx - 1 + i, -5, 3, col);
-    span(g, cx + 8, -4, 3, col);
-    span(g, cx + 8, -2, 4, INK);
-    span(g, cx - 4, -7, 9, col);
+    // hips on the seat, thighs forward as a solid lap, shins down
+    span(g, cx - 5, -8, 11, col);
+    span(g, cx - 4, -7, 10, col);
+    for (let i = 0; i < 9; i++) span(g, cx + 1 + i, -6, 3, col);
+    span(g, cx + 8, -5, 3, col);
+    span(g, cx + 8, -3, 3, INK);
     torso(g, who, cx, torsoY, torsoH);
     head(g, who, cx, headY, expr);
-    arm(g, who, cx - 5, torsoY + 2, -1, 5, 6);
-    arm(g, who, cx + 5, torsoY + 2, 3, 4, 6);
+    arm(g, who, cx - 5, torsoY + 3, -2, 5, 6);
+    arm(g, who, cx + 5, torsoY + 3, 2, 5, 6);
   } else if (pose === 'kneel') {
     const col = who === 'her' ? '#2A2428' : PANT;
-    span(g, cx - 6, -4, 8, col); span(g, cx - 7, -3, 4, INK);
+    // shins along the floor, knees up, torso sitting on the heels
+    span(g, cx - 9, -2, 12, col);
+    span(g, cx - 10, -1, 14, col);
+    span(g, cx - 10, 0, 4, INK);
+    span(g, cx - 3, -6, 7, col);
+    span(g, cx - 4, -5, 8, col);
     torso(g, who, cx, torsoY, torsoH);
     head(g, who, cx, headY, expr);
-    arm(g, who, cx - 5, torsoY + 2, -3, 4, 6);
-    arm(g, who, cx + 5, torsoY + 2, 4, 3, 6);
+    arm(g, who, cx - 5, torsoY + 3, -4, 5, 7);
+    arm(g, who, cx + 5, torsoY + 3, 5, 4, 7);
   } else {
     torso(g, who, cx, torsoY, torsoH);
     head(g, who, cx, headY, expr);
-    const moving = pose === 'walk' || pose === 'run' || pose === 'runHold' || pose === 'runHoldL';
-    const isRun = pose === 'run' || pose === 'runHold' || pose === 'runHoldL';
-    const amp = isRun ? 6 : pose === 'hold' ? 0 : pose === 'lean' ? 1 : 4;
-    const swing = moving ? Math.sin(gait) * amp : (pose === 'hold' ? 7 : pose === 'lean' ? 3 : 0);
+    const swing = moving ? Math.sin(gait) * (isRun ? 5 : 4) : 0;
     if (pose === 'hold' || pose === 'runHold') {
-      arm(g, who, cx + 5, torsoY + 2, 8, 1, 8);
-      arm(g, who, cx - 5, torsoY + 2, -2, 6, 7);
+      arm(g, who, cx + 5, torsoY + 2, 9, 1, 8);
+      arm(g, who, cx - 5, torsoY + 2, -3, 6 + (moving ? -swing * 0.25 : 0), 7);
     } else if (pose === 'holdL' || pose === 'runHoldL') {
-      arm(g, who, cx - 5, torsoY + 2, -8, 1, 8);
-      arm(g, who, cx + 5, torsoY + 2, 2, 6, 7);
-    } else if (pose === 'lean') {
-      arm(g, who, cx + 5, torsoY + 2, 6, 2, 8);
-      arm(g, who, cx - 5, torsoY + 2, -2, 5, 7);
+      arm(g, who, cx - 5, torsoY + 2, -9, 1, 8);
+      arm(g, who, cx + 5, torsoY + 2, 3, 6 + (moving ? swing * 0.25 : 0), 7);
     } else {
-      arm(g, who, cx - 5, torsoY + 2, -2, 6 + (moving ? -swing : 0) * 0.3, 8);
-      arm(g, who, cx + 5, torsoY + 2, 2, 6 + (moving ? swing : 0) * 0.3, 8);
+      arm(g, who, cx - 5, torsoY + 2, -3, 6 + (moving ? -swing : 0) * 0.55, 8);
+      arm(g, who, cx + 5, torsoY + 2, 3, 6 + (moving ? swing : 0) * 0.55, 8);
     }
-    if (pose === 'walk' || pose === 'run' || pose === 'stand' || pose === 'hold' || pose === 'holdL' || pose === 'runHold' || pose === 'runHoldL' || pose === 'lean') {
-      legs(g, who, cx, torsoY + torsoH, moving ? gait : 0, isRun);
-    }
+    legs(g, who, cx, torsoY + torsoH, moving ? gait : 0, isRun);
   }
   g.restore();
 }

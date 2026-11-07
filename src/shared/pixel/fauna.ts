@@ -46,8 +46,8 @@ const DEER_WALK1 = [
   'kkkkkdddddddk...',
   '.kdddddddddk....',
   '..kkddddddk.....',
-  '..kdk....kdk....',
-  '..kk......kk....',
+  '.kdk......kdk...',
+  '.kk........kk...',
 ];
 const DEER_WALK2 = [
   '..........kk....',
@@ -58,8 +58,8 @@ const DEER_WALK2 = [
   'kkkkkdddddddk...',
   '.kdddddddddk....',
   '..kkddddddk.....',
-  '...kdk.kdk......',
-  '...kk...kk......',
+  '....kdk.kdk.....',
+  '....kk...kk.....',
 ];
 const DEER_LOOK = [
   '..........kk....',
@@ -102,8 +102,8 @@ const LAMB_WALK = [
   '..kllwwllllk..',
   '..kllllllllk..',
   '...kllllllk...',
-  '..kmk....kmk..',
-  '..kk......kk..',
+  '.kmk......kmk.',
+  '.kk........kk.',
 ];
 
 // ---------- border collie puppy ----------
@@ -126,8 +126,8 @@ const COLLIE_RUN1 = [
   'kbbssssssssbk...',
   'kbsssssssssbk...',
   '.kkbssssssbk....',
-  '..kbk....kbk....',
-  '..kk......kk....',
+  '.kbk......kbk...',
+  '.kk........kk...',
 ];
 const COLLIE_RUN2 = [
   '................',
@@ -137,8 +137,8 @@ const COLLIE_RUN2 = [
   'kbbssssssssbk...',
   'kbsssssssssbk...',
   '.kkbssssssbk....',
-  '...kbk.kbk......',
-  '...kk...kk......',
+  '....kbkkbk......',
+  '....kk..kk......',
 ];
 const COLLIE_SIT = [
   '................',
@@ -218,32 +218,42 @@ const TAB_WALK1 = [
 // ---------- calico (home pet) ----------
 const CAL_STAND = [
   '...k...k....',
-  '..kok.kgk...',
-  '.kooccccok..',
+  '..kok.kbk...',
+  '.kooccccbk..',
   'koowwccwwok.',
-  'kocccccccok.',
+  'kobccccccok.',
   '.koccoockk..',
-  '..kok.kgk...',
+  '..kok.kbk...',
   '..kk...kk...',
 ];
 const CAL_RUN1 = [
   '...k...k....',
-  '..kok.kgk...',
-  '.kooccccok..',
+  '..kok.kbk...',
+  '.kooccccbk..',
   'koowwccwwok.',
-  'kocccccccok.',
+  'kobccccccok.',
   '.koccoockk..',
-  '.kok...kgk..',
-  '.kk.....kk..',
+  '.kok....kbk.',
+  '.kk......kk.',
+];
+const CAL_RUN2 = [
+  '...k...k....',
+  '..kok.kbk...',
+  '.kooccccbk..',
+  'koowwccwwok.',
+  'kobccccccok.',
+  '.koccoockk..',
+  'kok.kok.....',
+  'kk...kk.....',
 ];
 const CAL_SIT = [
   '...k...k....',
-  '..kok.kgk...',
-  '.kooccccok..',
+  '..kok.kbk...',
+  '.kooccccbk..',
   'koowwccwwok.',
-  'kocccccccok.',
-  'kockcccckgk.',
-  '.kkkccckkk..',
+  'kobccccccok.',
+  'kockccccbgk.',
+  '.kkkcccokkk.',
   '.....kkk....',
 ];
 
@@ -310,7 +320,7 @@ export function critterSheet(kind: CritterKind): CritterSheet {
   } else if (kind === 'kitten' || kind === 'greykit') {
     sheet = { stand: R(KIT_STAND), walk: anim([outline(KIT_WALK1), outline(KIT_STAND), outline(KIT_WALK2), outline(KIT_STAND)], P, 8), extra: R(KIT_SIT) };
   } else if (kind === 'calico') {
-    sheet = { stand: R(CAL_STAND), walk: anim([outline(CAL_RUN1), outline(CAL_STAND), outline(CAL_RUN1), outline(CAL_STAND)], P, 8), extra: R(CAL_SIT) };
+    sheet = { stand: R(CAL_STAND), walk: anim([outline(CAL_RUN1), outline(CAL_STAND), outline(CAL_RUN2), outline(CAL_STAND)], P, 8), extra: R(CAL_SIT) };
   } else {
     // owl
     sheet = {

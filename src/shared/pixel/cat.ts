@@ -52,9 +52,11 @@ const BODY = [
 ];
 const LEGS = {
   stand: ['...kwwkkkkkwwk..', '...kkk.....kkk..'],
-  stride: ['..kwwkkkkkkkwwk.', '..kkk.......kkk.'],
-  stride2: ['...kwwkkkkkkwwk.', '...kkk......kkk.'],
-  pass: ['....kwwkkkwwk...', '....kkk...kkk...'],
+  // planted left paw forward, right paw lifted off the ground row
+  stride: ['.kwwk.kkkk.kww..', '.kkk............'],
+  // planted right paw forward, left paw lifted
+  stride2: ['..kww.kkkk.kwwk.', '............kkk.'],
+  pass: ['..kwwkkkkkwwk...', '...kkk...kkk....'],
   tuck: ['...kswkkkkkwsk..', '....kk.....kk...'],
   dangle: ['..kwk.kkkkk.kwk.', '..kk.........kk.'],
 };
@@ -65,11 +67,12 @@ const TAIL = {
   back: ['.k.', 'kwk', 'kpk', 'kwk', 'kwk'],
 };
 type Eyes = keyof typeof EYES; type Mouth = keyof typeof MOUTH; type Legs = keyof typeof LEGS; type Tail = keyof typeof TAIL;
-function cat(o: { eyes?: Eyes; mouth?: Mouth; legs?: Legs; tail?: Tail; bob?: number; ear?: boolean }): string[] {
+function cat(o: { eyes?: Eyes; mouth?: Mouth; legs?: Legs; tail?: Tail; bob?: number; ear?: boolean; shift?: number }): string[] {
   const bob = o.bob ?? 0;
-  const head: Layer[] = [{ rows: HEAD, dy: bob }, { rows: EYES[o.eyes ?? 'sleepy'], dy: 4 + bob }, { rows: MOUTH[o.mouth ?? 'w'], dy: 7 + bob }];
-  if (o.ear) head.push({ rows: ['...........k....', '..........kp....'], dy: bob }); // right ear flick
-  return compose(16, 16, { rows: TAIL[o.tail ?? 'up'], dy: 8 + Math.min(1, bob) }, { rows: BODY, dy: 10 }, { rows: LEGS[o.legs ?? 'stand'], dy: 14 }, ...head);
+  const sh = o.shift ?? 0;
+  const head: Layer[] = [{ rows: HEAD, dy: bob, dx: sh }, { rows: EYES[o.eyes ?? 'sleepy'], dy: 4 + bob, dx: sh }, { rows: MOUTH[o.mouth ?? 'w'], dy: 7 + bob, dx: sh }];
+  if (o.ear) head.push({ rows: ['...........k....', '..........kp....'], dy: bob, dx: sh }); // right ear flick
+  return compose(16, 16, { rows: TAIL[o.tail ?? 'up'], dy: 8 + Math.min(1, bob), dx: sh }, { rows: BODY, dy: 10, dx: sh }, { rows: LEGS[o.legs ?? 'stand'], dy: 14 }, ...head);
 }
 const SQUASH = compose(16, 16,
   { rows: TAIL.low, dy: 9 },
@@ -84,7 +87,7 @@ const BACK = (legs: Legs) => compose(16, 16, { rows: BODY, dy: 10 }, { rows: LEG
 /** every frame as raw string art (also read by tools/pixel/sheet.ts) */
 export const CAT_FRAMES = {
   idle: [cat({}), cat({ tail: 'bent' }), cat({ tail: 'bent', ear: true }), cat({ eyes: 'blink' })],
-  walk: [cat({ legs: 'stride' }), cat({ legs: 'pass', bob: 1, tail: 'bent' }), cat({ legs: 'stride2' }), cat({ legs: 'pass', bob: 1, tail: 'bent' })],
+  walk: [cat({ legs: 'stride', shift: -1 }), cat({ legs: 'pass', bob: 2, tail: 'bent' }), cat({ legs: 'stride2', shift: 1 }), cat({ legs: 'pass', bob: 2, tail: 'bent' })],
   jump: [cat({ legs: 'tuck', eyes: 'happy', mouth: 'o', tail: 'bent' })],
   fall: [cat({ legs: 'dangle', eyes: 'open', mouth: 'o', tail: 'up' })],
   land: [SQUASH],

@@ -5,6 +5,32 @@ import { KINDS, sprite, thumb, kindById, type Kind } from './furniture';
 import { loadLayout, persistLayout, type SavedItem } from './save';
 import { placed, saved, wood } from './sfx';
 
+
+function drawWoodFloor(g: CanvasRenderingContext2D, w: number, h: number, floor: number) {
+  const fh = h - floor;
+  g.fillStyle = '#D4B48A';
+  g.fillRect(0, floor, w, Math.max(1, fh));
+  const edges: number[] = [floor];
+  const n = 6;
+  for (let i = 1; i <= n; i++) {
+    const y = Math.round(floor + (i / n) * (i / n) * fh);
+    const prev = edges[edges.length - 1]!;
+    if (y >= prev + 5) edges.push(y);
+  }
+  if (edges[edges.length - 1]! < h) edges.push(h);
+  for (let i = 0; i < edges.length - 1; i++) {
+    const y0 = edges[i]!, y1 = edges[i + 1]!;
+    g.fillStyle = i % 2 ? '#C4A07A' : '#D4B48A';
+    g.fillRect(0, y0, w, y1 - y0);
+    if (y1 - y0 >= 6) {
+      g.fillStyle = '#E0C49A';
+      g.fillRect(0, y0, w, 1);
+    }
+  }
+  g.fillStyle = '#A88860';
+  g.fillRect(0, floor, w, 2);
+}
+
 export interface Placed { id: number; kind: string; x: number; y: number; flip: boolean }
 
 let uid = 1;
@@ -180,16 +206,7 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
     g.fillStyle = '#EEDCC6'; g.fillRect(0, 0, w, b.floor);
     g.fillStyle = '#E2C8A8'; g.fillRect(0, b.floor - 22, w, 22);
     g.fillStyle = '#C4A06A'; g.fillRect(0, b.floor - 3, w, 3);
-    // receding floor — nearer boards are taller
-    const fh = h - b.floor;
-    for (let i = 0; i < 14; i++) {
-      const t0 = i / 14, t1 = (i + 1) / 14;
-      const y0 = b.floor + t0 * t0 * fh, y1 = b.floor + t1 * t1 * fh;
-      g.fillStyle = i % 2 ? '#C4A07A' : '#D4B48A';
-      g.fillRect(0, y0 | 0, w, Math.max(1, (y1 - y0) | 0));
-      g.fillStyle = 'rgba(90,56,28,0.18)';
-      g.fillRect(0, y0 | 0, w, 1);
-    }
+    drawWoodFloor(g, w, h, b.floor);
     // window + warm shaft
     const wx = (w * 0.58) | 0, wy = 10, ww = Math.min(78, (w * 0.26) | 0), wh = Math.min(48, Math.round(b.floor * 0.42));
     g.fillStyle = 'rgba(255,214,140,0.16)';
@@ -278,14 +295,7 @@ export function drawFurnished(g: CanvasRenderingContext2D, w: number, h: number,
   const floor = Math.round(h * 0.62);
   g.fillStyle = '#EEDCC6'; g.fillRect(0, 0, w, floor);
   g.fillStyle = '#E2C8A8'; g.fillRect(0, floor - 22, w, 22);
-  const fh = h - floor;
-  for (let i = 0; i < 12; i++) {
-    const t0 = i / 12, t1 = (i + 1) / 12;
-    const y0 = floor + t0 * t0 * fh, y1 = floor + t1 * t1 * fh;
-    g.fillStyle = i % 2 ? '#C4A07A' : '#D4B48A';
-    g.fillRect(0, y0 | 0, w, Math.max(1, (y1 - y0) | 0));
-  }
-  g.fillStyle = '#A88860'; g.fillRect(0, floor, w, 2);
+  drawWoodFloor(g, w, h, floor);
   const wx = (w * 0.58) | 0, wy = 8, ww = Math.min(64, w * 0.24), wh = Math.min(40, h * 0.24);
   g.fillStyle = 'rgba(255,214,140,0.18)';
   g.beginPath(); g.moveTo(wx, wy + wh); g.lineTo(wx + ww, wy + wh); g.lineTo(wx + ww + 28, floor); g.lineTo(wx - 8, floor); g.fill();

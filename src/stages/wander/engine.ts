@@ -59,12 +59,14 @@ interface Particle { x: number; y: number; vx: number; vy: number; rot: number; 
 
 const rnd = (n: number) => { let s = n | 0 || 1; return () => { s = Math.imul(s ^ (s << 13), 1597334677); s = Math.imul(s ^ (s >>> 16), 3812015801); return (s >>> 0) / 4294967296; }; };
 
-function blob(g: CanvasRenderingContext2D, x: number, y: number, rx: number, ry: number, c: string, seed = 1) {
+function wrapX(n: number, m: number) { return ((n % m) + m) % m; }
+
+function blob(g: CanvasRenderingContext2D, x: number, y: number, rx: number, ry: number, c: string, seed = 1, scallopAmp = 0.06) {
   g.fillStyle = c;
   const Rx = Math.max(1, Math.round(rx)), Ry = Math.max(1, Math.round(ry));
   for (let dy = -Ry; dy <= Ry; dy++) for (let dx = -Rx; dx <= Rx; dx++) {
     const ang = Math.atan2(dy, dx);
-    const scallop = 1 + 0.16 * Math.sin(ang * 5 + seed) + 0.08 * Math.sin(ang * 3 - seed);
+    const scallop = 1 + scallopAmp * Math.sin(ang * 3 + seed);
     if ((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) <= scallop) g.fillRect((x + dx) | 0, (y + dy) | 0, 1, 1);
   }
 }
@@ -85,7 +87,8 @@ function bakeTree(th: Theme, h: number, w: number, seed: number, mush: boolean):
     const cy = h * (0.06 + (i / Math.max(1, clumps - 1)) * 0.52);
     const rx = w * (0.22 + ((seed + i) % 5) * 0.04);
     const ry = rx * (0.62 + ((seed + i * 3) % 4) * 0.08);
-    blob(g, cx, cy, rx, ry, i % 2 ? th.canopy : th.canopyD, seed + i);
+    blob(g, cx, cy, rx * 1.12, ry * 1.16, th.canopyD, seed + i, 0.03);
+    blob(g, cx, cy, rx, ry, i % 2 ? th.canopy : th.canopyD, seed + i, 0.06);
   }
   // one or two large blooms / shelf mushrooms near the lower trunk — not a dotted climb
   if (mush) {
@@ -218,7 +221,9 @@ export function startWander(opts: WoodOpts) {
     PLAN.forEach((p, i) => {
       if (spawned.has(i) || cat.x + 50 < p.at) return;
       spawned.add(i);
-      const x = p.dir > 0 ? cam.x - 28 : cam.x + screen.w + 28;
+      // same-direction critters spawn ahead (on screen) so a walking player can catch up;
+      // oncoming critters still enter from the right edge.
+      const x = p.dir > 0 ? Math.min(cam.x + screen.w - 40, cat.x + 100) : cam.x + screen.w + 28;
       critters.push({
         kind: p.kind, x, vx: p.dir * (p.kind === 'collie' ? 40 : p.kind === 'deer' ? 24 : p.kind === 'owl' ? 30 : 17),
         face: p.dir, mode: p.kind === 'owl' ? 'fly' : 'walk', phase: 'in', age: 0, notice: 0,
@@ -411,17 +416,17 @@ export function startWander(opts: WoodOpts) {
     // enclosing canopy + a mid hanging layer so portrait woods are a tunnel, not trunks in open air
     ctx.fillStyle = T.canopyD;
     for (let i = 0; i < 16; i++) {
-      const x = ((i * 46 - ox * 0.5) % (w + 90)) - 40;
-      blob(ctx, x, h * 0.08 + (i % 3) * 10, 28 + (i % 4) * 6, 20 + (i % 3) * 5, T.canopyD);
+      const x = wrapX(i * 42 - ox * 0.5, w + 70) - 30;
+      blob(ctx, x, h * 0.07 + (i % 3) * 6, 34 + (i % 4) * 5, 24 + (i % 3) * 4, T.canopyD, i, 0.04);
     }
     ctx.fillStyle = T.canopy;
     for (let i = 0; i < 12; i++) {
-      const x = ((i * 58 - ox * 0.72 + 18) % (w + 80)) - 30;
-      blob(ctx, x, 8 + (i % 2) * 6, 22 + (i % 3) * 5, 16, T.canopy);
+      const x = wrapX(i * 50 - ox * 0.72 + 18, w + 64) - 24;
+      blob(ctx, x, 8 + (i % 2) * 4, 28 + (i % 3) * 4, 18, T.canopy, i + 3, 0.05);
     }
     for (let i = 0; i < 9; i++) {
-      const x = ((i * 70 - ox * 0.6 + 30) % (w + 100)) - 40;
-      blob(ctx, x, h * 0.30 + (i % 3) * 14, 26 + (i % 3) * 6, 18, i % 2 ? T.canopy : T.canopyD);
+      const x = wrapX(i * 62 - ox * 0.6 + 30, w + 80) - 32;
+      blob(ctx, x, h * 0.28 + (i % 3) * 10, 30 + (i % 3) * 5, 20, i % 2 ? T.canopy : T.canopyD, i + 7, 0.05);
     }
     // close foliage left and right, so the walk sits inside the wood
     blob(ctx, 8, h * 0.42, 22, 48, T.fg);
