@@ -4,7 +4,7 @@
 // (x, y) is feet-centre. flip = face left.
 
 export type Who = 'her' | 'him';
-export type Pose = 'stand' | 'walk' | 'run' | 'sit' | 'sleep' | 'lean' | 'kneel' | 'hold' | 'holdL';
+export type Pose = 'stand' | 'walk' | 'run' | 'sit' | 'sleep' | 'lean' | 'kneel' | 'hold' | 'holdL' | 'runHold' | 'runHoldL';
 
 const SKIN = '#E6C2AE';
 const SKIN_S = '#D4A894';
@@ -144,8 +144,8 @@ function legs(g: CanvasRenderingContext2D, who: Who, cx: number, y0: number, gai
 }
 
 export function personH(who: Who, pose: Pose): number {
-  if (pose === 'sleep') return 14;
-  if (pose === 'sit' || pose === 'kneel') return 26;
+  if (pose === 'sleep') return 10;
+  if (pose === 'sit' || pose === 'kneel') return 20;
   return who === 'him' ? 36 : 34;
 }
 
@@ -153,33 +153,43 @@ export function drawPerson(g: CanvasRenderingContext2D, who: Who, pose: Pose, x:
   g.save();
   g.translate(x | 0, y | 0);
   if (flip) { g.scale(-1, 1); }
-  const gait = t * (pose === 'run' ? 10 : 7);
+  const gait = t * (pose === 'run' || pose === 'runHold' || pose === 'runHoldL' ? 10 : 7);
   const cx = 0;
-  const expr = pose === 'sleep' ? 'sleep' : pose === 'lean' || pose === 'sit' ? 'soft' : pose === 'run' || pose === 'walk' ? 'smile' : 'open';
+  const expr = pose === 'sleep' ? 'sleep' : pose === 'lean' || pose === 'sit' ? 'soft' : pose === 'run' || pose === 'runHold' || pose === 'runHoldL' || pose === 'walk' ? 'smile' : 'open';
 
   if (pose === 'sleep') {
-    // recumbent, head to the left
-    for (let i = -10; i <= 12; i++) span(g, i, -4, 1, who === 'her' ? SHIRT : HIS);
-    head(g, who, -10, -6, 'sleep');
-    span(g, -4, -2, 16, who === 'her' ? '#F4EEF2' : HIS);
+    // side-lying: head on the pillow (left), body stretched to the right
+    const shirt = who === 'her' ? SHIRT : HIS;
+    const col = who === 'her' ? '#2A2428' : PANT;
+    head(g, who, -12, -2, 'sleep');
+    for (let i = -5; i <= 16; i++) {
+      span(g, i, -1, 1, shirt);
+      span(g, i, 0, 1, shirt);
+      span(g, i, 1, 1, i > 8 ? col : shirt);
+      span(g, i, 2, 1, col);
+    }
+    span(g, 15, 2, 4, INK);
+    // near arm tucked along the body
+    span(g, -2, 3, 6, SKIN);
     g.restore();
     return;
   }
 
-  const headY = pose === 'sit' ? -22 : pose === 'kneel' ? -24 : (who === 'him' ? -28 : -26);
+  const headY = pose === 'sit' ? -16 : pose === 'kneel' ? -22 : (who === 'him' ? -28 : -26);
   const torsoY = headY + 8;
-  const torsoH = pose === 'sit' || pose === 'kneel' ? 10 : 12;
+  const torsoH = pose === 'sit' ? 8 : pose === 'kneel' ? 10 : 12;
 
   if (pose === 'sit') {
-    // seated legs forward
+    // low sit: hips on the seat, thighs forward, head just above the torso
     const col = who === 'her' ? '#2A2428' : PANT;
-    for (let i = 0; i < 8; i++) span(g, cx - 2 + i, -8, 3, col);
-    span(g, cx + 5, -8, 4, INK);
-    span(g, cx - 4, -8, 3, INK);
+    for (let i = 0; i < 10; i++) span(g, cx - 1 + i, -5, 3, col);
+    span(g, cx + 8, -4, 3, col);
+    span(g, cx + 8, -2, 4, INK);
+    span(g, cx - 4, -7, 9, col);
     torso(g, who, cx, torsoY, torsoH);
     head(g, who, cx, headY, expr);
-    arm(g, who, cx - 5, torsoY + 2, -2, 5, 7);
-    arm(g, who, cx + 5, torsoY + 2, 2, 5, 7);
+    arm(g, who, cx - 5, torsoY + 2, -1, 5, 6);
+    arm(g, who, cx + 5, torsoY + 2, 3, 4, 6);
   } else if (pose === 'kneel') {
     const col = who === 'her' ? '#2A2428' : PANT;
     span(g, cx - 6, -4, 8, col); span(g, cx - 7, -3, 4, INK);
@@ -190,24 +200,25 @@ export function drawPerson(g: CanvasRenderingContext2D, who: Who, pose: Pose, x:
   } else {
     torso(g, who, cx, torsoY, torsoH);
     head(g, who, cx, headY, expr);
-    const moving = pose === 'walk' || pose === 'run';
-    const amp = pose === 'run' ? 6 : pose === 'hold' ? 0 : pose === 'lean' ? 1 : 4;
+    const moving = pose === 'walk' || pose === 'run' || pose === 'runHold' || pose === 'runHoldL';
+    const isRun = pose === 'run' || pose === 'runHold' || pose === 'runHoldL';
+    const amp = isRun ? 6 : pose === 'hold' ? 0 : pose === 'lean' ? 1 : 4;
     const swing = moving ? Math.sin(gait) * amp : (pose === 'hold' ? 7 : pose === 'lean' ? 3 : 0);
-    if (pose === 'hold') {
+    if (pose === 'hold' || pose === 'runHold') {
       arm(g, who, cx + 5, torsoY + 2, 8, 1, 8);
       arm(g, who, cx - 5, torsoY + 2, -2, 6, 7);
-    } else if (pose === 'holdL') {
+    } else if (pose === 'holdL' || pose === 'runHoldL') {
       arm(g, who, cx - 5, torsoY + 2, -8, 1, 8);
       arm(g, who, cx + 5, torsoY + 2, 2, 6, 7);
     } else if (pose === 'lean') {
-      arm(g, who, cx + 5, torsoY + 2, 5, 3, 7);
-      arm(g, who, cx - 5, torsoY + 2, -3, 5, 7);
+      arm(g, who, cx + 5, torsoY + 2, 6, 2, 8);
+      arm(g, who, cx - 5, torsoY + 2, -2, 5, 7);
     } else {
       arm(g, who, cx - 5, torsoY + 2, -2, 6 + (moving ? -swing : 0) * 0.3, 8);
       arm(g, who, cx + 5, torsoY + 2, 2, 6 + (moving ? swing : 0) * 0.3, 8);
     }
-    if (pose === 'walk' || pose === 'run' || pose === 'stand' || pose === 'hold' || pose === 'holdL' || pose === 'lean') {
-      legs(g, who, cx, torsoY + torsoH, moving ? gait : 0, pose === 'run');
+    if (pose === 'walk' || pose === 'run' || pose === 'stand' || pose === 'hold' || pose === 'holdL' || pose === 'runHold' || pose === 'runHoldL' || pose === 'lean') {
+      legs(g, who, cx, torsoY + torsoH, moving ? gait : 0, isRun);
     }
   }
   g.restore();

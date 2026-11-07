@@ -1,13 +1,13 @@
-// The only flowers in the forest: 云南紫精灵 (a Yunnan double purple lisianthus / 洋桔梗 cultivar)
-// and 戴安娜粉玫瑰 (Diana, a classic high-centred pink cut rose).
-// Drawn as pixel discs and pointed petals — not daisies, not lavender spikes, not generic 5-petal icons.
-// Clusters are baked once so the stroll can stamp them cheaply.
+// The only flowers in the forest: 云南紫精灵 and 戴安娜粉玫瑰.
+// 紫精灵: the verifiable Yunnan/斗南 wholesale name is a picotee carnation
+// (白底紫边, listed as Carnations-purple fairy). See docs/STORY.md for URLs.
+// 戴安娜: Yunnan pink cut rose. Clusters are baked once so the stroll can stamp them cheaply.
 
 export const LISI = {
   stem: '#6A7B58', stemD: '#556348',
   leaf: '#6E8458', leafD: '#4E623E',
-  // ruffled double lisianthus: violet outer, slightly paler throat
-  outer: '#5A3A80', mid: '#7A56A8', inner: '#A888C8', throat: '#D4C4E8', bud: '#6B4494',
+  // picotee carnation 紫精灵: cream/white petals, purple rim (白底紫边)
+  outer: '#6A3A88', mid: '#F6EEF4', inner: '#FFF8FC', throat: '#E8DCE8', bud: '#C8B0D4',
 };
 export const DIANA = {
   stem: '#3F5A32', stemD: '#2E4426',
@@ -39,35 +39,32 @@ function petal(g: CanvasRenderingContext2D, x: number, y: number, len: number, h
   }
 }
 
-/** one open 紫精灵 bloom: double lisianthus / 洋桔梗, rose-form when open.
- *  Ruffled layered petals, paler throat, wavy edges. Not a hydrangea mound, not a campanula bell. */
+/** one open 紫精灵 bloom: a ruffled picotee carnation (white/cream, purple edge). */
 export function drawLisianthusBloom(g: CanvasRenderingContext2D, x: number, y: number, s: number, tilt = 0) {
-  disc(g, x, y + s * 0.55, s * 0.22, LISI.leaf);
-  disc(g, x, y + s * 0.62, s * 0.14, LISI.leafD);
-  const outer = 6;
+  // bulbous calyx
+  disc(g, x, y + s * 0.42, s * 0.28, LISI.leaf);
+  disc(g, x, y + s * 0.5, s * 0.18, LISI.leafD);
+  const outer = 9;
   for (let i = 0; i < outer; i++) {
-    const a = tilt - Math.PI / 2 + (i / outer) * Math.PI * 2 + 0.2;
-    const len = s * (0.95 + 0.12 * Math.sin(i * 1.7 + tilt));
-    petal(g, x, y + s * 0.08, len, s * 0.34, a, LISI.outer, LISI.mid, LISI.inner);
+    const a = tilt - Math.PI / 2 + (i / outer) * Math.PI * 2 + 0.15;
+    const len = s * (0.88 + 0.14 * Math.sin(i * 2.1 + tilt));
+    petal(g, x, y + s * 0.06, len, s * 0.28, a, LISI.outer, LISI.mid, LISI.outer);
   }
-  const inner = 5;
+  const inner = 6;
   for (let i = 0; i < inner; i++) {
-    const a = tilt - Math.PI / 2 + (i / inner) * Math.PI * 2 + 0.55;
-    petal(g, x, y + s * 0.02, s * 0.62, s * 0.22, a, LISI.mid, LISI.inner, LISI.throat);
+    const a = tilt - Math.PI / 2 + (i / inner) * Math.PI * 2 + 0.4;
+    petal(g, x, y + s * 0.02, s * 0.58, s * 0.18, a, LISI.outer, LISI.inner, LISI.mid);
   }
-  disc(g, x, y - s * 0.02, s * 0.2, LISI.inner);
-  disc(g, x, y - s * 0.06, s * 0.1, LISI.throat);
+  disc(g, x, y - s * 0.02, s * 0.16, LISI.throat);
 }
 
-/** tight lisianthus bud (the cultivar carries several buds per stem) */
+/** tight carnation bud: green calyx, purple-white tip */
 export function drawLisianthusBud(g: CanvasRenderingContext2D, x: number, y: number, s: number) {
-  // sepal
-  disc(g, x, y + s * 0.15, s * 0.28, LISI.leaf);
-  // pointed oval bud
-  for (let i = -s; i <= s * 0.4; i++) {
-    const t = (i + s) / (s * 1.4);
-    const w = Math.sin(t * Math.PI) * s * 0.38;
-    for (let dx = -w; dx <= w; dx++) px(g, x + dx, y + i, Math.abs(dx) > w - 0.6 ? LISI.outer : LISI.bud);
+  disc(g, x, y + s * 0.12, s * 0.32, LISI.leaf);
+  for (let i = -s * 0.7; i <= s * 0.2; i++) {
+    const t = (i + s * 0.7) / (s * 0.9);
+    const w = Math.sin(t * Math.PI) * s * 0.34;
+    for (let dx = -w; dx <= w; dx++) px(g, x + dx, y + i, Math.abs(dx) > w - 0.6 ? LISI.outer : LISI.mid);
   }
 }
 

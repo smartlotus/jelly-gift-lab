@@ -59,11 +59,13 @@ interface Particle { x: number; y: number; vx: number; vy: number; rot: number; 
 
 const rnd = (n: number) => { let s = n | 0 || 1; return () => { s = Math.imul(s ^ (s << 13), 1597334677); s = Math.imul(s ^ (s >>> 16), 3812015801); return (s >>> 0) / 4294967296; }; };
 
-function blob(g: CanvasRenderingContext2D, x: number, y: number, rx: number, ry: number, c: string) {
+function blob(g: CanvasRenderingContext2D, x: number, y: number, rx: number, ry: number, c: string, seed = 1) {
   g.fillStyle = c;
   const Rx = Math.max(1, Math.round(rx)), Ry = Math.max(1, Math.round(ry));
   for (let dy = -Ry; dy <= Ry; dy++) for (let dx = -Rx; dx <= Rx; dx++) {
-    if ((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) <= 1) g.fillRect((x + dx) | 0, (y + dy) | 0, 1, 1);
+    const ang = Math.atan2(dy, dx);
+    const scallop = 1 + 0.16 * Math.sin(ang * 5 + seed) + 0.08 * Math.sin(ang * 3 - seed);
+    if ((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) <= scallop) g.fillRect((x + dx) | 0, (y + dy) | 0, 1, 1);
   }
 }
 
@@ -83,7 +85,7 @@ function bakeTree(th: Theme, h: number, w: number, seed: number, mush: boolean):
     const cy = h * (0.06 + (i / Math.max(1, clumps - 1)) * 0.52);
     const rx = w * (0.22 + ((seed + i) % 5) * 0.04);
     const ry = rx * (0.62 + ((seed + i * 3) % 4) * 0.08);
-    blob(g, cx, cy, rx, ry, i % 2 ? th.canopy : th.canopyD);
+    blob(g, cx, cy, rx, ry, i % 2 ? th.canopy : th.canopyD, seed + i);
   }
   // one or two large blooms / shelf mushrooms near the lower trunk — not a dotted climb
   if (mush) {

@@ -49,7 +49,7 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
   document.body.appendChild(drawer);
 
   const sel = document.createElement('div'); sel.className = 'hm-sel';
-  sel.innerHTML = `<button type="button" data-k="flip" data-i18n="home.rotate"></button><button type="button" data-k="del" data-i18n="home.remove"></button>`;
+  sel.innerHTML = `<button type="button" data-k="flip" data-i18n="home.flip"></button><button type="button" data-k="del" data-i18n="home.remove"></button>`;
   document.body.appendChild(sel);
 
   const turn = document.createElement('div'); turn.className = 'hm-turn';

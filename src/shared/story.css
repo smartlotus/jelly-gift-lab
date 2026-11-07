@@ -1,16 +1,24 @@
-/* Soft spoken line — not a title card. Fades in over the scene, then leaves. */
+/* Soft spoken line — a cinematic caption, not a title card. */
 .gift-whisper {
-  position: fixed; z-index: 29; left: 0; right: 0; top: 28%;
+  position: fixed; z-index: 29;
+  left: 10%; right: 10%;
+  top: auto;
+  bottom: calc(58px + env(safe-area-inset-bottom, 0px));
   text-align: center; pointer-events: none;
-  color: #2a2220; font-size: clamp(15px, 3.3vw, 22px);
-  letter-spacing: .12em; line-height: 1.75; padding: 0 28px;
-  opacity: 0; transform: translateY(8px);
+  color: #f6efe8;
+  font-size: clamp(14px, 3vw, 18px);
+  letter-spacing: .1em; line-height: 1.55;
+  padding: 8px 16px;
+  background: rgba(24, 18, 16, 0.48);
+  border-radius: 8px;
+  opacity: 0; transform: translateY(6px);
   transition: opacity 1.1s var(--ease, cubic-bezier(.65,0,.35,1)), transform 1.3s var(--ease, cubic-bezier(.65,0,.35,1));
-  text-shadow: 0 1px 0 rgba(255,248,240,.65), 0 0 18px rgba(243,235,224,.5);
+  text-wrap: balance;
+  text-shadow: 0 1px 1px rgba(0,0,0,.35);
 }
 .gift-whisper.on { opacity: 1; transform: none; }
 html[lang="en"] .gift-whisper { font-family: var(--display, Georgia, serif); font-style: italic; letter-spacing: .04em; }
-html[data-theme="dark"] .gift-whisper { color: #f4efe8; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+html[data-theme="dark"] .gift-whisper { background: rgba(8, 12, 16, 0.52); color: #f4efe8; }
 @media (prefers-reduced-motion: reduce) {
   .gift-whisper { transition: none; }
 }
