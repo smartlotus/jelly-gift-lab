@@ -155,12 +155,12 @@ function drawGreet(g: CanvasRenderingContext2D, w: number, h: number, t: number,
   const k = Math.min(1, t / 5.6);
   const sofa = layout.find(i => i.kind === 'sofa');
   const sofaX = sofa ? (sofa.x / 320) * w : w * 0.48;
-  // keep the greeting cluster left of the sofa so pets never sit on it
-  const right = Math.min(sofaX - 54, w * 0.40);
-  const herX = right;
-  const himX = herX - Math.max(28, w * 0.12);
-  const dogSettle = herX + 22;
-  const catSettle = herX + 40;
+  // pair on the left, pets settle in the gap before the sofa — not on laps or cushions
+  const right = Math.min(sofaX - 108, w * 0.34);
+  const herX = Math.max(w * 0.28, right);
+  const himX = herX - Math.max(30, w * 0.13);
+  const dogSettle = herX + 30;
+  const catSettle = herX + 58;
   figure(g, 'him', 'kneel', himX, floor, false, t);
   figure(g, 'her', 'kneel', herX, floor, false, t);
   const rush = 1 - Math.pow(1 - Math.min(1, k / 0.72), 2);

@@ -22,3 +22,12 @@ html[data-theme="dark"] .gift-whisper { background: rgba(8, 12, 16, 0.52); color
 @media (prefers-reduced-motion: reduce) {
   .gift-whisper { transition: none; }
 }
+
+@media (orientation: landscape), (max-height: 520px) {
+  .gift-whisper {
+    left: 16%; right: 16%;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    padding: 5px 14px;
+    font-size: clamp(12px, 2.2vw, 15px);
+  }
+}

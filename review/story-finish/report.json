@@ -1,0 +1,455 @@
+{
+  "bad": 0,
+  "results": [
+    {
+      "name": "room-empty-start",
+      "ok": true,
+      "detail": {
+        "furnish": false,
+        "at": "room",
+        "href": "/home/?lang=zh&at=room&fresh=1",
+        "storage": null,
+        "homeRoom": "object",
+        "chips": 20,
+        "selOn": false,
+        "note": "__homeRoom may exist as a debug object; this pass never called persist/furnishDemo/save on it"
+      }
+    },
+    {
+      "name": "room-labels-zh",
+      "ok": true,
+      "detail": {
+        "flip": "翻转",
+        "remove": "拿掉",
+        "undo": "撤销",
+        "reset": "重置",
+        "save": "保存布局",
+        "selOn": true
+      }
+    },
+    {
+      "name": "room-place-does-not-persist",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "name": "room-touch-drag",
+      "ok": true,
+      "detail": "pointerType=touch sofa 0.40→0.58 at sprite height 0.50"
+    },
+    {
+      "name": "room-flip-control",
+      "ok": true,
+      "detail": "clicked 翻转 (not 旋转)"
+    },
+    {
+      "name": "room-remove",
+      "ok": true,
+      "detail": {
+        "afterRemove": false
+      }
+    },
+    {
+      "name": "room-undo",
+      "ok": true,
+      "detail": {
+        "afterUndo": true
+      }
+    },
+    {
+      "name": "room-reset-clears",
+      "ok": true,
+      "detail": {
+        "selOn": false,
+        "storage": "{\"v\":1,\"items\":[]}"
+      }
+    },
+    {
+      "name": "room-unsaved-not-written",
+      "ok": true,
+      "detail": {
+        "v": 1,
+        "items": []
+      }
+    },
+    {
+      "name": "room-reload-without-save",
+      "ok": true,
+      "detail": {
+        "selOn": false,
+        "storage": null
+      }
+    },
+    {
+      "name": "room-save-real-button",
+      "ok": true,
+      "detail": {
+        "phase": "transform",
+        "kinds": [
+          "lamp",
+          "lisi",
+          "roses",
+          "sofa",
+          "tv"
+        ],
+        "line": "也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。"
+      }
+    },
+    {
+      "name": "room-reload-after-save",
+      "ok": true,
+      "detail": {
+        "v": 1,
+        "items": [
+          {
+            "kind": "sofa",
+            "x": 211,
+            "y": 11.599999999999994,
+            "flip": false
+          },
+          {
+            "kind": "tv",
+            "x": 84.4,
+            "y": 11.599999999999994,
+            "flip": false
+          },
+          {
+            "kind": "lamp",
+            "x": 312.28,
+            "y": 15.5,
+            "flip": false
+          },
+          {
+            "kind": "roses",
+            "x": 151.92,
+            "y": 15.5,
+            "flip": false
+          },
+          {
+            "kind": "lisi",
+            "x": 270.08,
+            "y": 15.5,
+            "flip": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "room-no-page-errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "montage-seed-saved-layout",
+      "ok": true,
+      "detail": "from furniture Save"
+    },
+    {
+      "name": "montage-uses-saved-layout",
+      "ok": true,
+      "detail": {
+        "v": 1,
+        "items": [
+          {
+            "kind": "sofa",
+            "x": 211,
+            "y": 11.599999999999994,
+            "flip": false
+          },
+          {
+            "kind": "tv",
+            "x": 84.4,
+            "y": 11.599999999999994,
+            "flip": false
+          },
+          {
+            "kind": "lamp",
+            "x": 312.28,
+            "y": 15.5,
+            "flip": false
+          },
+          {
+            "kind": "roses",
+            "x": 151.92,
+            "y": 15.5,
+            "flip": false
+          },
+          {
+            "kind": "lisi",
+            "x": 270.08,
+            "y": 15.5,
+            "flip": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "montage-walk-from-zero",
+      "ok": true,
+      "detail": "walk"
+    },
+    {
+      "name": "montage-greet-from-zero",
+      "ok": true,
+      "detail": "greet"
+    },
+    {
+      "name": "montage-finale-caption",
+      "ok": true,
+      "detail": {
+        "phase": "finale",
+        "text": "我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。我的小臭猫。",
+        "on": true
+      }
+    },
+    {
+      "name": "montage-sequence-errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home-found-caption",
+      "ok": true,
+      "detail": {
+        "on": true,
+        "text": "这里有一间空房子诶，我们可以布置一下"
+      }
+    },
+    {
+      "name": "animal:flower-lamb",
+      "ok": true,
+      "detail": {
+        "seek": 260,
+        "x": 260,
+        "errs": []
+      }
+    },
+    {
+      "name": "animal:flower-deer",
+      "ok": true,
+      "detail": {
+        "seek": 780,
+        "x": 780,
+        "errs": []
+      }
+    },
+    {
+      "name": "animal:flower-collie",
+      "ok": true,
+      "detail": {
+        "seek": 1080,
+        "x": 1080,
+        "errs": []
+      }
+    },
+    {
+      "name": "animal:flower-owl",
+      "ok": true,
+      "detail": {
+        "seek": 1360,
+        "x": 1360,
+        "errs": []
+      }
+    },
+    {
+      "name": "animal:mushroom-deer",
+      "ok": true,
+      "detail": {
+        "seek": 480,
+        "x": 480,
+        "errs": []
+      }
+    },
+    {
+      "name": "animal:mushroom-owl",
+      "ok": true,
+      "detail": {
+        "seek": 240,
+        "x": 240,
+        "errs": []
+      }
+    },
+    {
+      "name": "shot:flower-phone",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "shot:flower-land",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "caption:flower-whisper-phone",
+      "ok": true,
+      "detail": {
+        "on": true,
+        "text": "紫精灵和戴安娜……好像专门开给我们看的。"
+      }
+    },
+    {
+      "name": "shot:flower-whisper-phone",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "caption:flower-whisper-land",
+      "ok": true,
+      "detail": {
+        "on": true,
+        "text": "紫精灵和戴安娜……好像专门开给我们看的。"
+      }
+    },
+    {
+      "name": "shot:flower-whisper-land",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "shot:mushroom-phone",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "shot:mushroom-land",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "webkit-chain",
+      "ok": true,
+      "detail": [
+        "meadow",
+        "flower",
+        "mushroom",
+        "shop",
+        "ar",
+        "night",
+        "jelly",
+        "sea",
+        "sky",
+        "coop",
+        "home"
+      ]
+    },
+    {
+      "name": "webkit-audio-nongesture",
+      "ok": true,
+      "detail": "no NotAllowedError"
+    },
+    {
+      "name": "webkit-audio-gesture",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "chromium-chain",
+      "ok": true,
+      "detail": [
+        "meadow",
+        "flower",
+        "mushroom",
+        "shop",
+        "ar",
+        "night",
+        "jelly",
+        "sea",
+        "sky",
+        "coop",
+        "home"
+      ]
+    },
+    {
+      "name": "chromium-audio-nongesture",
+      "ok": true,
+      "detail": "no NotAllowedError"
+    },
+    {
+      "name": "chromium-audio-gesture",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "record:door-greet-sofa",
+      "ok": true,
+      "detail": {
+        "bytes": 1358202,
+        "path": "review/story-finish/video/door-greet-sofa.webm"
+      }
+    },
+    {
+      "name": "record:snow-dawn",
+      "ok": true,
+      "detail": {
+        "bytes": 651380,
+        "path": "review/story-finish/video/snow-dawn.webm"
+      }
+    },
+    {
+      "name": "record:flower-deer",
+      "ok": true,
+      "detail": {
+        "bytes": 577966,
+        "path": "review/story-finish/video/flower-deer.webm"
+      }
+    }
+  ],
+  "pages": {
+    "attempted": true,
+    "method": "POST /repos/smartlotus/jelly-gift-story/pages",
+    "request": {
+      "build_type": "legacy",
+      "source": {
+        "branch": "gh-pages",
+        "path": "/"
+      }
+    },
+    "http": 422,
+    "response": {
+      "message": "Your current plan does not support GitHub Pages for this repository.",
+      "documentation_url": "https://docs.github.com/rest/pages/pages#create-a-apiname-pages-site",
+      "status": "422"
+    },
+    "visibility_after": {
+      "private": true,
+      "visibility": "private",
+      "has_pages": false
+    },
+    "gh_pages_branch": "pushed (non-force) with source at 66f9d48 plus later polish; Pages not enabled",
+    "note": "Exact GitHub denial. Repo left private. plan:null on GET /user was not treated as the blocker; this 422 is."
+  },
+  "base": "http://localhost:8822/",
+  "reload_without_save_reverified": {
+    "method": "placed sofa after fresh=1 (storage stayed null), then navigated to home/?lang=zh&at=room WITHOUT fresh=1",
+    "before_nav": null,
+    "after": {
+      "storage": null,
+      "selOn": false
+    },
+    "note": "Earlier suite reload kept fresh=1 in the URL so it was not used as proof. This separate navigation confirms unsaved items do not persist."
+  },
+  "recordings": [
+    "/workspace/jelly/jelly-gift-story/review/story-finish/video/door-greet-sofa.webm",
+    "/workspace/jelly/jelly-gift-story/review/story-finish/video/snow-dawn.webm",
+    "/workspace/jelly/jelly-gift-story/review/story-finish/video/flower-deer.webm",
+    "/workspace/jelly/recordings/door-greet-sofa.webm",
+    "/workspace/jelly/recordings/snow-dawn.webm",
+    "/workspace/jelly/recordings/flower-deer.webm"
+  ],
+  "recordings_not_watched": true,
+  "flower_sources": {
+    "zijingling": [
+      "http://x7hh.com/pro_show.php?id=157",
+      "http://www.x7hh.com/goodsgm.php?id=157",
+      "http://www.x7hh.com/pricehuac.php?id=7",
+      "https://www.hua.com/product/9012869.html"
+    ],
+    "diana": [
+      "https://www.hua.com/huayu/14144.html"
+    ],
+    "lisianthus_contrast_only": [
+      "https://www.miaoyewang.com/baike/show-8674.html"
+    ],
+    "render": "picotee carnation, white/cream petals with purple rim (白底紫边). 紫精灵 name is ambiguous; lisianthus claim not used (no recoverable URL)."
+  }
+}

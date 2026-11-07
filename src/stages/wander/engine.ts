@@ -448,6 +448,8 @@ export function startWander(opts: WoodOpts) {
     seek(x: number) {
       cat.x = Math.max(8, Math.min(WORLD - 24, x));
       cam.snap(cat.x + 8, floorOf(screen.h) - 16, screen.w, screen.h);
+      // Do not retroactively spawn every earlier encounter at the new camera edge.
+      PLAN.forEach((p, i) => { if (p.at < cat.x) spawned.add(i); });
     },
   };
   (window as unknown as { __wander?: typeof api }).__wander = api;
