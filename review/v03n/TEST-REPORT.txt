@@ -1,0 +1,38 @@
+shot home-sleep-desktop ok
+shot home-dawn-desktop ok
+shot home-furnished-landscape ok
+shot home-furnished-portrait ok
+shot mushroom-landscape-hint ok
+skip/replay phases ["walk","greet","sofa","sleep","snow","dawn","finale"] afterReplay walk ok
+skip/replay PASS
+audio before {"text":"声音关","pressed":"false","store":null}
+audio after on {"text":"声音开","pressed":"true","store":"1"}
+audio after mute {"text":"声音关","pressed":"false","store":"0"}
+audio toggle PASS 
+reduced-motion {"rm":true,"wander":{"x":75.73869068520925,"worldW":879}} ok PASS (flag on, page alive)
+furnish place sofa [{"kind":"sofa","x":166,"y":0,"flip":false}]
+furnish drag [{"kind":"sofa","x":198,"y":-3,"flip":false}]
+furnish flip [{"kind":"sofa","x":198,"y":-3,"flip":true}]
+furnish delete []
+furnish undo [{"kind":"sofa","x":198,"y":-3,"flip":true}]
+furnish reset []
+furnish before save [{"kind":"sofa","x":154,"y":4,"flip":false},{"kind":"lamp","x":198,"y":8,"flip":false}]
+furnish after save phase transform
+furnish reload [{"kind":"sofa","x":154,"y":4,"flip":false},{"kind":"lamp","x":198,"y":8,"flip":false}]
+furnish verdict PASS {"persistOk":true,"flipOk":true,"delOk":true,"undoOk":true,"resetOk":true,"saveLeft":true,"errors":[]}
+walk flower-390p {"info0":{"x":36,"worldW":1152},"infoL":{"x":16,"worldW":1152},"infoR":{"x":36,"worldW":3400},"href":"http://127.0.0.1:8833/mushroom/?lang=zh&from=flower","reached":true,"leftOk":true,"noWrap":true,"errors":[]}
+walk flower-390p PASS
+walk flower-844l {"info0":{"x":36,"worldW":1160},"infoL":{"x":16,"worldW":1160},"infoR":{"x":36,"worldW":1161},"href":"http://127.0.0.1:8833/mushroom/?lang=zh&from=flower","reached":true,"leftOk":true,"noWrap":true,"errors":[]}
+walk flower-844l PASS
+walk mushroom-390p {"info0":{"x":36,"worldW":906},"infoL":{"x":16,"worldW":906},"infoR":null,"href":"http://127.0.0.1:8833/shop/?lang=zh&from=mushroom","reached":true,"leftOk":true,"noWrap":true,"errors":[]}
+walk mushroom-390p PASS
+walk mushroom-844l {"info0":{"x":36,"worldW":1161},"infoL":{"x":16,"worldW":1161},"infoR":null,"href":"http://127.0.0.1:8833/shop/?lang=zh&from=mushroom","reached":true,"leftOk":true,"noWrap":true,"errors":[]}
+walk mushroom-844l PASS
+near-end exit {"mid":{"x":789,"worldW":879},"href":"http://127.0.0.1:8833/mushroom/?lang=zh&from=flower","reached":true,"errors":[]}
+near-end exit PASS
+wk-flower-390p PASS {"title":"她的花林","wander":{"x":36,"worldW":1152},"home":null,"canvas":true} 
+wk-flower-844l PASS {"title":"她的花林","wander":{"x":36,"worldW":1160},"home":null,"canvas":true} 
+wk-mushroom-390p PASS {"title":"她的蘑菇林","wander":{"x":36,"worldW":906},"home":null,"canvas":true} 
+wk-mushroom-844l PASS {"title":"她的蘑菇林","wander":{"x":36,"worldW":1161},"home":null,"canvas":true} 
+wk-home-390p PASS {"title":"我们的小家","wander":null,"home":"greet","canvas":true} 
+wk-home-844l PASS {"title":"我们的小家","wander":null,"home":"greet","canvas":true} 

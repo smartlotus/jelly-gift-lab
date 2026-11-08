@@ -1,6 +1,7 @@
 // Pixel furniture for the decorating game and (later) the furnished home in the montage.
 // Drawn as crisp outlined blocks — warm wood, cream upholstery, the two bouquet flowers in vases.
 import { drawDianaRose, drawLisianthusBloom } from '../wander/blooms';
+import { art } from '../../art/loader';
 
 export type Layer = 'rug' | 'furn' | 'wall' | 'top';
 export interface Kind {
@@ -12,26 +13,26 @@ export interface Kind {
 }
 
 export const KINDS: Kind[] = [
-  { id: 'rug', label: 'home.item.rug', layer: 'rug', w: 70, h: 18 },
-  { id: 'sofa', label: 'home.item.sofa', layer: 'furn', w: 52, h: 24 },
-  { id: 'armchair', label: 'home.item.armchair', layer: 'furn', w: 22, h: 22 },
-  { id: 'coffee', label: 'home.item.coffee', layer: 'furn', w: 28, h: 14 },
-  { id: 'table', label: 'home.item.table', layer: 'furn', w: 36, h: 18 },
-  { id: 'chair', label: 'home.item.chair', layer: 'furn', w: 14, h: 20 },
-  { id: 'bed', label: 'home.item.bed', layer: 'furn', w: 48, h: 26 },
-  { id: 'night', label: 'home.item.night', layer: 'furn', w: 14, h: 16 },
-  { id: 'shelf', label: 'home.item.shelf', layer: 'furn', w: 22, h: 36 },
-  { id: 'tv', label: 'home.item.tv', layer: 'furn', w: 34, h: 24 },
-  { id: 'lamp', label: 'home.item.lamp', layer: 'furn', w: 12, h: 34 },
-  { id: 'wardrobe', label: 'home.item.wardrobe', layer: 'furn', w: 24, h: 38 },
-  { id: 'side', label: 'home.item.side', layer: 'furn', w: 14, h: 16 },
-  { id: 'cushion', label: 'home.item.cushion', layer: 'furn', w: 16, h: 10 },
-  { id: 'cattree', label: 'home.item.cattree', layer: 'furn', w: 18, h: 32 },
-  { id: 'dogbed', label: 'home.item.dogbed', layer: 'furn', w: 22, h: 12 },
-  { id: 'roses', label: 'home.item.roses', layer: 'top', w: 14, h: 22 },
-  { id: 'lisi', label: 'home.item.lisi', layer: 'top', w: 14, h: 22 },
-  { id: 'frame', label: 'home.item.frame', layer: 'wall', w: 16, h: 14, wall: true },
-  { id: 'lights', label: 'home.item.lights', layer: 'wall', w: 40, h: 10, wall: true },
+  { id: 'rug', label: 'home.item.rug', layer: 'rug', w: 80, h: 44 },
+  { id: 'sofa', label: 'home.item.sofa', layer: 'furn', w: 78, h: 50 },
+  { id: 'armchair', label: 'home.item.armchair', layer: 'furn', w: 50, h: 48 },
+  { id: 'coffee', label: 'home.item.coffee', layer: 'furn', w: 56, h: 36 },
+  { id: 'table', label: 'home.item.table', layer: 'furn', w: 58, h: 40 },
+  { id: 'chair', label: 'home.item.chair', layer: 'furn', w: 34, h: 48 },
+  { id: 'bed', label: 'home.item.bed', layer: 'furn', w: 80, h: 60 },
+  { id: 'night', label: 'home.item.night', layer: 'furn', w: 34, h: 48 },
+  { id: 'shelf', label: 'home.item.shelf', layer: 'furn', w: 38, h: 50 },
+  { id: 'tv', label: 'home.item.tv', layer: 'furn', w: 58, h: 52 },
+  { id: 'lamp', label: 'home.item.lamp', layer: 'furn', w: 24, h: 58 },
+  { id: 'wardrobe', label: 'home.item.wardrobe', layer: 'furn', w: 38, h: 54 },
+  { id: 'side', label: 'home.item.side', layer: 'furn', w: 34, h: 32 },
+  { id: 'cushion', label: 'home.item.cushion', layer: 'furn', w: 38, h: 28 },
+  { id: 'cattree', label: 'home.item.cattree', layer: 'furn', w: 34, h: 48 },
+  { id: 'dogbed', label: 'home.item.dogbed', layer: 'furn', w: 46, h: 30 },
+  { id: 'roses', label: 'home.item.roses', layer: 'top', w: 30, h: 44 },
+  { id: 'lisi', label: 'home.item.lisi', layer: 'top', w: 30, h: 44 },
+  { id: 'frame', label: 'home.item.frame', layer: 'wall', w: 28, h: 26, wall: true },
+  { id: 'lights', label: 'home.item.lights', layer: 'wall', w: 52, h: 18, wall: true },
 ];
 
 const ink = '#2E2A2B';
@@ -44,6 +45,12 @@ function box(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: nu
 
 function paint(kind: Kind, g: CanvasRenderingContext2D) {
   const { w, h, id } = kind;
+  const spr = art.furniture[id];
+  if (spr) {
+    g.imageSmoothingEnabled = false;
+    g.drawImage(spr, 0, 0, spr.width, spr.height, 0, 0, w, h);
+    return;
+  }
   if (id === 'rug') {
     box(g, 0, 2, w, h - 2, '#C96A6A', '#8A3A3A');
     g.fillStyle = '#E8A0A0';

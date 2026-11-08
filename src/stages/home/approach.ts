@@ -6,6 +6,8 @@ import { t } from '../../shared/i18n';
 import { opened } from './sfx';
 import { drawDianaRose, drawLisianthusBloom } from '../wander/blooms';
 import { swingDoor } from './door';
+import { art } from '../../art/loader';
+import { coverPlate } from '../../art/blit';
 
 export interface ApproachApi {
   update(dt: number): void;
@@ -86,47 +88,22 @@ export function createApproach(): ApproachApi {
     },
     render(g, w, h) {
       const floor = floorOf(h);
+      if (art.plates.cottage) {
+        coverPlate(g, art.plates.cottage, w, h, 'cover-bottom');
+        if (phase === 'enter') {
+          const open = Math.min(1, t0 / 0.8);
+          swingDoor(g, w * 0.468, h * 0.50, w * 0.07, h * 0.22, open, true);
+        }
+      } else {
       const sky = g.createLinearGradient(0, 0, 0, h);
       sky.addColorStop(0, '#F2C8B4'); sky.addColorStop(0.45, '#F0B8A4'); sky.addColorStop(1, '#E8A888');
       g.fillStyle = sky; g.fillRect(0, 0, w, h);
-      // late sun, kept low so it sits in the trees
-      g.fillStyle = '#FFE2A8';
-      const sx = w * 0.72, sy = Math.max(18, floor - Math.round(h * 0.55));
-      for (let dy = -14; dy <= 14; dy++) for (let dx = -14; dx <= 14; dx++) if (dx * dx + dy * dy <= 196) g.fillRect((sx + dx) | 0, (sy + dy) | 0, 1, 1);
-      // hills that climb into the frame
-      g.fillStyle = '#C88890';
-      g.beginPath(); g.moveTo(0, floor - Math.round(h * 0.28));
-      for (let x = 0; x <= w; x += 10) g.lineTo(x, floor - h * 0.24 - Math.sin(x * 0.03) * h * 0.06);
-      g.lineTo(w, h); g.lineTo(0, h); g.fill();
-      g.fillStyle = '#A07078';
-      g.beginPath(); g.moveTo(0, floor - Math.round(h * 0.16));
-      for (let x = 0; x <= w; x += 10) g.lineTo(x, floor - h * 0.14 - Math.sin(x * 0.045 + 1) * h * 0.04);
-      g.lineTo(w, h); g.lineTo(0, h); g.fill();
-      // trees tall enough to meet the top of a portrait frame
-      const th = Math.round(h * 0.82);
-      for (let i = 0; i < 9; i++) tree(g, 6 + i * Math.max(22, (w / 8) | 0), floor, th + (i % 3) * 24, 3 + i * 5);
-      tree(g, w - 16, floor, th + 10, 21);
-      tree(g, w - 40, floor, th - 20, 17);
-      // hanging leaves
-      g.fillStyle = '#4A6E36';
-      for (let i = 0; i < 8; i++) disc(g, 10 + i * (w / 7), 12 + (i % 3) * 8, 18 + (i % 3) * 6, i % 2 ? '#4A6E36' : '#5E8444');
-      // ground + path
       g.fillStyle = '#7AA85A'; g.fillRect(0, floor, w, h - floor);
-      g.fillStyle = '#6A944C'; g.fillRect(0, floor, w, 2);
-      g.fillStyle = '#D8C29A'; g.fillRect(0, floor - 3, w, 8);
-      g.fillStyle = '#E8D6B0';
-      for (let x = 0; x < w; x += 9) g.fillRect(x, floor, 2, 1);
-      g.fillStyle = '#5E8A40';
-      for (let x = 4; x < w; x += 11) {
-        const hh = 2 + (x * 13 % 4);
-        g.fillRect(x, floor - hh - 3, 1, hh);
-        g.fillRect(x + 2, floor - hh - 2, 1, hh - 1);
-      }
       const hx = Math.min(w - 96, Math.max(70, Math.round(w * 0.46)));
       house(g, hx, floor, phase === 'enter' ? Math.min(1, t0 / 0.8) : 0);
-      // a couple of the real bouquet flowers by the stoop
       drawLisianthusBloom(g, hx - 14, floor - 28, 7.2, -0.1);
       drawDianaRose(g, hx + 92, floor - 30, 7.6, 1);
+      }
       const pigImg = pigFrame(pigSp, { vx: phase === 'look' || phase === 'talk' ? 0 : 22, vy: 0, ground: true }, t0, 1);
       const catImg = catFrame(catSp, { vx: phase === 'look' || phase === 'talk' ? 0 : 22, vy: 0, ground: true }, t0, 1);
       const blit = (img: HTMLCanvasElement, x: number) => {

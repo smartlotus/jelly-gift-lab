@@ -82,7 +82,7 @@ var S=${JSON.stringify(CURTAIN_STAGES)},N=${JSON.stringify(NEXT)},T=${JSON.strin
 var m=d.querySelector('meta[name="gift-stage"]'),st=m?m.content:'meadow',q=new URLSearchParams(location.search);
 var L='en';try{L=q.get('lang')||localStorage.getItem('jelly.lang')||(/^zh/i.test(navigator.language)?'zh':'en')}catch(e){}L=/^zh/i.test(L)?'zh':'en';var t=T[L];
 var col=(S[st]||S.ar)[0],solid=false;
-try{var s=JSON.parse(sessionStorage.getItem('gift.curtain')||'null');if(s&&s.to===st&&Date.now()-s.t<30000){col=s.c;}sessionStorage.removeItem('gift.curtain')}catch(e){}
+try{var s=JSON.parse(sessionStorage.getItem('gift.curtain')||'null');if(s&&s.to===st&&Date.now()-s.t<30000){col=s.c;if(s.img){c.style.backgroundImage='url("'+s.img+'")';c.style.backgroundSize='cover';c.style.backgroundPosition='center';c.style.backgroundRepeat='no-repeat'}}sessionStorage.removeItem('gift.curtain')}catch(e){}
 function ink(h){var x=parseInt(h.slice(1),16);var r=x>>16&255,g=x>>8&255,b=x&255;return (r*299+g*587+b*114)/1000>150?'#141414':'#f6efe4'}
 function paint(bg){c.style.setProperty('--gcc-bg',bg);c.style.setProperty('--gcc-ink',ink(bg))}
 paint(col,st);c.setAttribute('lang',L==='zh'?'zh-CN':'en');

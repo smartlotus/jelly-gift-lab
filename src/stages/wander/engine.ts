@@ -5,12 +5,15 @@ import { PixelScreen } from '../../shared/pixel/screen';
 import { startLoop } from '../../shared/pixel/loop';
 import { input } from '../../shared/pixel/input';
 import { Camera } from '../../shared/pixel/camera';
-import { catSprites, catFrame } from '../../shared/pixel/cat';
 import { critterFrame, type CritterKind } from '../../shared/pixel/fauna';
 import { params, reducedMotion } from '../../shared/flow';
-import { bakeCluster, drawPetal, drawDianaRose, drawLisianthusBloom, type Cluster } from './blooms';
-import { bakeMushCluster, drawSpore, drawShroom, type MushCluster } from './shrooms';
+import { drawPetal, drawDianaRose, drawLisianthusBloom } from './blooms';
+import { drawSpore, drawShroom } from './shrooms';
 import { chime } from '../../shared/music';
+import { pathY } from './fields';
+import { blitGroundSequence, worldWidthOf } from '../../art/blit';
+import { art } from '../../art/loader';
+import { cat32Sprites, cat32Frame } from '../../shared/pixel/cat32';
 
 export type WoodTheme = 'flower' | 'mushroom';
 export interface WoodOpts {
@@ -51,6 +54,9 @@ const MUSH: Theme = {
 interface Prop { x: number; img: HTMLCanvasElement; ax: number; layer: 'mid' | 'near' | 'fg' }
 interface Critter {
   kind: CritterKind; x: number; vx: number; face: number;
+  // Intended travel along the path (+1 with the cat, -1 oncoming). Kept
+  // separately because the greet overwrites `face` to look at the cat.
+  head: number;
   mode: 'walk' | 'stand' | 'extra' | 'fly';
   phase: 'in' | 'notice' | 'out';
   age: number; notice: number;
@@ -120,60 +126,44 @@ export function startWander(opts: WoodOpts) {
   const reduced = reducedMotion();
   const screen = new PixelScreen({ host: opts.host, minW: 176, minH: 248, maxH: 640 });
   const ctx = screen.ctx;
-  const catSp = catSprites();
-  const floorOf = (h: number) => h - Math.max(28, Math.round(h * 0.16));
-  const WORLD = WORLD_W;
-  const EXIT_X = WORLD - 150;
-
-  const treesFar: { x: number; img: HTMLCanvasElement }[] = [];
-  const treesMid: { x: number; img: HTMLCanvasElement }[] = [];
-  const props: Prop[] = [];
-  const flowerSet: Cluster[] = [];
-  const mushSet: MushCluster[] = [];
-  if (theme === 'flower') {
-    for (let i = 0; i < 16; i++) flowerSet.push(bakeCluster(i % 2 === 0 ? 'diana' : 'lisi', 11 + i * 17, 1.7 + (i % 5 === 0 ? 0.4 : 0)));
-  } else {
-    for (let i = 0; i < 16; i++) mushSet.push(bakeMushCluster(23 + i * 19, 1.55 + (i % 4 === 0 ? 0.3 : 0)));
-  }
-  for (let i = 0; i < 22; i++) treesFar.push({ x: 24 + i * 155 + (i * 37) % 60, img: bakeTree(T, 260 + (i % 5) * 24, 72 + (i % 3) * 10, 50 + i * 9, theme === 'mushroom') });
-  for (let i = 0; i < 26; i++) treesMid.push({ x: 8 + i * 132 + (i * 19) % 44, img: bakeTree(T, 390 + (i % 4) * 28, 84 + (i % 3) * 12, 90 + i * 13, theme === 'mushroom') });
-  if (theme === 'flower') {
-    flowerSet.forEach((cl, i) => {
-      props.push({ x: 80 + i * 220 + (i * 47) % 80, img: cl.canvas, ax: cl.ax, layer: i % 3 === 0 ? 'fg' : 'near' });
-      const cl2 = flowerSet[(i * 3 + 1) % flowerSet.length]!;
-      props.push({ x: 150 + i * 220 + (i % 7) * 6, img: cl2.canvas, ax: cl2.ax, layer: 'mid' });
-    });
-  } else {
-    mushSet.forEach((m, i) => {
-      props.push({ x: 60 + i * 200 + (i * 29) % 90, img: m.canvas, ax: m.ax, layer: i % 4 === 0 ? 'fg' : 'near' });
-      const m2 = mushSet[(i * 2 + 3) % mushSet.length]!;
-      props.push({ x: 140 + i * 200, img: m2.canvas, ax: m2.ax, layer: 'mid' });
-    });
-  }
-  const hillsFar = bakeHills(Math.round(WORLD * 0.22 + 80), 78, T.far, 3);
-  const hillsMid = bakeHills(Math.round(WORLD * 0.34 + 80), 68, T.far2, 8);
+  const catSp = cat32Sprites();
+  const floorOf = (w: number, h: number) => h - Math.max(22, Math.round(h * (h > w ? 0.13 : 0.16)));
+  const landscape = () => theme === 'flower' ? art.plates.flowerGround : art.plates.mushroomGround;
+  const coverOf = (w: number, h: number) => {
+    const base = h > w ? 1.16 : 1;
+    const plates = landscape();
+    if (!plates.length) return base;
+    const raw = worldWidthOf(plates, floorOf(w, h), base);
+    const want = Math.max(raw, w * (h > w ? 4.2 : 2.75));
+    return raw > 0 ? base * (want / raw) : base;
+  };
+  const measureWorld = (w: number, h: number) => {
+    const floor = floorOf(w, h);
+    const plates = landscape();
+    if (!plates.length) return 1800;
+    return Math.max(w + 64, worldWidthOf(plates, floor, coverOf(w, h)));
+  };
 
   const atEnd = params.get('at') === 'end';
   const auto = params.has('auto');
-  const cat = { x: atEnd ? EXIT_X - 70 : 36, vx: 0, face: 1 };
-  const cam = new Camera(WORLD, 220);
+  let worldW = WORLD_W;
+  const cat = { x: atEnd ? 0 : 36, vx: 0, face: 1 };
+  const cam = new Camera(worldW, 220);
+  let placedEnd = false;
   const critters: Critter[] = [];
   const parts: Particle[] = [];
 
+  // `at` is a fraction of the finite world (no wrapping).
   const PLAN: { at: number; kind: CritterKind; dir: number }[] = theme === 'flower'
     ? [
-      { at: 260, kind: 'lamb', dir: 1 }, { at: 520, kind: 'kitten', dir: -1 }, { at: 780, kind: 'deer', dir: 1 },
-      { at: 1080, kind: 'collie', dir: -1 }, { at: 1360, kind: 'owl', dir: 1 }, { at: 1640, kind: 'lamb', dir: 1 },
-      { at: 1680, kind: 'lamb', dir: -1 }, { at: 1980, kind: 'deer', dir: -1 }, { at: 2040, kind: 'greykit', dir: 1 },
-      { at: 2340, kind: 'collie', dir: 1 }, { at: 2620, kind: 'owl', dir: -1 }, { at: 2880, kind: 'kitten', dir: 1 },
-      { at: 3000, kind: 'deer', dir: -1 },
+      { at: 0.18, kind: 'lamb', dir: 1 }, { at: 0.34, kind: 'kitten', dir: -1 },
+      { at: 0.50, kind: 'deer', dir: 1 }, { at: 0.66, kind: 'collie', dir: -1 },
+      { at: 0.82, kind: 'owl', dir: 1 },
     ]
     : [
-      { at: 240, kind: 'owl', dir: 1 }, { at: 480, kind: 'deer', dir: -1 }, { at: 760, kind: 'kitten', dir: 1 },
-      { at: 1020, kind: 'collie', dir: 1 }, { at: 1280, kind: 'owl', dir: -1 }, { at: 1540, kind: 'lamb', dir: 1 },
-      { at: 1820, kind: 'deer', dir: 1 }, { at: 2080, kind: 'owl', dir: 1 }, { at: 2140, kind: 'greykit', dir: -1 },
-      { at: 2460, kind: 'collie', dir: -1 }, { at: 2740, kind: 'lamb', dir: 1 }, { at: 2920, kind: 'deer', dir: 1 },
-      { at: 3100, kind: 'owl', dir: -1 },
+      { at: 0.16, kind: 'owl', dir: 1 }, { at: 0.32, kind: 'deer', dir: -1 },
+      { at: 0.50, kind: 'kitten', dir: 1 }, { at: 0.66, kind: 'collie', dir: 1 },
+      { at: 0.82, kind: 'lamb', dir: 1 },
     ];
   const spawned = new Set<number>();
 
@@ -199,11 +189,14 @@ export function startWander(opts: WoodOpts) {
   startLoop(dt => {
     time += dt; meetCool = Math.max(0, meetCool - dt);
     input.update();
-    const floor = floorOf(screen.h);
+    const floor = floorOf(screen.w, screen.h);
+    worldW = measureWorld(screen.w, screen.h);
+    const EXIT_X = worldW - 80;
+    if (!placedEnd && atEnd) { cat.x = Math.max(36, EXIT_X - 70); placedEnd = true; }
 
     let ax = input.axis();
     if (held) {
-      const d = (cam.x + held.x) - (cat.x + 8);
+      const d = (cam.x + held.x) - cat.x;
       ax = Math.abs(d) < 6 ? 0 : Math.sign(d);
     }
     if ((auto && !leaving) || leaving) ax = 1;
@@ -212,21 +205,21 @@ export function startWander(opts: WoodOpts) {
     if (!ax) cat.vx += (0 - cat.vx) * Math.min(1, dt * 6);
     cat.x += cat.vx * dt;
     if (ax) cat.face = ax;
-    cat.x = Math.max(8, Math.min(WORLD - 24, cat.x));
+    cat.x = Math.max(16, Math.min(worldW - 32, cat.x));
 
-    cam.worldW = WORLD;
+    cam.worldW = worldW;
     cam.worldH = Math.max(220, screen.h);
-    cam.follow(cat.x + 8, floor - 16, cat.face, screen.w, screen.h, dt);
+    cam.follow(cat.x, floor - 18, cat.face, screen.w, screen.h, dt);
 
     PLAN.forEach((p, i) => {
-      if (spawned.has(i) || cat.x + 50 < p.at) return;
+      if (spawned.has(i) || cat.x + 50 < p.at * worldW) return;
       spawned.add(i);
       // same-direction critters spawn ahead (on screen) so a walking player can catch up;
       // oncoming critters still enter from the right edge.
       const x = p.dir > 0 ? Math.min(cam.x + screen.w - 40, cat.x + 100) : cam.x + screen.w + 28;
       critters.push({
         kind: p.kind, x, vx: p.dir * (p.kind === 'collie' ? 40 : p.kind === 'deer' ? 24 : p.kind === 'owl' ? 30 : 17),
-        face: p.dir, mode: p.kind === 'owl' ? 'fly' : 'walk', phase: 'in', age: 0, notice: 0,
+        face: p.dir, head: p.dir, mode: p.kind === 'owl' ? 'fly' : 'walk', phase: 'in', age: 0, notice: 0,
       });
     });
 
@@ -248,7 +241,11 @@ export function startWander(opts: WoodOpts) {
         if (c.kind === 'owl' && c.notice > 0.7) c.mode = 'extra';
         if (c.notice > (c.kind === 'deer' ? 1.5 : 1.15)) {
           c.phase = 'out';
-          const dir = c.x < cat.x ? -1 : 1; // walk on past her
+          // Mammals walk on past her (current side). The owl keeps its
+          // original heading so a same-direction bird does not reverse
+          // after the cat walks by during the greet — that read as flying
+          // backwards relative to the path / camera.
+          const dir = c.kind === 'owl' ? (Math.sign(c.head) || 1) : (c.x < cat.x ? -1 : 1);
           c.vx = dir * (c.kind === 'collie' ? 42 : c.kind === 'owl' ? 32 : 20);
           c.face = dir;
           c.mode = c.kind === 'owl' ? 'fly' : 'walk';
@@ -257,6 +254,9 @@ export function startWander(opts: WoodOpts) {
         c.x += c.vx * dt;
         c.mode = c.kind === 'owl' ? 'fly' : 'walk';
       }
+      // Face the direction of world travel. Painted owl sheets face right;
+      // blit flips only when face < 0. Do not use camera-relative drift.
+      if (Math.abs(c.vx) > 0.5) c.face = Math.sign(c.vx) || c.face;
     }
     // drop far-off critters
     for (let i = critters.length - 1; i >= 0; i--) {
@@ -278,111 +278,31 @@ export function startWander(opts: WoodOpts) {
       if (p.life <= 0 || p.y > floor + 8) parts.splice(i, 1);
     }
 
-    if (!nearSent && cat.x > EXIT_X - 220) { nearSent = true; opts.onNearExit(); }
+    if (!nearSent && cat.x > worldW * 0.88) { nearSent = true; opts.onNearExit(); }
     if (!leaving && cat.x > EXIT_X - 8) {
       leaving = true;
-      const c = screen.toClient(cat.x + 8 - cam.ix, floor - 16 - cam.iy);
+      const c = screen.toClient(cat.x - cam.ix, floor - 18 - cam.iy);
       opts.onExit(c.x, c.y);
     }
   }, () => {
-    const w = screen.w, h = screen.h, floor = floorOf(h);
-    const ox = cam.ix, oy = cam.iy;
-    // sky
+    const w = screen.w, h = screen.h, floor = floorOf(w, h);
+    const ox = cam.ix;
+    const portrait = h > w;
+
+    // fallback sky only shows if a plate is missing or letterboxed
     const grd = ctx.createLinearGradient(0, 0, 0, h);
-    grd.addColorStop(0, T.sky0); grd.addColorStop(0.45, T.sky1); grd.addColorStop(1, T.sky2);
+    grd.addColorStop(0, T.sky0); grd.addColorStop(0.55, T.sky1); grd.addColorStop(1, T.sky2);
     ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
 
-    // sun / moon
-    const sx = w * (theme === 'flower' ? 0.78 : 0.18), sy = h * (theme === 'flower' ? 0.16 : 0.14);
-    ctx.fillStyle = T.sun;
-    const sr = theme === 'flower' ? 11 : 9;
-    for (let dy = -sr; dy <= sr; dy++) for (let dx = -sr; dx <= sr; dx++) if (dx * dx + dy * dy <= sr * sr) ctx.fillRect((sx + dx) | 0, (sy + dy) | 0, 1, 1);
-    if (theme === 'mushroom') {
-      ctx.fillStyle = '#1A2438';
-      for (let dy = -sr; dy <= sr; dy++) for (let dx = -sr; dx <= sr; dx++) if (dx * dx + dy * dy <= (sr - 3) * (sr - 3) && dx > 1) ctx.fillRect((sx + dx + 3) | 0, (sy + dy - 1) | 0, 1, 1);
-      ctx.fillStyle = 'rgba(230,230,240,.7)';
-      for (let i = 0; i < 18; i++) ctx.fillRect(((i * 73 + 17) % w) | 0, ((i * 47 + 11) % (h * 0.4)) | 0, 1, 1);
+    const plates = landscape();
+    if (plates.length) {
+      blitGroundSequence(ctx, plates, ox, floor, w, coverOf(w, h));
+    } else {
+      ctx.fillStyle = T.ground; ctx.fillRect(0, floor, w, h - floor);
+      ctx.fillStyle = T.path;
+      for (let sx = 0; sx < w; sx++) ctx.fillRect(sx, pathY(sx + ox, floor) - 2, 1, 8);
     }
 
-    // far hills
-    ctx.drawImage(hillsFar, -((ox * 0.16) | 0) % hillsFar.width, (floor - 92 - oy * 0.1) | 0);
-    ctx.drawImage(hillsFar, -((ox * 0.16) | 0) % hillsFar.width + hillsFar.width, (floor - 92 - oy * 0.1) | 0);
-    ctx.drawImage(hillsMid, -((ox * 0.28) | 0) % hillsMid.width, (floor - 74 - oy * 0.12) | 0);
-    ctx.drawImage(hillsMid, -((ox * 0.28) | 0) % hillsMid.width + hillsMid.width, (floor - 74 - oy * 0.12) | 0);
-
-    // far trees
-    for (const tr of treesFar) {
-      const x = Math.round(tr.x - ox * 0.34);
-      if (x > -tr.img.width && x < w + 4) ctx.drawImage(tr.img, x, floor - tr.img.height + 8 - (oy * 0.15) | 0);
-    }
-
-    // light shafts (flower) / glow haze (mushroom)
-    if (!reduced) {
-      if (theme === 'flower') {
-        ctx.fillStyle = 'rgba(255,236,210,0.07)';
-        for (let i = 0; i < 5; i++) {
-          const x = ((i * 90 + 40 - ox * 0.2) % (w + 80)) - 20;
-          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 18, 0); ctx.lineTo(x + 46, floor); ctx.lineTo(x + 10, floor); ctx.fill();
-        }
-      } else {
-        ctx.fillStyle = 'rgba(80,160,150,0.06)';
-        ctx.fillRect(0, floor - 70, w, 70);
-      }
-    }
-
-    // mid trees
-    for (const tr of treesMid) {
-      const x = Math.round(tr.x - ox * 0.72);
-      if (x > -tr.img.width && x < w + 4) ctx.drawImage(tr.img, x, floor - tr.img.height + 6);
-    }
-
-    const stamp = (layer: Prop['layer'], par: number) => {
-      for (const p of props) {
-        if (p.layer !== layer) continue;
-        const x = Math.round(p.x - ox * par) - p.ax;
-        if (x > -p.img.width && x < w + 4) ctx.drawImage(p.img, x, floor - p.img.height + 2);
-      }
-    };
-    stamp('mid', 0.85);
-
-    // ground + path
-    ctx.fillStyle = T.ground; ctx.fillRect(0, floor, w, h - floor);
-    ctx.fillStyle = T.groundD; ctx.fillRect(0, floor, w, 2);
-    ctx.fillStyle = T.path;
-    ctx.fillRect(0, floor - 1, w, 7);
-    ctx.fillStyle = T.pathHi;
-    for (let x = 0; x < w; x++) if (((x + ox) % 9) === 0) ctx.fillRect(x, floor + 1, 2, 1);
-
-    // grass tufts
-    ctx.fillStyle = T.grass;
-    for (let x = -((ox) % 11); x < w; x += 11) {
-      const hh = 2 + ((x + ox) * 13 % 4);
-      ctx.fillRect(x, floor - hh, 1, hh);
-      ctx.fillRect(x + 2, floor - hh + 1, 1, hh - 1);
-    }
-
-    stamp('near', 1);
-
-    // exit arch
-    const ax = Math.round(EXIT_X - ox);
-    if (ax > -50 && ax < w + 20) {
-      ctx.fillStyle = T.trunk; ctx.fillRect(ax, floor - 54, 4, 54); ctx.fillRect(ax + 38, floor - 54, 4, 54);
-      ctx.fillStyle = T.trunkD;
-      for (let i = 0; i <= 40; i++) {
-        const a = Math.PI * (i / 40);
-        ctx.fillRect(ax + 2 + Math.cos(Math.PI - a) * 20, floor - 52 - Math.sin(a) * 16, 3, 3);
-      }
-      if (theme === 'flower') {
-        drawDianaRose(ctx, ax + 14, floor - 66, 4.2, 1);
-        drawLisianthusBloom(ctx, ax + 30, floor - 64, 3.6, 0.1);
-        drawShroom(ctx, ax + 22, floor - 4, 'spot', 3.6, 2, 0.9);
-      } else {
-        drawShroom(ctx, ax + 12, floor - 54, 'spot', 4.5, 4, 1);
-        drawShroom(ctx, ax + 28, floor - 56, 'bell', 5, 7, 1);
-      }
-    }
-
-    // animals — a little larger than the 16px sheets so they read on a phone
     const floorY = floor;
     const blit = (img: HTMLCanvasElement, x: number, feetY: number, flip: boolean, sc: number) => {
       ctx.save(); ctx.imageSmoothingEnabled = false;
@@ -395,55 +315,22 @@ export function startWander(opts: WoodOpts) {
     for (const c of critters) {
       const img = critterFrame(c.kind, c.mode, time);
       const fly = c.kind === 'owl' && c.mode === 'fly';
-      const feet = fly ? floorY - 52 - Math.sin(c.age * 1.6) * 7 : floorY;
-      blit(img, Math.round(c.x - ox), Math.round(feet), c.face < 0, 1.7);
+      const feet = fly ? floorY - 54 - Math.sin(c.age * 1.6) * 7 : floorY;
+      // Keep owl at 1× so the flat glide (25px) vs raised/down (46–52px) reads as a flap.
+      const sc = c.kind === 'owl' ? 1 : (img.height >= 28 ? 1 : 2);
+      blit(img, Math.round(c.x - ox - img.width * sc / 2), Math.round(feet), c.face < 0, sc);
     }
 
-    // cat
-    const catImg = catFrame(catSp, { vx: cat.vx, vy: 0, ground: true }, time, 1);
-    blit(catImg, Math.round(cat.x - ox + 8), Math.round(floor), cat.face < 0, 1.5);
+    const catImg = cat32Frame(catSp, cat.vx, time);
+    blit(catImg, Math.round(cat.x - ox - catImg.width / 2), Math.round(floor), cat.face < 0, 1);
 
-    stamp('fg', 1.18);
-
-    // particles
     for (const p of parts) {
-      const x = p.x - ox, y = p.y - oy * 0.2;
+      const x = p.x - ox, y = p.y;
       if (x < -4 || x > w + 4) continue;
       if (p.kind === 'diana' || p.kind === 'lisi') drawPetal(ctx, x, y, p.kind, p.rot, p.s);
       else drawSpore(ctx, x, y, p.s, p.kind === 'fire');
     }
 
-    // enclosing canopy + a mid hanging layer so portrait woods are a tunnel, not trunks in open air
-    ctx.fillStyle = T.canopyD;
-    for (let i = 0; i < 16; i++) {
-      const x = wrapX(i * 42 - ox * 0.5, w + 70) - 30;
-      blob(ctx, x, h * 0.07 + (i % 3) * 6, 34 + (i % 4) * 5, 24 + (i % 3) * 4, T.canopyD, i, 0.04);
-    }
-    ctx.fillStyle = T.canopy;
-    for (let i = 0; i < 12; i++) {
-      const x = wrapX(i * 50 - ox * 0.72 + 18, w + 64) - 24;
-      blob(ctx, x, 8 + (i % 2) * 4, 28 + (i % 3) * 4, 18, T.canopy, i + 3, 0.05);
-    }
-    for (let i = 0; i < 9; i++) {
-      const x = wrapX(i * 62 - ox * 0.6 + 30, w + 80) - 32;
-      blob(ctx, x, h * 0.28 + (i % 3) * 10, 30 + (i % 3) * 5, 20, i % 2 ? T.canopy : T.canopyD, i + 7, 0.05);
-    }
-    // close foliage left and right, so the walk sits inside the wood
-    blob(ctx, 8, h * 0.42, 22, 48, T.fg);
-    blob(ctx, 4, h * 0.22, 18, 36, T.canopyD);
-    blob(ctx, w - 8, h * 0.38, 24, 52, T.fg);
-    blob(ctx, w - 6, h * 0.18, 18, 34, T.canopyD);
-    if (theme === 'flower') {
-      drawLisianthusBloom(ctx, 16, floor - 36, 7.2, -0.15);
-      drawDianaRose(ctx, w - 18, floor - 40, 7.6, 1);
-    } else {
-      drawShroom(ctx, 14, floor - 4, 'bell', 7, 3, 1);
-      drawShroom(ctx, w - 16, floor - 4, 'parasol', 7.5, 8, 1);
-    }
-
-    // soft vignette
-    ctx.fillStyle = theme === 'flower' ? 'rgba(180,80,110,0.06)' : 'rgba(0,10,16,0.18)';
-    ctx.fillRect(0, 0, w, 8); ctx.fillRect(0, h - 10, w, 10);
   });
 
   const api = {
@@ -451,10 +338,33 @@ export function startWander(opts: WoodOpts) {
     get x() { return cat.x; },
     get t() { return time; },
     seek(x: number) {
-      cat.x = Math.max(8, Math.min(WORLD - 24, x));
-      cam.snap(cat.x + 8, floorOf(screen.h) - 16, screen.w, screen.h);
-      // Do not retroactively spawn every earlier encounter at the new camera edge.
-      PLAN.forEach((p, i) => { if (p.at < cat.x) spawned.add(i); });
+      worldW = measureWorld(screen.w, screen.h);
+      cat.x = Math.max(16, Math.min(worldW - 32, x));
+      cam.worldW = worldW;
+      cam.snap(cat.x, floorOf(screen.w, screen.h) - 18, screen.w, screen.h);
+      // Skip encounters well behind the seek point; keep the nearest upcoming one.
+      PLAN.forEach((p, i) => { if (p.at * worldW < cat.x - 80) spawned.add(i); });
+    },
+    get worldW() { return worldW; },
+    get plates() { return landscape().length; },
+    // Review helper: stand next to the planned animal so a shot/clip can show the meeting.
+    placeEncounter(frac: number) {
+      api.seek(worldW * frac);
+      const i = PLAN.findIndex(p => Math.abs(p.at - frac) < 0.09);
+      if (i < 0) return;
+      spawned.add(i);
+      const p = PLAN[i]!;
+      critters.push({
+        kind: p.kind,
+        x: cat.x + 78,
+        vx: 0,
+        face: -1,
+        head: p.dir,
+        mode: p.kind === 'owl' ? 'fly' : 'walk',
+        phase: 'notice',
+        age: 0.5,
+        notice: 0.35,
+      });
     },
   };
   (window as unknown as { __wander?: typeof api }).__wander = api;

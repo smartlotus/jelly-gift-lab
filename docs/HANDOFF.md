@@ -12,6 +12,26 @@
 > Deploy (this repo only, non-force): `GIFT_DEPLOY=1 scripts/deploy_pages.sh`
 
 
+## v03k · art rebuild + owl facing (2026-11-07, America/Los_Angeles)
+
+Story-only edition on `v03k-art-rebuild`, meant to merge to `main` with a merge commit (no squash/force), tag `v03k`, and deploy with `GIFT_DEPLOY=1 scripts/deploy_pages.sh` to this repo’s `gh-pages` only.
+
+**Owl facing (narrow fix after wing-cycle and pink-flash PASS).** Fly sheets already face right (yellow beak on the right of every `owl-0` / `owl-1` glide / `owl-2` / `owl-3` frame). The blit flips only when world travel is left (`face < 0`). While a critter is moving, `face = sign(vx)` so a leftover greet glance cannot stick. The owl also stores `head` (planned travel) and resumes that heading after the greet, instead of reversing once the faster cat walks past — that reversal read as flying backwards relative to the path / camera. Facing uses world movement, not camera-relative screen drift: when the camera overtakes a slower right-flying owl the bird may slide left on screen while still facing right (correct against the scenery). Wing order, 5 fps, and silhouettes are unchanged.
+
+**Facing proof:** `review/v03k/owl-facing-strip.png` — three normal-time crops ~0.4 s apart after `seek(0.78)` on `/flower/?auto`. Visible yellow beak points right in every frame; crop-center screen-x advanced about +40 px then +60 px (camera clamped near the end of the plate, so on-screen motion matches world +vx).
+
+**Already passed, unchanged here:** 5 fps flap `[up, glide, down, glide]` without 2×-scaling the 25 px glide; flower → mushroom iris + 700 ms curtain carries the previous canvas (no solid `#c888a8` pink flash/ghost).
+
+**Local checks (this fix):** `npx tsc --noEmit -p . && npx vite build` (PASS). WebKit iPhone-sized smoke at 390×844 and 844×390 for `/flower/`, `/mushroom/`, `/home/?at=greet&furnish` (all PASS, canvas present, no pageerror). Chromium: flower/mushroom/home load PASS; furniture save/load (click save, reload, `gift.home.layout.v1` persisted) PASS.
+
+**Honest limitations.** Walk, run, and fauna use short frame cycles (typically 4 poses; owl fly is a 4-slot up/glide/down/glide loop). Forest and home environments are static painted plates plus a handful of overlay sprites (hinged door, furniture, people). This is not a fully cinematic film.
+
+**Do not.** Touch `/jelly-gift` or `smartlotus/jelly-gift` / `jelly-gift-site` (stable Pages `https://smartlotus.github.io/jelly-gift/`, last deploy `1c2d5de`). Do not merge this work into that default branch or old source PR 7. Do not commit original private photos or raw generation dumps (`public/art/plates/*-far.jpg`, cadence folders). Repo is already public — do not change visibility.
+
+**Publish hashes** are recorded in the banner above after the deploy lands.
+
+
+
 > 先读：本文件 → [`GIFT_PLAN.md`](./GIFT_PLAN.md)（设计与验收的唯一事实来源）→ 你负责的 [`status/<A|B|C>.md`](./status/)。
 > **规则：每完成一个可运行的小步就 commit + `git push origin master`，并更新下面的状态表 / 你的 status 文件。** 额度随时可能中断，下一个人只看 GitHub。
 
