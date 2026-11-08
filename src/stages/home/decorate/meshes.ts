@@ -257,15 +257,31 @@ function shelf(): Group {
 function tv(): Group {
   const g = new Group();
   const w = wood();
-  box(g, 1.55, 0.42, 0.42, w, 0, 0.25, 0, 0.02);
-  box(g, 1.4, 0.82, 0.08, painted('#1A2430'), 0, 0.92, -0.12);
+  const shell = painted('#20262E', 0.5);
+  const brass = painted('#C8A868', 0.4);
+  // low console with legs, top slab, drawer line and handle
+  box(g, 1.58, 0.32, 0.44, w, 0, 0.30, 0, 0.02);
+  box(g, 1.64, 0.045, 0.48, w, 0, 0.485, 0, 0.012);
+  box(g, 1.48, 0.016, 0.02, painted('#7A5A38'), 0, 0.30, 0.225);
+  box(g, 0.14, 0.018, 0.02, brass, 0, 0.30, 0.232);
+  [[-0.66, -0.15], [0.66, -0.15], [-0.66, 0.15], [0.66, 0.15]].forEach(([x, z]) => {
+    const leg = cyl(g, 0.024, 0.018, 0.14, w, x!, 0.07, z!, 6);
+    leg.rotation.x = 0;
+  });
+  // panel TV: bezel, recessed screen, stand and neck
+  box(g, 1.26, 0.74, 0.07, shell, 0, 0.90, -0.12, 0.01);
   const screen = new Mesh(
-    new BoxGeometry(1.28, 0.7, 0.03),
-    new MeshStandardMaterial({ color: '#243044', emissive: '#2A4868', emissiveIntensity: 0.22, roughness: 0.35 }),
+    new BoxGeometry(1.12, 0.60, 0.02),
+    new MeshStandardMaterial({ color: '#2E4258', emissive: '#4A6E9A', emissiveIntensity: 0.75, roughness: 0.28, metalness: 0.05 }),
   );
-  screen.position.set(0, 0.92, -0.07);
+  screen.position.set(0, 0.905, -0.075);
   g.add(screen);
-  g.add(contactShadow(0.88, 0.3));
+  box(g, 0.20, 0.03, 0.14, shell, 0, 0.52, -0.10);
+  box(g, 0.055, 0.10, 0.055, shell, 0, 0.55, -0.12);
+  // back plate + vents: the demo layout points the TV at the sofa, so the camera mostly sees this side
+  box(g, 1.20, 0.68, 0.012, painted('#39424C', 0.62), 0, 0.90, -0.158);
+  for (let i = 0; i < 5; i++) box(g, 0.5, 0.012, 0.004, painted('#2A323A', 0.7), 0, 0.72 + i * 0.045, -0.166);
+  g.add(contactShadow(0.9, 0.32));
   return g;
 }
 
@@ -283,11 +299,23 @@ function lamp(): Group {
 function wardrobe(): Group {
   const g = new Group();
   const w = wood();
-  box(g, 1.1, 1.7, 0.5, w, 0, 0.85, 0, 0.02);
-  box(g, 0.02, 1.5, 0.02, painted('#D8B878'), 0, 0.88, 0.26);
-  cyl(g, 0.025, 0.025, 0.04, painted('#E2BE73'), -0.18, 0.85, 0.26, 8);
-  cyl(g, 0.025, 0.025, 0.04, painted('#E2BE73'), 0.18, 0.85, 0.26, 8);
-  g.add(contactShadow(0.58, 0.3));
+  const pel = wood();
+  const brass = painted('#D8B878', 0.42);
+  // carcass + cornice + plinth, so the silhouette is a piece of furniture rather than a slab
+  box(g, 1.14, 1.62, 0.54, w, 0, 0.92, 0, 0.015);
+  box(g, 1.26, 0.07, 0.60, pel, 0, 1.755, 0, 0.02);
+  box(g, 1.22, 0.05, 0.58, painted('#B08A5E'), 0, 0.815, 0);
+  box(g, 1.18, 0.06, 0.56, painted('#8A6440'), 0, 0.09, 0);
+  [[-0.5, -0.2], [0.5, -0.2], [-0.5, 0.2], [0.5, 0.2]].forEach(([x, z]) => cyl(g, 0.032, 0.026, 0.09, pel, x!, 0.045, z!, 6));
+  // two doors: face, inset panel, shadow gap, brass knob
+  for (const sx of [-0.288, 0.288]) {
+    box(g, 0.545, 1.34, 0.025, pel, sx, 0.94, 0.272, 0.01);
+    box(g, 0.40, 1.10, 0.012, painted('#C9A87C'), sx, 0.94, 0.292, 0.008);
+    const k = cyl(g, 0.02, 0.02, 0.055, brass, sx + (sx < 0 ? 0.2 : -0.2), 0.94, 0.305, 8);
+    k.rotation.x = Math.PI / 2;
+  }
+  box(g, 0.012, 1.36, 0.02, painted('#6E4E30'), 0, 0.94, 0.286);
+  g.add(contactShadow(0.64, 0.32));
   return g;
 }
 

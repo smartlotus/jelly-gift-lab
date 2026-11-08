@@ -19,8 +19,10 @@ html[lang="en"] .hm-line, html[lang="en"] .hm-finale { font-family: var(--displa
 .hm-tools { position: fixed; z-index: 32; left: calc(14px + var(--sal)); right: calc(14px + var(--sar));
   bottom: calc(72px + var(--sab)); display: none; justify-content: center; gap: 16px; align-items: center; pointer-events: none; }
 body.hm-decorating .hm-tools { display: flex; }
-.hm-tools button { pointer-events: auto; min-height: 44px; padding: 8px 14px; letter-spacing: .16em; font-size: 12px;
-  border-bottom: 1px solid rgba(42,34,32,.35); color: rgba(42,34,32,.72); }
+.hm-tools button { pointer-events: auto; min-height: 44px; padding: 9px 18px; letter-spacing: .16em; font-size: 12px;
+  border: 0; border-radius: 999px; color: rgba(42,34,32,.82); background: rgba(255,250,244,.88);
+  box-shadow: 0 1px 0 rgba(255,255,255,.5) inset; }
+.hm-tools button:active { background: #fff; }
 .hm-tools button.primary { background: #2E2A2B; color: #f6efe8; border: 0; border-radius: 999px; padding: 10px 22px; letter-spacing: .2em; }
 .hm-tools button:disabled { opacity: .35; }
 

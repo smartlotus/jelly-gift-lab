@@ -62,6 +62,19 @@ coop → flower → mushroom → home, AR back to shop, `?at=lit` does not skip)
 follow in both woods (min gap 62.1 / 62.4 px, never parked, never overlapping), dollhouse place / collision / rotate /
 persist, and film independence (mean pixel difference **0.51** greet, **0** sofa — furniture never leaks into Module B).
 
+### Second pass (same day): discovery walk + dollhouse furniture
+
+- `/home/` discovery walk (`src/stages/home/approach.ts`) keeps the pixel pair (16² at 1.2×, soft contact shadows,
+  ground line raised to `h − 0.205 h`). The painted 79×52 sheets were tried first and rejected with evidence: on this
+  scene's ~320 px logical canvas they either tower over the cottage door (`home-approach2` attempt) or, shrunk to door
+  height, lose their faces entirely. The plate is painted; the pets stay in the site's pixel idiom, on the path.
+- `decorate/meshes.ts`: wardrobe rebuilt (cornice, plinth, four feet, two inset door panels, centre shadow gap, brass
+  knobs) and the TV rebuilt (console with legs, top slab, drawer line and handle, bezel, recessed lit screen, stand,
+  ventilated back plate — the demo layout points the TV at the sofa, so the camera mostly sees that back).
+- `home/style.css`: undo / reset / save are now separate light pills; as bare underlined text they disappeared against
+  dark furniture.
+- `catalog.ts` demo layout intentionally untouched. Weakest remaining piece is the bed (a pink quilt on a wooden tray).
+
 ### Still open after this pass
 
 - ~~Sea bridge objects dissolve through a bayer checker~~ — **changed in the v03n pass**: `src/stages/sea/bridges.ts` now
