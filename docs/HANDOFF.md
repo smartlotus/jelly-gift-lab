@@ -1,6 +1,8 @@
 # HANDOFF · 交接文档（任何 AI / 开发者从这里接手）
 
-> **Story edition (`smartlotus/jelly-gift-story`), now public.** Live Pages: [https://smartlotus.github.io/jelly-gift-story/](https://smartlotus.github.io/jelly-gift-story/). Source `main` at the publish commit includes motion fix `0461d90`; Pages `gh-pages` deploy `d48cda3` (`Deploy story edition (0461d90)`).
+> **Story edition (`smartlotus/jelly-gift-story`), now public.** Live Pages: [https://smartlotus.github.io/jelly-gift-story/](https://smartlotus.github.io/jelly-gift-story/).
+>
+> Delivered source is tag `v03l` = `ef2405b635d532cd219914812f7681f523640be7` (merge of [PR #2](https://github.com/smartlotus/jelly-gift-story/pull/2), load art through `asset()`). That sits on tag `v03k` = `1fd78f9801a8af7e4db8cf15c99683742a07a665` (merge of [PR #1](https://github.com/smartlotus/jelly-gift-story/pull/1), art rebuild + owl facing, tip `5cb39cc`). Pages `gh-pages` `de208c3e903f6397f8ccb869680ae1421d28488f` (`Deploy story edition (ef2405b)`), non-force from `4f5dbed`. The earlier v03k Pages deploy `4f5dbed` (`Deploy story edition (1fd78f9)`) served JS but requested `/art/` from the domain root, so flower/mushroom/home fell back to procedural plates — do not treat that deploy as the delivered art. Live shots: [`review/publish/live-*-desktop.png`](../review/publish/) and `live-flower-phone.png`.
 >
 > The older stable gift (`smartlotus/jelly-gift-site` / Pages `https://smartlotus.github.io/jelly-gift/`, last deploy `jelly-gift@1c2d5de` from `jelly-gift-site@52caa2d` / v03i) must stay untouched. Do not merge this repository into that default branch and do not run this deploy script against `jelly-gift.git`.
 >
@@ -28,7 +30,15 @@ Story-only edition on `v03k-art-rebuild`, meant to merge to `main` with a merge 
 
 **Do not.** Touch `/jelly-gift` or `smartlotus/jelly-gift` / `jelly-gift-site` (stable Pages `https://smartlotus.github.io/jelly-gift/`, last deploy `1c2d5de`). Do not merge this work into that default branch or old source PR 7. Do not commit original private photos or raw generation dumps (`public/art/plates/*-far.jpg`, cadence folders). Repo is already public — do not change visibility.
 
-**Publish hashes** are recorded in the banner above after the deploy lands.
+**Publish hashes (America/Los_Angeles, evening of 2026-11-07).**
+- PR #1 merge commit `1fd78f9` — tag `v03k` (annotated tag object also exists)
+- Facing commit `5cb39cc` “Face the owl the way it is flying.”
+- PR #2 merge commit `ef2405b` — tag `v03l` (next unused after `v03k`; this is what Pages runs)
+- Pages `de208c3` “Deploy story edition (ef2405b)”; previous broken-path deploy was `4f5dbed` “Deploy story edition (1fd78f9)”
+- Live owl-0 `2597cf10496eca6ec96e0b31fef70605`, owl-1 `7f4ce363ac499700994870ce0c6dcfdf`, owl-2 `fc576614284e2a0d7ac9bc54dd4e25e2`, owl-3 `bcbfdfcdfd9d1335a81493d3ac2644b2` (match the right-facing sheets)
+- Live JS includes `blit-DeurgQEp.js`, `flower-BY4QCCu2.js`, `engine-oLPwZFQB.js`, `home-CQlTxq8K.js`
+- Old stable `smartlotus/jelly-gift` main remains `1c2d5de`; old source PR 7 left open and untouched
+
 
 **Pages path follow-up (`v03l`).** First `v03k` deploy (`gh-pages` `4f5dbed`, source `1fd78f9`) served JS, but `preloadArt()` requested `/art/...` from the domain root. Those URLs 404 under `https://smartlotus.github.io/jelly-gift-story/`, so flower/mushroom/home fell back to the old procedural plates (pink sky, block furniture). `src/art/loader.ts` now resolves those files with `asset()` (`../art/...` from a stage page). That is required for the rebuilt art to appear on Pages; it does not change animation or facing.
 
