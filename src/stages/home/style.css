@@ -96,3 +96,23 @@ body.hm-decorating .pixel-host canvas { visibility: hidden; }
   border-bottom: 1px solid rgba(42,34,32,.3); display: none; }
 body.hm-on-finale .hm-edit { display: inline-block; }
 body.hm-decorating .hm-edit { display: none; }
+
+
+/* ── 短片下线时的静态结尾（main.ts: FILM_ENABLED = false） ─────────────────────────
+   两句受保护的原话居中先后出现，替掉原来的底部字幕条；没有影片就不该有「再看一遍」。 */
+body.hm-no-film .hm-line,
+body.hm-no-film .hm-finale {
+  left: 50%; right: auto; top: 50%; bottom: auto;
+  width: max-content; max-width: min(86vw, 30em);
+  transform: translate(-50%, -50%);
+  background: none; padding: 0; border-radius: 0;
+  color: #43332A; text-shadow: none;
+  font-size: clamp(16px, 2.5vw, 22px); letter-spacing: .12em; line-height: 1.9;
+}
+body.hm-no-film .hm-line.on,
+body.hm-no-film .hm-finale.on { transform: translate(-50%, -50%); opacity: 1; }
+body.hm-no-film .hm-finale { transition: opacity 2.2s var(--ease); }
+body.hm-no-film .hm-replay { display: none !important; }
+body.hm-no-film .hm-again { color: rgba(66,52,40,.55); }
+body.hm-no-film .hm-edit { color: rgba(66,52,40,.55); }
+body.hm-no-film .hm-skip { display: none; }

@@ -361,8 +361,12 @@ async function homeSpatial(browser) {
     { kind: 'tv', x: 0.1, z: -2.3, yaw: 180 },
     { kind: 'lamp', x: 2.8, z: 1.8, yaw: 0 },
   ];
-  await filmAt(emptyLayout, 'empty');
-  await filmAt(clutter, 'clutter');
+  // main.ts sets FILM_ENABLED = false while the film is parked; skip the independence checks then
+  const filmOn = await page.evaluate(() => !document.body.classList.contains('hm-no-film'));
+  if (filmOn) {
+    await filmAt(emptyLayout, 'empty');
+    await filmAt(clutter, 'clutter');
+  } else log('film disabled (FILM_ENABLED=false) — independence checks skipped', true, {});
 
   const py = `
 from PIL import Image, ImageChops, ImageStat
@@ -389,8 +393,10 @@ print(json.dumps(out))
   const greetMean = diffJson['film-greet-diff.png']?.mean ?? 999;
   const sofaMean = diffJson['film-sofa-diff.png']?.mean ?? 999;
   // tiny differences from seeded particles / timing are OK; furniture leak would be large
-  log('film greet identical across empty vs cluttered save', greetMean < 6, { mean: greetMean });
-  log('film sofa identical across empty vs cluttered save', sofaMean < 6, { mean: sofaMean });
+  if (filmOn) {
+    log('film greet identical across empty vs cluttered save', greetMean < 6, { mean: greetMean });
+    log('film sofa identical across empty vs cluttered save', sofaMean < 6, { mean: sofaMean });
+  }
 
   // save -> film -> edit returns layout
   await page.evaluate((items) => {
@@ -403,7 +409,7 @@ print(json.dumps(out))
   await page.evaluate(() => window.__homeRoom?.save());
   await page.waitForTimeout(400);
   const phaseAfterSave = await page.evaluate(() => window.__home?.phase?.());
-  log('save leaves editor into transform/film', phaseAfterSave === 'transform' || phaseAfterSave === 'walk' || phaseAfterSave === 'montage' || phaseAfterSave === 'greet', { phaseAfterSave, beforeSave });
+  log('save leaves editor into transform/film/end', ['transform', 'walk', 'montage', 'greet', 'end'].includes(phaseAfterSave), { phaseAfterSave, beforeSave });
   // skip into film if still transforming
   for (let i = 0; i < 4; i++) {
     await page.evaluate(() => window.__home?.skip?.());

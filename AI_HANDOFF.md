@@ -85,6 +85,22 @@ persist, and film independence (mean pixel difference **0.51** greet, **0** sofa
 - the editor's 撤回 / 重置 buttons are disabled (and dimmed) when there is nothing to undo or clear, so an empty room no
   longer offers dead controls.
 
+### v03p — the film is parked (2026-11-08, parent request)
+
+Parent's brief: *「现在先暂时删除结尾的短片…相当于我之后把短片做完之后再加上短片，同时现在做好的短片也要进行上传 github」*.
+
+- `src/stages/home/main.ts` now opens with **`export const FILM_ENABLED = false;`**. With it false the journey ends on a
+  static end card instead of the film: the two protected lines appear in sequence, centred —
+  「也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。」then「我们已经有属于自己的两百天了…我的小臭猫。」—
+  with 继续布置 / 从头再来 at the bottom and **no 再看一遍** (nothing to replay), no 跳过.
+- The film itself is untouched and still in the tree (`src/stages/home/film.ts`, `review/v03o-film/`). Re-enabling is one
+  line: set `FILM_ENABLED = true`. `?at=walk|greet|sofa|sleep|snow|dawn|finale` then play the film again; while parked
+  those params land on the end card so old links do not 404 or blank.
+- The film is also bookmarked on its own branch **`v03o-film`** (head `b8d9359`, the last commit with the film wired in)
+  so it can be diffed or restored without touching the story branch.
+- `body.hm-no-film` is set while parked; `tools/v03m-verify.mjs` (and the local puppeteer port) use it to skip the two
+  film-independence checks and to accept `end` as a valid exit phase, so the suite stays honest instead of failing.
+
 ### v03o — Module B rebuilt as a drawn film (2026-11-08, parent request)
 
 Parent's brief: *「不要使用这个像素风格的过场动画了…现在这人物和背景都混在一起了效果很差」*. The old film laid painted

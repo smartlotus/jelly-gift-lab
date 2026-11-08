@@ -1,3 +1,7 @@
+> **PAUSED (v03p, 2026-11-08)**: the film is switched off in the site (`FILM_ENABLED = false` in
+> `src/stages/home/main.ts`). The journey ends on a static card with the two protected lines. This branch of work
+> is bookmarked as `v03o-film`. Set the flag back to `true` to restore everything below.
+
 # v03o — the future film, rebuilt (2026-11-08)
 
 Not deployed. Branch `v03m-spatial-home`.
