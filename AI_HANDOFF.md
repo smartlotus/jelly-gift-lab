@@ -85,6 +85,33 @@ persist, and film independence (mean pixel difference **0.51** greet, **0** sofa
 - the editor's 撤回 / 重置 buttons are disabled (and dimmed) when there is nothing to undo or clear, so an empty room no
   longer offers dead controls.
 
+### v03q — the ending now plays the 200-day film (2026-11-08, parent request)
+
+Parent's brief: *「结尾就用这支 200 天视频，重新做好相关的部分之间的衔接」* — i.e. the `/sky/` 200-day MP4 (`public/media/
+anniv-200.mp4`, 67.7 s, 1280×720, B&W hand-drawn) is the ending of `/home/`, and the seams around it had to be rebuilt.
+
+The ending chain is now:
+
+1. **保存布局** → the dollhouse is torn down; the same warm page stays on screen with the centred line
+   「也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。」
+2. at ~1.05 s the film starts **under** that page and fades in over 1.4 s (the caption leaves at 2.0 s), so there is no cut:
+   cream → moving picture of the same paper colour.
+3. the film plays full-bleed (`object-fit: contain` on a paper backdrop, so a phone letterbox still reads as a page);
+   「跳过」 becomes a dark pill over the white frame; the global sound switch unmutes it (it starts muted so autoplay is
+   always allowed; if a browser still refuses, a 「轻触播放」 button appears).
+4. on `ended` → the film fades out (0.9 s) and the end card takes over: the closing line
+   「我们已经有属于自己的两百天了…我的小臭猫。」in centred paper typography, with **继续布置 / 从头再来**.
+5. **再看一遍** replays the film (it recreates the element, so it always starts from frame 1).
+
+Other changes in this pass:
+
+- `tools/serve.mjs` gained **Range support** (206 + `accept-ranges`). Without it Chrome reports `seekable.end = 0` for the
+  MP4, so the film could not be scrubbed or resumed in local preview. GitHub Pages already supports ranges.
+- the code-drawn Module B is still parked (`FILM_ENABLED = false`) and still bookmarked on `v03o-film`; flip that flag if
+  you ever want the six-shot version back instead of the MP4.
+- verification harnesses now key the film-independence checks on `body.hm-code-film` (only present when the code film is
+  wired in), so the suite says "skipped" instead of testing a film that is not in the flow.
+
 ### v03p — the film is parked (2026-11-08, parent request)
 
 Parent's brief: *「现在先暂时删除结尾的短片…相当于我之后把短片做完之后再加上短片，同时现在做好的短片也要进行上传 github」*.

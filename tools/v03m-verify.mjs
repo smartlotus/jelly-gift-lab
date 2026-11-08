@@ -362,7 +362,9 @@ async function homeSpatial(browser) {
     { kind: 'lamp', x: 2.8, z: 1.8, yaw: 0 },
   ];
   // main.ts sets FILM_ENABLED = false while the film is parked; skip the independence checks then
-  const filmOn = await page.evaluate(() => !document.body.classList.contains('hm-no-film'));
+  // the code-drawn Module B is parked (FILM_ENABLED = false); the ending is the 200-day video now,
+  // so the film-independence checks only make sense when the code film is wired in
+  const filmOn = await page.evaluate(() => document.body.classList.contains('hm-code-film'));
   if (filmOn) {
     await filmAt(emptyLayout, 'empty');
     await filmAt(clutter, 'clutter');
