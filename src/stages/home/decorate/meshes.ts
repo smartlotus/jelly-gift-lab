@@ -25,16 +25,23 @@ function canvasTex(draw: (g: CanvasRenderingContext2D, n: number) => void, n = 3
 }
 
 function woodMap() {
+  // fine, low-contrast grain: soft vertical tone drift plus a few hairline pores.
+  // (The first pass used a 3-band sine at high contrast, which read as a barcode on tall pieces.)
   return canvasTex((g, n) => {
     for (let x = 0; x < n; x++) {
       const u = x / n;
-      const tone = 168 + Math.sin(u * 18) * 14 + (x % 7 === 0 ? -18 : 0);
-      g.fillStyle = `rgb(${tone | 0},${(tone * 0.78) | 0},${(tone * 0.52) | 0})`;
+      const tone = 172 + Math.sin(u * 9.4) * 5 + Math.sin(u * 31.7) * 2.5;
+      g.fillStyle = `rgb(${tone | 0},${(tone * 0.79) | 0},${(tone * 0.55) | 0})`;
       g.fillRect(x, 0, 1, n);
     }
-    g.fillStyle = 'rgba(90,56,28,0.16)';
-    for (let y = 3; y < n; y += 8) g.fillRect(0, y, n, 1);
-  }, 32, 4, 4);
+    for (let i = 0; i < 26; i++) {
+      const x = (i * 11) % n, y = (i * 7) % n, h = 2 + (i % 5);
+      g.fillStyle = i % 3 ? 'rgba(120,80,44,0.10)' : 'rgba(255,232,196,0.10)';
+      g.fillRect(x, y, 1, h);
+    }
+    g.fillStyle = 'rgba(104,68,36,0.10)';
+    for (let y = 0; y < n; y += 11) g.fillRect(0, y, n, 1);
+  }, 32, 2, 2);
 }
 
 function plasterMap() {

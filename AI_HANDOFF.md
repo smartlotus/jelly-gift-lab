@@ -1,6 +1,7 @@
 # AI handoff — story edition WIP (read this first)
 
 **Last checkpoint:** Saturday 7 November 2026, late evening, America/Los_Angeles (this file updates with each pushed increment).
+**Follow-up pass:** Sunday 8 November 2026 — pig companion, caption clearance, cottage, dollhouse polish (see §"v03n pass").
 
 This file is the durable takeover note. It describes **what is on branch `v03m-spatial-home` right now**, not what the live Pages site runs.
 
@@ -16,6 +17,58 @@ This file is the durable takeover note. It describes **what is on branch `v03m-s
 | Old stable gift | **Do not touch.** `smartlotus/jelly-gift` / `jelly-gift-site`, live https://smartlotus.github.io/jelly-gift/, last deploy `1c2d5de`. Do not merge this work into that default branch. Old source PR 7 stays open and untouched. |
 
 After each push, `git rev-parse origin/v03m-spatial-home` is the source of truth for the SHA.
+
+---
+
+## v03n pass — pig companion, caption clearance, cottage, dollhouse polish (2026-11-08)
+
+Still **not deployed**; nothing merged to `main`. Everything below is on `v03m-spatial-home` only.
+
+### Painted pig companion (flower + mushroom woods)
+
+- `public/art/fauna/pig-0..3.png` — a four-frame walk cycle drawn by the image generator on flat magenta, keyed at the
+  block grid with alpha-weighted colour (no magenta fringe), given a 1 px warm-brown rim, quarter-reduced to **46×41**
+  and foot-aligned on a shared baseline. She is deliberately smaller than the 79×52 painted cat.
+- `src/shared/pixel/pigpaint.ts` picks frames exactly like `cat32Frame`; `src/shared/pixel/pig.ts` still backs the 16²
+  pixel stages (meadow, shop, coop, home transform), so nothing there changed.
+- `src/art/loader.ts` loads `art/fauna.pig` (4 walk frames).
+- The follow distance now scales with the painted frames (`pigW/2 + catW/2 − 6`, ≈57 px target; the easing settles at
+  ≈62–68 px between centres while walking), the left world edge keeps room behind her so the pig can never be squeezed
+  into her body, and `seek()` uses the same limit. `window.__wander` also exposes `gapPx` / `pigW`.
+
+### Caption vs key hint
+
+`tell()` now adds `gift-telling` to `<body>`; `.fl-hint` / `.mu-hint` lift 52 px while a line is spoken. The landscape
+caption bar used to clip the lower half of 「← → 漫步」.
+
+### Mushroom grove cottage
+
+New `src/stages/wander/house.ts` (replaces the flat rectangle overlay in `engine.ts`): real gable with the eaves on the
+wall top, staggered shingle rows, chimney seated on the right slope with drifting smoke, timber frame, stone plinth,
+two lit windows with curtains, porch lamp, irregular flower clumps and a soft contact shadow.
+
+### Dollhouse editor (Module A)
+
+- the per-piece toolbar (`rotate` / `remove`) is clamped inside the viewport and above the save row — it used to land
+  on top of 「保存布局」, making both unreadable.
+- wood texture softened: fine low-contrast grain instead of the high-contrast bands that read as a barcode on tall pieces.
+
+### Verification on this machine
+
+`tools/v03m-verify.mjs` imports Playwright from a Linux path, which does not exist here, so the same checks were ported
+to puppeteer-core + the local Chrome (`.setup/verify.mjs`, not committed). Result: **40/40 PASS**, WebKit smoke replaced
+by a Chrome mobile-viewport boot of every stage. Covered: the full hop chain (meadow → shop → night → jelly → sea → sky →
+coop → flower → mushroom → home, AR back to shop, `?at=lit` does not skip), every stage booting with no page errors, pig
+follow in both woods (min gap 62.1 / 62.4 px, never parked, never overlapping), dollhouse place / collision / rotate /
+persist, and film independence (mean pixel difference **0.51** greet, **0** sofa — furniture never leaks into Module B).
+
+### Still open after this pass
+
+- The sea bridge objects dissolve through a bayer checker; at k≈0.5 the two palettes interleave and read as static for a
+  few frames. A wipe or a shrink/grow swap would read cleaner.
+- Dollhouse furniture is still hand-built boxes with better textures — not modelled pieces. The wardrobe/TV are the
+  weakest silhouettes.
+- No WebKit run on this machine (Chrome only), so the iOS-specific paths rely on the earlier WebKit evidence.
 
 ---
 
@@ -129,10 +182,10 @@ Honest aesthetic caveat: the furniture is hand-built from boxes/textures in a pi
 
 - **Not deployed.** Live Pages are still v03l / the old published order (meadow → flower → mushroom → shop → … → coop → home).
 - No merge to `main`.
-- Pig companion uses the existing procedural 16×16 walk cycle drawn at scale 2, not painted fauna sheets (there are no `pig-*.png` walk plates). It reads smaller and more “sprite-y” next to the painted 79×52 cat.
+- ~~Pig companion uses the procedural 16×16 walk cycle~~ — **fixed in the v03n pass**: she now uses painted 46×41 frames (`public/art/fauna/pig-0..3.png`). The 16² sheet still drives the pure-pixel stages (meadow/shop/coop/home transform), where it matches the art there.
 - On a sudden reverse, the pig **waits** on its current side until the cat passes, then falls in behind (so it never walks through her). A short left-walk strip taken immediately after a right-walk can still show the pig on the old side.
 - After-strips include an iris-pink first frame on some captures. Videos are short (~1–2 s) assembled from those frames, not a long handheld phone recording.
-- Mushroom cottage is a readable pixel house overlaid on the painted grove; it is simpler than the plate around it.
+- ~~Mushroom cottage is a simple overlay~~ — **redrawn in the v03n pass** (`src/stages/wander/house.ts`); it is drawn, not painted, so it is still flatter than the plate's foliage, but the gable, shingles, chimney and lit windows now read as one object.
 - Spatial drag video was not recorded as a separate clip (a dragged screenshot exists: `review/v03m/home-dragged-desktop.png`). Rotate evidence is `home-rotated-desktop.png`.
 - `tools/v03m-gate.mjs` is obsolete (it tested the superseded no-night route). Use `tools/v03m-verify.mjs`.
 - Do not commit `public/art/plates/*-far.jpg`, `review/v03n/cadence/`, or secrets. Intermediate `review/v03m/frames/` PNGs are local capture leftovers — prefer the stitched strips and short webms.

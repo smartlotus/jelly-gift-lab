@@ -279,8 +279,12 @@ export function createDecorate(host: HTMLElement): DecorateApi {
       const r = renderer.domElement.getBoundingClientRect();
       const sx = r.left + (v.x * 0.5 + 0.5) * r.width;
       const sy = r.top + (-v.y * 0.5 + 0.5) * r.height;
-      sel.style.left = `${Math.round(sx - 70)}px`;
-      sel.style.top = `${Math.round(sy - 48)}px`;
+      // keep the piece toolbar clear of the save row and the screen edges
+      const halfW = 74;
+      const left = Math.min(Math.max(12, sx - halfW), innerWidth - halfW * 2 - 12);
+      const top = Math.min(Math.max(64, sy - 48), innerHeight - 152);
+      sel.style.left = `${Math.round(left)}px`;
+      sel.style.top = `${Math.round(top)}px`;
       const ext = footerOf(p.kind, p.yaw);
       marker.visible = true;
       marker.position.set(p.x, 0, p.z);

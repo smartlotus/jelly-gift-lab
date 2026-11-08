@@ -97,7 +97,7 @@ export async function preloadArt(): Promise<ArtKit> {
   if (art.ready) return art;
   const [flowers, mushrooms, people, furniture, interior, cottage, cottageDoor, snow, dawn, flowerSea, mushroomSea, portraits, poseSheet,
     flowerA, flowerB, flowerG, flowerP, flowerWide, mushA, mushB, mushG, mushP, mushWide,
-    catW, deerW, lambW, collieW, kitW, owlW,
+    catW, deerW, lambW, collieW, kitW, owlW, pigW,
     deerS, lambS, collieS, kitS, owlS, owlP, grey] = await Promise.all([
     Promise.all(FLOWER_FILES.map(take)),
     Promise.all(MUSH_FILES.map(take)),
@@ -128,6 +128,7 @@ export async function preloadArt(): Promise<ArtKit> {
     loadWalk('collie', 4),
     loadWalk('kitten', 4),
     loadWalk('owl', 4),
+    loadWalk('pig', 4),
     take('/art/fauna/deer-stand.png'),
     take('/art/fauna/lamb-stand.png'),
     take('/art/fauna/collie-stand.png'),
@@ -192,6 +193,8 @@ export async function preloadArt(): Promise<ArtKit> {
     art.fauna.owl = fauna(flap, owlP ?? owlS, owlP ?? owlS, flap);
   }
   if (grey) art.fauna.greykit = fauna([grey], grey, grey);
+  // Painted pig companion (flower / mushroom woods). Same idiom as the cat, so the pair reads as one drawing.
+  if (pigW.length) art.fauna.pig = fauna(pigW, pigW[0], pigW[0]);
 
   art.ready = true;
   return art;
