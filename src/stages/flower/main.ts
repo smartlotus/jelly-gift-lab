@@ -3,6 +3,7 @@ import { mountChrome } from '../../shared/chrome';
 import { markReached, go, prefetchNext, reducedMotion } from '../../shared/flow';
 import { irisIn, irisOut } from '../../shared/transition';
 import { startWander } from '../wander/engine';
+import { preloadArt } from '../../art/loader';
 import { startFlowerAudio, leaveFlower, rustle } from './sfx';
 import { tell } from '../../shared/story';
 import * as dict from './dict';
@@ -14,6 +15,7 @@ const coarse = matchMedia('(pointer: coarse)').matches;
 const hint = document.createElement('p'); hint.className = 'fl-hint'; hint.dataset.i18n = coarse ? 'flower.hint.touch' : 'flower.hint.keys';
 document.body.appendChild(hint); apply();
 startFlowerAudio();
+await preloadArt();
 let left = false, hinted = false;
 const wood = startWander({
   host, theme: 'flower',

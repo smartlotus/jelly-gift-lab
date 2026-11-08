@@ -4,6 +4,8 @@ import { t, apply } from '../../shared/i18n';
 import { KINDS, sprite, thumb, kindById, type Kind } from './furniture';
 import { loadLayout, persistLayout, type SavedItem } from './save';
 import { placed, saved, wood } from './sfx';
+import { art } from '../../art/loader';
+import { alignPlateFloor } from '../../art/blit';
 
 
 function drawWoodFloor(g: CanvasRenderingContext2D, w: number, h: number, floor: number) {
@@ -29,6 +31,35 @@ function drawWoodFloor(g: CanvasRenderingContext2D, w: number, h: number, floor:
   }
   g.fillStyle = '#A88860';
   g.fillRect(0, floor, w, 2);
+}
+
+function drawArchitecture(g: CanvasRenderingContext2D, w: number, h: number, floor: number) {
+  const plate = art.plates.interior;
+  if (plate) {
+    // fill any letterbox with plaster / floor tones pulled from the plate
+    g.fillStyle = '#E6D4B8';
+    g.fillRect(0, 0, w, floor);
+    g.fillStyle = '#C4A06A';
+    g.fillRect(0, floor, w, Math.max(1, h - floor));
+    alignPlateFloor(g, plate, w, floor, 0.72);
+    return;
+  }
+  g.fillStyle = '#E8D2B4'; g.fillRect(0, 0, w, floor);
+  // plaster grain
+  g.fillStyle = 'rgba(180,150,120,0.08)';
+  for (let y = 8; y < floor - 6; y += 5) for (let x = (y % 10); x < w; x += 9) g.fillRect(x, y, 2, 1);
+  g.fillStyle = '#6A4A32'; g.fillRect(0, 0, w, 8);
+  g.fillStyle = '#8A6848'; g.fillRect(0, 8, w, 3);
+  g.fillStyle = '#5A3E2A'; g.fillRect(0, floor - 5, w, 5);
+  drawWoodFloor(g, w, h, floor);
+  const wx = (w * 0.56) | 0, wy = 12, ww = Math.min(86, (w * 0.28) | 0), wh = Math.min(56, Math.round(floor * 0.42));
+  g.fillStyle = 'rgba(255,200,120,0.16)';
+  g.beginPath(); g.moveTo(wx, wy + wh); g.lineTo(wx + ww, wy + wh); g.lineTo(wx + ww + 40, floor); g.lineTo(wx - 12, floor); g.fill();
+  g.fillStyle = '#6A5848'; g.fillRect(wx - 4, wy - 4, ww + 8, wh + 8);
+  g.fillStyle = '#7A9EC0'; g.fillRect(wx, wy, ww, wh);
+  g.fillStyle = '#F0B070'; g.fillRect(wx, wy, (ww / 2) | 0, wh);
+  g.fillStyle = '#6A5848'; g.fillRect(wx + ((ww / 2) | 0) - 1, wy, 2, wh); g.fillRect(wx, wy + ((wh / 2) | 0) - 1, ww, 2);
+  g.fillStyle = '#E8D8C0'; g.fillRect(wx - 10, wy - 2, 10, wh + 14); g.fillRect(wx + ww, wy - 2, 10, wh + 14);
 }
 
 export interface Placed { id: number; kind: string; x: number; y: number; flip: boolean }
@@ -90,9 +121,9 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
     sel.classList.add('on');
   };
 
-  const FURN_SCALE = 1.55;
+  const FURN_SCALE = 0.82;
   const bounds = (w: number, h: number) => {
-    const floor = Math.round(h * 0.58);
+    const floor = Math.round(h * 0.72);
     const wall = Math.round(h * 0.22);
     const left = 18, right = w - 18;
     return { floor, wall, left, right, top: 16, scale: FURN_SCALE };
@@ -203,22 +234,7 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
 
   const drawRoom = (g: CanvasRenderingContext2D, w: number, h: number) => {
     const b = bounds(w, h);
-    g.fillStyle = '#EEDCC6'; g.fillRect(0, 0, w, b.floor);
-    g.fillStyle = '#E2C8A8'; g.fillRect(0, b.floor - 22, w, 22);
-    g.fillStyle = '#C4A06A'; g.fillRect(0, b.floor - 3, w, 3);
-    drawWoodFloor(g, w, h, b.floor);
-    // window + warm shaft
-    const wx = (w * 0.58) | 0, wy = 10, ww = Math.min(78, (w * 0.26) | 0), wh = Math.min(48, Math.round(b.floor * 0.42));
-    g.fillStyle = 'rgba(255,214,140,0.16)';
-    g.beginPath(); g.moveTo(wx, wy + wh); g.lineTo(wx + ww, wy + wh); g.lineTo(wx + ww + 36, b.floor); g.lineTo(wx - 10, b.floor); g.fill();
-    g.fillStyle = '#6A5848'; g.fillRect(wx - 3, wy - 3, ww + 6, wh + 6);
-    g.fillStyle = '#9EC4E0'; g.fillRect(wx, wy, ww, wh);
-    g.fillStyle = '#FFE6B0'; g.fillRect(wx, wy, (ww / 2) | 0, wh);
-    g.fillStyle = '#E8F0C8'; g.fillRect(wx, wy + wh - 10, ww, 10);
-    g.fillStyle = '#6A5848'; g.fillRect(wx + ((ww / 2) | 0) - 1, wy, 2, wh); g.fillRect(wx, wy + ((wh / 2) | 0) - 1, ww, 2);
-    g.fillStyle = '#E8B0C0'; g.fillRect(wx - 6, wy, 8, wh + 10); g.fillRect(wx + ww - 2, wy, 8, wh + 10);
-    g.fillStyle = '#C4A06A'; g.fillRect(0, 0, w, 6);
-    g.fillStyle = '#2E2A2B'; g.fillRect(0, 6, w, 1);
+    drawArchitecture(g, w, h, b.floor);
   };
 
   const api: RoomApi = {
@@ -276,35 +292,24 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
 
 export function demoLayout(): SavedItem[] {
   return [
-    { kind: 'rug', x: 148, y: 8, flip: false },
-    { kind: 'sofa', x: 148, y: 16, flip: false },
-    { kind: 'coffee', x: 150, y: 4, flip: false },
-    { kind: 'lamp', x: 188, y: 4, flip: false },
-    { kind: 'tv', x: 58, y: 6, flip: false },
-    { kind: 'bed', x: 250, y: 12, flip: false },
-    { kind: 'roses', x: 204, y: 4, flip: false },
-    { kind: 'lisi', x: 96, y: 4, flip: false },
-    { kind: 'cattree', x: 28, y: 4, flip: false },
-    { kind: 'dogbed', x: 214, y: 2, flip: false },
+    { kind: 'rug', x: 148, y: 2, flip: false },
+    { kind: 'sofa', x: 150, y: 6, flip: false },
+    { kind: 'coffee', x: 150, y: 1, flip: false },
+    { kind: 'lamp', x: 198, y: 2, flip: false },
+    { kind: 'tv', x: 58, y: 2, flip: false },
+    { kind: 'bed', x: 248, y: 4, flip: false },
+    { kind: 'roses', x: 204, y: 2, flip: false },
+    { kind: 'lisi', x: 96, y: 2, flip: false },
+    { kind: 'cattree', x: 28, y: 2, flip: false },
+    { kind: 'dogbed', x: 210, y: 1, flip: false },
     { kind: 'frame', x: 96, y: 22, flip: false },
     { kind: 'lights', x: 160, y: 12, flip: false },
   ];
 }
 
 export function drawFurnished(g: CanvasRenderingContext2D, w: number, h: number, items: SavedItem[], scale = 1) {
-  const floor = Math.round(h * 0.62);
-  g.fillStyle = '#EEDCC6'; g.fillRect(0, 0, w, floor);
-  g.fillStyle = '#E2C8A8'; g.fillRect(0, floor - 22, w, 22);
-  drawWoodFloor(g, w, h, floor);
-  const wx = (w * 0.58) | 0, wy = 8, ww = Math.min(64, w * 0.24), wh = Math.min(40, h * 0.24);
-  g.fillStyle = 'rgba(255,214,140,0.18)';
-  g.beginPath(); g.moveTo(wx, wy + wh); g.lineTo(wx + ww, wy + wh); g.lineTo(wx + ww + 28, floor); g.lineTo(wx - 8, floor); g.fill();
-  g.fillStyle = '#6A5848'; g.fillRect(wx - 3, wy - 3, ww + 6, wh + 6);
-  g.fillStyle = '#BFD6E8'; g.fillRect(wx, wy, ww, wh);
-  g.fillStyle = '#FFE6B0'; g.fillRect(wx, wy, (ww / 2) | 0, wh);
-  g.fillStyle = '#E8F0C8'; g.fillRect(wx, wy + wh - 8, ww, 8);
-  g.fillStyle = '#6A5848'; g.fillRect(wx + (ww >> 1) - 1, wy, 2, wh); g.fillRect(wx, wy + (wh >> 1) - 1, ww, 2);
-  g.fillStyle = '#E8B0C0'; g.fillRect(wx - 5, wy, 7, wh + 8); g.fillRect(wx + ww - 2, wy, 7, wh + 8);
+  const floor = Math.round(h * 0.72);
+  drawArchitecture(g, w, h, floor);
   const list = items.length ? items : [
     { kind: 'rug', x: w * 0.48, y: 8, flip: false },
     { kind: 'sofa', x: w * 0.48, y: 16, flip: false },
@@ -313,7 +318,7 @@ export function drawFurnished(g: CanvasRenderingContext2D, w: number, h: number,
   ];
   const rank = (k?: string) => k === 'rug' ? 0 : k === 'furn' ? 1 : k === 'top' ? 2 : 3;
   const sorted = [...list].sort((a, b) => rank(kindById(a.kind)?.layer) - rank(kindById(b.kind)?.layer) || (b.y - a.y));
-  const sc = 1.55 * scale;
+  const sc = 0.82 * scale;
   for (const it of sorted) {
     const k = kindById(it.kind); if (!k) continue;
     const img = sprite(it.kind, it.flip);

@@ -1,6 +1,6 @@
 export const en = {
   'story.meadow.out': 'These petals seem to be asking us to keep walking.',
-  'story.flower.in': 'The lisianthus and the Dianas… as if they opened just for us.',
+  'story.flower.in': 'The 紫精灵 carnations and the Dianas… as if they opened just for us.',
   'story.flower.out': 'Something is beginning to glow deeper in the woods.',
   'story.mushroom.in': 'It’s gotten dark. The mushrooms are lighting the way, one by one.',
   'story.mushroom.out': 'There’s a light ahead. Your little shop.',

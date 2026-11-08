@@ -8,9 +8,11 @@ import { Camera } from '../../shared/pixel/camera';
 import { catSprites, catFrame } from '../../shared/pixel/cat';
 import { critterFrame, type CritterKind } from '../../shared/pixel/fauna';
 import { params, reducedMotion } from '../../shared/flow';
-import { bakeCluster, drawPetal, drawDianaRose, drawLisianthusBloom, type Cluster } from './blooms';
-import { bakeMushCluster, drawSpore, drawShroom, type MushCluster } from './shrooms';
+import { drawPetal, drawDianaRose, drawLisianthusBloom } from './blooms';
+import { drawSpore, drawShroom } from './shrooms';
 import { chime } from '../../shared/music';
+import { bakeFlowerSea, bakeMushroomSea, pathY, type Sea, type Prop as SeaProp } from './fields';
+import { stamp } from '../../art/blit';
 
 export type WoodTheme = 'flower' | 'mushroom';
 export interface WoodOpts {
@@ -121,37 +123,13 @@ export function startWander(opts: WoodOpts) {
   const screen = new PixelScreen({ host: opts.host, minW: 176, minH: 248, maxH: 640 });
   const ctx = screen.ctx;
   const catSp = catSprites();
-  const floorOf = (h: number) => h - Math.max(28, Math.round(h * 0.16));
+  const floorOf = (w: number, h: number) => h - Math.max(22, Math.round(h * (h > w ? 0.13 : 0.16)));
   const WORLD = WORLD_W;
   const EXIT_X = WORLD - 150;
 
-  const treesFar: { x: number; img: HTMLCanvasElement }[] = [];
-  const treesMid: { x: number; img: HTMLCanvasElement }[] = [];
-  const props: Prop[] = [];
-  const flowerSet: Cluster[] = [];
-  const mushSet: MushCluster[] = [];
-  if (theme === 'flower') {
-    for (let i = 0; i < 16; i++) flowerSet.push(bakeCluster(i % 2 === 0 ? 'diana' : 'lisi', 11 + i * 17, 1.7 + (i % 5 === 0 ? 0.4 : 0)));
-  } else {
-    for (let i = 0; i < 16; i++) mushSet.push(bakeMushCluster(23 + i * 19, 1.55 + (i % 4 === 0 ? 0.3 : 0)));
-  }
-  for (let i = 0; i < 22; i++) treesFar.push({ x: 24 + i * 155 + (i * 37) % 60, img: bakeTree(T, 260 + (i % 5) * 24, 72 + (i % 3) * 10, 50 + i * 9, theme === 'mushroom') });
-  for (let i = 0; i < 26; i++) treesMid.push({ x: 8 + i * 132 + (i * 19) % 44, img: bakeTree(T, 390 + (i % 4) * 28, 84 + (i % 3) * 12, 90 + i * 13, theme === 'mushroom') });
-  if (theme === 'flower') {
-    flowerSet.forEach((cl, i) => {
-      props.push({ x: 80 + i * 220 + (i * 47) % 80, img: cl.canvas, ax: cl.ax, layer: i % 3 === 0 ? 'fg' : 'near' });
-      const cl2 = flowerSet[(i * 3 + 1) % flowerSet.length]!;
-      props.push({ x: 150 + i * 220 + (i % 7) * 6, img: cl2.canvas, ax: cl2.ax, layer: 'mid' });
-    });
-  } else {
-    mushSet.forEach((m, i) => {
-      props.push({ x: 60 + i * 200 + (i * 29) % 90, img: m.canvas, ax: m.ax, layer: i % 4 === 0 ? 'fg' : 'near' });
-      const m2 = mushSet[(i * 2 + 3) % mushSet.length]!;
-      props.push({ x: 140 + i * 200, img: m2.canvas, ax: m2.ax, layer: 'mid' });
-    });
-  }
-  const hillsFar = bakeHills(Math.round(WORLD * 0.22 + 80), 78, T.far, 3);
-  const hillsMid = bakeHills(Math.round(WORLD * 0.34 + 80), 68, T.far2, 8);
+  const sea: Sea = theme === 'flower' ? bakeFlowerSea(WORLD) : bakeMushroomSea(WORLD);
+  const hillsFar = bakeHills(Math.round(WORLD * 0.28 + 80), 96, T.far, 3);
+  const hillsMid = bakeHills(Math.round(WORLD * 0.40 + 80), 84, T.far2, 8);
 
   const atEnd = params.get('at') === 'end';
   const auto = params.has('auto');
@@ -199,7 +177,7 @@ export function startWander(opts: WoodOpts) {
   startLoop(dt => {
     time += dt; meetCool = Math.max(0, meetCool - dt);
     input.update();
-    const floor = floorOf(screen.h);
+    const floor = floorOf(screen.w, screen.h);
 
     let ax = input.axis();
     if (held) {
@@ -285,85 +263,101 @@ export function startWander(opts: WoodOpts) {
       opts.onExit(c.x, c.y);
     }
   }, () => {
-    const w = screen.w, h = screen.h, floor = floorOf(h);
+    const w = screen.w, h = screen.h, floor = floorOf(w, h);
     const ox = cam.ix, oy = cam.iy;
-    // sky
-    const grd = ctx.createLinearGradient(0, 0, 0, h);
-    grd.addColorStop(0, T.sky0); grd.addColorStop(0.45, T.sky1); grd.addColorStop(1, T.sky2);
+    const portrait = h > w;
+    const horizon = Math.round(h * (portrait ? 0.18 : 0.22));
+
+    // sky — a band, not most of the frame
+    const grd = ctx.createLinearGradient(0, 0, 0, horizon + 40);
+    grd.addColorStop(0, T.sky0); grd.addColorStop(0.55, T.sky1); grd.addColorStop(1, T.sky2);
     ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
 
-    // sun / moon
-    const sx = w * (theme === 'flower' ? 0.78 : 0.18), sy = h * (theme === 'flower' ? 0.16 : 0.14);
+    const sx = w * (theme === 'flower' ? 0.78 : 0.18), sy = Math.max(12, horizon * 0.55);
     ctx.fillStyle = T.sun;
     const sr = theme === 'flower' ? 11 : 9;
     for (let dy = -sr; dy <= sr; dy++) for (let dx = -sr; dx <= sr; dx++) if (dx * dx + dy * dy <= sr * sr) ctx.fillRect((sx + dx) | 0, (sy + dy) | 0, 1, 1);
     if (theme === 'mushroom') {
       ctx.fillStyle = '#1A2438';
       for (let dy = -sr; dy <= sr; dy++) for (let dx = -sr; dx <= sr; dx++) if (dx * dx + dy * dy <= (sr - 3) * (sr - 3) && dx > 1) ctx.fillRect((sx + dx + 3) | 0, (sy + dy - 1) | 0, 1, 1);
-      ctx.fillStyle = 'rgba(230,230,240,.7)';
-      for (let i = 0; i < 18; i++) ctx.fillRect(((i * 73 + 17) % w) | 0, ((i * 47 + 11) % (h * 0.4)) | 0, 1, 1);
+      ctx.fillStyle = 'rgba(230,230,240,.55)';
+      for (let i = 0; i < 22; i++) ctx.fillRect(((i * 73 + 17) % w) | 0, ((i * 47 + 11) % Math.max(8, horizon)) | 0, 1, 1);
     }
 
-    // far hills
-    ctx.drawImage(hillsFar, -((ox * 0.16) | 0) % hillsFar.width, (floor - 92 - oy * 0.1) | 0);
-    ctx.drawImage(hillsFar, -((ox * 0.16) | 0) % hillsFar.width + hillsFar.width, (floor - 92 - oy * 0.1) | 0);
-    ctx.drawImage(hillsMid, -((ox * 0.28) | 0) % hillsMid.width, (floor - 74 - oy * 0.12) | 0);
-    ctx.drawImage(hillsMid, -((ox * 0.28) | 0) % hillsMid.width + hillsMid.width, (floor - 74 - oy * 0.12) | 0);
+    // distant bloom-coloured hills (or dusk ridges)
+    const hillY = (floor - (portrait ? Math.round(h * 0.74) : Math.round(h * 0.48)) - (oy * 0.08)) | 0;
+    ctx.drawImage(hillsFar, -((ox * 0.16) | 0) % hillsFar.width, hillY);
+    ctx.drawImage(hillsFar, -((ox * 0.16) | 0) % hillsFar.width + hillsFar.width, hillY);
+    ctx.drawImage(hillsMid, -((ox * 0.28) | 0) % hillsMid.width, hillY + 22);
+    ctx.drawImage(hillsMid, -((ox * 0.28) | 0) % hillsMid.width + hillsMid.width, hillY + 22);
 
-    // far trees
-    for (const tr of treesFar) {
-      const x = Math.round(tr.x - ox * 0.34);
-      if (x > -tr.img.width && x < w + 4) ctx.drawImage(tr.img, x, floor - tr.img.height + 8 - (oy * 0.15) | 0);
-    }
+    // far baked carpet (wraps)
+    const blitBand = (img: HTMLCanvasElement, par: number, y: number) => {
+      const shift = -((ox * par) | 0) % img.width;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, shift, y);
+      ctx.drawImage(img, shift + img.width, y);
+    };
+    const farY = portrait
+      ? Math.round(horizon + 8 - oy * 0.08)
+      : (floor - sea.far.height - 8 - oy * 0.08) | 0;
+    const midY = portrait
+      ? Math.round(floor - sea.mid.height - Math.round(h * 0.06) - oy * 0.04)
+      : (floor - sea.mid.height + 4 - oy * 0.04) | 0;
+    blitBand(sea.far, 0.22, farY);
+    blitBand(sea.mid, 0.42, midY);
 
-    // light shafts (flower) / glow haze (mushroom)
     if (!reduced) {
       if (theme === 'flower') {
-        ctx.fillStyle = 'rgba(255,236,210,0.07)';
-        for (let i = 0; i < 5; i++) {
-          const x = ((i * 90 + 40 - ox * 0.2) % (w + 80)) - 20;
-          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 18, 0); ctx.lineTo(x + 46, floor); ctx.lineTo(x + 10, floor); ctx.fill();
+        ctx.fillStyle = 'rgba(255,236,210,0.08)';
+        for (let i = 0; i < 4; i++) {
+          const x = ((i * 100 + 30 - ox * 0.18) % (w + 90)) - 24;
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 16, 0); ctx.lineTo(x + 40, floor); ctx.lineTo(x + 8, floor); ctx.fill();
         }
       } else {
-        ctx.fillStyle = 'rgba(80,160,150,0.06)';
-        ctx.fillRect(0, floor - 70, w, 70);
+        ctx.fillStyle = 'rgba(70,140,150,0.07)';
+        ctx.fillRect(0, horizon, w, floor - horizon);
       }
     }
 
-    // mid trees
-    for (const tr of treesMid) {
-      const x = Math.round(tr.x - ox * 0.72);
-      if (x > -tr.img.width && x < w + 4) ctx.drawImage(tr.img, x, floor - tr.img.height + 6);
-    }
-
-    const stamp = (layer: Prop['layer'], par: number) => {
-      for (const p of props) {
+    const stampLayer = (layer: SeaProp['layer']) => {
+      for (const p of sea.props) {
         if (p.layer !== layer) continue;
-        const x = Math.round(p.x - ox * par) - p.ax;
-        if (x > -p.img.width && x < w + 4) ctx.drawImage(p.img, x, floor - p.img.height + 2);
+        const x = Math.round(p.x - ox * p.par);
+        const dw = p.img.width * p.sc;
+        if (x < -dw || x > w + dw) continue;
+        stamp(ctx, p.img, x, floor + 2, p.sc, 1);
       }
     };
-    stamp('mid', 0.85);
+    stampLayer('far');
+    stampLayer('mid');
 
-    // ground + path
+    // ground + winding path through the sea
     ctx.fillStyle = T.ground; ctx.fillRect(0, floor, w, h - floor);
     ctx.fillStyle = T.groundD; ctx.fillRect(0, floor, w, 2);
-    ctx.fillStyle = T.path;
-    ctx.fillRect(0, floor - 1, w, 7);
-    ctx.fillStyle = T.pathHi;
-    for (let x = 0; x < w; x++) if (((x + ox) % 9) === 0) ctx.fillRect(x, floor + 1, 2, 1);
+    for (let sx = -6; sx < w + 6; sx++) {
+      const wx = sx + ox;
+      const py = pathY(wx, floor);
+      ctx.fillStyle = T.path;
+      ctx.fillRect(sx, py - 2, 1, 9);
+      if (((wx | 0) % 8) === 0) {
+        ctx.fillStyle = T.pathHi;
+        ctx.fillRect(sx, py + 1, 1, 2);
+      }
+    }
+    blitBand(sea.carpet, 0.88, (floor - sea.carpet.height + 8) | 0);
 
-    // grass tufts
     ctx.fillStyle = T.grass;
     for (let x = -((ox) % 11); x < w; x += 11) {
       const hh = 2 + ((x + ox) * 13 % 4);
-      ctx.fillRect(x, floor - hh, 1, hh);
-      ctx.fillRect(x + 2, floor - hh + 1, 1, hh - 1);
+      const py = pathY(x + ox, floor);
+      ctx.fillRect(x, py - hh - 4, 1, hh);
+      ctx.fillRect(x + 2, py - hh - 3, 1, hh - 1);
     }
 
-    stamp('near', 1);
+    stampLayer('near');
 
-    // exit arch
+    // exit marker made of the same blooms / caps, not a bare pole
     const ax = Math.round(EXIT_X - ox);
     if (ax > -50 && ax < w + 20) {
       ctx.fillStyle = T.trunk; ctx.fillRect(ax, floor - 54, 4, 54); ctx.fillRect(ax + 38, floor - 54, 4, 54);
@@ -373,16 +367,14 @@ export function startWander(opts: WoodOpts) {
         ctx.fillRect(ax + 2 + Math.cos(Math.PI - a) * 20, floor - 52 - Math.sin(a) * 16, 3, 3);
       }
       if (theme === 'flower') {
-        drawDianaRose(ctx, ax + 14, floor - 66, 4.2, 1);
-        drawLisianthusBloom(ctx, ax + 30, floor - 64, 3.6, 0.1);
-        drawShroom(ctx, ax + 22, floor - 4, 'spot', 3.6, 2, 0.9);
+        drawDianaRose(ctx, ax + 14, floor - 66, 5.2, 1);
+        drawLisianthusBloom(ctx, ax + 30, floor - 64, 4.6, 0.1);
       } else {
-        drawShroom(ctx, ax + 12, floor - 54, 'spot', 4.5, 4, 1);
-        drawShroom(ctx, ax + 28, floor - 56, 'bell', 5, 7, 1);
+        drawShroom(ctx, ax + 12, floor - 54, 'spot', 5.2, 4, 1);
+        drawShroom(ctx, ax + 28, floor - 56, 'bell', 5.6, 7, 1);
       }
     }
 
-    // animals — a little larger than the 16px sheets so they read on a phone
     const floorY = floor;
     const blit = (img: HTMLCanvasElement, x: number, feetY: number, flip: boolean, sc: number) => {
       ctx.save(); ctx.imageSmoothingEnabled = false;
@@ -395,17 +387,15 @@ export function startWander(opts: WoodOpts) {
     for (const c of critters) {
       const img = critterFrame(c.kind, c.mode, time);
       const fly = c.kind === 'owl' && c.mode === 'fly';
-      const feet = fly ? floorY - 52 - Math.sin(c.age * 1.6) * 7 : floorY;
-      blit(img, Math.round(c.x - ox), Math.round(feet), c.face < 0, 1.7);
+      const feet = fly ? floorY - 58 - Math.sin(c.age * 1.6) * 7 : floorY;
+      blit(img, Math.round(c.x - ox), Math.round(feet), c.face < 0, 2.15);
     }
 
-    // cat
     const catImg = catFrame(catSp, { vx: cat.vx, vy: 0, ground: true }, time, 1);
-    blit(catImg, Math.round(cat.x - ox + 8), Math.round(floor), cat.face < 0, 1.5);
+    blit(catImg, Math.round(cat.x - ox + 8), Math.round(floor), cat.face < 0, 1.85);
 
-    stamp('fg', 1.18);
+    stampLayer('fg');
 
-    // particles
     for (const p of parts) {
       const x = p.x - ox, y = p.y - oy * 0.2;
       if (x < -4 || x > w + 4) continue;
@@ -413,37 +403,21 @@ export function startWander(opts: WoodOpts) {
       else drawSpore(ctx, x, y, p.s, p.kind === 'fire');
     }
 
-    // enclosing canopy + a mid hanging layer so portrait woods are a tunnel, not trunks in open air
-    ctx.fillStyle = T.canopyD;
-    for (let i = 0; i < 16; i++) {
-      const x = wrapX(i * 42 - ox * 0.5, w + 70) - 30;
-      blob(ctx, x, h * 0.07 + (i % 3) * 6, 34 + (i % 4) * 5, 24 + (i % 3) * 4, T.canopyD, i, 0.04);
-    }
-    ctx.fillStyle = T.canopy;
-    for (let i = 0; i < 12; i++) {
-      const x = wrapX(i * 50 - ox * 0.72 + 18, w + 64) - 24;
-      blob(ctx, x, 8 + (i % 2) * 4, 28 + (i % 3) * 4, 18, T.canopy, i + 3, 0.05);
-    }
-    for (let i = 0; i < 9; i++) {
-      const x = wrapX(i * 62 - ox * 0.6 + 30, w + 80) - 32;
-      blob(ctx, x, h * 0.28 + (i % 3) * 10, 30 + (i % 3) * 5, 20, i % 2 ? T.canopy : T.canopyD, i + 7, 0.05);
-    }
-    // close foliage left and right, so the walk sits inside the wood
-    blob(ctx, 8, h * 0.42, 22, 48, T.fg);
-    blob(ctx, 4, h * 0.22, 18, 36, T.canopyD);
-    blob(ctx, w - 8, h * 0.38, 24, 52, T.fg);
-    blob(ctx, w - 6, h * 0.18, 18, 34, T.canopyD);
+    // close foreground silhouettes (leaves / tiny caps) — not a solid green canopy
     if (theme === 'flower') {
-      drawLisianthusBloom(ctx, 16, floor - 36, 7.2, -0.15);
-      drawDianaRose(ctx, w - 18, floor - 40, 7.6, 1);
+      drawLisianthusBloom(ctx, 14, floor - 28, 9.4, -0.12);
+      drawDianaRose(ctx, w - 16, floor - 32, 10, 1);
     } else {
-      drawShroom(ctx, 14, floor - 4, 'bell', 7, 3, 1);
-      drawShroom(ctx, w - 16, floor - 4, 'parasol', 7.5, 8, 1);
+      drawShroom(ctx, 16, floor - 2, 'parasol', 9, 3, 1);
+      drawShroom(ctx, w - 18, floor - 2, 'bell', 8.5, 8, 1);
+      if (!reduced) {
+        ctx.fillStyle = 'rgba(20, 30, 40, 0.12)';
+        ctx.fillRect(0, 0, w, 16);
+      }
     }
 
-    // soft vignette
-    ctx.fillStyle = theme === 'flower' ? 'rgba(180,80,110,0.06)' : 'rgba(0,10,16,0.18)';
-    ctx.fillRect(0, 0, w, 8); ctx.fillRect(0, h - 10, w, 10);
+    ctx.fillStyle = theme === 'flower' ? 'rgba(180,80,110,0.05)' : 'rgba(0,10,16,0.16)';
+    ctx.fillRect(0, 0, w, 6); ctx.fillRect(0, h - 8, w, 8);
   });
 
   const api = {
@@ -452,7 +426,7 @@ export function startWander(opts: WoodOpts) {
     get t() { return time; },
     seek(x: number) {
       cat.x = Math.max(8, Math.min(WORLD - 24, x));
-      cam.snap(cat.x + 8, floorOf(screen.h) - 16, screen.w, screen.h);
+      cam.snap(cat.x + 8, floorOf(screen.w, screen.h) - 16, screen.w, screen.h);
       // Do not retroactively spawn every earlier encounter at the new camera edge.
       PLAN.forEach((p, i) => { if (p.at < cat.x) spawned.add(i); });
     },
