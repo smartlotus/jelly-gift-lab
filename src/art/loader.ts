@@ -182,6 +182,8 @@ export async function preloadArt(): Promise<ArtKit> {
     const up = owlW[0]!, glide = owlW[1] ?? owlW[0]!, down = owlW[2] ?? owlW[0]!;
     // Alternate the two most contrasting silhouettes (raised vs flat glide vs down)
     // so a wingbeat reads at 5 fps instead of blending into one soaring pose.
+    // Every fly sheet faces right (yellow beak on the right); blit flips only
+    // when world travel is to the left.
     const flap = owlW.length >= 3 ? [up, glide, down, glide] : owlW;
     art.fauna.owl = fauna(flap, owlP ?? owlS, owlP ?? owlS, flap);
   }

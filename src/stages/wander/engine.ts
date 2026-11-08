@@ -54,6 +54,9 @@ const MUSH: Theme = {
 interface Prop { x: number; img: HTMLCanvasElement; ax: number; layer: 'mid' | 'near' | 'fg' }
 interface Critter {
   kind: CritterKind; x: number; vx: number; face: number;
+  // Intended travel along the path (+1 with the cat, -1 oncoming). Kept
+  // separately because the greet overwrites `face` to look at the cat.
+  head: number;
   mode: 'walk' | 'stand' | 'extra' | 'fly';
   phase: 'in' | 'notice' | 'out';
   age: number; notice: number;
@@ -216,7 +219,7 @@ export function startWander(opts: WoodOpts) {
       const x = p.dir > 0 ? Math.min(cam.x + screen.w - 40, cat.x + 100) : cam.x + screen.w + 28;
       critters.push({
         kind: p.kind, x, vx: p.dir * (p.kind === 'collie' ? 40 : p.kind === 'deer' ? 24 : p.kind === 'owl' ? 30 : 17),
-        face: p.dir, mode: p.kind === 'owl' ? 'fly' : 'walk', phase: 'in', age: 0, notice: 0,
+        face: p.dir, head: p.dir, mode: p.kind === 'owl' ? 'fly' : 'walk', phase: 'in', age: 0, notice: 0,
       });
     });
 
@@ -238,7 +241,11 @@ export function startWander(opts: WoodOpts) {
         if (c.kind === 'owl' && c.notice > 0.7) c.mode = 'extra';
         if (c.notice > (c.kind === 'deer' ? 1.5 : 1.15)) {
           c.phase = 'out';
-          const dir = c.x < cat.x ? -1 : 1; // walk on past her
+          // Mammals walk on past her (current side). The owl keeps its
+          // original heading so a same-direction bird does not reverse
+          // after the cat walks by during the greet — that read as flying
+          // backwards relative to the path / camera.
+          const dir = c.kind === 'owl' ? (Math.sign(c.head) || 1) : (c.x < cat.x ? -1 : 1);
           c.vx = dir * (c.kind === 'collie' ? 42 : c.kind === 'owl' ? 32 : 20);
           c.face = dir;
           c.mode = c.kind === 'owl' ? 'fly' : 'walk';
@@ -247,6 +254,9 @@ export function startWander(opts: WoodOpts) {
         c.x += c.vx * dt;
         c.mode = c.kind === 'owl' ? 'fly' : 'walk';
       }
+      // Face the direction of world travel. Painted owl sheets face right;
+      // blit flips only when face < 0. Do not use camera-relative drift.
+      if (Math.abs(c.vx) > 0.5) c.face = Math.sign(c.vx) || c.face;
     }
     // drop far-off critters
     for (let i = critters.length - 1; i >= 0; i--) {
@@ -349,6 +359,7 @@ export function startWander(opts: WoodOpts) {
         x: cat.x + 78,
         vx: 0,
         face: -1,
+        head: p.dir,
         mode: p.kind === 'owl' ? 'fly' : 'walk',
         phase: 'notice',
         age: 0.5,
