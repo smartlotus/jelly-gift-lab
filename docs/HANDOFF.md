@@ -1,14 +1,15 @@
 # HANDOFF · 交接文档（任何 AI / 开发者从这里接手）
 
-> **Story edition (`smartlotus/jelly-gift-story`).** This file was copied from the stable implementation repo and then extended. The live public gift (`smartlotus/jelly-gift-site` / Pages `smartlotus/jelly-gift`) must stay on v03i. Do not merge this branch back there and do not run the old deploy script against `jelly-gift.git`.
+> **Story edition (`smartlotus/jelly-gift-story`), now public.** Live Pages: [https://smartlotus.github.io/jelly-gift-story/](https://smartlotus.github.io/jelly-gift-story/). Source `main` at the publish commit includes motion fix `0461d90`; Pages `gh-pages` deploy `d48cda3` (`Deploy story edition (0461d90)`).
+>
+> The older stable gift (`smartlotus/jelly-gift-site` / Pages `https://smartlotus.github.io/jelly-gift/`, last deploy `jelly-gift@1c2d5de` from `jelly-gift-site@52caa2d` / v03i) must stay untouched. Do not merge this repository into that default branch and do not run this deploy script against `jelly-gift.git`.
 >
 > Plot beats: [`docs/STORY.md`](STORY.md). Visual and story work after the copy lives only in this repository.
 >
-> Working tree: `/workspace/jelly/jelly-gift-story`. Default branch `main`. The only remote is `https://github.com/smartlotus/jelly-gift-story.git` (private). Push with `git push origin main`.
+> Working tree: `/workspace/jelly/jelly-gift-story`. Default branch `main`. Remote: `https://github.com/smartlotus/jelly-gift-story.git`. Push with `git push origin main`.
 > Local preview: `npm install && npm run build && node tools/serve.mjs dist 8822`
-> Review screenshots and test report: [`review/story/`](../review/story/). Do not overwrite the preserved first-pass grids in `jelly-gift-site/review/v03j`.
-> Full review command (WebKit + Chromium): `GIO_USE_PROXY_RESOLVER=dummy GSETTINGS_BACKEND=memory node tools/story-review.mjs http://localhost:8822/ review/story`
-> GitHub Pages is not enabled on this private repo (`has_pages: false`). Do not flip visibility public just to host Pages; use the local static build instead.
+> Review screenshots: [`review/story/`](../review/story/), motion QA [`review/motion/`](../review/motion/), live publish shots [`review/publish/`](../review/publish/). Do not overwrite the preserved first-pass grids in `jelly-gift-site/review/v03j`.
+> Deploy (this repo only, non-force): `GIFT_DEPLOY=1 scripts/deploy_pages.sh`
 
 
 > 先读：本文件 → [`GIFT_PLAN.md`](./GIFT_PLAN.md)（设计与验收的唯一事实来源）→ 你负责的 [`status/<A|B|C>.md`](./status/)。

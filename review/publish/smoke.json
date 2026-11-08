@@ -1,0 +1,21 @@
+{
+  "base": "https://smartlotus.github.io/jelly-gift-story/",
+  "chromium": {
+    "errs": [],
+    "afterSave": {
+      "stored": "{\"v\":1,\"items\":[{\"kind\":\"sofa\",\"x\":202.55999755859375,\"y\":11.599998474121108,\"flip\":false}]}",
+      "phase": "transform"
+    },
+    "loaded": {
+      "rawLen": 92,
+      "kinds": [
+        "sofa"
+      ]
+    },
+    "mont": "transform"
+  },
+  "webkit": {
+    "ok": true,
+    "errs": []
+  }
+}

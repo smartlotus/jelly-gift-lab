@@ -1,14 +1,15 @@
 # jelly-gift-story
 
-Private **story edition** of the 200-day anniversary gift. This repository is a full copy of the journey (meadow → flower woods → mushroom woods → shop → night → jelly → sea → sky → coop → home) plus a through-line of small plot beats.
+Public **story edition** of the 200-day anniversary gift (meadow → flower woods → mushroom woods → shop → night → jelly → sea → sky → coop → home) plus a through-line of small plot beats.
 
-It is **not** the live stable site. The unchanged public gift remains at `smartlotus/jelly-gift-site` (source) and `smartlotus/jelly-gift` (GitHub Pages). Do not merge this tree back into those remotes and do not deploy over the old Pages site.
+- Live site: [https://smartlotus.github.io/jelly-gift-story/](https://smartlotus.github.io/jelly-gift-story/)
+- This is **not** the older stable gift. That site remains at [`smartlotus/jelly-gift-site`](https://github.com/smartlotus/jelly-gift-site) (source) and [https://smartlotus.github.io/jelly-gift/](https://smartlotus.github.io/jelly-gift/). Do not merge this tree back into those remotes and do not deploy over the old Pages site.
 
 - Story intent and beat table: [`docs/STORY.md`](docs/STORY.md)
 - Engineering notes: [`docs/HANDOFF.md`](docs/HANDOFF.md)
-- All stage URLs are relative (`base: './'`). The site works at the domain root or under a subpath.
+- All stage URLs are relative (`base: './'`). The site works at the domain root or under `/jelly-gift-story/`.
 - Local preview: `npm install && npm run build && npm run serve`
-- GitHub Pages for a *private* user repository may require a paid plan. Do not flip this repository public just to host Pages. If Pages cannot be enabled privately, use the local static build.
+- Deploy this edition only: `GIFT_DEPLOY=1 scripts/deploy_pages.sh` (publishes `dist/` to this repo's `gh-pages` branch, never to `smartlotus/jelly-gift`).
 
 ---
 
