@@ -30,6 +30,8 @@ Story-only edition on `v03k-art-rebuild`, meant to merge to `main` with a merge 
 
 **Publish hashes** are recorded in the banner above after the deploy lands.
 
+**Pages path follow-up (`v03l`).** First `v03k` deploy (`gh-pages` `4f5dbed`, source `1fd78f9`) served JS, but `preloadArt()` requested `/art/...` from the domain root. Those URLs 404 under `https://smartlotus.github.io/jelly-gift-story/`, so flower/mushroom/home fell back to the old procedural plates (pink sky, block furniture). `src/art/loader.ts` now resolves those files with `asset()` (`../art/...` from a stage page). That is required for the rebuilt art to appear on Pages; it does not change animation or facing.
+
 
 
 > 先读：本文件 → [`GIFT_PLAN.md`](./GIFT_PLAN.md)（设计与验收的唯一事实来源）→ 你负责的 [`status/<A|B|C>.md`](./status/)。

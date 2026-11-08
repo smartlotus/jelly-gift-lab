@@ -1,5 +1,8 @@
-// Loads generated pixel plates and sprite sheets from /art (public/).
+// Loads generated pixel plates and sprite sheets from public/art.
+// Paths go through asset() so they resolve under a Pages subpath
+// (https://smartlotus.github.io/jelly-gift-story/...), not as /art on the domain root.
 // Missing files are skipped so the stages can fall back to procedural drawing.
+import { asset } from '../shared/flow';
 export interface FaunaSet {
   walk: HTMLCanvasElement[];
   stand?: HTMLCanvasElement;
@@ -46,7 +49,8 @@ function loadImg(src: string): Promise<HTMLImageElement> {
     const im = new Image();
     im.onload = () => resolve(im);
     im.onerror = () => reject(new Error(src));
-    im.src = src;
+    // '/art/...' is site-root absolute and 404s on GitHub Pages subpaths.
+    im.src = src.startsWith('/') ? asset(src.slice(1)) : src;
   });
 }
 
