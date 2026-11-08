@@ -135,7 +135,8 @@ export function createDecorate(host: HTMLElement): DecorateApi {
     msg.dataset.i18n = 'home.nowebgl';
     document.body.appendChild(msg);
     apply();
-    tools.addEventListener('click', e => {
+    syncTools();
+  tools.addEventListener('click', e => {
       const k = (e.target as HTMLElement).closest('button')?.dataset.k;
       if (k === 'save') { persistLayout([]); saved(); onSave?.([]); }
     });
@@ -271,7 +272,16 @@ export function createDecorate(host: HTMLElement): DecorateApi {
     syncSel();
   }
 
+  function syncTools() {
+    // an empty room should not offer undo/reset as if they did something
+    const u = tools.querySelector<HTMLButtonElement>('[data-k="undo"]');
+    const r = tools.querySelector<HTMLButtonElement>('[data-k="reset"]');
+    if (u) u.disabled = undo.length === 0;
+    if (r) r.disabled = pieces.length === 0;
+  }
+
   function syncSel() {
+    syncTools();
     const p = pieces.find(i => i.id === focus);
     sel.classList.toggle('on', !!p);
     if (p) {

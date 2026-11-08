@@ -130,7 +130,7 @@ startLoop(dt => {
     // Module A draws itself in WebGL.
   } else if (phase === 'transform') {
     drawCinematicRoom(g, w, h);
-    const floor = Math.round(h * 0.72);
+    const floor = Math.round(h * 0.80);
     const k = Math.max(0, Math.min(1, (transformT - 0.6) / 2.4));
     g.save(); g.globalAlpha = 1 - k;
     const pig = pigFrame(pigSp, { vx: 0, vy: 0, ground: true }, transformT, 1);
@@ -139,6 +139,13 @@ startLoop(dt => {
       g.save(); g.imageSmoothingEnabled = false; g.translate(x, floor); g.scale(1.4, 1.4); g.drawImage(img, 0, -img.height); g.restore();
     };
     blit(pig, Math.round(w * 0.38)); blit(cat, Math.round(w * 0.52));
+    g.restore();
+    // soft contact shadows ground the couple on the painted floor
+    g.save();
+    g.globalAlpha = k * 0.22; g.fillStyle = '#2A1E16';
+    for (const [px, pw] of [[w * 0.38, 22], [w * 0.58, 20]] as const) {
+      for (let i = 0; i < 3; i++) g.fillRect(Math.round(px - pw / 2 + i), Math.round(floor + i), Math.round(pw - i * 2), 1);
+    }
     g.restore();
     g.save(); g.globalAlpha = k; drawPerson(g, 'him', 'stand', w * 0.38, floor, false, transformT); g.restore();
     g.save(); g.globalAlpha = k; drawPerson(g, 'her', 'stand', w * 0.58, floor, false, transformT); g.restore();

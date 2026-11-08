@@ -78,6 +78,13 @@ persist, and film independence (mean pixel difference **0.51** greet, **0** sofa
   sofa, table/chair shifted) because the old layout put a black TV back and a bed footboard right in the camera's way.
   The demo is only shown by `?furnish` / 继续布置 — player layouts are untouched.
 
+### Third pass (same day): transform beat + empty-room affordances
+
+- `/home/` transform beat (`main.ts`): the couple now stands at `0.80 h` instead of `0.72 h`, i.e. on the painted floor
+  in front of the coffee table instead of appearing to stand on it, and each gets a soft contact shadow.
+- the editor's 撤回 / 重置 buttons are disabled (and dimmed) when there is nothing to undo or clear, so an empty room no
+  longer offers dead controls.
+
 ### Still open after this pass
 
 - ~~Sea bridge objects dissolve through a bayer checker~~ — **changed in the v03n pass**: `src/stages/sea/bridges.ts` now
