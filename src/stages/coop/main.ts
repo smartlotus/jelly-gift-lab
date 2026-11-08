@@ -120,7 +120,7 @@ function boot() {
     // the finale: hearts across the screens, then two quiet choices — again, or the whole journey from the start
     const home = document.createElement('button'); home.type = 'button'; home.className = 'cp-home'; home.innerHTML = ICON.home; home.dataset.i18nAria = 'coop.home'; home.hidden = true; document.body.appendChild(home);
     let departing = false;
-    const onward = () => { if (departing) return; departing = true; Sfx.tap(); link?.close(); prefetchNext(); const snap = stashCanvas(scr.canvas); void go('home', () => reduced ? Promise.resolve() : irisOut(tapX, tapY, 800, snap?.color || '#f3ebe0', snap?.img)); };
+    const onward = () => { if (departing) return; departing = true; Sfx.tap(); link?.close(); prefetchNext(); const snap = stashCanvas(scr.canvas); void go('flower', () => reduced ? Promise.resolve() : irisOut(tapX, tapY, 800, snap?.color || '#f3d4e0', snap?.img)); };
     home.addEventListener('click', onward);
     // one phone (the default in the journey) can still become two: a small two-phones button, top left
     if (role === 'solo') { const lk = document.createElement('button'); lk.type = 'button'; lk.className = 'cp-tolink'; lk.innerHTML = ICON.duo; lk.dataset.i18nAria = 'coop.duo'; document.body.appendChild(lk);

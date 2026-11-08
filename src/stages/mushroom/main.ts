@@ -25,7 +25,7 @@ const wood = startWander({
     if (left) return; left = true;
     const snap = stashCanvas(wood.screen.canvas);
     leaveGrove();
-    void go('shop', () => reducedMotion() ? Promise.resolve() : irisOut(x, y, 720, snap?.color || '#1a2830', snap?.img));
+    void go('home', () => reducedMotion() ? Promise.resolve() : irisOut(x, y, 720, snap?.color || '#1a2830', snap?.img));
   },
 });
 const fit = () => wood.screen.configure(innerHeight > innerWidth ? { minW: 176, minH: 248 } : { minW: 300, minH: 168 });

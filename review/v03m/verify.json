@@ -1,0 +1,230 @@
+{
+  "ts": "2026-11-08T06:38:01.848Z",
+  "tests": [
+    {
+      "name": "meadow door -> shop",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/shop/?lang=zh&from=meadow"
+    },
+    {
+      "name": "shop dark door -> night",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/night/?lang=zh&from=shop"
+    },
+    {
+      "name": "shop ?at=lit does not skip to jelly",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/shop/?lang=zh&at=lit"
+    },
+    {
+      "name": "night kawaii continue -> jelly",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/jelly/?lang=zh&from=night"
+    },
+    {
+      "name": "jelly 入海 exists outside egg",
+      "ok": true,
+      "egg": "present-optional"
+    },
+    {
+      "name": "jelly 入海 -> sea",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/sea/?lang=zh&from=jelly"
+    },
+    {
+      "name": "sky film control present (optional)",
+      "ok": true
+    },
+    {
+      "name": "sky next without film -> coop",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/coop/?lang=zh&from=sky&hz=0.629"
+    },
+    {
+      "name": "coop 往前走走 -> flower",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/flower/?lang=zh&from=coop"
+    },
+    {
+      "name": "flower exit -> mushroom",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/mushroom/?lang=zh&from=flower"
+    },
+    {
+      "name": "mushroom exit -> home",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/home/?lang=zh&from=mushroom"
+    },
+    {
+      "name": "AR returns to shop",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/shop/?lang=zh&from=ar&ex=figure-pig"
+    },
+    {
+      "name": "curtain skip from shop points at night",
+      "ok": true,
+      "skip": "../night/?lang=zh"
+    },
+    {
+      "name": "flower pig follows (not parked)",
+      "ok": true,
+      "gaps": [
+        37.2,
+        43,
+        44.7,
+        45.2,
+        45.2,
+        45.1,
+        44.9,
+        44.9,
+        44.9,
+        44.9
+      ],
+      "parked": false
+    },
+    {
+      "name": "flower pig gap comfortable",
+      "ok": true,
+      "min": 37.24206137479683,
+      "max": 45.24867633293371
+    },
+    {
+      "name": "flower pig does not overlap/trap cat",
+      "ok": true,
+      "closest": 37.24206137479683
+    },
+    {
+      "name": "mushroom pig follows (not parked)",
+      "ok": true,
+      "gaps": [
+        37.2,
+        42.6,
+        44.6,
+        45.2,
+        45.2,
+        45.1,
+        45,
+        44.9,
+        44.9,
+        44.9
+      ],
+      "parked": false
+    },
+    {
+      "name": "mushroom pig gap comfortable",
+      "ok": true,
+      "min": 37.24206137479683,
+      "max": 45.23064359475654
+    },
+    {
+      "name": "mushroom pig does not overlap/trap cat",
+      "ok": true,
+      "closest": 37.24206137479683
+    },
+    {
+      "name": "home empty webgl canvas",
+      "ok": true,
+      "canvas": true,
+      "n": 0,
+      "hit": {
+        "x": -0.006311673408016194,
+        "z": -0.1782250681320443
+      },
+      "phase": "room"
+    },
+    {
+      "name": "home empty raycast hits floor",
+      "ok": true,
+      "x": -0.006311673408016194,
+      "z": -0.1782250681320443
+    },
+    {
+      "name": "home place sofa",
+      "ok": true,
+      "n": 1
+    },
+    {
+      "name": "home collision rejects overlapping sofa",
+      "ok": true,
+      "overlap": false
+    },
+    {
+      "name": "home rotate 90",
+      "ok": true,
+      "yaw": 90,
+      "rotated": true
+    },
+    {
+      "name": "editor layout persists on reload",
+      "ok": true,
+      "n": 3,
+      "kinds": [
+        "sofa",
+        "rug",
+        "table"
+      ]
+    },
+    {
+      "name": "film greet identical across empty vs cluttered save",
+      "ok": true,
+      "mean": 0
+    },
+    {
+      "name": "film sofa identical across empty vs cluttered save",
+      "ok": true,
+      "mean": 0
+    },
+    {
+      "name": "save leaves editor into transform/film",
+      "ok": true,
+      "phaseAfterSave": "transform",
+      "beforeSave": 6
+    },
+    {
+      "name": "edit returns persisted layout",
+      "ok": true,
+      "phase": "room",
+      "n": 6,
+      "kinds": [
+        "rug",
+        "sofa",
+        "bed",
+        "table",
+        "tv",
+        "lamp"
+      ]
+    },
+    {
+      "name": "webkit loads flower",
+      "ok": true,
+      "stage": "flower",
+      "errs": []
+    },
+    {
+      "name": "webkit loads mushroom",
+      "ok": true,
+      "stage": "mushroom",
+      "errs": []
+    },
+    {
+      "name": "webkit loads shop",
+      "ok": true,
+      "stage": "shop",
+      "errs": []
+    },
+    {
+      "name": "webkit loads home",
+      "ok": true,
+      "stage": "home",
+      "errs": []
+    },
+    {
+      "name": "webkit flower pig present",
+      "ok": true,
+      "cat": 43.5,
+      "pig": 20.067349537037035
+    }
+  ],
+  "failed": 0,
+  "total": 34
+}

@@ -1,4 +1,4 @@
-// Stage 1 · Meadow - bright Cat-Mario-style pixel platformer -> heart fountain -> door -> /flower/ (docs/GIFT_PLAN.md §5.1).
+// Stage 1 · Meadow - bright Cat-Mario-style pixel platformer -> heart fountain -> door -> /shop/ (docs/GIFT_PLAN.md §5.1).
 // main.ts = page shell: chrome (zh/EN + sound), start card, HUD (heart counter), hints, the "Day 200" caption, exit.
 import { handleStageParam, markReached, reached, go, prefetchNext, params, dev } from '../../shared/flow';
 import { register, t, onLang, apply } from '../../shared/i18n';
@@ -53,7 +53,7 @@ if (!handleStageParam()) {
     fountain: () => { hud.classList.add('glow'); hint.classList.add('out'); },
     caption: () => { cap.classList.add('on'); setTimeout(() => cap.classList.remove('on'), 4200); },
     nearExit: () => { prefetchNext(); tell('story.meadow.out'); },
-    exit: (x, y) => { music(false); const snap = stashCanvas(game.screen.canvas); void go('flower', () => irisOut(x, y, 700, snap?.color || '#5EC4FF', snap?.img)); },
+    exit: (x, y) => { music(false); const snap = stashCanvas(game.screen.canvas); void go('shop', () => irisOut(x, y, 700, snap?.color || '#5EC4FF', snap?.img)); },
   }, { ready, at: params.get('at'), dev });
 
   // portrait phones: show more of the level (smaller minimum width => bigger pixels)

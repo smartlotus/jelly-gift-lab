@@ -51,9 +51,10 @@ export class Sim {
   private camTarget() {
     const { tw, seam } = this.view();
     if (this.end >= 0) {
-      const cottage = 88 * TILE;
+      // keep walking the open path (toward the flower wood), not toward a cottage
+      const along = 82 * TILE;
       const k = Math.max(0, Math.min(1, (this.end - 2.2) / 3.4));
-      const aim = this.L.door.x + 16 + (cottage - this.L.door.x) * k;
+      const aim = this.L.door.x + 16 + (along - this.L.door.x) * k;
       return Math.max(0, Math.min(WW - tw, aim - seam));
     }
     const mid = (this.b[0].x + this.b[1].x + this.b[0].w) / 2; return Math.max(0, Math.min(WW - tw, mid - tw / 2));
@@ -91,12 +92,12 @@ export class Sim {
     const ct = this.camTarget(); this.camX += (ct - this.camX) * Math.min(1, dt * (this.end >= 0 ? 2.2 : 5));
     void pig; void cat;
   }
-  /** ending: meet at the door, then both walk the same way toward the cottage */
+  /** ending: meet at the door, then both walk the same way along the open path */
   private autoWalk(): [PIn, PIn] {
     const door = this.L.door.x + 16;
-    const cottage = 86 * TILE;
+    const along = 80 * TILE;
     const meet = [door - 14, door + 4];
-    const onward = [cottage - 18, cottage - 4];
+    const onward = [along - 12, along + 4];
     const going = this.end > 2.1;
     const goal = going ? onward : meet;
     return this.b.map((b, i) => {
@@ -192,17 +193,6 @@ export class Art {
       g.drawImage(this.heart, Math.round(sx - w / 2), Math.max(4, Math.round((G * TILE - cy - 48 - h) / 2)), w, h);
       g.restore();
     }
-    // cottage waiting further along the path (same walking direction)
-    if (e > 2.0) {
-      const hx = 88 * TILE - vx, hy = G * TILE - cy;
-      const show = Math.min(1, (e - 2.0) / 1.2);
-      g.save(); g.globalAlpha = show;
-      g.fillStyle = '#C4A078'; g.fillRect(Math.round(hx - 28), Math.round(hy - 52), 56, 52);
-      g.fillStyle = '#8A4A3A'; g.fillRect(Math.round(hx - 34), Math.round(hy - 64), 68, 16);
-      g.fillStyle = '#6A4A32'; g.fillRect(Math.round(hx - 8), Math.round(hy - 28), 16, 28);
-      g.fillStyle = '#7A9EC0'; g.fillRect(Math.round(hx + 10), Math.round(hy - 42), 12, 12);
-      g.fillStyle = '#F0B070'; g.fillRect(Math.round(hx + 10), Math.round(hy - 42), 6, 12);
-      g.restore();
-    }
+    // no cottage here — they keep walking an open path that becomes the flower wood
   }
 }

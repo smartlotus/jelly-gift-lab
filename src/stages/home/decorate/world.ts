@@ -486,7 +486,19 @@ export function createDecorate(host: HTMLElement): DecorateApi {
       if (p) { focus = p.id; syncSel(); }
       return !!p;
     },
-    rotate: () => { sel.querySelector<HTMLButtonElement>('[data-k="rotate"]')?.click(); },
+    rotate: () => {
+      const p = pieces.find(i => i.id === focus);
+      if (!p) return false;
+      const next = (p.yaw + 90) % 360;
+      const pos = inBounds(p.kind, p.x, p.z, next);
+      if (collides(pieces, p.kind, pos.x, pos.z, next, p.id)) return false;
+      snap();
+      p.yaw = next; p.x = pos.x; p.z = pos.z;
+      applyPose(p);
+      wood();
+      syncSel();
+      return true;
+    },
     remove: () => { sel.querySelector<HTMLButtonElement>('[data-k="remove"]')?.click(); },
     reset: () => { tools.querySelector<HTMLButtonElement>('[data-k="reset"]')?.click(); },
     raycast: (cx: number, cy: number) => {

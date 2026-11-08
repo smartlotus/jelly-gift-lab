@@ -25,26 +25,26 @@ No other flower species appear in the woods.
 
 AR remains a side path from the shop and always returns to the shop (`go('shop')`). Night is **on the mainline** (do not skip it via a lit shop exit). Night’s internal map and “turn back” stay inside the night; every night ending goes to jelly. Jelly has a clear 入海 control outside the mushroom egg (the egg is optional). The 200-day film on `/sky/` is optional. Coop’s 「往前走走」 continues into the flower wood along an open path (not a cottage, not `/home/`). Flower → mushroom keeps the canvas/iris handoff. The mushroom grove ends at a warm **home cottage** window, then the empty house, then spatial decorate. Save starts a cinematic whose furniture and blocking never read the saved layout. Home “再看一遍” replays only that film; “从头再来” returns to the meadow. Progress still uses `gift.progress` for the discreet continue affordance.
 
-**Implementation note (2026-11-07):** the committed router on this branch has **not** been fully retargeted yet. `src/shared/flow.ts` `STAGES`, `curtain-inline.ts` `NEXT`, and several `go(...)` calls still follow the old live order plus leftover optional-night experiments. See [`AI_HANDOFF.md`](../AI_HANDOFF.md). Do not treat that mixed code as the desired sequence.
+Routing, curtain skip-ahead `NEXT`, and explicit `go(...)` targets on this branch now follow that order. Live Pages (tag v03l) still use the older published order until a parent-authorized deploy.
 
 ## Beat table
 
 | # | Place | When it is said | 中文 | English | What it does |
 | --- | --- | --- | --- | --- | --- |
-| 1 | meadow | After the heart fountain line, near the door | 这些花瓣好像在请我们再往前走走。 | These petals seem to be asking us to keep walking. | Invitation. A few 紫精灵 / 戴安娜 petals blow toward the exit (the bouquet waiting ahead). |
-| 2 | flower | Shortly after entering | 紫精灵和戴安娜……好像专门开给我们看的。 | The 紫精灵 carnations and the Dianas… as if they opened just for us. | Names the real bouquet, living here. |
-| 3 | flower | Near the arch | 林子深处开始亮起来了。 | Something is beginning to glow deeper in the woods. | Motivates the mushroom chapter; a first cap may glow by the arch. |
-| 4 | mushroom | Shortly after entering | 天暗了下来。这些蘑菇，一盏一盏的。 | It’s gotten dark. The mushrooms are lighting the way, one by one. | Her other love; dusk. Distinct from the flower wood. |
-| 5 | mushroom | Near the arch | *(copy TBD — must not say “your little shop”; grove end is the home cottage under t23. Do not invent a second title card that duplicates `home.found`.)* | *(TBD)* | Hands off to the empty house. Current `story.mushroom.out` still says 「前面有灯。是你的小店。」 and must be rewritten when routing is retargeted. |
-| 6 | shop | Shortly after arriving | 你做的那些，都还在这儿。 | Everything you made is still here. | Handmade keepsakes. Existing inspect / AR side path unchanged. |
-| 7 | ar | After the table appears | 放到桌上看看……看完我们再回去。 | Let’s set them on the table… then we’ll go back. | Side route; back button still `go('shop')`. |
-| 8 | shop dark door | When the cat nears the dark rear door (proximity, not a title card) | 外面天黑了。 | It’s dark outside. | Short whisper, kept verbatim. The dark door is the **mainline** night path. Do not add a neighbouring lit doorway that skips night. |
-| 9 | night | Shortly after the path opens | 牵着手走吧，这条夜路我陪你。 | Let’s walk it together. I’ll stay with you on this night path. | Shared challenge, not a jump scare dumped on her alone. |
-| 10 | jelly | Shortly after the pink arrival | 到这儿就安心了。要不要玩一会儿？ | It’s safe here. Want to play for a bit? | Relief and play after the night. |
-| 11 | sea | Shortly after entering the water | 那些一起看过的海，还记得吗。 | The seas we watched together — do you still remember? | Shared films and places. |
-| 12 | sky | Shortly after the sky appears | 长春的天空。两百天，也都在这上面。 | The sky over Changchun. Two hundred days are up there too. | Real sky + the 200-day film already on this page. |
-| 13 | coop | When the meadow-for-two is ready | 要不要一起再玩一回？ | Want to play a round together? | They play as themselves. |
-| 14 | coop win | Existing button | 往前走走 | Keep walking | The path is not finished. |
+| 1 | meadow | After the heart fountain line, near the door | 这些花瓣好像在请我们再往前走走。 | These petals seem to be asking us to keep walking. | Invitation. A few 紫精灵 / 戴安娜 petals blow toward the shop door. |
+| 2 | shop | Shortly after arriving | 你做的那些，都还在这儿。 | Everything you made is still here. | Handmade keepsakes. Existing inspect / AR side path unchanged. |
+| 3 | ar | After the table appears | 放到桌上看看……看完我们再回去。 | Let’s set them on the table… then we’ll go back. | Side route; back button still `go('shop')`. |
+| 4 | shop dark door | When the cat nears the dark rear door (proximity, not a title card) | 外面天黑了。 | It’s dark outside. | Short whisper, kept verbatim. The dark door is the **mainline** night path. |
+| 5 | night | Shortly after the path opens | 牵着手走吧，这条夜路我陪你。 | Let’s walk it together. I’ll stay with you on this night path. | Shared challenge, not a jump scare dumped on her alone. |
+| 6 | jelly | Shortly after the pink arrival | 到这儿就安心了。要不要玩一会儿？ | It’s safe here. Want to play for a bit? | Relief and play after the night. |
+| 7 | sea | Shortly after entering the water | 那些一起看过的海，还记得吗。 | The seas we watched together — do you still remember? | Shared films and places. |
+| 8 | sky | Shortly after the sky appears | 长春的天空。两百天，也都在这上面。 | The sky over Changchun. Two hundred days are up there too. | Real sky + the optional 200-day film already on this page. |
+| 9 | coop | When the meadow-for-two is ready | 要不要一起再玩一回？ | Want to play a round together? | They play as themselves. |
+| 10 | coop win | Existing button | 往前走走 | Keep walking | They walk the same way along an open path into the flower wood. |
+| 11 | flower | Shortly after entering | 紫精灵和戴安娜……好像专门开给我们看的。 | The 紫精灵 carnations and the Dianas… as if they opened just for us. | Names the real bouquet, living here. A small pig follows the cat. |
+| 12 | flower | Near the arch | 林子深处开始亮起来了。 | Something is beginning to glow deeper in the woods. | Motivates the mushroom chapter; a first cap may glow by the arch. |
+| 13 | mushroom | Shortly after entering | 天暗了下来。这些蘑菇，一盏一盏的。 | It’s gotten dark. The mushrooms are lighting the way, one by one. | Her other love; dusk. The pig still follows. |
+| 14 | mushroom | Near the arch | 前面有暖光。窗子亮着。 | There’s a warm light ahead. A window is glowing. | Hands off to the empty house. Does not repeat `home.found`. |
 | 15 | home · find | When they stop at the house | 这里有一间空房子诶，我们可以布置一下 | There’s an empty house — we could furnish it a little. | Exact user line. |
 | 16 | home · save | On 保存布局 — leaves the spatial room and starts the fixed film | 也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。 | Maybe one day, maybe on day 2000, we already have a home of our own. | Exact user line. |
 | 17 | home · finale | After the sunrise | 我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。我的小臭猫。 | We already have two hundred days of our own. I don’t think day two thousand is that far away. My little stinky cat. | Exact user line. |

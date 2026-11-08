@@ -1,20 +1,21 @@
-// Journey routing shared by every stage. Each stage is its own Vite page (multi-page app):
-//   meadow    /            invitation
-//   flower    /flower/     living bouquet forest (云南紫精灵 + 戴安娜粉玫瑰)
-//   mushroom  /mushroom/   luminous mushroom wood
-//   shop      /shop/       handmade keepsakes (AR side path returns here; rear splits to night or jelly)
-//   night     /night/      optional night walk together
-//   jelly     /jelly/      relief / play
+// Journey routing shared by every stage. Each stage is its own Vite page (multi-page app).
+// Required order (t23u): meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → home.
+//   meadow    /            invitation (door enters the sunny shop)
+//   shop      /shop/       handmade keepsakes (AR side path returns here; rear dark door is the night)
+//   night     /night/      night walk together (every ending continues to jelly)
+//   jelly     /jelly/      relief / play (入海 is the mainline sea exit; egg is optional)
 //   sea       /sea/        remembered seas
-//   sky       /sky/        Changchun sky + 200-day film
-//   coop      /coop/       play together
-//   home      /home/       discover, furnish, transform, day-2000 life
-//   (ar       /ar/         shop side room; returns to shop)
+//   sky       /sky/        Changchun sky + optional 200-day film
+//   coop      /coop/       play together (往前走走 continues into the flower wood)
+//   flower    /flower/     living bouquet forest (云南紫精灵 + 戴安娜粉玫瑰); pig follows the cat
+//   mushroom  /mushroom/   luminous mushroom wood; pig follows; grove end is the home cottage
+//   home      /home/       discover empty house, spatial furnish, fixed day-2000 film
+//   (ar       /ar/         shop side room; always returns to shop)
 // vite base is './' so every URL here is RELATIVE (works at a domain root or any subpath, including a future Pages URL).
 import { cover } from './curtain';
 import { whoosh } from './sfx';
 export type StageId = 'meadow' | 'flower' | 'mushroom' | 'shop' | 'night' | 'jelly' | 'sea' | 'sky' | 'coop' | 'home' | 'ar';
-export const STAGES: readonly StageId[] = ['meadow', 'flower', 'mushroom', 'shop', 'night', 'jelly', 'sea', 'sky', 'coop', 'home'];
+export const STAGES: readonly StageId[] = ['meadow', 'shop', 'night', 'jelly', 'sea', 'sky', 'coop', 'flower', 'mushroom', 'home'];
 const PATH: Record<StageId, string> = { meadow: '', flower: 'flower/', mushroom: 'mushroom/', shop: 'shop/', night: 'night/', jelly: 'jelly/', sea: 'sea/', sky: 'sky/', coop: 'coop/', home: 'home/', ar: 'ar/' };
 /** query params that survive page hops (language + dev switches) */
 const CARRY = ['lang', 'dev', 'sound', 'skip'];
@@ -77,7 +78,10 @@ export function prefetchNext(id: StageId = here) {
   const n = nextStage(id); if (!n) return;
   warm(n);
   // Decode the next stage's ground plate now so the first painted frame is the forest, not an empty body colour.
-  const plates: Partial<Record<StageId, string>> = { mushroom: 'art/plates/mushroom-ground-wide.jpg' };
+  const plates: Partial<Record<StageId, string>> = {
+    flower: 'art/plates/flower-ground-wide.jpg',
+    mushroom: 'art/plates/mushroom-ground-wide.jpg',
+  };
   const plate = plates[n];
   if (plate) {
     try { const im = new Image(); im.src = asset(plate); void im.decode?.(); } catch { /* */ }

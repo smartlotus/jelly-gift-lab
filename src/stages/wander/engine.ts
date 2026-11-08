@@ -1,5 +1,5 @@
 // Shared leisurely side-scroll stroll used by /flower/ and /mushroom/.
-// The hero cat walks a long, layered wood; woodland animals cross her path (no fail state).
+// The hero cat walks a long, layered wood with a small pig following her; woodland animals cross their path (no fail state).
 // Touch: hold or drag — she walks toward the finger. Keyboard: ← → / A D. Dev: ?at=end · ?auto.
 import { PixelScreen } from '../../shared/pixel/screen';
 import { startLoop } from '../../shared/pixel/loop';
@@ -129,7 +129,7 @@ export function startWander(opts: WoodOpts) {
   const ctx = screen.ctx;
   const catSp = cat32Sprites();
   const pigSp = pigSprites();
-  const pig = { x: theme === 'flower' ? 64 : 0, face: 1 as number, vx: 0 };
+  const pig = { x: 16, face: 1 as number, vx: 0, follow: 1 };
   const floorOf = (w: number, h: number) => h - Math.max(22, Math.round(h * (h > w ? 0.13 : 0.16)));
   const landscape = () => theme === 'flower' ? art.plates.flowerGround : art.plates.mushroomGround;
   const coverOf = (w: number, h: number) => {
@@ -151,6 +151,7 @@ export function startWander(opts: WoodOpts) {
   const auto = params.has('auto');
   let worldW = WORLD_W;
   const cat = { x: atEnd ? 0 : 36, vx: 0, face: 1 };
+  pig.x = Math.max(16, cat.x - 34);
   const cam = new Camera(worldW, 220);
   let placedEnd = false;
   const critters: Critter[] = [];
@@ -195,7 +196,13 @@ export function startWander(opts: WoodOpts) {
     const floor = floorOf(screen.w, screen.h);
     worldW = measureWorld(screen.w, screen.h);
     const EXIT_X = worldW - 80;
-    if (!placedEnd && atEnd) { cat.x = Math.max(36, EXIT_X - 70); placedEnd = true; }
+    if (!placedEnd && atEnd) {
+      cat.x = Math.max(36, EXIT_X - 70);
+      pig.x = Math.max(16, cat.x - 34);
+      pig.follow = 1;
+      pig.face = 1;
+      placedEnd = true;
+    }
 
     let ax = input.axis();
     if (held) {
@@ -208,23 +215,39 @@ export function startWander(opts: WoodOpts) {
     if (!ax) cat.vx += (0 - cat.vx) * Math.min(1, dt * 6);
     cat.x += cat.vx * dt;
     if (ax) cat.face = ax;
-    cat.x = Math.max(16, Math.min(worldW - 32, cat.x));
+    const catHalf = (art.fauna.cat?.walk?.[0]?.width ?? 32) / 2;
+    const pigHalf = 16; // 16px sheet drawn at scale 2
+    const lo = catHalf + 4, hi = worldW - catHalf - 8;
+    cat.x = Math.max(lo, Math.min(hi, cat.x));
 
-    if (theme === 'flower') {
-      // pig sees her off at the entrance, then stays — she walks the wood alone
-      const stay = 118;
-      if (cat.x < stay + 40 && pig.x < stay) {
-        pig.vx += ((36) - pig.vx) * Math.min(1, dt * 3);
-        pig.x = Math.min(stay, pig.x + pig.vx * dt);
-        pig.face = 1;
+    // pig follows the cat on both woods: stay a gap behind, walk-cycle frames,
+    // never occupy the cat, and wait (facing her) rather than walking through her when she turns
+    {
+      const GAP = 34, MIN = 22, MAX = 54;
+      if (Math.abs(cat.vx) > 6) pig.follow = Math.sign(cat.vx) || pig.follow;
+      let target = cat.x - pig.follow * GAP;
+      target = Math.max(pigHalf + 4, Math.min(worldW - pigHalf - 8, target));
+      const wouldCross =
+        (pig.x < cat.x - MIN && target > cat.x + MIN) ||
+        (pig.x > cat.x + MIN && target < cat.x - MIN);
+      if (wouldCross) {
+        pig.vx += (0 - pig.vx) * Math.min(1, dt * 8);
+        pig.face = cat.x >= pig.x ? 1 : -1;
       } else {
-        pig.vx += (0 - pig.vx) * Math.min(1, dt * 6);
-        pig.face = cat.x > pig.x ? 1 : -1;
+        const dx = target - pig.x;
+        const want = Math.abs(dx) < 3 ? 0 : Math.sign(dx) * Math.min(MAX, 18 + Math.abs(dx) * 2.4);
+        pig.vx += (want - pig.vx) * Math.min(1, dt * 5);
+        pig.x += pig.vx * dt;
+        if (Math.abs(pig.vx) > 4) pig.face = Math.sign(pig.vx);
+        else pig.face = pig.follow;
       }
-    } else {
-      pig.x = EXIT_X - 46;
-      pig.vx = 0;
-      pig.face = cat.x < pig.x ? -1 : 1;
+      const sep = pig.x - cat.x;
+      if (Math.abs(sep) < MIN) {
+        const push = Math.sign(sep) || -pig.follow;
+        pig.x = cat.x + push * MIN;
+        if (Math.sign(pig.vx) === -push) pig.vx = 0;
+      }
+      pig.x = Math.max(pigHalf + 4, Math.min(worldW - pigHalf - 8, pig.x));
     }
 
     cam.worldW = worldW;
@@ -349,26 +372,30 @@ export function startWander(opts: WoodOpts) {
         }
       }
     } else {
-      // warm shop window waiting at the end of the mushroom wood
-      const sx = worldW - 52 - ox, sy = floorY;
-      ctx.fillStyle = '#3A2A24';
-      ctx.fillRect(Math.round(sx), Math.round(sy - 62), 48, 62);
-      ctx.fillStyle = '#5A3A30';
-      ctx.fillRect(Math.round(sx - 4), Math.round(sy - 70), 56, 10);
-      const glow = 0.55 + 0.2 * Math.sin(time * 2.2);
-      ctx.fillStyle = `rgba(255, 186, 110, ${0.35 + glow * 0.25})`;
-      ctx.fillRect(Math.round(sx + 6), Math.round(sy - 50), 16, 18);
-      ctx.fillRect(Math.round(sx + 26), Math.round(sy - 50), 16, 18);
+      // warm empty-house cottage waiting at the end of the mushroom wood (not a shop)
+      const sx = worldW - 70 - ox, sy = floorY;
       ctx.fillStyle = '#C4A078';
-      ctx.fillRect(Math.round(sx + 18), Math.round(sy - 28), 12, 28);
+      ctx.fillRect(Math.round(sx), Math.round(sy - 52), 58, 52);
+      ctx.fillStyle = '#8A4A3A';
+      ctx.fillRect(Math.round(sx - 8), Math.round(sy - 64), 74, 14);
+      ctx.fillRect(Math.round(sx - 2), Math.round(sy - 72), 62, 10);
+      ctx.fillRect(Math.round(sx + 10), Math.round(sy - 78), 38, 8);
+      ctx.fillStyle = '#7A5048';
+      ctx.fillRect(Math.round(sx + 42), Math.round(sy - 84), 10, 16);
+      ctx.fillStyle = '#6A4A32';
+      ctx.fillRect(Math.round(sx + 22), Math.round(sy - 28), 14, 28);
+      const glow = 0.55 + 0.2 * Math.sin(time * 2.2);
+      ctx.fillStyle = `rgba(255, 186, 110, ${0.45 + glow * 0.3})`;
+      ctx.fillRect(Math.round(sx + 8), Math.round(sy - 44), 12, 12);
+      ctx.fillRect(Math.round(sx + 40), Math.round(sy - 44), 12, 12);
+      ctx.fillStyle = '#C4A078';
+      ctx.fillRect(Math.round(sx + 13), Math.round(sy - 44), 2, 12);
+      ctx.fillRect(Math.round(sx + 8), Math.round(sy - 39), 12, 2);
+      ctx.fillRect(Math.round(sx + 45), Math.round(sy - 44), 2, 12);
+      ctx.fillRect(Math.round(sx + 40), Math.round(sy - 39), 12, 2);
       ctx.fillStyle = `rgba(255, 200, 120, ${0.12 + glow * 0.1})`;
       ctx.beginPath();
-      ctx.moveTo(sx + 6, sy - 32); ctx.lineTo(sx + 42, sy - 32); ctx.lineTo(sx + 56, sy); ctx.lineTo(sx - 8, sy); ctx.fill();
-    }
-
-    {
-      const pigImg = pigFrame(pigSp, { vx: pig.vx, vy: 0, ground: true }, time, 1);
-      blit(pigImg, Math.round(pig.x - ox - pigImg.width), Math.round(floorY), pig.face < 0, 2);
+      ctx.moveTo(sx + 8, sy - 8); ctx.lineTo(sx + 50, sy - 8); ctx.lineTo(sx + 64, sy); ctx.lineTo(sx - 6, sy); ctx.fill();
     }
 
     critters.sort((a, b) => a.x - b.x);
@@ -381,6 +408,11 @@ export function startWander(opts: WoodOpts) {
       blit(img, Math.round(c.x - ox - img.width * sc / 2), Math.round(feet), c.face < 0, sc);
     }
 
+    {
+      const pigSc = 2;
+      const pigImg = pigFrame(pigSp, { vx: pig.vx, vy: 0, ground: true }, time, 1);
+      blit(pigImg, Math.round(pig.x - ox - pigImg.width * pigSc / 2), Math.round(floorY), pig.face < 0, pigSc);
+    }
     const catImg = cat32Frame(catSp, cat.vx, time);
     blit(catImg, Math.round(cat.x - ox - catImg.width / 2), Math.round(floor), cat.face < 0, 1);
 
@@ -399,12 +431,19 @@ export function startWander(opts: WoodOpts) {
     get t() { return time; },
     seek(x: number) {
       worldW = measureWorld(screen.w, screen.h);
-      cat.x = Math.max(16, Math.min(worldW - 32, x));
+      const cHalf = (art.fauna.cat?.walk?.[0]?.width ?? 32) / 2;
+      cat.x = Math.max(cHalf + 4, Math.min(worldW - cHalf - 8, x));
+      pig.x = Math.max(20, Math.min(worldW - 20, cat.x - pig.follow * 34));
       cam.worldW = worldW;
       cam.snap(cat.x, floorOf(screen.w, screen.h) - 18, screen.w, screen.h);
       // Skip encounters well behind the seek point; keep the nearest upcoming one.
       PLAN.forEach((p, i) => { if (p.at * worldW < cat.x - 80) spawned.add(i); });
     },
+    get pigX() { return pig.x; },
+    get pigFace() { return pig.face; },
+    get pigVx() { return pig.vx; },
+    get face() { return cat.face; },
+    get vx() { return cat.vx; },
     get worldW() { return worldW; },
     get plates() { return landscape().length; },
     // Review helper: stand next to the planned animal so a shot/clip can show the meeting.
