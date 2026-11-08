@@ -315,7 +315,10 @@ export const BRIDGES: Bridge[] = [
   { a: BOUQUET, b: PHOTO, rest: 0.4, zh: '捧花 → 相片', en: 'bouquet → photograph' },
   { a: PAGE, b: BOAT, rest: 0.12, zh: '相册页 → 纸船', en: 'album page → paper boat' },
 ];
-// ---- baking: both sprites on one padded canvas size, 17 dissolve steps (bayer threshold) between them ----------------
+// ---- baking: both sprites on one padded canvas size, 17 steps of a top-down swap --------------------------------
+// A per-pixel bayer dissolve was tried first and read as television static for the middle third of every seam:
+// the two objects rarely share a palette, so 50/50 interleaving looks like noise. A vertical wipe with a one-pixel
+// dithered seam keeps both silhouettes legible while the object changes.
 const SC = 2; // the bridge objects are drawn at 2× the scene pixel so they read on a phone next to the 62 px shark
 const baked = new Map<number, HTMLCanvasElement[]>();
 function frames(i: number): HTMLCanvasElement[] {
@@ -324,8 +327,16 @@ function frames(i: number): HTMLCanvasElement[] {
   const px = (s: Spr, x: number, y: number) => { const ox = Math.floor((w - Math.max(...s.rows.map(r => r.length))) / 2), oy = Math.floor((h - s.rows.length) / 2), ch = s.rows[y - oy]?.[x - ox]; return ch && ch !== '.' ? s.pal[ch] : null; };
   f = [];
   for (let n = 0; n <= 16; n++) {
+    const k = n / 16;
+    const seam = k * (h + 2) - 1;                     // the boundary travels from just above to just below the sprite
     const c = document.createElement('canvas'); c.width = w * SC; c.height = h * SC; const g = c.getContext('2d')!;
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const col = bayer(x, y) * 16 < n ? px(b, x, y) : px(a, x, y); if (col) R(g, x * SC, y * SC, SC, SC, col); }
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      let col: string | null;
+      if (y < seam - 1) col = px(b, x, y);
+      else if (y > seam + 1) col = px(a, x, y);
+      else col = bayer(x, y) < 0.5 ? px(b, x, y) : px(a, x, y);   // one-row seam
+      if (col) R(g, x * SC, y * SC, SC, SC, col);
+    }
     f.push(c);
   }
   baked.set(i, f); return f;

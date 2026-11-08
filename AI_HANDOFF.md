@@ -64,8 +64,8 @@ persist, and film independence (mean pixel difference **0.51** greet, **0** sofa
 
 ### Still open after this pass
 
-- The sea bridge objects dissolve through a bayer checker; at k≈0.5 the two palettes interleave and read as static for a
-  few frames. A wipe or a shrink/grow swap would read cleaner.
+- ~~Sea bridge objects dissolve through a bayer checker~~ — **changed in the v03n pass**: `src/stages/sea/bridges.ts` now
+  swaps A→B with a top-down wipe and a one-pixel dithered seam, so both silhouettes stay legible instead of reading as static.
 - Dollhouse furniture is still hand-built boxes with better textures — not modelled pieces. The wardrobe/TV are the
   weakest silhouettes.
 - No WebKit run on this machine (Chrome only), so the iOS-specific paths rely on the earlier WebKit evidence.
