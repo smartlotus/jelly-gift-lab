@@ -178,7 +178,13 @@ export async function preloadArt(): Promise<ArtKit> {
     art.fauna.kitten = fauna(kitW, kitS, kitS);
     art.fauna.calico = art.fauna.kitten;
   }
-  if (owlW.length) art.fauna.owl = fauna(owlW, owlP ?? owlS, owlP ?? owlS, owlW);
+  if (owlW.length) {
+    const up = owlW[0]!, glide = owlW[1] ?? owlW[0]!, down = owlW[2] ?? owlW[0]!;
+    // Alternate the two most contrasting silhouettes (raised vs flat glide vs down)
+    // so a wingbeat reads at 5 fps instead of blending into one soaring pose.
+    const flap = owlW.length >= 3 ? [up, glide, down, glide] : owlW;
+    art.fauna.owl = fauna(flap, owlP ?? owlS, owlP ?? owlS, flap);
+  }
   if (grey) art.fauna.greykit = fauna([grey], grey, grey);
 
   art.ready = true;

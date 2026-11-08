@@ -3,12 +3,13 @@
 import { gate, reveal } from './curtain';
 import { arrive, whoosh } from './sfx';
 let el: HTMLDivElement | null = null;
-function veil(colour: string) {
+function veil(colour: string, image?: string) {
   if (!el) { el = document.createElement('div'); el.className = 'gift-iris'; el.style.cssText = 'position:fixed;inset:0;z-index:100;pointer-events:none'; document.body.appendChild(el); } // inline: also used on the jelly page (no chrome.css)
-  el.style.background = colour; return el;
+  el.style.background = image ? `${colour} url("${image}") center / cover no-repeat` : colour;
+  return el;
 }
-function run(from: number, to: number, ms: number, x: number, y: number, colour: string, steps = 14) {
-  const v = veil(colour); const R = Math.hypot(innerWidth, innerHeight);
+function run(from: number, to: number, ms: number, x: number, y: number, colour: string, steps = 14, image?: string) {
+  const v = veil(colour, image); const R = Math.hypot(innerWidth, innerHeight);
   return new Promise<void>(res => {
     let i = 0;
     const tick = () => {
@@ -26,13 +27,13 @@ function circle(x: number, y: number, r: number) {
   return pts.join(', ');
 }
 /** close the iris onto (x,y) css px (default centre) */
-export const irisOut = (x = innerWidth / 2, y = innerHeight / 2, ms = 650, colour = '#141414') => { whoosh(true); return run(1, 0, ms, x, y, colour); };
+export const irisOut = (x = innerWidth / 2, y = innerHeight / 2, ms = 650, colour = '#141414', image?: string) => { whoosh(true); return run(1, 0, ms, x, y, colour, 14, image); };
 /** open from black at page start */
-export async function irisIn(x = innerWidth / 2, y = innerHeight / 2, ms = 650, colour = '#141414') {
+export async function irisIn(x = innerWidth / 2, y = innerHeight / 2, ms = 650, colour = '#141414', image?: string) {
   arrive();
-  await gate; veil(colour).style.clipPath = ''; veil(colour).style.opacity = '1'; // the closed iris is up under the curtain
+  await gate; veil(colour, image).style.clipPath = ''; veil(colour, image).style.opacity = '1'; // the closed iris is up under the curtain
   void reveal(320); // v03e: the loading curtain lifts off the closed iris, which then opens
-  return run(0, 1, ms, x, y, colour);
+  return run(0, 1, ms, x, y, colour, 14, image);
 }
 
 /** paper / dark stages: a plain full-screen dissolve (no iris). to = 1 covers the page, to = 0 reveals it.

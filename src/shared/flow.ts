@@ -73,7 +73,16 @@ export function warm(id: StageId, extra: Record<string, string> = {}) {
   } catch { /* old browser: the curtain covers the load */ }
 }
 /** call when the player approaches the exit */
-export function prefetchNext(id: StageId = here) { const n = nextStage(id); if (n) warm(n); }
+export function prefetchNext(id: StageId = here) {
+  const n = nextStage(id); if (!n) return;
+  warm(n);
+  // Decode the next stage's ground plate now so the first painted frame is the forest, not an empty body colour.
+  const plates: Partial<Record<StageId, string>> = { mushroom: 'art/plates/mushroom-ground-wide.jpg' };
+  const plate = plates[n];
+  if (plate) {
+    try { const im = new Image(); im.src = asset(plate); void im.decode?.(); } catch { /* */ }
+  }
+}
 
 /** leave for the next stage: optional outro (e.g. iris close) then navigate. */
 export async function go(to: StageId | null = nextStage(), outro?: () => Promise<void>, extra: Record<string, string> = {}) {

@@ -306,7 +306,8 @@ export function startWander(opts: WoodOpts) {
       const img = critterFrame(c.kind, c.mode, time);
       const fly = c.kind === 'owl' && c.mode === 'fly';
       const feet = fly ? floorY - 54 - Math.sin(c.age * 1.6) * 7 : floorY;
-      const sc = img.height >= 28 ? 1 : 2;
+      // Keep owl at 1× so the flat glide (25px) vs raised/down (46–52px) reads as a flap.
+      const sc = c.kind === 'owl' ? 1 : (img.height >= 28 ? 1 : 2);
       blit(img, Math.round(c.x - ox - img.width * sc / 2), Math.round(feet), c.face < 0, sc);
     }
 

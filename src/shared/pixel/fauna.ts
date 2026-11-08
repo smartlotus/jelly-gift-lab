@@ -340,7 +340,7 @@ function fromArt(kind: CritterKind, mode: 'stand' | 'walk' | 'extra' | 'fly', t:
   const set = art.fauna[key];
   if (!set?.walk?.length) return null;
   const pick = (frames: HTMLCanvasElement[], fps: number) => frames[Math.floor(Math.max(0, t) * fps) % frames.length]!;
-  if ((mode === 'fly' || (mode === 'walk' && kind === 'owl')) && set.fly?.length) return pick(set.fly, 7);
+  if ((mode === 'fly' || (mode === 'walk' && kind === 'owl')) && set.fly?.length) return pick(set.fly, 5);
   if (mode === 'walk') return pick(set.walk, 7);
   if (mode === 'extra') return set.extra ?? set.stand ?? set.walk[0]!;
   return set.stand ?? set.walk[0]!;

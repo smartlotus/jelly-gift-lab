@@ -2,6 +2,7 @@ import { register, apply, onLang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
 import { markReached, go, prefetchNext, reducedMotion } from '../../shared/flow';
 import { irisIn, irisOut } from '../../shared/transition';
+import { stashCanvas } from '../../shared/curtain';
 import { startWander } from '../wander/engine';
 import { preloadArt } from '../../art/loader';
 import { startFlowerAudio, leaveFlower, rustle } from './sfx';
@@ -21,8 +22,10 @@ const wood = startWander({
   host, theme: 'flower',
   onNearExit: () => { prefetchNext(); tell('story.flower.out'); },
   onExit: (x, y) => {
-    if (left) return; left = true; leaveFlower();
-    void go('mushroom', () => reducedMotion() ? Promise.resolve() : irisOut(x, y, 720, '#c888a8'));
+    if (left) return; left = true;
+    const snap = stashCanvas(wood.screen.canvas);
+    leaveFlower();
+    void go('mushroom', () => reducedMotion() ? Promise.resolve() : irisOut(x, y, 720, snap?.color || '#5a4038', snap?.img));
   },
 });
 const fit = () => wood.screen.configure(innerHeight > innerWidth ? { minW: 176, minH: 248 } : { minW: 300, minH: 168 });

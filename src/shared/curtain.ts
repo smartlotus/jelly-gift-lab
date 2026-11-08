@@ -29,13 +29,45 @@ export const manual = () => { auto = false; };
 const autoReveal = () => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => { if (auto) void reveal(); }, 60)));
 if (document.readyState === 'complete') autoReveal(); else window.addEventListener('load', autoReveal, { once: true });
 
+const CARRY = 'gift.carry';
+
+/** Snapshot the outgoing pixel canvas so the next page can hold it under the curtain/iris (no blank pink). */
+export function stashCanvas(canvas: HTMLCanvasElement | null): { img: string; color: string } | null {
+  if (!canvas || canvas.width < 4 || canvas.height < 4) return null;
+  try {
+    const tmp = document.createElement('canvas');
+    tmp.width = canvas.width;
+    tmp.height = canvas.height;
+    const g = tmp.getContext('2d');
+    if (!g) return null;
+    g.imageSmoothingEnabled = false;
+    g.drawImage(canvas, 0, 0);
+    const pix = g.getImageData(Math.floor(tmp.width * 0.5), Math.floor(tmp.height * 0.55), 1, 1).data;
+    const color = '#' + [pix[0], pix[1], pix[2]].map(v => v.toString(16).padStart(2, '0')).join('');
+    const img = tmp.toDataURL('image/jpeg', 0.74);
+    sessionStorage.setItem(CARRY, JSON.stringify({ img, color, t: Date.now() }));
+    return { img, color };
+  } catch { return null; }
+}
+export function peekCarry(): { img?: string; color: string } | null {
+  try {
+    const raw = sessionStorage.getItem(CARRY);
+    if (!raw) return null;
+    const o = JSON.parse(raw) as { img?: string; color?: string; t?: number };
+    if (!o?.color || Date.now() - (o.t || 0) > 20000) return null;
+    return { img: o.img, color: o.color };
+  } catch { return null; }
+}
+export function clearCarry() { try { sessionStorage.removeItem(CARRY); } catch { /* */ } }
+
 /** cover the page before navigating to `to`. Takes the colour of a closed iris/dissolve veil when there is one. */
 export function cover(to: string, colour?: string): Promise<void> {
   const c = W(); const iris = document.querySelector<HTMLElement>('.gift-iris');
   let bg = colour;
   if (!bg && iris && getComputedStyle(iris).opacity === '1') bg = rgbHex(getComputedStyle(iris).backgroundColor);
   bg = bg || (CURTAIN_STAGES[to] ?? CURTAIN_STAGES.ar)[0];
-  try { sessionStorage.setItem('gift.curtain', JSON.stringify({ to, c: bg, t: Date.now() })); } catch { /* private mode */ }
+  const carry = peekCarry();
+  try { sessionStorage.setItem('gift.curtain', JSON.stringify({ to, c: bg, img: carry?.img, t: Date.now() })); } catch { /* private mode */ }
   if (!c) return Promise.resolve();
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   c.cover(bg, to);
