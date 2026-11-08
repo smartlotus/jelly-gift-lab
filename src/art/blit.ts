@@ -66,55 +66,36 @@ export interface GroundPlate {
   pathT: number;
 }
 
-const fadeCache = new WeakMap<object, HTMLCanvasElement>();
-
-function withLeftFade(img: CanvasImageSource & { width: number; height: number }, fadePx: number) {
-  const hit = fadeCache.get(img);
-  if (hit) return hit;
-  const c = document.createElement('canvas');
-  c.width = img.width;
-  c.height = img.height;
-  const cg = c.getContext('2d')!;
-  cg.imageSmoothingEnabled = false;
-  cg.drawImage(img, 0, 0);
-  const fade = Math.max(8, Math.min(img.width >> 2, fadePx));
-  const grd = cg.createLinearGradient(0, 0, fade, 0);
-  grd.addColorStop(0, 'rgba(0,0,0,1)');
-  grd.addColorStop(1, 'rgba(0,0,0,0)');
-  cg.globalCompositeOperation = 'destination-out';
-  cg.fillStyle = grd;
-  cg.fillRect(0, 0, fade, c.height);
-  fadeCache.set(img, c);
-  return c;
+export function plateScale(plate: GroundPlate, floor: number, cover = 1) {
+  return (floor / Math.max(8, plate.pathT * plate.img.height)) * cover;
 }
 
-/** Tile complete grounded landscape plates so their painted path sits on `floor`. */
-export function blitGroundTiles(
+/** Finite (non-wrapping) display width of a sequence of unique grounded plates. */
+export function worldWidthOf(plates: GroundPlate[], floor: number, cover = 1) {
+  let w = 0;
+  for (const p of plates) w += Math.max(8, Math.round(p.img.width * plateScale(p, floor, cover)));
+  return w;
+}
+
+/** Draw unique grounded plates once, left to right. No wrap, no crossfade. */
+export function blitGroundSequence(
   g: CanvasRenderingContext2D,
   plates: GroundPlate[],
   camX: number,
   floor: number,
-  w: number,
+  viewW: number,
   cover = 1,
 ) {
-  if (!plates.length) return;
-  const ref = plates[0]!;
-  const s = (floor / Math.max(8, ref.pathT * ref.img.height)) * cover;
-  const rawW = Math.max(8, Math.round(ref.img.width * s));
-  const overlap = Math.min(140, Math.max(48, (rawW * 0.10) | 0));
-  const tileW = Math.max(8, rawW - overlap);
-  const start = Math.floor(camX / tileW) - 1;
-  const end = start + Math.ceil(w / tileW) + 2;
+  if (!plates.length) return 0;
+  let x = -camX;
   g.imageSmoothingEnabled = false;
-  for (let i = start; i <= end; i++) {
-    const plate = plates[((i % plates.length) + plates.length) % plates.length]!;
-    const si = (floor / Math.max(8, plate.pathT * plate.img.height)) * cover;
-    const dw = Math.round(plate.img.width * si);
-    const dh = Math.round(plate.img.height * si);
+  for (const plate of plates) {
+    const s = plateScale(plate, floor, cover);
+    const dw = Math.max(8, Math.round(plate.img.width * s));
+    const dh = Math.max(8, Math.round(plate.img.height * s));
     const y = Math.round(floor - plate.pathT * dh);
-    const x = Math.round(i * tileW - camX);
-    const fadeSrc = Math.max(8, Math.round(overlap / si));
-    const src = withLeftFade(plate.img, fadeSrc);
-    g.drawImage(src, x, y, dw, dh);
+    if (x + dw > 0 && x < viewW) g.drawImage(plate.img, Math.round(x), y, dw, dh);
+    x += dw;
   }
+  return x + camX;
 }

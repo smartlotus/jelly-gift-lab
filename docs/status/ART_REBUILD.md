@@ -1,4 +1,59 @@
-# Art rebuild — compositing repair (after first aesthetic gate fail)
+# Art rebuild — finishing pass (v03m)
+
+Branch: `v03k-art-rebuild` on `smartlotus/jelly-gift-story` only.
+Do not deploy and do not touch `jelly-gift` / live gh-pages until a parent review
+of `review/v03m/` stills and `/workspace/review/v03m/clip-*.mp4` authorizes it.
+
+This pass fixes the remaining material mismatches after the v03l environment
+and pose-sheet direction were accepted: wrap double-exposure, the dismembered
+cat, blob collie, old procedural snow/dawn, guessed door rectangle, and dark
+chrome on a dark ceiling.
+
+## What changed
+
+- Wander worlds are finite. One continuous wide plate per forest
+  (`flower-ground-wide.jpg`, `mushroom-ground-wide.jpg`) is drawn once with
+  camera clamp and a chapter exit near the right edge. No wrap, no left-edge
+  crossfade, no full-scene morph overlay. Older A/B plates remain only as
+  fallback if a wide file is missing.
+- Desktop cover is boosted so a single 16:9 plate still walks ~2.75 screens
+  without a composition join. Portrait keeps a wider vista of the same painting.
+- Hero cat and shared fauna (deer, lamb, border collie, kitten, owl) are
+  extracted connected whole-body pixel walk cycles, native scale, no
+  detached head/torso/feet stack and no magenta fringe. Relative size
+  deer > collie ≈ lamb > cat > owl. Owl flies with a wing cycle and can perch.
+- Couple walk/run sheets are real 4-frame limb cycles (not a translated still).
+  Sit / hold / sleep / lean keep the improved young-adult pose sheet. Greet
+  pets use the new collie and calico.
+- Cottage door overlay is the measured leaf (`x=205,y=104,w=35,h=58` on the
+  480×270 plate) plus the extracted door pixels hinged over a warm interior
+  glow — not a pale guessed rectangle. Snow and dawn are dedicated plates
+  (snow on roof/path/trees and warm windows; dawn sun, water, grasses, path).
+- Empty room is architecture only. `?furnish` / demo layout is a sitting area
+  plus a bed on the right, with floor contact shadows, not a default lineup.
+- Top chrome is a cream pill so dark labels stay readable on a dark ceiling
+  or a bright sky. Chinese narrative lines are unchanged.
+
+## Review evidence
+
+zh-CN full-size stills live in `review/v03m/`. Real-time motion clips
+(all under 15MB, also copied to `/workspace/review/v03m/`) cover flower and
+mushroom walks (desktop + portrait) and home walk / greet / sofa / sleep /
+snow / dawn.
+
+WebKit iPhone-15 checks against local `dist/` (flower, mushroom, home room)
+revealed the curtain and reported no page errors; wander loaded one plate.
+
+## Known leftovers (not claimed finished)
+
+- Walk/run dress hem is shorter than the midi hold/sit/sleep dress. Hair,
+  sweater, and palette still match the same couple.
+- Desktop forest framing is a closer path crop of the wide plate (so the
+  world can be walked without a second mismatched painting). Portrait still
+  shows sky and distant hills of the same artwork.
+- This note does not claim the aesthetic gate passed and does not authorize deploy.
+
+# Earlier note — compositing repair (v03l)
 
 Branch: `v03k-art-rebuild` on `smartlotus/jelly-gift-story` only.
 Do not deploy and do not touch `jelly-gift` / `jelly-gift-site`.

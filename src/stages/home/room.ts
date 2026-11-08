@@ -149,7 +149,10 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
     const half = k.w / 2;
     it.x = Math.max(b.left + half, Math.min(b.right - half, it.x));
     if (k.wall) it.y = Math.max(b.top, Math.min(b.wall - 4, it.y));
-    else it.y = Math.max(0, Math.min(b.floor - b.wall - 4, it.y));
+    else {
+      const maxFwd = Math.max(12, Math.round((h - b.floor) * 0.82));
+      it.y = Math.max(-maxFwd, Math.min(b.floor - b.wall - 4, it.y));
+    }
   };
 
   const orient = () => {
@@ -201,7 +204,7 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
       const placedItem: Placed = {
         id: uid++, kind: selectedKind,
         x: p.x,
-        y: k.wall ? p.y : Math.max(0, b.floor - p.y),
+        y: k.wall ? p.y : b.floor - p.y,
         flip: false,
       };
       clamp(placedItem, w, h);
@@ -217,13 +220,9 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
     const p = toLogical(e.clientX, e.clientY);
     it.x = p.x - hold.dx;
     const k = kindById(it.kind);
+    const b = bounds(canvas.width, canvas.height);
     if (k?.wall) it.y = p.y - hold.dy;
-    else it.y = Math.max(0, (Math.round(canvas.height * 0.58)) - (p.y - hold.dy) - (k?.h ?? 0) + (k?.h ?? 0));
-    // For floor items y is height above floor (feet). Recompute from pointer:
-    if (!k?.wall) {
-      const floor = Math.round(canvas.height * 0.58);
-      it.y = floor - p.y; // feet follow the finger's y, then clamp
-    }
+    else it.y = b.floor - p.y; // feet follow the finger; negative y sits toward the camera
     clamp(it, canvas.width, canvas.height);
   };
   const up = () => { hold = null; };
@@ -255,6 +254,16 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
         const dw = img.width * sc, dh = img.height * sc;
         const x = Math.round(it.x - dw / 2);
         const y = k.wall ? Math.round(it.y) : Math.round(b.floor - it.y - dh);
+        if (!k.wall && it.kind !== 'rug') {
+          g.fillStyle = 'rgba(42, 28, 18, 0.20)';
+          const cx = x + dw / 2, cy = y + dh - 1, rw = dw * 0.36, rh = Math.max(2.4, dh * 0.055);
+          for (let dy = -rh; dy <= rh; dy++) {
+            const t = 1 - (dy * dy) / (rh * rh);
+            if (t <= 0) continue;
+            const hw = Math.round(rw * Math.sqrt(t));
+            g.fillRect(Math.round(cx - hw), Math.round(cy + dy), hw * 2, 1);
+          }
+        }
         g.imageSmoothingEnabled = false;
         g.drawImage(img, x, y, dw, dh);
         if (it.id === focus) {
@@ -291,19 +300,21 @@ export function createRoom(canvas: HTMLCanvasElement, toLogical: (cx: number, cy
 
 
 export function demoLayout(): SavedItem[] {
+  // Sitting area toward the camera, bed on the right foreground so it does not cover the window.
   return [
-    { kind: 'rug', x: 148, y: 2, flip: false },
-    { kind: 'sofa', x: 150, y: 6, flip: false },
-    { kind: 'coffee', x: 150, y: 1, flip: false },
-    { kind: 'lamp', x: 198, y: 2, flip: false },
-    { kind: 'tv', x: 58, y: 2, flip: false },
-    { kind: 'bed', x: 248, y: 4, flip: false },
-    { kind: 'roses', x: 204, y: 2, flip: false },
-    { kind: 'lisi', x: 96, y: 2, flip: false },
-    { kind: 'cattree', x: 28, y: 2, flip: false },
-    { kind: 'dogbed', x: 210, y: 1, flip: false },
-    { kind: 'frame', x: 96, y: 22, flip: false },
-    { kind: 'lights', x: 160, y: 12, flip: false },
+    { kind: 'rug', x: 138, y: -10, flip: false },
+    { kind: 'sofa', x: 142, y: 4, flip: false },
+    { kind: 'coffee', x: 144, y: -16, flip: false },
+    { kind: 'lamp', x: 192, y: 3, flip: false },
+    { kind: 'tv', x: 48, y: 3, flip: false },
+    { kind: 'bed', x: 256, y: -14, flip: false },
+    { kind: 'night', x: 296, y: -10, flip: false },
+    { kind: 'roses', x: 160, y: -16, flip: false },
+    { kind: 'lisi', x: 92, y: 2, flip: false },
+    { kind: 'cattree', x: 22, y: -8, flip: false },
+    { kind: 'dogbed', x: 198, y: -18, flip: false },
+    { kind: 'frame', x: 90, y: 22, flip: false },
+    { kind: 'lights', x: 154, y: 12, flip: false },
   ];
 }
 
@@ -324,7 +335,17 @@ export function drawFurnished(g: CanvasRenderingContext2D, w: number, h: number,
     const img = sprite(it.kind, it.flip);
     const dw = img.width * sc, dh = img.height * sc;
     const xx = Math.round((it.x / 320) * w - dw / 2);
-    const y = k.wall ? Math.round((it.y / 180) * h) : floor - dh - Math.round(it.y * 0.55);
+    const y = k.wall ? Math.round((it.y / 180) * h) : Math.round(floor - it.y - dh);
+    if (!k.wall && it.kind !== 'rug') {
+      g.fillStyle = 'rgba(42, 28, 18, 0.20)';
+      const cx = xx + dw / 2, cy = y + dh - 1, rw = dw * 0.36, rh = Math.max(2.4, dh * 0.055);
+      for (let dy = -rh; dy <= rh; dy++) {
+        const t = 1 - (dy * dy) / (rh * rh);
+        if (t <= 0) continue;
+        const hw = Math.round(rw * Math.sqrt(t));
+        g.fillRect(Math.round(cx - hw), Math.round(cy + dy), hw * 2, 1);
+      }
+    }
     g.imageSmoothingEnabled = false;
     g.drawImage(img, Math.max(-dw + 4, Math.min(w - 4, xx)), y, dw, dh);
   }

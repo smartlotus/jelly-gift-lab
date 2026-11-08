@@ -3,6 +3,7 @@
 // instead of becoming a huge 16² white square. Meadow/shop keep the original 16² sheet.
 import { raster, anim, compose, type Anim } from './sprite';
 import { CAT_PAL } from './cat';
+import { art } from '../../art/loader';
 
 const HEAD = [
   '..kk.....',
@@ -36,13 +37,25 @@ const LEGS = {
   stride2: ['.kwwk..kwwk.', 'kk........kk'],
 };
 
+const TORSO = [
+  '.kkkkkkkkkkkk.',
+  'kwwwwwwwwwwwk',
+  'kwwwwwwwwwwwk',
+  'kswwwwwwwwwsk',
+  'ksswwwwwwwssk',
+  'kwwwwwwwwwwwk',
+  '.kwwwwwwwwwk.',
+  '..kkkkkkkkk..',
+];
+
 function frame(legs: keyof typeof LEGS, tail: keyof typeof TAIL, bob = 0, shift = 0): string[] {
+  // Overlap head/torso/legs so a missing art sheet never draws a dismembered cat.
   return compose(
     32, 32,
-    { rows: TAIL[tail], dx: 3, dy: 13 + bob },
-    { rows: BODY, dx: 7 + shift, dy: 16 },
-    { rows: LEGS[legs], dx: 9 + shift, dy: 28 },
-    { rows: HEAD, dx: 15 + shift, dy: 4 + bob },
+    { rows: TAIL[tail], dx: 2, dy: 14 + bob },
+    { rows: TORSO, dx: 6 + shift, dy: 12 },
+    { rows: LEGS[legs], dx: 8 + shift, dy: 21 },
+    { rows: HEAD, dx: 14 + shift, dy: 5 + bob },
   );
 }
 
@@ -76,6 +89,11 @@ export function cat32Sprites(): Cat32 {
 }
 
 export function cat32Frame(sp: Cat32, vx: number, t: number): HTMLCanvasElement {
+  const walk = art.fauna.cat?.walk;
+  if (walk?.length) {
+    if (Math.abs(vx) > 6) return walk[Math.floor(t * 8) % walk.length]!;
+    return walk[0]!;
+  }
   if (Math.abs(vx) > 8) return sp.walk.frames[Math.floor(t * (6 + Math.abs(vx) / 14)) % sp.walk.frames.length]!;
   return sp.idle.frames[Math.floor(t * sp.idle.fps) % sp.idle.frames.length]!;
 }

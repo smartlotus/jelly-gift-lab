@@ -1,6 +1,7 @@
 // Shared woodland creatures for the flower / mushroom strolls and the home montage.
 // Same language as cat.ts / pig.ts: soft-black outline, blush, sleepy-cute faces, string-art frames.
 import { raster, anim, outline, compose, type Palette, type Anim } from './sprite';
+import { art } from '../../art/loader';
 
 const K = '#2E2A2B';
 export const FAUNA_PAL: Palette = {
@@ -334,7 +335,20 @@ export function critterSheet(kind: CritterKind): CritterSheet {
   return sheet;
 }
 
+function fromArt(kind: CritterKind, mode: 'stand' | 'walk' | 'extra' | 'fly', t: number): HTMLCanvasElement | null {
+  const key = kind === 'calico' ? 'kitten' : kind;
+  const set = art.fauna[key];
+  if (!set?.walk?.length) return null;
+  const pick = (frames: HTMLCanvasElement[], fps: number) => frames[Math.floor(Math.max(0, t) * fps) % frames.length]!;
+  if ((mode === 'fly' || (mode === 'walk' && kind === 'owl')) && set.fly?.length) return pick(set.fly, 7);
+  if (mode === 'walk') return pick(set.walk, 7);
+  if (mode === 'extra') return set.extra ?? set.stand ?? set.walk[0]!;
+  return set.stand ?? set.walk[0]!;
+}
+
 export function critterFrame(kind: CritterKind, mode: 'stand' | 'walk' | 'extra' | 'fly', t: number): HTMLCanvasElement {
+  const loaded = fromArt(kind, mode, t);
+  if (loaded) return loaded;
   const s = critterSheet(kind);
   if (mode === 'walk') return s.walk.frames[Math.floor(t * s.walk.fps) % s.walk.frames.length];
   if (mode === 'fly' && s.fly) return s.fly.frames[Math.floor(t * s.fly.fps) % s.fly.frames.length];

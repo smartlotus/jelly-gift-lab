@@ -37,8 +37,12 @@ body.hm-decorating .hm-drawer { display: flex; }
 .hm-chip.on { outline: 2px solid #2E2A2B; background: #fff; }
 .hm-chip span { display: none; }
 
-.hm-hint { position: fixed; z-index: 31; left: 0; right: 0; top: calc(10px + var(--sat) + 28px); text-align: center;
-  font-size: 11px; letter-spacing: .16em; color: rgba(42,34,32,.55); opacity: 0; pointer-events: none; transition: opacity .8s var(--ease); }
+.hm-hint { position: fixed; z-index: 31; left: 50%; right: auto; top: calc(10px + var(--sat) + 36px);
+  transform: translateX(-50%); width: max-content; max-width: min(90vw, 36em);
+  text-align: center; font-size: 11px; letter-spacing: .16em;
+  color: #f6efe8; text-shadow: 0 1px 2px rgba(0,0,0,.45);
+  background: rgba(24, 18, 16, 0.50); padding: 5px 14px; border-radius: 999px;
+  opacity: 0; pointer-events: none; transition: opacity .8s var(--ease); }
 body.hm-decorating .hm-hint.on { opacity: 1; }
 
 .hm-sel { position: fixed; z-index: 33; display: none; gap: 10px; pointer-events: none; }

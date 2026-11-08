@@ -11,7 +11,7 @@ import { drawPetal, drawDianaRose, drawLisianthusBloom } from './blooms';
 import { drawSpore, drawShroom } from './shrooms';
 import { chime } from '../../shared/music';
 import { pathY } from './fields';
-import { blitGroundTiles } from '../../art/blit';
+import { blitGroundSequence, worldWidthOf } from '../../art/blit';
 import { art } from '../../art/loader';
 import { cat32Sprites, cat32Frame } from '../../shared/pixel/cat32';
 
@@ -125,40 +125,42 @@ export function startWander(opts: WoodOpts) {
   const ctx = screen.ctx;
   const catSp = cat32Sprites();
   const floorOf = (w: number, h: number) => h - Math.max(22, Math.round(h * (h > w ? 0.13 : 0.16)));
-  const WORLD = WORLD_W;
-  const EXIT_X = WORLD - 150;
-
-  const landscape = () => {
-    const portrait = typeof innerHeight === 'number' && innerHeight > innerWidth;
-    if (theme === 'flower') {
-      if (portrait && art.plates.flowerPortrait) return [art.plates.flowerPortrait];
-      return art.plates.flowerGround;
-    }
-    if (portrait && art.plates.mushroomPortrait) return [art.plates.mushroomPortrait];
-    return art.plates.mushroomGround;
+  const landscape = () => theme === 'flower' ? art.plates.flowerGround : art.plates.mushroomGround;
+  const coverOf = (w: number, h: number) => {
+    const base = h > w ? 1.16 : 1;
+    const plates = landscape();
+    if (!plates.length) return base;
+    const raw = worldWidthOf(plates, floorOf(w, h), base);
+    const want = Math.max(raw, w * (h > w ? 4.2 : 2.75));
+    return raw > 0 ? base * (want / raw) : base;
+  };
+  const measureWorld = (w: number, h: number) => {
+    const floor = floorOf(w, h);
+    const plates = landscape();
+    if (!plates.length) return 1800;
+    return Math.max(w + 64, worldWidthOf(plates, floor, coverOf(w, h)));
   };
 
   const atEnd = params.get('at') === 'end';
   const auto = params.has('auto');
-  const cat = { x: atEnd ? EXIT_X - 70 : 36, vx: 0, face: 1 };
-  const cam = new Camera(WORLD, 220);
+  let worldW = WORLD_W;
+  const cat = { x: atEnd ? 0 : 36, vx: 0, face: 1 };
+  const cam = new Camera(worldW, 220);
+  let placedEnd = false;
   const critters: Critter[] = [];
   const parts: Particle[] = [];
 
+  // `at` is a fraction of the finite world (no wrapping).
   const PLAN: { at: number; kind: CritterKind; dir: number }[] = theme === 'flower'
     ? [
-      { at: 260, kind: 'lamb', dir: 1 }, { at: 520, kind: 'kitten', dir: -1 }, { at: 780, kind: 'deer', dir: 1 },
-      { at: 1080, kind: 'collie', dir: -1 }, { at: 1360, kind: 'owl', dir: 1 }, { at: 1640, kind: 'lamb', dir: 1 },
-      { at: 1680, kind: 'lamb', dir: -1 }, { at: 1980, kind: 'deer', dir: -1 }, { at: 2040, kind: 'greykit', dir: 1 },
-      { at: 2340, kind: 'collie', dir: 1 }, { at: 2620, kind: 'owl', dir: -1 }, { at: 2880, kind: 'kitten', dir: 1 },
-      { at: 3000, kind: 'deer', dir: -1 },
+      { at: 0.18, kind: 'lamb', dir: 1 }, { at: 0.34, kind: 'kitten', dir: -1 },
+      { at: 0.50, kind: 'deer', dir: 1 }, { at: 0.66, kind: 'collie', dir: -1 },
+      { at: 0.82, kind: 'owl', dir: 1 },
     ]
     : [
-      { at: 240, kind: 'owl', dir: 1 }, { at: 480, kind: 'deer', dir: -1 }, { at: 760, kind: 'kitten', dir: 1 },
-      { at: 1020, kind: 'collie', dir: 1 }, { at: 1280, kind: 'owl', dir: -1 }, { at: 1540, kind: 'lamb', dir: 1 },
-      { at: 1820, kind: 'deer', dir: 1 }, { at: 2080, kind: 'owl', dir: 1 }, { at: 2140, kind: 'greykit', dir: -1 },
-      { at: 2460, kind: 'collie', dir: -1 }, { at: 2740, kind: 'lamb', dir: 1 }, { at: 2920, kind: 'deer', dir: 1 },
-      { at: 3100, kind: 'owl', dir: -1 },
+      { at: 0.16, kind: 'owl', dir: 1 }, { at: 0.32, kind: 'deer', dir: -1 },
+      { at: 0.50, kind: 'kitten', dir: 1 }, { at: 0.66, kind: 'collie', dir: 1 },
+      { at: 0.82, kind: 'lamb', dir: 1 },
     ];
   const spawned = new Set<number>();
 
@@ -185,10 +187,13 @@ export function startWander(opts: WoodOpts) {
     time += dt; meetCool = Math.max(0, meetCool - dt);
     input.update();
     const floor = floorOf(screen.w, screen.h);
+    worldW = measureWorld(screen.w, screen.h);
+    const EXIT_X = worldW - 80;
+    if (!placedEnd && atEnd) { cat.x = Math.max(36, EXIT_X - 70); placedEnd = true; }
 
     let ax = input.axis();
     if (held) {
-      const d = (cam.x + held.x) - (cat.x + 8);
+      const d = (cam.x + held.x) - cat.x;
       ax = Math.abs(d) < 6 ? 0 : Math.sign(d);
     }
     if ((auto && !leaving) || leaving) ax = 1;
@@ -197,14 +202,14 @@ export function startWander(opts: WoodOpts) {
     if (!ax) cat.vx += (0 - cat.vx) * Math.min(1, dt * 6);
     cat.x += cat.vx * dt;
     if (ax) cat.face = ax;
-    cat.x = Math.max(8, Math.min(WORLD - 24, cat.x));
+    cat.x = Math.max(16, Math.min(worldW - 32, cat.x));
 
-    cam.worldW = WORLD;
+    cam.worldW = worldW;
     cam.worldH = Math.max(220, screen.h);
-    cam.follow(cat.x + 8, floor - 16, cat.face, screen.w, screen.h, dt);
+    cam.follow(cat.x, floor - 18, cat.face, screen.w, screen.h, dt);
 
     PLAN.forEach((p, i) => {
-      if (spawned.has(i) || cat.x + 50 < p.at) return;
+      if (spawned.has(i) || cat.x + 50 < p.at * worldW) return;
       spawned.add(i);
       // same-direction critters spawn ahead (on screen) so a walking player can catch up;
       // oncoming critters still enter from the right edge.
@@ -263,10 +268,10 @@ export function startWander(opts: WoodOpts) {
       if (p.life <= 0 || p.y > floor + 8) parts.splice(i, 1);
     }
 
-    if (!nearSent && cat.x > EXIT_X - 220) { nearSent = true; opts.onNearExit(); }
+    if (!nearSent && cat.x > worldW * 0.88) { nearSent = true; opts.onNearExit(); }
     if (!leaving && cat.x > EXIT_X - 8) {
       leaving = true;
-      const c = screen.toClient(cat.x + 8 - cam.ix, floor - 16 - cam.iy);
+      const c = screen.toClient(cat.x - cam.ix, floor - 18 - cam.iy);
       opts.onExit(c.x, c.y);
     }
   }, () => {
@@ -281,7 +286,7 @@ export function startWander(opts: WoodOpts) {
 
     const plates = landscape();
     if (plates.length) {
-      blitGroundTiles(ctx, plates, ox, floor, w, portrait ? 1.16 : 1);
+      blitGroundSequence(ctx, plates, ox, floor, w, coverOf(w, h));
     } else {
       ctx.fillStyle = T.ground; ctx.fillRect(0, floor, w, h - floor);
       ctx.fillStyle = T.path;
@@ -300,12 +305,13 @@ export function startWander(opts: WoodOpts) {
     for (const c of critters) {
       const img = critterFrame(c.kind, c.mode, time);
       const fly = c.kind === 'owl' && c.mode === 'fly';
-      const feet = fly ? floorY - 64 - Math.sin(c.age * 1.6) * 7 : pathY(c.x, floorY);
-      blit(img, Math.round(c.x - ox), Math.round(feet), c.face < 0, 2);
+      const feet = fly ? floorY - 54 - Math.sin(c.age * 1.6) * 7 : floorY;
+      const sc = img.height >= 28 ? 1 : 2;
+      blit(img, Math.round(c.x - ox - img.width * sc / 2), Math.round(feet), c.face < 0, sc);
     }
 
     const catImg = cat32Frame(catSp, cat.vx, time);
-    blit(catImg, Math.round(cat.x - ox + 16), Math.round(pathY(cat.x, floor)), cat.face < 0, 1);
+    blit(catImg, Math.round(cat.x - ox - catImg.width / 2), Math.round(floor), cat.face < 0, 1);
 
     for (const p of parts) {
       const x = p.x - ox, y = p.y;
@@ -321,10 +327,32 @@ export function startWander(opts: WoodOpts) {
     get x() { return cat.x; },
     get t() { return time; },
     seek(x: number) {
-      cat.x = Math.max(8, Math.min(WORLD - 24, x));
-      cam.snap(cat.x + 8, floorOf(screen.w, screen.h) - 16, screen.w, screen.h);
-      // Do not retroactively spawn every earlier encounter at the new camera edge.
-      PLAN.forEach((p, i) => { if (p.at < cat.x) spawned.add(i); });
+      worldW = measureWorld(screen.w, screen.h);
+      cat.x = Math.max(16, Math.min(worldW - 32, x));
+      cam.worldW = worldW;
+      cam.snap(cat.x, floorOf(screen.w, screen.h) - 18, screen.w, screen.h);
+      // Skip encounters well behind the seek point; keep the nearest upcoming one.
+      PLAN.forEach((p, i) => { if (p.at * worldW < cat.x - 80) spawned.add(i); });
+    },
+    get worldW() { return worldW; },
+    get plates() { return landscape().length; },
+    // Review helper: stand next to the planned animal so a shot/clip can show the meeting.
+    placeEncounter(frac: number) {
+      api.seek(worldW * frac);
+      const i = PLAN.findIndex(p => Math.abs(p.at - frac) < 0.09);
+      if (i < 0) return;
+      spawned.add(i);
+      const p = PLAN[i]!;
+      critters.push({
+        kind: p.kind,
+        x: cat.x + 78,
+        vx: 0,
+        face: -1,
+        mode: p.kind === 'owl' ? 'fly' : 'walk',
+        phase: 'notice',
+        age: 0.5,
+        notice: 0.35,
+      });
     },
   };
   (window as unknown as { __wander?: typeof api }).__wander = api;

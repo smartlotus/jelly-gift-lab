@@ -9,6 +9,39 @@ import { drawDianaRose, drawLisianthusBloom } from '../wander/blooms';
 import { art } from '../../art/loader';
 import { coverPlate } from '../../art/blit';
 
+// Measured door leaf on cottage.png (480×270): x=205 y=104 w=35 h=58 (leaf only, no wall)
+const COTTAGE_DOOR = { x: 0.4271, y: 0.3852, w: 0.0729, h: 0.2148 };
+
+function drawAlignedDoor(
+  g: CanvasRenderingContext2D,
+  mapped: { x: number; y: number; dw: number; dh: number },
+  open: number,
+) {
+  if (open <= 0) return;
+  const x = mapped.x + mapped.dw * COTTAGE_DOOR.x;
+  const y = mapped.y + mapped.dh * COTTAGE_DOOR.y;
+  const w = mapped.dw * COTTAGE_DOOR.w;
+  const h = mapped.dh * COTTAGE_DOOR.h;
+  const rx = Math.round(x), ry = Math.round(y), rw = Math.round(w), rh = Math.round(h);
+  const glow = g.createLinearGradient(rx, ry, rx + rw, ry);
+  glow.addColorStop(0, `rgba(42, 20, 8, ${0.62 + open * 0.28})`);
+  glow.addColorStop(0.38, `rgba(176, 92, 34, ${0.55 + open * 0.30})`);
+  glow.addColorStop(0.68, `rgba(255, 176, 88, ${0.42 + open * 0.28})`);
+  glow.addColorStop(1, `rgba(64, 28, 10, ${0.55 + open * 0.28})`);
+  g.fillStyle = glow;
+  g.fillRect(rx, ry, rw, rh);
+  g.fillStyle = `rgba(255, 208, 124, ${0.16 + open * 0.20})`;
+  g.fillRect(rx + Math.round(rw * 0.30), ry + Math.round(rh * 0.12), Math.max(2, Math.round(rw * 0.34)), Math.max(2, Math.round(rh * 0.26)));
+  const vis = Math.max(2, Math.round(rw * Math.max(0.18, Math.cos(open * Math.PI * 0.48))));
+  g.imageSmoothingEnabled = false;
+  const door = art.plates.cottageDoor;
+  if (door) {
+    g.drawImage(door, rx, ry, vis, rh);
+    g.fillStyle = 'rgba(20, 10, 4, 0.35)';
+    g.fillRect(rx + vis, ry, 1, rh);
+  } else swingDoor(g, rx, ry, rw, rh, open, true);
+}
+
 export const SCENE_IDS = ['walk', 'greet', 'sofa', 'sleep', 'snow', 'dawn'] as const;
 export type SceneId = typeof SCENE_IDS[number];
 const DURS: Record<SceneId, number> = { walk: 7.2, greet: 5.6, sofa: 5.8, sleep: 5.6, snow: 6.4, dawn: 8.2 };
@@ -119,16 +152,8 @@ function drawWalk(g: CanvasRenderingContext2D, w: number, h: number, t: number) 
   const doorDur = 1.6;
   const open = t <= doorStart ? 0 : Math.min(1, (t - doorStart) / doorDur);
   if (open > 0) {
-    if (mapped) {
-      const doorX = mapped.x + mapped.dw * 0.468;
-      const doorY = mapped.y + mapped.dh * 0.48;
-      const doorW = mapped.dw * 0.07;
-      const doorH = mapped.dh * 0.27;
-      g.fillStyle = `rgba(255, 214, 140, ${0.12 + open * 0.28})`;
-      g.fillRect(doorX | 0, doorY | 0, doorW | 0, doorH | 0);
-    } else {
-      swingDoor(g, hx + 46, floor - 54, 28, 54, open, true);
-    }
+    if (mapped) drawAlignedDoor(g, mapped, open);
+    else swingDoor(g, hx + 46, floor - 54, 28, 54, open, true);
   }
   const startX = w * 0.14;
   const pauseX = (mapped ? mapped.x + mapped.dw * 0.42 : hx) - 8;
@@ -144,22 +169,26 @@ function drawGreet(g: CanvasRenderingContext2D, w: number, h: number, t: number,
   const sofaX = sofa ? (sofa.x / 320) * w : w * 0.48;
   g.save();
   g.beginPath(); g.rect(0, 0, w, h); g.clip();
-  g.translate(w * 0.5, h * 0.68);
-  g.scale(1.22, 1.22);
-  g.translate(-sofaX, -floor);
-  drawFurnished(g, w, h, layout, 1.15);
   const k = Math.min(1, t / 5.6);
-  const herX = Math.min(sofaX - 90, w * 0.42);
-  const himX = herX - 56;
-  const dogSettle = himX - 50;
-  const catSettle = herX + 48;
+  const herX = Math.min(Math.max(w * 0.40, sofaX - 28), w * 0.56);
+  const himX = herX - 58;
+  const dogSettle = himX - 46;
+  const catSettle = herX + 42;
+  const mid = (himX + herX) / 2;
+  const zoom = 1.08;
+  const visW = w / zoom;
+  const camX = Math.max(visW / 2, Math.min(w - visW / 2, mid));
+  g.translate(w * 0.5, h * 0.70);
+  g.scale(zoom, zoom);
+  g.translate(-camX, -floor);
+  drawFurnished(g, w, h, layout, 1.15);
   figure(g, 'him', 'stand', himX, floor, false, t, 1);
   figure(g, 'her', 'stand', herX, floor, false, t, 1);
   const rush = 1 - Math.pow(1 - Math.min(1, k / 0.72), 2);
   const dogX = (w + 40) * (1 - rush) + dogSettle * rush;
   const catX = (w + 88) * (1 - rush) + catSettle * rush;
-  pet(g, 'collie', k < 0.74 ? 'walk' : 'extra', dogX, floor, true, t, 1.35);
-  pet(g, 'calico', k < 0.78 ? 'walk' : 'extra', catX, floor, true, t, 1.25);
+  pet(g, 'collie', k < 0.74 ? 'walk' : 'extra', dogX, floor, true, t, 1);
+  pet(g, 'calico', k < 0.78 ? 'walk' : 'extra', catX, floor, true, t, 1);
   g.restore();
 }
 
@@ -167,16 +196,12 @@ function drawSofa(g: CanvasRenderingContext2D, w: number, h: number, t: number, 
   const floor = Math.round(h * 0.72);
   const sofa = layout.find(i => i.kind === 'sofa');
   const sx = sofa ? (sofa.x / 320) * w : w * 0.48;
-  const tv = layout.find(i => i.kind === 'tv');
-  const tvX = tv ? (tv.x / 320) * w : w * 0.18;
   g.save();
   g.beginPath(); g.rect(0, 0, w, h); g.clip();
-  g.translate(w * 0.5, h * 0.70);
-  g.scale(1.28, 1.28);
+  g.translate(w * 0.5, h * 0.72);
+  g.scale(1.38, 1.38);
   g.translate(-sx, -floor);
   drawFurnished(g, w, h, layout, 1.15);
-  g.fillStyle = `hsl(${200 + Math.sin(t * 9) * 20},48%,${58 + Math.sin(t * 13) * 8}%)`;
-  g.fillRect(Math.round(tvX - 18), floor - 36, 34, 18);
   drawPair(g, 'sit', sx, floor - 3, t, false, Math.round(h * 0.33));
   g.restore();
 }
@@ -209,64 +234,61 @@ function drawSleep(g: CanvasRenderingContext2D, w: number, h: number, t: number)
 
 function drawSnow(g: CanvasRenderingContext2D, w: number, h: number, t: number) {
   const floor = Math.round(h * 0.86);
-  if (art.plates.cottage) {
+  const plate = art.plates.snow;
+  if (plate) {
+    coverPlate(g, plate, w, h, 'cover-bottom');
+  } else if (art.plates.cottage) {
     coverPlate(g, art.plates.cottage, w, h, 'cover-bottom');
-    g.fillStyle = 'rgba(186, 204, 222, 0.32)';
+    g.fillStyle = 'rgba(186, 204, 222, 0.28)';
     g.fillRect(0, 0, w, h);
+    g.fillStyle = '#F4F6FA';
+    for (let sx = 0; sx < w; sx++) {
+      const top = floor - 8 - Math.round(Math.sin(sx * 0.05) * 5 + Math.sin(sx * 0.02) * 3);
+      g.fillRect(sx, top, 1, h - top);
+    }
   } else {
     const sky = g.createLinearGradient(0, 0, 0, h);
     sky.addColorStop(0, '#6A7888'); sky.addColorStop(1, '#D0D8E4');
     g.fillStyle = sky; g.fillRect(0, 0, w, h);
     cottage(g, w * 0.62, floor, 0, true);
   }
-  g.fillStyle = '#F4F6FA';
-  for (let sx = 0; sx < w; sx++) {
-    const top = floor - 8 - Math.round(Math.sin(sx * 0.05) * 5 + Math.sin(sx * 0.02) * 3);
-    g.fillRect(sx, top, 1, h - top);
-  }
   snowflakes(g, w, h, t, true);
   const k = (t % 6.4) / 6.4;
-  const x = w * 0.16 + k * (w * 0.50);
+  const x = w * 0.18 + k * (w * 0.46);
   const bounce = Math.abs(Math.sin(t * 11)) * 2;
-  // run frames already include a separate running dog
-  drawPair(g, 'run', x, floor - bounce, t, false, Math.round(h * 0.44));
+  drawPair(g, 'run', x, floor - bounce, t, false, Math.round(h * 0.42));
 }
 
 function drawDawn(g: CanvasRenderingContext2D, w: number, h: number, t: number) {
-  const k = Math.min(1, t / 8.2);
-  const rise = Math.pow(k, 0.55);
-  const sky = g.createLinearGradient(0, 0, 0, h);
-  sky.addColorStop(0, mix('#141828', '#F07850', rise));
-  sky.addColorStop(0.35, mix('#2A3048', '#F0A060', rise));
-  sky.addColorStop(0.7, mix('#3A4058', '#F8C888', rise));
-  sky.addColorStop(1, mix('#3A4058', '#F8E0C8', rise));
-  g.fillStyle = sky; g.fillRect(0, 0, w, h);
-  const floor = h * 0.70;
-  const sunY = floor + 6 - rise * (floor * 0.58);
-  const sx = w * 0.5, sr = 16 + rise * 8;
-  for (let i = 3; i >= 1; i--) {
-    const R = sr * (1 + i * 0.55);
-    g.fillStyle = `rgba(255,200,120,${(0.08 + rise * 0.08) / i})`;
-    for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
-      if (dx * dx + dy * dy <= R * R) g.fillRect((sx + dx) | 0, (sunY + dy) | 0, 1, 1);
+  const floor = Math.round(h * 0.86);
+  if (art.plates.dawn) {
+    coverPlate(g, art.plates.dawn, w, h, 'cover-bottom');
+    const pulse = 0.03 + Math.sin(t * 0.55) * 0.02;
+    g.fillStyle = `rgba(255, 186, 110, ${pulse})`;
+    g.fillRect(0, 0, w, h);
+    g.fillStyle = 'rgba(255, 244, 230, 0.08)';
+    for (let i = 0; i < 10; i++) {
+      const mx = ((i * 97 + t * (6 + i % 3)) % (w + 40)) - 20;
+      const my = (h * 0.42 + Math.sin(t * 0.35 + i) * 18 + (i * 23) % 40) | 0;
+      g.fillRect(mx | 0, my, 28 + (i % 5) * 6, 3);
     }
+  } else {
+    const k = Math.min(1, t / 8.2);
+    const rise = Math.pow(k, 0.55);
+    const sky = g.createLinearGradient(0, 0, 0, h);
+    sky.addColorStop(0, mix('#141828', '#F07850', rise));
+    sky.addColorStop(0.35, mix('#2A3048', '#F0A060', rise));
+    sky.addColorStop(0.7, mix('#3A4058', '#F8C888', rise));
+    sky.addColorStop(1, mix('#3A4058', '#F8E0C8', rise));
+    g.fillStyle = sky; g.fillRect(0, 0, w, h);
+    const sunY = floor + 6 - rise * (floor * 0.58);
+    const sx = w * 0.5, sr = 16 + rise * 8;
+    g.fillStyle = mix('#E8B070', '#FFE8A0', rise);
+    for (let dy = -sr; dy <= sr; dy++) for (let dx = -sr; dx <= sr; dx++) if (dx * dx + dy * dy <= sr * sr) g.fillRect((sx + dx) | 0, (sunY + dy) | 0, 1, 1);
+    g.fillStyle = mix('#1A2028', '#3A4A38', rise);
+    g.fillRect(0, floor, w, h - floor);
   }
-  g.fillStyle = mix('#E8B070', '#FFE8A0', rise);
-  for (let dy = -sr; dy <= sr; dy++) for (let dx = -sr; dx <= sr; dx++) if (dx * dx + dy * dy <= sr * sr) g.fillRect((sx + dx) | 0, (sunY + dy) | 0, 1, 1);
-  g.fillStyle = mix('#1A2028', '#3A4A38', rise);
-  g.beginPath(); g.moveTo(0, floor + 10);
-  for (let x = 0; x <= w; x += 8) g.lineTo(x, floor - 14 - Math.sin(x * 0.04) * 16 - Math.sin(x * 0.01) * 8);
-  g.lineTo(w, h); g.lineTo(0, h); g.fill();
-  g.fillStyle = mix('#12161C', '#2A3828', rise);
-  for (const px of [16, 44, w - 24, w - 52]) {
-    g.beginPath();
-    g.moveTo(px, floor + 6);
-    g.lineTo(px + 10, floor - 56);
-    g.lineTo(px + 20, floor + 6);
-    g.fill();
-  }
-  const stand = floor - 2;
-  drawPair(g, 'lean', w * 0.5, stand, t, false, Math.round(h * 0.50));
+  drawPair(g, 'lean', w * 0.34, floor - 2, t, false, Math.round(h * 0.48));
 }
 
 function mix(a: string, b: string, k: number): string {

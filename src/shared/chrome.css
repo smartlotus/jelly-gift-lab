@@ -22,12 +22,23 @@ html, body { margin: 0; height: 100%; background: var(--paper); color: var(--ink
 html[lang="zh-CN"] { letter-spacing: .02em; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 
-.gift-chrome { position: fixed; z-index: 50; top: calc(var(--pad) * .7 + var(--sat)); right: calc(var(--pad) + var(--sar)); display: flex; align-items: center; gap: 12px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
-.gift-chrome button { padding: 6px 2px; transition: color .3s var(--ease); }
-.gift-chrome button:hover { color: var(--ink); }
-.gift-chrome [aria-pressed="true"] { color: var(--ink); }
-.gc-lang { display: flex; align-items: center; gap: 6px; } .gc-lang [aria-pressed="false"] { color: var(--ink-3); }
-.gc-sep { width: 1px; height: 12px; background: var(--hair); }
+.gift-chrome {
+  position: fixed; z-index: 50;
+  top: calc(var(--pad) * .55 + var(--sat)); right: calc(var(--pad) * .7 + var(--sar));
+  display: flex; align-items: center; gap: 12px;
+  font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  color: #2a2420;
+  background: rgba(246, 239, 232, 0.86);
+  border-radius: 999px;
+  padding: 5px 12px 5px 14px;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 1px 10px rgba(20, 16, 12, 0.18);
+}
+.gift-chrome button { padding: 6px 2px; transition: color .3s var(--ease); color: #2a2420; }
+.gift-chrome button:hover { color: #141414; }
+.gift-chrome [aria-pressed="true"] { color: #141414; }
+.gc-lang { display: flex; align-items: center; gap: 6px; } .gc-lang [aria-pressed="false"] { color: rgba(42, 36, 32, 0.45); }
+.gc-sep { width: 1px; height: 12px; background: rgba(42, 36, 32, 0.22); }
 
 .gift-card { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: var(--pad); background: color-mix(in srgb, var(--paper) 72%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: opacity .6s var(--ease); }
 .gift-card.out { opacity: 0; pointer-events: none; }
