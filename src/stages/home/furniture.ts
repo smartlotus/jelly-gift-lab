@@ -29,8 +29,8 @@ export const KINDS: Kind[] = [
   { id: 'cushion', label: 'home.item.cushion', layer: 'furn', w: 38, h: 28 },
   { id: 'cattree', label: 'home.item.cattree', layer: 'furn', w: 34, h: 48 },
   { id: 'dogbed', label: 'home.item.dogbed', layer: 'furn', w: 46, h: 30 },
-  { id: 'roses', label: 'home.item.roses', layer: 'top', w: 16, h: 24 },
-  { id: 'lisi', label: 'home.item.lisi', layer: 'top', w: 16, h: 24 },
+  { id: 'roses', label: 'home.item.roses', layer: 'top', w: 30, h: 44 },
+  { id: 'lisi', label: 'home.item.lisi', layer: 'top', w: 30, h: 44 },
   { id: 'frame', label: 'home.item.frame', layer: 'wall', w: 28, h: 26, wall: true },
   { id: 'lights', label: 'home.item.lights', layer: 'wall', w: 52, h: 18, wall: true },
 ];

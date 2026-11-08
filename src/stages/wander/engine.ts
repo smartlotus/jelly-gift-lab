@@ -5,14 +5,15 @@ import { PixelScreen } from '../../shared/pixel/screen';
 import { startLoop } from '../../shared/pixel/loop';
 import { input } from '../../shared/pixel/input';
 import { Camera } from '../../shared/pixel/camera';
-import { catSprites, catFrame } from '../../shared/pixel/cat';
 import { critterFrame, type CritterKind } from '../../shared/pixel/fauna';
 import { params, reducedMotion } from '../../shared/flow';
 import { drawPetal, drawDianaRose, drawLisianthusBloom } from './blooms';
 import { drawSpore, drawShroom } from './shrooms';
 import { chime } from '../../shared/music';
-import { bakeFlowerSea, bakeMushroomSea, pathY, type Sea, type Prop as SeaProp } from './fields';
-import { stamp } from '../../art/blit';
+import { pathY } from './fields';
+import { blitGroundTiles } from '../../art/blit';
+import { art } from '../../art/loader';
+import { cat32Sprites, cat32Frame } from '../../shared/pixel/cat32';
 
 export type WoodTheme = 'flower' | 'mushroom';
 export interface WoodOpts {
@@ -122,14 +123,20 @@ export function startWander(opts: WoodOpts) {
   const reduced = reducedMotion();
   const screen = new PixelScreen({ host: opts.host, minW: 176, minH: 248, maxH: 640 });
   const ctx = screen.ctx;
-  const catSp = catSprites();
+  const catSp = cat32Sprites();
   const floorOf = (w: number, h: number) => h - Math.max(22, Math.round(h * (h > w ? 0.13 : 0.16)));
   const WORLD = WORLD_W;
   const EXIT_X = WORLD - 150;
 
-  const sea: Sea = theme === 'flower' ? bakeFlowerSea(WORLD) : bakeMushroomSea(WORLD);
-  const hillsFar = bakeHills(Math.round(WORLD * 0.28 + 80), 96, T.far, 3);
-  const hillsMid = bakeHills(Math.round(WORLD * 0.40 + 80), 84, T.far2, 8);
+  const landscape = () => {
+    const portrait = typeof innerHeight === 'number' && innerHeight > innerWidth;
+    if (theme === 'flower') {
+      if (portrait && art.plates.flowerPortrait) return [art.plates.flowerPortrait];
+      return art.plates.flowerGround;
+    }
+    if (portrait && art.plates.mushroomPortrait) return [art.plates.mushroomPortrait];
+    return art.plates.mushroomGround;
+  };
 
   const atEnd = params.get('at') === 'end';
   const auto = params.has('auto');
@@ -264,115 +271,21 @@ export function startWander(opts: WoodOpts) {
     }
   }, () => {
     const w = screen.w, h = screen.h, floor = floorOf(w, h);
-    const ox = cam.ix, oy = cam.iy;
+    const ox = cam.ix;
     const portrait = h > w;
-    const horizon = Math.round(h * (portrait ? 0.18 : 0.22));
 
-    // sky — a band, not most of the frame
-    const grd = ctx.createLinearGradient(0, 0, 0, horizon + 40);
+    // fallback sky only shows if a plate is missing or letterboxed
+    const grd = ctx.createLinearGradient(0, 0, 0, h);
     grd.addColorStop(0, T.sky0); grd.addColorStop(0.55, T.sky1); grd.addColorStop(1, T.sky2);
     ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
 
-    const sx = w * (theme === 'flower' ? 0.78 : 0.18), sy = Math.max(12, horizon * 0.55);
-    ctx.fillStyle = T.sun;
-    const sr = theme === 'flower' ? 11 : 9;
-    for (let dy = -sr; dy <= sr; dy++) for (let dx = -sr; dx <= sr; dx++) if (dx * dx + dy * dy <= sr * sr) ctx.fillRect((sx + dx) | 0, (sy + dy) | 0, 1, 1);
-    if (theme === 'mushroom') {
-      ctx.fillStyle = '#1A2438';
-      for (let dy = -sr; dy <= sr; dy++) for (let dx = -sr; dx <= sr; dx++) if (dx * dx + dy * dy <= (sr - 3) * (sr - 3) && dx > 1) ctx.fillRect((sx + dx + 3) | 0, (sy + dy - 1) | 0, 1, 1);
-      ctx.fillStyle = 'rgba(230,230,240,.55)';
-      for (let i = 0; i < 22; i++) ctx.fillRect(((i * 73 + 17) % w) | 0, ((i * 47 + 11) % Math.max(8, horizon)) | 0, 1, 1);
-    }
-
-    // distant bloom-coloured hills (or dusk ridges)
-    const hillY = (floor - (portrait ? Math.round(h * 0.74) : Math.round(h * 0.48)) - (oy * 0.08)) | 0;
-    ctx.drawImage(hillsFar, -((ox * 0.16) | 0) % hillsFar.width, hillY);
-    ctx.drawImage(hillsFar, -((ox * 0.16) | 0) % hillsFar.width + hillsFar.width, hillY);
-    ctx.drawImage(hillsMid, -((ox * 0.28) | 0) % hillsMid.width, hillY + 22);
-    ctx.drawImage(hillsMid, -((ox * 0.28) | 0) % hillsMid.width + hillsMid.width, hillY + 22);
-
-    // far baked carpet (wraps)
-    const blitBand = (img: HTMLCanvasElement, par: number, y: number) => {
-      const shift = -((ox * par) | 0) % img.width;
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(img, shift, y);
-      ctx.drawImage(img, shift + img.width, y);
-    };
-    const farY = portrait
-      ? Math.round(horizon + 8 - oy * 0.08)
-      : (floor - sea.far.height - 8 - oy * 0.08) | 0;
-    const midY = portrait
-      ? Math.round(floor - sea.mid.height - Math.round(h * 0.06) - oy * 0.04)
-      : (floor - sea.mid.height + 4 - oy * 0.04) | 0;
-    blitBand(sea.far, 0.22, farY);
-    blitBand(sea.mid, 0.42, midY);
-
-    if (!reduced) {
-      if (theme === 'flower') {
-        ctx.fillStyle = 'rgba(255,236,210,0.08)';
-        for (let i = 0; i < 4; i++) {
-          const x = ((i * 100 + 30 - ox * 0.18) % (w + 90)) - 24;
-          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 16, 0); ctx.lineTo(x + 40, floor); ctx.lineTo(x + 8, floor); ctx.fill();
-        }
-      } else {
-        ctx.fillStyle = 'rgba(70,140,150,0.07)';
-        ctx.fillRect(0, horizon, w, floor - horizon);
-      }
-    }
-
-    const stampLayer = (layer: SeaProp['layer']) => {
-      for (const p of sea.props) {
-        if (p.layer !== layer) continue;
-        const x = Math.round(p.x - ox * p.par);
-        const dw = p.img.width * p.sc;
-        if (x < -dw || x > w + dw) continue;
-        stamp(ctx, p.img, x, floor + 2, p.sc, 1);
-      }
-    };
-    stampLayer('far');
-    stampLayer('mid');
-
-    // ground + winding path through the sea
-    ctx.fillStyle = T.ground; ctx.fillRect(0, floor, w, h - floor);
-    ctx.fillStyle = T.groundD; ctx.fillRect(0, floor, w, 2);
-    for (let sx = -6; sx < w + 6; sx++) {
-      const wx = sx + ox;
-      const py = pathY(wx, floor);
+    const plates = landscape();
+    if (plates.length) {
+      blitGroundTiles(ctx, plates, ox, floor, w, portrait ? 1.16 : 1);
+    } else {
+      ctx.fillStyle = T.ground; ctx.fillRect(0, floor, w, h - floor);
       ctx.fillStyle = T.path;
-      ctx.fillRect(sx, py - 2, 1, 9);
-      if (((wx | 0) % 8) === 0) {
-        ctx.fillStyle = T.pathHi;
-        ctx.fillRect(sx, py + 1, 1, 2);
-      }
-    }
-    blitBand(sea.carpet, 0.88, (floor - sea.carpet.height + 8) | 0);
-
-    ctx.fillStyle = T.grass;
-    for (let x = -((ox) % 11); x < w; x += 11) {
-      const hh = 2 + ((x + ox) * 13 % 4);
-      const py = pathY(x + ox, floor);
-      ctx.fillRect(x, py - hh - 4, 1, hh);
-      ctx.fillRect(x + 2, py - hh - 3, 1, hh - 1);
-    }
-
-    stampLayer('near');
-
-    // exit marker made of the same blooms / caps, not a bare pole
-    const ax = Math.round(EXIT_X - ox);
-    if (ax > -50 && ax < w + 20) {
-      ctx.fillStyle = T.trunk; ctx.fillRect(ax, floor - 54, 4, 54); ctx.fillRect(ax + 38, floor - 54, 4, 54);
-      ctx.fillStyle = T.trunkD;
-      for (let i = 0; i <= 40; i++) {
-        const a = Math.PI * (i / 40);
-        ctx.fillRect(ax + 2 + Math.cos(Math.PI - a) * 20, floor - 52 - Math.sin(a) * 16, 3, 3);
-      }
-      if (theme === 'flower') {
-        drawDianaRose(ctx, ax + 14, floor - 66, 5.2, 1);
-        drawLisianthusBloom(ctx, ax + 30, floor - 64, 4.6, 0.1);
-      } else {
-        drawShroom(ctx, ax + 12, floor - 54, 'spot', 5.2, 4, 1);
-        drawShroom(ctx, ax + 28, floor - 56, 'bell', 5.6, 7, 1);
-      }
+      for (let sx = 0; sx < w; sx++) ctx.fillRect(sx, pathY(sx + ox, floor) - 2, 1, 8);
     }
 
     const floorY = floor;
@@ -387,37 +300,20 @@ export function startWander(opts: WoodOpts) {
     for (const c of critters) {
       const img = critterFrame(c.kind, c.mode, time);
       const fly = c.kind === 'owl' && c.mode === 'fly';
-      const feet = fly ? floorY - 58 - Math.sin(c.age * 1.6) * 7 : floorY;
-      blit(img, Math.round(c.x - ox), Math.round(feet), c.face < 0, 2.15);
+      const feet = fly ? floorY - 64 - Math.sin(c.age * 1.6) * 7 : pathY(c.x, floorY);
+      blit(img, Math.round(c.x - ox), Math.round(feet), c.face < 0, 2);
     }
 
-    const catImg = catFrame(catSp, { vx: cat.vx, vy: 0, ground: true }, time, 1);
-    blit(catImg, Math.round(cat.x - ox + 8), Math.round(floor), cat.face < 0, 1.85);
-
-    stampLayer('fg');
+    const catImg = cat32Frame(catSp, cat.vx, time);
+    blit(catImg, Math.round(cat.x - ox + 16), Math.round(pathY(cat.x, floor)), cat.face < 0, 1);
 
     for (const p of parts) {
-      const x = p.x - ox, y = p.y - oy * 0.2;
+      const x = p.x - ox, y = p.y;
       if (x < -4 || x > w + 4) continue;
       if (p.kind === 'diana' || p.kind === 'lisi') drawPetal(ctx, x, y, p.kind, p.rot, p.s);
       else drawSpore(ctx, x, y, p.s, p.kind === 'fire');
     }
 
-    // close foreground silhouettes (leaves / tiny caps) — not a solid green canopy
-    if (theme === 'flower') {
-      drawLisianthusBloom(ctx, 14, floor - 28, 9.4, -0.12);
-      drawDianaRose(ctx, w - 16, floor - 32, 10, 1);
-    } else {
-      drawShroom(ctx, 16, floor - 2, 'parasol', 9, 3, 1);
-      drawShroom(ctx, w - 18, floor - 2, 'bell', 8.5, 8, 1);
-      if (!reduced) {
-        ctx.fillStyle = 'rgba(20, 30, 40, 0.12)';
-        ctx.fillRect(0, 0, w, 16);
-      }
-    }
-
-    ctx.fillStyle = theme === 'flower' ? 'rgba(180,80,110,0.05)' : 'rgba(0,10,16,0.16)';
-    ctx.fillRect(0, 0, w, 6); ctx.fillRect(0, h - 8, w, 8);
   });
 
   const api = {

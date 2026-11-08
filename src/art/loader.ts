@@ -13,6 +13,10 @@ export interface ArtKit {
     mushroomSea?: HTMLCanvasElement;
     portraits?: HTMLCanvasElement;
     poseSheet?: HTMLCanvasElement;
+    flowerGround: { img: HTMLCanvasElement; pathT: number }[];
+    mushroomGround: { img: HTMLCanvasElement; pathT: number }[];
+    flowerPortrait?: { img: HTMLCanvasElement; pathT: number };
+    mushroomPortrait?: { img: HTMLCanvasElement; pathT: number };
   };
 }
 
@@ -22,7 +26,7 @@ export const art: ArtKit = {
   mushrooms: [],
   people: {},
   furniture: {},
-  plates: {},
+  plates: { flowerGround: [], mushroomGround: [] },
 };
 
 function loadImg(src: string): Promise<HTMLImageElement> {
@@ -57,12 +61,13 @@ const PEOPLE_FILES = [
 ];
 const FURN_FILES = [
   'sofa', 'armchair', 'coffee', 'table', 'chair', 'bed', 'night', 'shelf', 'tv', 'lamp',
-  'wardrobe', 'side', 'cushion', 'cattree', 'dogbed', 'rug', 'frame', 'lights',
+  'wardrobe', 'side', 'cushion', 'cattree', 'dogbed', 'rug', 'frame', 'lights', 'roses', 'lisi',
 ];
 
 export async function preloadArt(): Promise<ArtKit> {
   if (art.ready) return art;
-  const [flowers, mushrooms, people, furniture, interior, cottage, flowerSea, mushroomSea, portraits, poseSheet] = await Promise.all([
+  const [flowers, mushrooms, people, furniture, interior, cottage, flowerSea, mushroomSea, portraits, poseSheet,
+    flowerG, flowerP, mushG, mushP] = await Promise.all([
     Promise.all(FLOWER_FILES.map(take)),
     Promise.all(MUSH_FILES.map(take)),
     Promise.all(PEOPLE_FILES.map(n => take(`/art/people/${n}.png`))),
@@ -73,6 +78,10 @@ export async function preloadArt(): Promise<ArtKit> {
     take('/art/plates/mushroom-sea.png'),
     take('/art/plates/portraits.png'),
     take('/art/plates/pose-sheet.png'),
+    take('/art/plates/flower-ground.jpg'),
+    take('/art/plates/flower-portrait.jpg'),
+    take('/art/plates/mushroom-ground.jpg'),
+    take('/art/plates/mushroom-portrait.jpg'),
   ]);
   art.flowers = flowers.filter((x): x is HTMLCanvasElement => !!x);
   art.mushrooms = mushrooms.filter((x): x is HTMLCanvasElement => !!x);
@@ -84,6 +93,12 @@ export async function preloadArt(): Promise<ArtKit> {
   if (mushroomSea) art.plates.mushroomSea = mushroomSea;
   if (portraits) art.plates.portraits = portraits;
   if (poseSheet) art.plates.poseSheet = poseSheet;
+  art.plates.flowerGround = [];
+  if (flowerG) art.plates.flowerGround.push({ img: flowerG, pathT: 0.64 });
+  art.plates.mushroomGround = [];
+  if (mushG) art.plates.mushroomGround.push({ img: mushG, pathT: 0.84 });
+  if (flowerP) art.plates.flowerPortrait = { img: flowerP, pathT: 0.57 };
+  if (mushP) art.plates.mushroomPortrait = { img: mushP, pathT: 0.79 };
   art.ready = true;
   return art;
 }

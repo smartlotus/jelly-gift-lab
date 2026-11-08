@@ -15,7 +15,7 @@ export const rnd = (n: number) => {
 };
 
 export function pathY(wx: number, floor: number) {
-  return floor - 2 + Math.round(Math.sin(wx * 0.011) * 8 + Math.sin(wx * 0.027) * 4);
+  return floor - 1 + Math.round(Math.sin(wx * 0.007) * 4 + Math.sin(wx * 0.019) * 2);
 }
 
 export interface Prop {
