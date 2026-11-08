@@ -73,7 +73,10 @@ persist, and film independence (mean pixel difference **0.51** greet, **0** sofa
   ventilated back plate — the demo layout points the TV at the sofa, so the camera mostly sees that back).
 - `home/style.css`: undo / reset / save are now separate light pills; as bare underlined text they disappeared against
   dark furniture.
-- `catalog.ts` demo layout intentionally untouched. Weakest remaining piece is the bed (a pink quilt on a wooden tray).
+- `decorate/meshes.ts`: the bed gained legs, a frame, a mattress with a visible sheet edge, a folded quilt and two
+  pillows; `catalog.ts`'s demo layout was then re-arranged (bed turned side-on, TV moved to the right wall facing the
+  sofa, table/chair shifted) because the old layout put a black TV back and a bed footboard right in the camera's way.
+  The demo is only shown by `?furnish` / 继续布置 — player layouts are untouched.
 
 ### Still open after this pass
 

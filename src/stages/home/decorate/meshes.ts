@@ -225,13 +225,24 @@ function bed(): Group {
   const sheet = cloth('#F4EDE0');
   const quilt = cloth('#E8B0B8');
   const pillow = cloth('#F7EFE4');
-  box(g, 2.1, 0.16, 1.6, w, 0, 0.18, 0, 0.02);
-  box(g, 2.02, 0.14, 1.52, sheet, 0, 0.32, 0, 0.02);
-  box(g, 1.4, 0.1, 1.48, quilt, 0.28, 0.42, 0, 0.03);
-  box(g, 0.42, 0.14, 0.58, pillow, -0.78, 0.44, -0.32, 0.04);
-  box(g, 0.42, 0.14, 0.58, pillow, -0.78, 0.44, 0.32, 0.04);
-  box(g, 0.1, 0.7, 1.62, w, -1.02, 0.45, 0);
-  box(g, 0.08, 0.38, 1.62, w, 1.02, 0.32, 0);
+  // legs + frame so it is a bed, not a tray with a quilt on it
+  [[-0.92, -0.68], [0.92, -0.68], [-0.92, 0.68], [0.92, 0.68]].forEach(([x, z]) => cyl(g, 0.035, 0.03, 0.16, w, x!, 0.08, z!, 6));
+  box(g, 2.1, 0.10, 1.6, w, 0, 0.21, 0, 0.02);
+  box(g, 2.0, 0.20, 1.5, sheet, 0, 0.34, 0, 0.05);
+  // quilt from the foot to two-thirds up, with a folded edge and a rounded top
+  box(g, 1.36, 0.13, 1.46, quilt, 0.30, 0.475, 0, 0.05);
+  box(g, 0.10, 0.09, 1.44, painted('#F2C8CE'), 0.98, 0.50, 0, 0.03);
+  box(g, 1.20, 0.05, 1.38, painted('#EFC0C6'), 0.26, 0.53, 0, 0.04);
+  // pillows: two, leaning on the headboard
+  box(g, 0.40, 0.16, 0.56, pillow, -0.74, 0.47, -0.33, 0.06);
+  box(g, 0.40, 0.16, 0.56, pillow, -0.74, 0.47, 0.33, 0.06);
+  box(g, 0.10, 0.14, 0.50, sheet, -0.87, 0.55, -0.33, 0.04);
+  box(g, 0.10, 0.14, 0.50, sheet, -0.87, 0.55, 0.33, 0.04);
+  // head / foot boards
+  box(g, 0.10, 0.86, 1.66, w, -1.03, 0.50, 0, 0.03);
+  box(g, 0.12, 0.06, 1.70, painted('#B08A5E'), -1.03, 0.94, 0, 0.02);
+  box(g, 0.07, 0.26, 1.62, w, 1.02, 0.28, 0, 0.02);
+  box(g, 0.09, 0.04, 1.66, painted('#B08A5E'), 1.02, 0.42, 0, 0.02);
   g.add(contactShadow(1.12, 0.88));
   return g;
 }
