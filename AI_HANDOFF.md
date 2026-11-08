@@ -85,6 +85,25 @@ persist, and film independence (mean pixel difference **0.51** greet, **0** sofa
 - the editor's 撤回 / 重置 buttons are disabled (and dimmed) when there is nothing to undo or clear, so an empty room no
   longer offers dead controls.
 
+### v03o — Module B rebuilt as a drawn film (2026-11-08, parent request)
+
+Parent's brief: *「不要使用这个像素风格的过场动画了…现在这人物和背景都混在一起了效果很差」*. The old film laid painted
+sprites on painted plates, so figures dissolved into the set; the transform still opened with 16² pixel animals.
+
+- **New module `src/stages/home/film.ts`** (same `createFilm` interface `montage.ts` had: `update / render / skip /
+  replay / seek / scene / finaleT`, same `SCENE_IDS` walk · greet · sofa · sleep · snow · dawn). Six shots drawn in
+  code: soft gouache sets with no outlines, the couple as flat shapes with a warm ink outline, rim light and contact
+  shadow; medium/close framings; paper grain + vignette; 0.9 s dissolves. Story: empty house with boxes → filling the
+  shelf → night sofa with mugs and the cat → dozing under the moon → snow at the glass (silhouettes) → sunrise balcony,
+  then the finale hold with the exact 「我们已经有属于自己的两百天了…」 line.
+- **Transform beat**: no pixel cutaway any more. The film's first frame is already on screen and a warm veil lifts off
+  it (`main.ts`), so the dollhouse light becomes the first shot instead of a pixel iris.
+- **Resolution**: `fit()` switches the PixelScreen to ~1 canvas pixel per CSS pixel while the film plays (minW/minH
+  900×520 landscape, 540×960 portrait, maxH 4000), so outlines are hairlines rather than 4× upscaled blocks.
+- Portrait re-stages (sofa/figures scale from `min(w,h)`), not a crop.
+- Evidence: `review/v03o-film/` (contact sheet, transition, shelf, portrait, finale) + notes.
+- `montage.ts` / `cineRoom.ts` are now unused; left in the tree for a follow-up delete.
+
 ### Still open after this pass
 
 - ~~Sea bridge objects dissolve through a bayer checker~~ — **changed in the v03n pass**: `src/stages/sea/bridges.ts` now
