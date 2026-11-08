@@ -1,10 +1,13 @@
 html, body { background: #1a2830; }
 #mushroom { background: #1a2830; }
-.mu-hint { position: fixed; z-index: 20; left: 0; right: 0; bottom: calc(22px + var(--sab)); margin: 0; text-align: center;
-  color: rgba(210, 232, 226, .78); font-size: 12px; letter-spacing: .18em; text-shadow: 0 1px 8px rgba(0,0,0,.35);
+.mu-hint { position: fixed; z-index: 20; left: 0; right: 0; bottom: calc(108px + var(--sab)); margin: 0; text-align: center;
+  color: rgba(226, 238, 232, .92); font-size: 12px; letter-spacing: .18em; text-shadow: 0 1px 8px rgba(0,0,0,.35);
   opacity: 0; transition: opacity .9s var(--ease); pointer-events: none; }
 .mu-hint.on { opacity: .92; } .mu-hint.on.out { opacity: 0; }
-@media (pointer: coarse) { .mu-hint { bottom: calc(28px + var(--sab)); font-size: 11px; } }
+@media (pointer: coarse) { .mu-hint { bottom: calc(108px + var(--sab)); font-size: 11px; } }
+@media (orientation: landscape), (max-height: 520px) {
+  .mu-hint { bottom: calc(56px + var(--sab)); }
+}
 .gift-chrome { color: rgba(226, 236, 232, .78); }
 .gift-chrome button:hover, .gift-chrome [aria-pressed="true"] { color: #f2f7f4; }
 .gc-lang [aria-pressed="false"] { color: rgba(226, 236, 232, .42); }

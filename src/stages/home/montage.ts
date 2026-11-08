@@ -17,29 +17,45 @@ function drawAlignedDoor(
   mapped: { x: number; y: number; dw: number; dh: number },
   open: number,
 ) {
-  if (open <= 0) return;
   const x = mapped.x + mapped.dw * COTTAGE_DOOR.x;
   const y = mapped.y + mapped.dh * COTTAGE_DOOR.y;
   const w = mapped.dw * COTTAGE_DOOR.w;
   const h = mapped.dh * COTTAGE_DOOR.h;
   const rx = Math.round(x), ry = Math.round(y), rw = Math.round(w), rh = Math.round(h);
-  const glow = g.createLinearGradient(rx, ry, rx + rw, ry);
-  glow.addColorStop(0, `rgba(42, 20, 8, ${0.62 + open * 0.28})`);
-  glow.addColorStop(0.38, `rgba(176, 92, 34, ${0.55 + open * 0.30})`);
-  glow.addColorStop(0.68, `rgba(255, 176, 88, ${0.42 + open * 0.28})`);
-  glow.addColorStop(1, `rgba(64, 28, 10, ${0.55 + open * 0.28})`);
-  g.fillStyle = glow;
+  const o = Math.max(0, Math.min(1, open));
+  // Interior first — the plate paints a closed, warmly lit double door, so
+  // we always cover that leaf and reveal the room through the same jamb.
+  const interior = g.createLinearGradient(rx, ry, rx + rw, ry + rh);
+  interior.addColorStop(0.0, '#1a0c06');
+  interior.addColorStop(0.32, '#8a4218');
+  interior.addColorStop(0.62, '#3d1a08');
+  interior.addColorStop(1.0, '#120806');
+  g.fillStyle = interior;
   g.fillRect(rx, ry, rw, rh);
-  g.fillStyle = `rgba(255, 208, 124, ${0.16 + open * 0.20})`;
-  g.fillRect(rx + Math.round(rw * 0.30), ry + Math.round(rh * 0.12), Math.max(2, Math.round(rw * 0.34)), Math.max(2, Math.round(rh * 0.26)));
-  const vis = Math.max(2, Math.round(rw * Math.max(0.18, Math.cos(open * Math.PI * 0.48))));
+  g.fillStyle = `rgba(255, 196, 120, ${0.10 + o * 0.38})`;
+  g.beginPath();
+  g.ellipse(rx + rw * 0.50, ry + rh * 0.42, rw * 0.22, rh * 0.18, 0, 0, Math.PI * 2);
+  g.fill();
+  // Double leaf hinged left + right. Closed: vis=1 covers the hole.
+  // Open: each half narrows toward its hinge, exposing the interior.
+  const vis = Math.max(0.16, Math.cos(o * Math.PI * 0.46));
+  const half = rw / 2;
+  const lw = Math.max(2, Math.round(half * vis));
   g.imageSmoothingEnabled = false;
   const door = art.plates.cottageDoor;
   if (door) {
-    g.drawImage(door, rx, ry, vis, rh);
-    g.fillStyle = 'rgba(20, 10, 4, 0.35)';
-    g.fillRect(rx + vis, ry, 1, rh);
-  } else swingDoor(g, rx, ry, rw, rh, open, true);
+    const dw = door.width, dh = door.height;
+    const mid = Math.round(dw / 2);
+    g.drawImage(door, 0, 0, mid, dh, rx, ry, lw, rh);
+    g.drawImage(door, mid, 0, dw - mid, dh, rx + rw - lw, ry, lw, rh);
+  } else {
+    swingDoor(g, rx, ry, rw, rh, o, true);
+  }
+  g.strokeStyle = 'rgba(58, 34, 16, 0.95)';
+  g.lineWidth = 2;
+  g.strokeRect(rx + 0.5, ry + 0.5, rw - 1, rh - 1);
+  g.fillStyle = 'rgba(70, 42, 22, 0.92)';
+  g.fillRect(rx - 1, ry + rh - 2, rw + 2, 3);
 }
 
 export const SCENE_IDS = ['walk', 'greet', 'sofa', 'sleep', 'snow', 'dawn'] as const;
@@ -151,10 +167,8 @@ function drawWalk(g: CanvasRenderingContext2D, w: number, h: number, t: number) 
   const doorStart = 3.4;
   const doorDur = 1.6;
   const open = t <= doorStart ? 0 : Math.min(1, (t - doorStart) / doorDur);
-  if (open > 0) {
-    if (mapped) drawAlignedDoor(g, mapped, open);
-    else swingDoor(g, hx + 46, floor - 54, 28, 54, open, true);
-  }
+  if (mapped) drawAlignedDoor(g, mapped, open);
+  else swingDoor(g, hx + 46, floor - 54, 28, 54, open, true);
   const startX = w * 0.14;
   const pauseX = (mapped ? mapped.x + mapped.dw * 0.42 : hx) - 8;
   const arrive = Math.min(1, t / walkT);
@@ -170,25 +184,23 @@ function drawGreet(g: CanvasRenderingContext2D, w: number, h: number, t: number,
   g.save();
   g.beginPath(); g.rect(0, 0, w, h); g.clip();
   const k = Math.min(1, t / 5.6);
-  const herX = Math.min(Math.max(w * 0.40, sofaX - 28), w * 0.56);
-  const himX = herX - 58;
-  const dogSettle = himX - 46;
-  const catSettle = herX + 42;
-  const mid = (himX + herX) / 2;
-  const zoom = 1.08;
-  const visW = w / zoom;
-  const camX = Math.max(visW / 2, Math.min(w - visW / 2, mid));
-  g.translate(w * 0.5, h * 0.70);
-  g.scale(zoom, zoom);
-  g.translate(-camX, -floor);
+  // Furniture stays on the architectural floor. People and pets stand on
+  // the closer floorboards so feet never plant on the coffee table or TV.
+  // Standing adults ~1.8× the drawn sofa height (not giants over it).
+  const feetY = Math.round(floor + (h - floor) * 0.70);
+  const herX = Math.min(Math.max(w * 0.50, sofaX - 4), w * 0.58);
+  const himX = herX - 48;
+  const dogSettle = Math.max(w * 0.20, himX - 40);
+  const catSettle = Math.min(w * 0.78, herX + 36);
   drawFurnished(g, w, h, layout, 1.15);
-  figure(g, 'him', 'stand', himX, floor, false, t, 1);
-  figure(g, 'her', 'stand', herX, floor, false, t, 1);
+  const personS = 0.84;
+  figure(g, 'him', 'stand', himX, feetY, false, t, personS);
+  figure(g, 'her', 'stand', herX, feetY, false, t, personS);
   const rush = 1 - Math.pow(1 - Math.min(1, k / 0.72), 2);
   const dogX = (w + 40) * (1 - rush) + dogSettle * rush;
   const catX = (w + 88) * (1 - rush) + catSettle * rush;
-  pet(g, 'collie', k < 0.74 ? 'walk' : 'extra', dogX, floor, true, t, 1);
-  pet(g, 'calico', k < 0.78 ? 'walk' : 'extra', catX, floor, true, t, 1);
+  pet(g, 'collie', k < 0.74 ? 'walk' : 'extra', dogX, feetY, true, t, 0.78);
+  pet(g, 'calico', k < 0.78 ? 'walk' : 'extra', catX, feetY, true, t, 0.78);
   g.restore();
 }
 
