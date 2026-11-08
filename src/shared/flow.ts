@@ -2,8 +2,8 @@
 //   meadow    /            invitation
 //   flower    /flower/     living bouquet forest (云南紫精灵 + 戴安娜粉玫瑰)
 //   mushroom  /mushroom/   luminous mushroom wood
-//   shop      /shop/       handmade keepsakes (AR side path returns here)
-//   night     /night/      night walk together
+//   shop      /shop/       handmade keepsakes (AR side path returns here; rear splits to night or jelly)
+//   night     /night/      optional night walk together
 //   jelly     /jelly/      relief / play
 //   sea       /sea/        remembered seas
 //   sky       /sky/        Changchun sky + 200-day film

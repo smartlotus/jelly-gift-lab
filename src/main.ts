@@ -11,6 +11,8 @@ import * as UI from './ui/ui';
 import { hasSensors, askPermission, needsPermission } from './app/tilt';
 import * as Curtain from './shared/curtain';
 import { tell, mountStory } from './shared/story';
+import { go } from './shared/flow';
+import { irisOut } from './shared/transition';
 // v03e: this page reveals the shared loading curtain itself (after the first frames), never on the auto timer
 Curtain.manual();
 // journey arrival: the night stage's kawaii flip closed its iris on pink, so the curtain arrives pink (its colour is handed
@@ -226,6 +228,10 @@ async function boot() {
     }
   }
   document.getElementById('reset')!.addEventListener('click', () => { engine.reset(); Sfx.jellyReset(); });
+  const toSea = document.getElementById('to-sea');
+  toSea?.addEventListener('click', () => {
+    void go('sea', () => irisOut(innerWidth / 2, innerHeight / 2, 800, '#0d2c3b'));
+  });
   document.addEventListener('visibilitychange', () => { if (document.hidden) engine.stop(); else engine.start(); });
   engine.start();
   requestAnimationFrame(() => requestAnimationFrame(() => {

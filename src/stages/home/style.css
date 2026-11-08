@@ -72,3 +72,25 @@ body.hm-on-finale .hm-replay, body.hm-on-finale .hm-again { display: inline-bloc
 }
 
 body.hm-decorating .hm-skip { display: none; }
+
+#hm-space { position: fixed; inset: 0; z-index: 8; }
+#hm-space canvas { width: 100%; height: 100%; display: block; touch-action: none;
+  image-rendering: pixelated; image-rendering: crisp-edges; }
+body.hm-decorating .pixel-host canvas { visibility: hidden; }
+
+.hm-migrate, .hm-nowebgl {
+  position: fixed; z-index: 34; left: 50%; transform: translateX(-50%);
+  top: calc(14px + var(--sat) + 72px); width: max-content; max-width: min(92vw, 36em);
+  text-align: center; font-size: 12px; letter-spacing: .12em; line-height: 1.55;
+  color: #f6efe8; background: rgba(24,18,16,.58); padding: 8px 16px; border-radius: 10px;
+  display: none; pointer-events: none;
+}
+.hm-migrate.on, .hm-nowebgl.on { display: block; }
+.hm-nowebgl { top: 42%; }
+
+.hm-edit { position: fixed; z-index: 34; left: 50%; transform: translateX(-50%);
+  bottom: calc(16px + var(--sab)); letter-spacing: .18em; font-size: 12px;
+  color: rgba(42,34,32,.6); min-height: 44px; padding: 8px 4px;
+  border-bottom: 1px solid rgba(42,34,32,.3); display: none; }
+body.hm-on-finale .hm-edit { display: inline-block; }
+body.hm-decorating .hm-edit { display: none; }

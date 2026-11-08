@@ -1,19 +1,20 @@
-// /home/ · after 一起玩: pig and cat find an empty house, furnish a future home (landscape),
-// then a cinematic turns them into more-realistic pixel people and plays a life-together montage.
+// /home/ · after 一起玩: pig and cat find an empty house, furnish a future home (spatial Module A),
+// then a cinematic (Module B) plays a fixed, art-directed life-together montage — independent of the layout.
 import { register, apply, onLang, t } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
 import { markReached, go, params, reducedMotion } from '../../shared/flow';
 import { irisIn, irisOut } from '../../shared/transition';
+import { peekCarry, clearCarry } from '../../shared/curtain';
 import { PixelScreen } from '../../shared/pixel/screen';
 import { startLoop } from '../../shared/pixel/loop';
 import { catSprites, catFrame } from '../../shared/pixel/cat';
 import { pigSprites, pigFrame } from '../../shared/pixel/pig';
 import { createApproach } from './approach';
-import { createRoom, drawFurnished, demoLayout, type Placed } from './room';
+import { drawCinematicRoom } from './cineRoom';
 import { createMontage, type MontageApi } from './montage';
 import { drawPerson } from './people';
 import { preloadArt } from '../../art/loader';
-import { clearLayout, loadLayout, type SavedItem } from './save';
+import { clearLayout } from './save';
 import { startHomeAudio, toDream, leaveHome } from './sfx';
 import * as dict from './dict';
 import './style.css';
@@ -36,30 +37,31 @@ const finale = document.createElement('p'); finale.className = 'hm-finale'; fina
 const skip = document.createElement('button'); skip.type = 'button'; skip.className = 'hm-skip'; skip.dataset.i18n = 'home.skip';
 const replay = document.createElement('button'); replay.type = 'button'; replay.className = 'hm-replay'; replay.dataset.i18n = 'home.replay';
 const again = document.createElement('button'); again.type = 'button'; again.className = 'hm-again'; again.dataset.i18n = 'home.again';
-document.body.append(line, finale, skip, replay, again);
+const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'hm-edit'; edit.dataset.i18n = 'home.edit';
+document.body.append(line, finale, skip, replay, again, edit);
 apply(); onLang(() => apply());
 
 startHomeAudio('hearth');
 
 let approach = createApproach();
-let room: ReturnType<typeof createRoom> | null = null;
+type DecorateApi = import('./decorate/world').DecorateApi;
+let room: DecorateApi | null = null;
 let montage: MontageApi | null = null;
-let layout: SavedItem[] = loadLayout().items;
 let transformT = 0;
 let spark: { x: number; y: number; vx: number; vy: number; life: number }[] = [];
 
-function enterRoom() {
+async function enterRoom() {
   phase = 'room';
   document.body.classList.add('hm-decorating');
+  document.body.classList.remove('hm-on-finale');
   line.classList.remove('on');
-  room = createRoom(screen.canvas, (cx, cy) => screen.toLogical(cx, cy));
-  room.onSave = (items: Placed[]) => {
-    layout = items.map(({ kind, x, y, flip }) => ({ kind, x, y, flip }));
-    leaveRoom();
-  };
+  finale.classList.remove('on');
+  montage?.replay();
+  montage = null;
+  const { createDecorate } = await import('./decorate/world');
+  room = createDecorate(document.body);
+  room.onSave = () => { leaveRoom(); };
   if (params.has('furnish')) room.furnishDemo();
-  const fit = () => screen.configure(innerHeight > innerWidth ? { minW: 210, minH: 200 } : { minW: 300, minH: 168 });
-  fit();
 }
 
 function leaveRoom() {
@@ -75,17 +77,16 @@ function leaveRoom() {
 function enterMontage() {
   phase = 'montage';
   line.classList.remove('on');
-  if (params.has('furnish')) layout = demoLayout();
-  else if (!layout.length) layout = loadLayout().items;
-  montage = createMontage(layout);
+  // Module B never reads the player's layout.
+  montage = createMontage();
   if (['walk', 'greet', 'sofa', 'sleep', 'snow', 'dawn', 'finale'].includes(at)) {
     const startT = at === 'dawn' ? 5.5 : at === 'walk' ? 2.6 : at === 'greet' ? 3.6 : at === 'snow' ? 2.4 : at === 'finale' ? 1.2 : 1.8;
     montage.seek(at as 'walk', startT);
   }
 }
 
-if (phase === 'room') enterRoom();
-else if (phase === 'transform') { enterRoom(); leaveRoom(); }
+if (phase === 'room') await enterRoom();
+else if (phase === 'transform') { await enterRoom(); leaveRoom(); }
 else if (phase === 'montage') enterMontage();
 
 skip.addEventListener('click', () => {
@@ -93,15 +94,20 @@ skip.addEventListener('click', () => {
   else if (phase === 'transform') enterMontage();
   else if (phase === 'montage') montage?.skip();
 });
-replay.addEventListener('click', () => { finale.classList.remove('on'); document.body.classList.remove('hm-on-finale'); montage?.replay(); });
+replay.addEventListener('click', () => {
+  finale.classList.remove('on');
+  document.body.classList.remove('hm-on-finale');
+  montage?.replay();
+});
 again.addEventListener('click', () => { leaveHome(); void go('meadow', () => reducedMotion() ? Promise.resolve() : irisOut(innerWidth / 2, innerHeight / 2, 700, '#f3ebe0')); });
+edit.addEventListener('click', () => { void enterRoom(); });
 
 const reduced = reducedMotion();
 startLoop(dt => {
   if (phase === 'approach') {
     approach.update(dt);
     line.classList.toggle('on', approach.lineOn);
-    if (approach.done) enterRoom();
+    if (approach.done) void enterRoom();
   } else if (phase === 'room') {
     room?.update(dt);
   } else if (phase === 'transform') {
@@ -121,9 +127,9 @@ startLoop(dt => {
   if (phase === 'approach') {
     approach.render(g, w, h);
   } else if (phase === 'room') {
-    room?.render(g, w, h);
+    // Module A draws itself in WebGL.
   } else if (phase === 'transform') {
-    drawFurnished(g, w, h, layout);
+    drawCinematicRoom(g, w, h);
     const floor = Math.round(h * 0.72);
     const k = Math.max(0, Math.min(1, (transformT - 0.6) / 2.4));
     g.save(); g.globalAlpha = 1 - k;
@@ -150,12 +156,14 @@ const fit = () => {
 };
 fit(); window.addEventListener('resize', fit);
 
-void irisIn(innerWidth * 0.7, innerHeight * 0.6, 700, '#5EC4FF');
+const carry = peekCarry();
+void irisIn(innerWidth * 0.7, innerHeight * 0.6, 700, carry?.color || '#f3ebe0', carry?.img).then(() => clearCarry());
 void t;
 
-(window as unknown as { __home?: { phase: () => string; skip: () => void; save: () => void; seek: (id: string, tt?: number) => void } }).__home = {
+(window as unknown as { __home?: { phase: () => string; skip: () => void; save: () => void; seek: (id: string, tt?: number) => void; edit: () => void } }).__home = {
   phase: () => phase === 'montage' ? (montage?.scene ?? phase) : phase,
   skip: () => skip.click(),
   save: () => (window as unknown as { __homeRoom?: { save: () => void } }).__homeRoom?.save(),
   seek: (id: string, tt = 0) => montage?.seek(id as 'walk', tt),
+  edit: () => { void enterRoom(); },
 };

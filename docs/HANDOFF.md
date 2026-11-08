@@ -1,5 +1,7 @@
 # HANDOFF · 交接文档（任何 AI / 开发者从这里接手）
 
+> **2026-11-07 (America/Los_Angeles) — current takeover:** [`AI_HANDOFF.md`](../AI_HANDOFF.md) on branch `v03m-spatial-home`. That file is the source of truth for **WIP vs live v03l**, the required sequence meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → empty house → spatial furnish → fixed future film, the pig-follows-cat rule in both woods, and what is unfinished. Historical sections below (including v03j’s flower-before-shop order) are **not** the current brief. Do not deploy this WIP until a parent visual + functional gate.
+>
 > **Story edition (`smartlotus/jelly-gift-story`), now public.** Live Pages: [https://smartlotus.github.io/jelly-gift-story/](https://smartlotus.github.io/jelly-gift-story/).
 >
 > Delivered source is tag `v03l` = `ef2405b635d532cd219914812f7681f523640be7` (merge of [PR #2](https://github.com/smartlotus/jelly-gift-story/pull/2), load art through `asset()`). That sits on tag `v03k` = `1fd78f9801a8af7e4db8cf15c99683742a07a665` (merge of [PR #1](https://github.com/smartlotus/jelly-gift-story/pull/1), art rebuild + owl facing, tip `5cb39cc`). Pages `gh-pages` `de208c3e903f6397f8ccb869680ae1421d28488f` (`Deploy story edition (ef2405b)`), non-force from `4f5dbed`. The earlier v03k Pages deploy `4f5dbed` (`Deploy story edition (1fd78f9)`) served JS but requested `/art/` from the domain root, so flower/mushroom/home fell back to procedural plates — do not treat that deploy as the delivered art. Live shots: [`review/publish/live-*-desktop.png`](../review/publish/) and `live-flower-phone.png`.
@@ -8,7 +10,7 @@
 >
 > Plot beats: [`docs/STORY.md`](STORY.md). Visual and story work after the copy lives only in this repository.
 >
-> Working tree: `/workspace/jelly/jelly-gift-story`. Default branch `main`. Remote: `https://github.com/smartlotus/jelly-gift-story.git`. Push with `git push origin main`.
+> Working tree: `/workspace/jelly/jelly-gift-story`. Default branch `main` (live docs tip `e08e1c2`). Current feature work is on `v03m-spatial-home` — push that branch, not a silent force onto `main`. Remote: `https://github.com/smartlotus/jelly-gift-story.git`.
 > Local preview: `npm install && npm run build && node tools/serve.mjs dist 8822`
 > Review screenshots: [`review/story/`](../review/story/), motion QA [`review/motion/`](../review/motion/), live publish shots [`review/publish/`](../review/publish/). Do not overwrite the preserved first-pass grids in `jelly-gift-site/review/v03j`.
 > Deploy (this repo only, non-force): `GIFT_DEPLOY=1 scripts/deploy_pages.sh`

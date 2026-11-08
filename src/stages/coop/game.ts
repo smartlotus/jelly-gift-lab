@@ -50,7 +50,12 @@ export class Sim {
   private setGate(open: boolean) { const gt = this.L.gate; for (let y = gt.ty0; y <= gt.ty1; y++) setTile(this.map, gt.tx, y, open ? ' ' : 'g'); }
   private camTarget() {
     const { tw, seam } = this.view();
-    if (this.end >= 0) return Math.max(0, Math.min(WW - tw, this.L.door.x + 16 - seam));
+    if (this.end >= 0) {
+      const cottage = 88 * TILE;
+      const k = Math.max(0, Math.min(1, (this.end - 2.2) / 3.4));
+      const aim = this.L.door.x + 16 + (cottage - this.L.door.x) * k;
+      return Math.max(0, Math.min(WW - tw, aim - seam));
+    }
     const mid = (this.b[0].x + this.b[1].x + this.b[0].w) / 2; return Math.max(0, Math.min(WW - tw, mid - tw / 2));
   }
   step(inp: [PIn, PIn], dt: number) {
@@ -86,10 +91,19 @@ export class Sim {
     const ct = this.camTarget(); this.camX += (ct - this.camX) * Math.min(1, dt * (this.end >= 0 ? 2.2 : 5));
     void pig; void cat;
   }
-  /** ending: walk to the door, face each other on the seam */
+  /** ending: meet at the door, then both walk the same way toward the cottage */
   private autoWalk(): [PIn, PIn] {
-    const c = this.L.door.x + 16, goal = [c - 13, c + 3];
-    return this.b.map((b, i) => { const d = goal[i] - b.x; return { ax: this.end < 0.6 || Math.abs(d) < 1.5 ? 0 : Math.sign(d), held: false, hit: false }; }) as [PIn, PIn];
+    const door = this.L.door.x + 16;
+    const cottage = 86 * TILE;
+    const meet = [door - 14, door + 4];
+    const onward = [cottage - 18, cottage - 4];
+    const going = this.end > 2.1;
+    const goal = going ? onward : meet;
+    return this.b.map((b, i) => {
+      const d = goal[i] - b.x;
+      if (!going && (this.end < 0.55 || Math.abs(d) < 1.5)) return { ax: 0, held: false, hit: false };
+      return { ax: Math.abs(d) < 1.4 ? 0 : Math.sign(d), held: false, hit: false };
+    }) as [PIn, PIn];
   }
   snapshot(): number[] {
     const r = (v: number) => Math.round(v * 10) / 10, s: number[] = [];
@@ -154,7 +168,7 @@ export class Art {
     const [pig, cat] = sim.b, ending = sim.end >= 0;
     const pf = ending && sim.end > 1.6 ? this.pig.happy.frames[Math.floor(t * 4) & 1] : pigFrame(this.pig, pig, t, sim.land[0]);
     const cf = ending && sim.end > 1.6 ? this.cat.happy.frames[Math.floor(t * 4 + 1) & 1] : catFrame(this.cat, cat, t, sim.land[1]);
-    const pFace = ending && sim.end > 1.2 ? 1 : pig.face, cFace = ending && sim.end > 1.2 ? -1 : cat.face;
+    const pFace = ending && sim.end > 2.1 ? 1 : pig.face, cFace = ending && sim.end > 2.1 ? 1 : cat.face;
     draw(g, pf, pig.x + pig.w / 2 - 8 - cx, pig.y + pig.h - 16 - cy, pFace < 0);
     draw(g, cf, cat.x + cat.w / 2 - 8 - cx, cat.y + cat.h - 16 - cy, cFace < 0);
     if (ending) this.finale(g, sim, vx, vw, vh, cy);
@@ -170,10 +184,25 @@ export class Art {
       if (x > -8 && x < vw + 8) g.drawImage(img, Math.round(x), Math.round(y));
     }
     // one big pixel heart centred on the seam, growing in integer steps
-    if (e > 1.6) {
+    if (e > 1.6 && e < 3.4) {
       const kMax = Math.max(2, Math.floor(Math.min((span * 0.42) / 11, vh * 0.4 / 10))), k = Math.max(1, Math.min(kMax, Math.floor((e - 1.6) / 0.09) + 1));
+      const fade = e > 2.6 ? Math.max(0, 1 - (e - 2.6) / 0.8) : 1;
+      g.save(); g.globalAlpha = fade;
       const pulse = e > 3 && Math.floor(e * 1.6) % 2 ? 1 : 0, kk = k + (k === kMax ? pulse : 0), w = 11 * kk, h = 10 * kk;
       g.drawImage(this.heart, Math.round(sx - w / 2), Math.max(4, Math.round((G * TILE - cy - 48 - h) / 2)), w, h);
+      g.restore();
+    }
+    // cottage waiting further along the path (same walking direction)
+    if (e > 2.0) {
+      const hx = 88 * TILE - vx, hy = G * TILE - cy;
+      const show = Math.min(1, (e - 2.0) / 1.2);
+      g.save(); g.globalAlpha = show;
+      g.fillStyle = '#C4A078'; g.fillRect(Math.round(hx - 28), Math.round(hy - 52), 56, 52);
+      g.fillStyle = '#8A4A3A'; g.fillRect(Math.round(hx - 34), Math.round(hy - 64), 68, 16);
+      g.fillStyle = '#6A4A32'; g.fillRect(Math.round(hx - 8), Math.round(hy - 28), 16, 28);
+      g.fillStyle = '#7A9EC0'; g.fillRect(Math.round(hx + 10), Math.round(hy - 42), 12, 12);
+      g.fillStyle = '#F0B070'; g.fillRect(Math.round(hx + 10), Math.round(hy - 42), 6, 12);
+      g.restore();
     }
   }
 }

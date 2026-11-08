@@ -2,7 +2,7 @@ import { register, apply, onLang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
 import { markReached, go, prefetchNext, reducedMotion } from '../../shared/flow';
 import { irisIn, irisOut } from '../../shared/transition';
-import { peekCarry, clearCarry } from '../../shared/curtain';
+import { stashCanvas, peekCarry, clearCarry } from '../../shared/curtain';
 import { startWander } from '../wander/engine';
 import { preloadArt } from '../../art/loader';
 import { startGroveAudio, leaveGrove, drip } from './sfx';
@@ -22,8 +22,10 @@ const wood = startWander({
   host, theme: 'mushroom',
   onNearExit: () => { prefetchNext(); tell('story.mushroom.out'); },
   onExit: (x, y) => {
-    if (left) return; left = true; leaveGrove();
-    void go('shop', () => reducedMotion() ? Promise.resolve() : irisOut(x, y, 720, '#1a2830'));
+    if (left) return; left = true;
+    const snap = stashCanvas(wood.screen.canvas);
+    leaveGrove();
+    void go('shop', () => reducedMotion() ? Promise.resolve() : irisOut(x, y, 720, snap?.color || '#1a2830', snap?.img));
   },
 });
 const fit = () => wood.screen.configure(innerHeight > innerWidth ? { minW: 176, minH: 248 } : { minW: 300, minH: 168 });

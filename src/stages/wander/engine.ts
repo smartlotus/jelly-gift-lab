@@ -14,6 +14,7 @@ import { pathY } from './fields';
 import { blitGroundSequence, worldWidthOf } from '../../art/blit';
 import { art } from '../../art/loader';
 import { cat32Sprites, cat32Frame } from '../../shared/pixel/cat32';
+import { pigSprites, pigFrame } from '../../shared/pixel/pig';
 
 export type WoodTheme = 'flower' | 'mushroom';
 export interface WoodOpts {
@@ -127,6 +128,8 @@ export function startWander(opts: WoodOpts) {
   const screen = new PixelScreen({ host: opts.host, minW: 176, minH: 248, maxH: 640 });
   const ctx = screen.ctx;
   const catSp = cat32Sprites();
+  const pigSp = pigSprites();
+  const pig = { x: theme === 'flower' ? 64 : 0, face: 1 as number, vx: 0 };
   const floorOf = (w: number, h: number) => h - Math.max(22, Math.round(h * (h > w ? 0.13 : 0.16)));
   const landscape = () => theme === 'flower' ? art.plates.flowerGround : art.plates.mushroomGround;
   const coverOf = (w: number, h: number) => {
@@ -206,6 +209,23 @@ export function startWander(opts: WoodOpts) {
     cat.x += cat.vx * dt;
     if (ax) cat.face = ax;
     cat.x = Math.max(16, Math.min(worldW - 32, cat.x));
+
+    if (theme === 'flower') {
+      // pig sees her off at the entrance, then stays — she walks the wood alone
+      const stay = 118;
+      if (cat.x < stay + 40 && pig.x < stay) {
+        pig.vx += ((36) - pig.vx) * Math.min(1, dt * 3);
+        pig.x = Math.min(stay, pig.x + pig.vx * dt);
+        pig.face = 1;
+      } else {
+        pig.vx += (0 - pig.vx) * Math.min(1, dt * 6);
+        pig.face = cat.x > pig.x ? 1 : -1;
+      }
+    } else {
+      pig.x = EXIT_X - 46;
+      pig.vx = 0;
+      pig.face = cat.x < pig.x ? -1 : 1;
+    }
 
     cam.worldW = worldW;
     cam.worldH = Math.max(220, screen.h);
@@ -311,6 +331,46 @@ export function startWander(opts: WoodOpts) {
       ctx.drawImage(img, flip ? -img.width : 0, -img.height);
       ctx.restore();
     };
+    if (theme === 'flower') {
+      const dusk = Math.max(0, Math.min(1, (cat.x - worldW * 0.48) / (worldW * 0.42)));
+      if (dusk > 0) {
+        ctx.fillStyle = `rgba(42, 24, 64, ${dusk * 0.34})`;
+        ctx.fillRect(0, 0, w, h);
+      }
+      // first glowing mushrooms appear toward the exit — not extra flowers
+      if (dusk > 0.15) {
+        const glow = Math.min(1, (dusk - 0.15) / 0.5);
+        const spots: [number, number, number][] = [
+          [worldW * 0.78, 1.15, 11], [worldW * 0.84, 0.95, 7], [worldW * 0.90, 1.25, 3],
+          [worldW * 0.93, 1.05, 19], [worldW * 0.87, 0.82, 29],
+        ];
+        for (const [wx, sc, seed] of spots) {
+          drawShroom(ctx, wx - ox, floorY, seed % 2 ? 'bell' : 'spot', sc, seed, glow);
+        }
+      }
+    } else {
+      // warm shop window waiting at the end of the mushroom wood
+      const sx = worldW - 52 - ox, sy = floorY;
+      ctx.fillStyle = '#3A2A24';
+      ctx.fillRect(Math.round(sx), Math.round(sy - 62), 48, 62);
+      ctx.fillStyle = '#5A3A30';
+      ctx.fillRect(Math.round(sx - 4), Math.round(sy - 70), 56, 10);
+      const glow = 0.55 + 0.2 * Math.sin(time * 2.2);
+      ctx.fillStyle = `rgba(255, 186, 110, ${0.35 + glow * 0.25})`;
+      ctx.fillRect(Math.round(sx + 6), Math.round(sy - 50), 16, 18);
+      ctx.fillRect(Math.round(sx + 26), Math.round(sy - 50), 16, 18);
+      ctx.fillStyle = '#C4A078';
+      ctx.fillRect(Math.round(sx + 18), Math.round(sy - 28), 12, 28);
+      ctx.fillStyle = `rgba(255, 200, 120, ${0.12 + glow * 0.1})`;
+      ctx.beginPath();
+      ctx.moveTo(sx + 6, sy - 32); ctx.lineTo(sx + 42, sy - 32); ctx.lineTo(sx + 56, sy); ctx.lineTo(sx - 8, sy); ctx.fill();
+    }
+
+    {
+      const pigImg = pigFrame(pigSp, { vx: pig.vx, vy: 0, ground: true }, time, 1);
+      blit(pigImg, Math.round(pig.x - ox - pigImg.width), Math.round(floorY), pig.face < 0, 2);
+    }
+
     critters.sort((a, b) => a.x - b.x);
     for (const c of critters) {
       const img = critterFrame(c.kind, c.mode, time);

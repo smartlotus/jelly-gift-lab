@@ -7,6 +7,7 @@ import { EXHIBITS } from './exhibits';
 export const WORLD_W = 1480, WORLD_H = 192, FLOOR_Y = 160;
 export const ENTRY = { x: 12, y: 104, w: 32, h: 56 };
 export const BACKDOOR = { x: 1408, y: 104, w: 32, h: 56 };
+export const LITEXIT = { x: 1368, y: 104, w: 32, h: 56 };
 export const FRIDGE = { x: 604, y: 74, w: 64, h: 86 };
 export const FRIDGE2 = { x: 1290, y: 74, w: 64, h: 86 }; // v03h: lotus30 reliefs
 export const LAMPS = [272, 432, 816, 1000, 1160];
@@ -157,13 +158,19 @@ export function buildShop() {
   for (let x = rx0 + 6; x < rx1 - 4; x += 10) { R(g, x, 175, 1, 1, '#FBE3E8'); R(g, x - 1, 176, 3, 1, '#F9D6DD'); R(g, x, 177, 1, 1, '#FBE3E8'); }
   for (let y = 168; y < 184; y += 2) { R(g, rx0 - 2, y, 2, 1, '#FFF4E4'); R(g, rx1, y, 2, 1, '#FFF4E4'); }
 
-  // entry door (left) with a glimpse of the bright meadow, OPEN sign, bell
+  // entry door (left) with a glimpse of the dusk wood the cat just left, OPEN sign, bell
   const E = ENTRY;
   R(g, E.x - 3, E.y - 3, E.w + 6, E.h + 3, '#E2D2BA'); R(g, E.x - 3, E.y - 3, E.w + 6, 1, '#FFFAF2');
   R(g, E.x, E.y, E.w, E.h, '#E6C79F'); R(g, E.x + E.w - 3, E.y, 3, E.h, '#D2AE80'); R(g, E.x, E.y, 1, E.h, '#F0D6B0');
-  R(g, E.x + 5, E.y + 5, 22, 20, '#C99E6E'); R(g, E.x + 6, E.y + 6, 20, 18, '#9ADCFF'); R(g, E.x + 6, E.y + 6, 20, 6, '#5EC4FF');
-  R(g, E.x + 6, E.y + 19, 20, 5, '#4CC25A'); R(g, E.x + 6, E.y + 18, 9, 1, '#4CC25A'); R(g, E.x + 18, E.y + 9, 6, 2, '#FFFFFF'); R(g, E.x + 16, E.y + 10, 2, 1, '#FFFFFF');
-  R(g, E.x + 7, E.y + 7, 1, 6, '#FFFFFF'); R(g, E.x + 16, E.y + 6, 1, 18, '#C99E6E');
+  R(g, E.x + 5, E.y + 5, 22, 20, '#C99E6E');
+  const dusk = ['#5E5A97', '#8778B0', '#C691B0', '#E39DA8', '#F2AE9F'];
+  for (let y = 0; y < 18; y++) {
+    g.fillStyle = dusk[Math.min(dusk.length - 1, Math.floor((y / 18) * dusk.length))];
+    g.fillRect(E.x + 6, E.y + 6 + y, 20, 1);
+  }
+  R(g, E.x + 6, E.y + 19, 20, 5, '#2A3A30'); R(g, E.x + 8, E.y + 16, 5, 8, '#1C2C24'); R(g, E.x + 16, E.y + 14, 6, 10, '#243428');
+  R(g, E.x + 18, E.y + 9, 4, 2, '#FFF4E4'); R(g, E.x + 7, E.y + 8, 1, 1, '#FFF4E4');
+  R(g, E.x + 16, E.y + 6, 1, 18, '#C99E6E');
   R(g, E.x + 5, E.y + 30, 22, 20, '#DDBB8E'); R(g, E.x + 5, E.y + 30, 22, 1, '#CFA878'); R(g, E.x + 5, E.y + 30, 1, 20, '#CFA878');
   R(g, E.x + 26, E.y + 30, 2, 2, '#D9B26A');
   R(g, E.x + 16 - 6, E.y + 26, 1, 3, '#8A6A3A'); R(g, E.x + 16 + 5, E.y + 26, 1, 3, '#8A6A3A');
@@ -236,7 +243,20 @@ export function buildShop() {
   R(g, 788, 121, 56, 3, '#FBF7F1'); R(g, 788, 121, 56, 1, '#FFFFFF'); R(g, 842, 121, 2, 3, '#E4D8C6'); R(g, 788, 124, 56, 1, '#BFA27E');
   R(g, 807, 137, 18, 9, '#B48A45'); R(g, 808, 138, 16, 7, '#E2BE73'); R(g, 808, 138, 16, 1, '#F3DDA6');
 
-  // the back door: dark, ajar, night outside
+  // a warmly lit way onward (mainline, no night required)
+  const L = LITEXIT;
+  R(g, L.x - 3, L.y - 3, L.w + 6, L.h + 3, '#E2D2BA'); R(g, L.x - 3, L.y - 3, L.w + 6, 1, '#FFFAF2');
+  R(g, L.x, L.y, L.w, L.h, '#F3E2C4');
+  const glow = ['#FFF4D8', '#F6D9A0', '#E8B070'];
+  for (let y = 0; y < L.h - 8; y++) {
+    g.fillStyle = glow[Math.min(glow.length - 1, Math.floor((y / (L.h - 8)) * glow.length))];
+    g.fillRect(L.x + 5, L.y + 4 + y, L.w - 10, 1);
+  }
+  R(g, L.x + 7, L.y + 10, 6, 8, '#F9C6CF'); R(g, L.x + 18, L.y + 12, 5, 6, '#FBD3DB');
+  R(g, L.x + 13, L.y + 34, 8, 18, '#C99E6E');
+  R(g, L.x - 2, 161, L.w + 4, 3, '#C7868F'); R(g, L.x - 2, 161, L.w + 4, 1, '#D99AA4');
+
+  // the back door: dark, ajar, night outside (optional)
   const B = BACKDOOR;
   R(g, B.x - 3, B.y - 3, B.w + 6, B.h + 3, '#6E5E58'); R(g, B.x - 3, B.y - 3, B.w + 6, 1, '#8A7A72');
   R(g, B.x, B.y, B.w, B.h, '#0C0B10');
