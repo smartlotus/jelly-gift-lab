@@ -435,7 +435,7 @@ function fixtureFilm() {
 }
 
 async function routeFilm(page, fx, extra = {}) {
-  await page.route(/media\/future-home\.json/, r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ v: 1, src: 'media/future-home.mp4', poster: 'media/future-home-poster.jpg', audio: true, ...extra }) }));
+  await page.route(/media\/ending-film\.json/, r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ v: 1, src: 'media/future-home.mp4', poster: 'media/future-home-poster.jpg', audio: true, ...extra }) }));
   await page.route(/media\/future-home-poster\.jpg/, r => r.fulfill({ status: 200, contentType: 'image/jpeg', body: fx.jpg }));
   await page.route(/media\/future-home\.mp4/, async r => {
     const range = r.request().headers()['range'];
@@ -504,7 +504,7 @@ async function homeBlocked(browser, tag) {
   await ctx.close();
 }
 
-// the committed candidate film itself (public/media/future-home.*), no routing: real requests, real H.264 decode
+// the committed ending film named by public/media/ending-film.json (t33: the 200-day film anniv-200.mp4), no routing
 async function realFilm(browser, tag) {
   const L = (n, ok, x) => log(`[${tag}] real-film ${n}`, ok, x);
   const layout = [{ kind: 'sofa', x: 0, z: -1.6, yaw: 0 }, { kind: 'bed', x: 2.8, z: -2, yaw: 180 }];
@@ -528,7 +528,7 @@ async function realFilm(browser, tag) {
     await sleep(3600);
     const st = await page.evaluate(() => ({ phase: window.__home.phase(), video: !!document.querySelector('video'), line: document.querySelector('.hm-line')?.dataset.i18n, finale: document.querySelector('.hm-finale').classList.contains('on') }));
     L('no H.264 in this browser build: real manifest ignored, page lines + end card instead (fallback)', st.phase === 'end' && !st.video && st.finale, st);
-    L('/home/ never requests the 200-day film', !reqs.some(u => /anniv-200/.test(u)), {});
+    L('fallback requests no film MP4 at all (neither anniv-200 nor future-home)', !reqs.some(u => /anniv-200\.mp4|future-home\.mp4/.test(u)), {});
     console.log(`NOTE [${tag}] real-film playback not runnable: canPlayType(H.264 High) empty`);
     await ctx.close();
     return;
@@ -541,7 +541,7 @@ async function realFilm(browser, tag) {
     try { const c = document.createElement('canvas'); c.width = 64; c.height = 36; const g = c.getContext('2d'); g.drawImage(v, 0, 0, 64, 36); const d = g.getImageData(0, 0, 64, 36).data; let s = 0, mn = 255, mx = 0; for (let i = 0; i < d.length; i += 4) { const y = (d[i] + d[i + 1] + d[i + 2]) / 3; s += y; mn = Math.min(mn, y); mx = Math.max(mx, y); } lum = +(s / (d.length / 4)).toFixed(1); spread = +(mx - mn).toFixed(0); } catch (e) { lum = String(e); }
     return { t: +v.currentTime.toFixed(2), paused: v.paused, muted: v.muted, w: v.videoWidth, h: v.videoHeight, ready: v.readyState, err: v.error?.code ?? null, frames: q.totalVideoFrames ?? null, dropped: q.droppedVideoFrames ?? null, audioBytes: v.webkitAudioDecodedByteCount ?? null, videoBytes: v.webkitVideoDecodedByteCount ?? null, lum, spread, state: window.__home.film(), phase: window.__home.phase(), src: v.currentSrc.replace(location.origin, '') };
   });
-  // (a) desktop: save → film plays, real frames decode, burned lines not doubled, sound follows the switch
+  // (a) desktop: save → the 200-day film plays, real frames decode, the page's own lines frame it, sound follows the switch
   {
     const { ctx, page, net, reqs, errs } = await open({ width: 1280, height: 720 });
     await page.click('.hm-tools [data-k="save"]');
@@ -552,26 +552,28 @@ async function realFilm(browser, tag) {
     await sleep(2500);
     const p2 = await probe(page);
     await page.screenshot({ path: `${OUT}/${tag}-real-film-playing-3s.png` });
-    L('the three media files load from the site base (json, poster, mp4 range)', ['/media/future-home.json', '/media/future-home-poster.jpg', '/media/future-home.mp4'].every(u => net.some(n => n.url.endsWith(u) && n.status < 400)), { net: net.slice(0, 6) });
-    L('/home/ never requests the 200-day film', !reqs.some(u => /anniv-200/.test(u)), {});
-    L('H.264 1920×1080 decodes and plays: currentTime and decoded frames advance, picture is not blank', p1 && p2 && p2.err === null && p2.w === 1920 && p2.h === 1080 && p2.t > p1.t + 1.5 && p2.frames > p1.frames + 30 && p2.spread > 40 && !p2.paused, { p1, p2 });
-    L('burned-in first line: no page caption on top of the film', !lineOn, { lineOn });
+    L('the three media files load from the site base (ending-film.json, anniv-200 poster, anniv-200.mp4 range)', ['/media/ending-film.json', '/media/anniv-200-poster.jpg', '/media/anniv-200.mp4'].every(u => net.some(n => n.url.endsWith(u) && n.status < 400)), { net: net.slice(0, 6) });
+    L('/home/ no longer requests the v4 future-home film', !reqs.some(u => /future-home\.(mp4|json)|future-home-poster/.test(u)), {});
+    L('H.264 1280×720 (the 200-day film) decodes and plays: currentTime and decoded frames advance, picture is not blank', p1 && p2 && p2.err === null && p2.w === 1280 && p2.h === 720 && /anniv-200\.mp4$/.test(p2.src) && p2.t > p1.t + 1.5 && p2.frames > p1.frames + 30 && p2.spread > 40 && !p2.paused, { p1, p2 });
+    L('no burned opening line in this film: the page shows 也许有一天… itself before the film', lineOn, { lineOn });
+    const lineGone = await page.evaluate(() => !document.querySelector('.hm-line')?.classList.contains('on'));
+    L('the page line has left once the film is up (no caption over the playing film)', lineGone, { lineGone });
     // the site sound switch unmutes the film; its own AAC track decodes
     await page.click('.gift-chrome button').catch(() => {});
     await sleep(1200);
     const p3 = await probe(page);
     L('sound switch → film unmuted, its AAC track decodes (video element is the clock)', p3.muted === false && p3.audioBytes > 0, { muted: p3.muted, audioBytes: p3.audioBytes });
-    // controls vs the burned text bands (VTT: line 40 % and 20–34 % from the top of the picture)
+    // controls vs the film's own title band (anniv-200 draws 臭猪臭猫 / 200天纪念日快乐 in the upper middle near the end)
     const geo = await page.evaluate(() => {
       const v = document.querySelector('video.hm-film-v').getBoundingClientRect();
       const ar = 16 / 9; let w = v.width, h = v.width / ar; if (h > v.height) { h = v.height; w = h * ar; }
       const top = v.top + (v.height - h) / 2, left = v.left + (v.width - w) / 2;
       const band = (a, b) => ({ top: top + h * a, bottom: top + h * b, left: left + w * 0.15, right: left + w * 0.85 });
       const r = s => { const e = document.querySelector(s); if (!e) return null; const cs = getComputedStyle(e); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.05 || !e.getClientRects().length) return null; const b = e.getBoundingClientRect(); return { sel: s, top: b.top, bottom: b.bottom, left: b.left, right: b.right }; };
-      return { bands: [band(0.33, 0.55), band(0.12, 0.42)], ctrls: ['.hm-skip', '.gift-chrome', '.hm-film-tap'].map(r).filter(Boolean) };
+      return { bands: [band(0.15, 0.5)], ctrls: ['.hm-skip', '.gift-chrome', '.hm-film-tap'].map(r).filter(Boolean) };
     });
     const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
-    L('skip / sound controls do not cover the burned text bands', geo.ctrls.every(c => geo.bands.every(b => !hit(c, b))), geo);
+    L('skip / sound controls do not cover the film title band', geo.ctrls.every(c => geo.bands.every(b => !hit(c, b))), geo);
     // tab hidden → pause, back → tap to resume (visibility simulated: headless tabs do not hide)
     await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => true }); document.dispatchEvent(new Event('visibilitychange')); });
     await sleep(300);
@@ -583,7 +585,7 @@ async function realFilm(browser, tag) {
     await sleep(1200);
     const resumed = await probe(page);
     L('tab hidden pauses the film; on return a tap resumes it (visibility simulated)', hid.paused && back.state === 'tap' && !resumed.paused && resumed.t > back.t, { hid: hid.state, back: back.state, resumed: resumed.state, t: [back.t, resumed.t] });
-    // jump to just before the end (test-only seek) and let it play out: finale burned in → buttons only
+    // jump to just before the end (test-only seek) and let it play out: no finale in the picture → the end card shows it
     await page.evaluate(() => { const v = document.querySelector('video.hm-film-v'); v.currentTime = v.duration - 3; });
     await sleep(800);
     await page.screenshot({ path: `${OUT}/${tag}-real-film-finale-frame.png` });
@@ -591,7 +593,7 @@ async function realFilm(browser, tag) {
     await sleep(2500);
     const end = await page.evaluate(() => ({ phase: window.__home.phase(), finaleText: document.querySelector('.hm-finale').classList.contains('on'), replay: getComputedStyle(document.querySelector('.hm-replay')).display !== 'none', edit: getComputedStyle(document.querySelector('.hm-edit')).display !== 'none', video: !!document.querySelector('video.hm-film-v') }));
     await page.screenshot({ path: `${OUT}/${tag}-real-film-endcard.png` });
-    L('played to the end: end card with 再看一遍 / 继续布置, no second finale text over the burned one', end.phase === 'end' && !end.finaleText && end.replay && end.edit, end);
+    L('played to the end: end card shows the finale line with 再看一遍 / 继续布置, film layer gone', end.phase === 'end' && end.finaleText && end.replay && end.edit && !end.video, end);
     await page.click('.hm-replay');
     await page.waitForFunction(() => window.__home.film() === 'playing', { timeout: 15000 }).catch(() => {});
     const r1 = await probe(page); await sleep(1500); const r2 = await probe(page);
@@ -601,7 +603,7 @@ async function realFilm(browser, tag) {
     await page.waitForFunction(() => window.__home.phase() === 'end', { timeout: 8000 }).catch(() => {});
     await sleep(3500);
     const sk = await page.evaluate(() => ({ phase: window.__home.phase(), finaleText: document.querySelector('.hm-finale').classList.contains('on'), video: !!document.querySelector('video.hm-film-v') }));
-    L('跳过 mid-film → end card shows the finale line (not yet seen in the film)', sk.phase === 'end' && sk.finaleText, sk);
+    L('跳过 mid-film → end card shows the finale line', sk.phase === 'end' && sk.finaleText, sk);
     await page.click('.hm-edit');
     await page.waitForFunction(() => window.__home.phase() === 'room' && !!window.__homeRoom?.items, { timeout: 12000 }).catch(() => {});
     const back2 = await page.evaluate(() => window.__homeRoom.items());
@@ -655,7 +657,7 @@ async function homeFilm(browser, tag) {
   {
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
     const page = await ctx.newPage();
-    await page.route(/media\/future-home\.json/, r => r.fulfill({ status: 404, body: 'not found' }));
+    await page.route(/media\/ending-film\.json/, r => r.fulfill({ status: 404, body: 'not found' }));
     const reqs = []; page.on('request', r => reqs.push(r.url()));
     await page.addInitScript(items => localStorage.setItem('gift.home.layout.v2', JSON.stringify({ v: 2, items })), layoutA);
     await page.goto(`${BASE}/home/?lang=zh&at=room`, { waitUntil: 'domcontentloaded', timeout: 60000 });
@@ -666,7 +668,7 @@ async function homeFilm(browser, tag) {
     await sleep(3600);
     const st = await page.evaluate(() => ({ phase: window.__home.phase(), film: window.__home.film(), video: !!document.querySelector('video'), replayVisible: getComputedStyle(document.querySelector('.hm-replay')).display !== 'none', finale: document.querySelector('.hm-finale')?.classList.contains('on'), editVisible: getComputedStyle(document.querySelector('.hm-edit')).display !== 'none' }));
     L('without a committed film: save → end card, no <video>, no 再看一遍', st.phase === 'end' && !st.video && !st.replayVisible && st.finale && st.editVisible, st);
-    L('the 200-day film is never requested by /home/', !reqs.some(u => /anniv-200/.test(u)), { n: reqs.filter(u => /anniv/.test(u)).length });
+    L('without a manifest no film MP4 is requested by /home/', !reqs.some(u => /anniv-200\.mp4|future-home\.mp4/.test(u)), { n: reqs.filter(u => /\.mp4/.test(u)).length });
     await page.screenshot({ path: `${OUT}/${tag}-endcard-no-film.png` });
     await page.click('.hm-edit');
     await page.waitForFunction(() => window.__home.phase() === 'room' && !!window.__homeRoom?.items, { timeout: 12000 });

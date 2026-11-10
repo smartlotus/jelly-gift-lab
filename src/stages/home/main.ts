@@ -1,5 +1,5 @@
 // /home/ · after 一起玩: pig and cat find an empty house, furnish a future home (spatial Module A),
-// then Module B — the fixed future-home film (an independently produced, reviewed MP4; see endingFilm.ts) —
+// then Module B — the fixed ending film named by media/ending-film.json (t33 preview: the 200-day film; see endingFilm.ts) —
 // plays the same picture for every layout. Until that asset is committed the journey ends on the end card.
 import { register, apply, onLang, t } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
@@ -26,7 +26,8 @@ if (params.has('fresh')) clearLayout();
 // ── Module B ────────────────────────────────────────────────────────────────
 // FILM_ENABLED wires the old code-drawn six-shot film (film.ts, parked; bookmark branch v03o-film).
 // It stays false: t26 replaces it with an independently produced future-home MP4 played by endingFilm.ts.
-// The /sky/ 200-day film is NOT the ending (t26) — it stays an optional film on /sky/.
+// t33 (branch v03s-anniv-ending): media/ending-film.json now names the 200-day film (anniv-200.mp4) as the ending;
+// it also stays the optional film on /sky/. The v4 future-home film stays committed but unused.
 export const FILM_ENABLED = false;
 
 type Phase = 'approach' | 'room' | 'transform' | 'montage' | 'video' | 'end';

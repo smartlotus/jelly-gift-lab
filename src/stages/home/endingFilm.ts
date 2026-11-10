@@ -4,12 +4,13 @@
 // picture for every save. Until the reviewed asset is committed, there is NO film and NO placeholder: the
 // manifest below is absent, `probeFutureFilm()` resolves null and the journey ends on the static end card.
 //
-// To integrate the final asset, commit three files and nothing else:
-//   public/media/future-home.json   { "v": 1, "src": "media/future-home.mp4", "poster": "media/future-home-poster.jpg",
-//                                     "audio": true|false, "burned": { "transform": [a, b], "finale": c } }
-//   public/media/future-home.mp4    H.264 + AAC, faststart (moov first), ≤ 1080p
-//   public/media/future-home-poster.jpg
-// The 200-day film on /sky/ stays an optional side film there; it is never used here.
+// Which film plays is decided by ONE manifest, public/media/ending-film.json:
+//   { "v": 1, "src": "media/<film>.mp4", "poster": "media/<film>-poster.jpg",
+//     "audio": true|false, "burned": { "transform": [a, b], "finale": c } }   (burned only if the lines are in the picture)
+//   the MP4: H.264 + AAC, faststart (moov first), ≤ 1080p
+// t33 (branch v03s-anniv-ending): ending-film.json points at the 200-day film media/anniv-200.mp4 (no burned lines).
+// The v4 future-home film and its old manifest (future-home.json / .mp4 / -poster.jpg) stay committed but unused;
+// to switch back, copy future-home.json's contents into ending-film.json.
 import { asset } from '../../shared/flow';
 import { soundOn, onSound, unlock } from '../../shared/audio';
 import { apply } from '../../shared/i18n';
@@ -21,7 +22,7 @@ import { apply } from '../../shared/i18n';
  */
 export interface FilmManifest { v: number; src: string; poster?: string; audio?: boolean; burned?: { transform?: [number, number]; finale?: number } }
 
-export const FUTURE_FILM_MANIFEST = 'media/future-home.json';
+export const FUTURE_FILM_MANIFEST = 'media/ending-film.json';
 
 let probed: Promise<FilmManifest | null> | null = null;
 

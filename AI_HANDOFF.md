@@ -5,6 +5,7 @@
 **t26 pass:** Monday 9 November 2026 — the 200-day ending is withdrawn, web polish (see §"t26").
 **t26d:** Monday 9 November 2026, evening — the v4 future-home film **candidate is integrated on this dev branch** (not merged, not deployed, still under review; see §"t26d").
 **t26e:** same evening — the WebKit page errors from the t26d run explained; two real unhandled rejections fixed (see §"t26e").
+**t33 (branch `v03s-anniv-ending`):** same night — preview branch where the ending plays the **200-day film** (`anniv-200.mp4`) instead of the v4 future-home film (see §"t33"). Not merged, not deployed.
 
 This file is the durable takeover note. It describes **what is on branch `v03m-spatial-home` right now**, not what the live Pages site runs.
 
@@ -20,6 +21,28 @@ This file is the durable takeover note. It describes **what is on branch `v03m-s
 | Old stable gift | **Do not touch.** `smartlotus/jelly-gift` / `jelly-gift-site`, live https://smartlotus.github.io/jelly-gift/, last deploy `1c2d5de`. Do not merge this work into that default branch. Old source PR 7 stays open and untouched. |
 
 After each push, `git rev-parse origin/v03m-spatial-home` is the source of truth for the SHA.
+
+---
+
+## t33 — preview: the 200-day film as the ending (branch `v03s-anniv-ending`, 2026-11-09 night, America/Los_Angeles)
+
+User request t33u: 「现在先用第四个视频替代未来的家影片，做好网页给我看看效果」 — the 4th video = `anniv-200.mp4` (the 200-day film).
+Branch `v03s-anniv-ending` from `v03m-spatial-home` @ `3a5fd50`. **Not merged, not deployed**; `main` / `gh-pages` unchanged.
+
+- New `public/media/ending-film.json` → `{src: media/anniv-200.mp4, poster: media/anniv-200-poster.jpg, audio: true}`, **no `burned`**:
+  the film has none of the protected lines in its picture (it ends on its own drawn title 臭猪臭猫 / 200天纪念日快乐), so the
+  page shows 「也许有一天…」 on the paper page before the film (it leaves at +2.0 s, the film fades in from +1.05 s) and the
+  end card shows 「我们已经有属于自己的两百天了…我的小臭猫。」 after it — the same hand-off v03q (`9ae6f5d`) used.
+- `endingFilm.ts`: the manifest constant now reads `media/ending-film.json` (one file decides which film plays).
+  The v4 files `future-home.{json,mp4}` / `future-home-poster.jpg` stay committed but unused. **To switch back:** copy
+  `future-home.json`'s contents into `ending-film.json`.
+- `/sky/` still offers the same 200-day film as its optional side film (unchanged).
+- Tests (`tools/v03r-verify.mjs`): fixtures now route `ending-film.json`; the real-film block asserts anniv-200 (1280×720,
+  json 200 / poster 200 / mp4 206), no v4 request, page line before the film and gone once it plays, end card **with** the
+  finale line, replay, skip, 继续布置, phone refused-autoplay → 轻触播放, portrait contain. Full suite: **203/203** (Chromium + WebKit;
+  WebKit here has no H.264 → fallback only). Log: `review/v03s/verify-203.log`.
+- Preview: `tools/v03s-preview.mjs` (silent real-time recording; one test-only seek to shorten it) → screenshots in `review/v03s/`.
+- Known look issue: the film's white background shows as a white band on the paper page in phone portrait (contain).
 
 ---
 
