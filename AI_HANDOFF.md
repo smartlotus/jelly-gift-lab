@@ -2,7 +2,8 @@
 
 **Last checkpoint:** Saturday 7 November 2026, late evening, America/Los_Angeles (this file updates with each pushed increment).
 **Follow-up pass:** Sunday 8 November 2026 — pig companion, caption clearance, cottage, dollhouse polish (see §"v03n pass").
-**t26 pass:** Monday 9 November 2026 — the 200-day ending is withdrawn, the future-home film is in production elsewhere and **not integrated**, web polish (see §"t26").
+**t26 pass:** Monday 9 November 2026 — the 200-day ending is withdrawn, web polish (see §"t26").
+**t26d:** Monday 9 November 2026, evening — the v4 future-home film **candidate is integrated on this dev branch** (not merged, not deployed, still under review; see §"t26d").
 
 This file is the durable takeover note. It describes **what is on branch `v03m-spatial-home` right now**, not what the live Pages site runs.
 
@@ -79,6 +80,52 @@ burned-lines case **16/16**; tsc + build OK. Targeted real-time clips (local onl
 `review/v03r/`: `clip-flower-reverse-desktop.mp4`, `clip-flower-reverse-phone.mp4`, `clip-mushroom-reverse-desktop.mp4`,
 `clip-mushroom-reverse-phone.mp4` (~12 s each, right → left → right) and `clip-home-blocked-drop-bed.mp4` (15 s).
 Committed frame strips: `review/v03r/strip-*.jpg`. The older `rec-*.mp4` predate these fixes.
+
+### t26d — v4 future-home film candidate integrated on the dev branch (2026-11-09 evening, PT)
+
+**Status:** candidate, under review. On `v03m-spatial-home` only; **not merged, not deployed**; `main`, `gh-pages` and
+the old stable gift are unchanged. Earlier notes in this file that say "not integrated" describe the state before t26d.
+
+Files (copied byte for byte from the render dir `jelly-future-film-v03r/out/v4/`, nothing else from it):
+
+| File | What |
+| --- | --- |
+| `public/media/future-home.mp4` | 35,353,075 bytes, 95.58 s, H.264 High 1920×1080 24 fps, AAC-LC 48 kHz stereo, faststart (moov first) |
+| `public/media/future-home-poster.jpg` | 1920×1080 poster (frame at 0:31) |
+| `public/media/future-home.json` | `{src, poster, audio:true, burned:{transform:[0.5,7.7], finale:77.4}}` |
+
+The 270 MB master and raw images are **not** committed. Burned-in text (from the film's own VTT): 0.5–7.7 s
+「也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。」; 77.4 s to the end 「我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。」
+plus 「我的小臭猫。」 from 82.4 s. So the page does **not** show its own first line over the film, and the end card hides its
+finale text when the film was watched past 77.4 s (it still shows it after 「跳过」 earlier). The three exact lines are unchanged.
+
+- **What the film is:** about **8 s** (S2, 0:17.6–0:25.6) is generated image-to-video. Everything else is **2D
+  programmatic cut-out animation** (code moving painted pieces, pans and push-ins) over generated reference stills and
+  the gift's existing original art. The art is natively **1280×720, upscaled 1.5×** to the 1920×1080 web file.
+- **Music:** original synthesized 3/4 waltz (no samples), mixed into the file's AAC track.
+- **Not linked to the layout:** the film is fixed; it never reads the saved furniture.
+- **Known limits (unchanged):** 2D cut-out look, Z-shaped running legs, rigid arms, soft local push-ins in S3/S4, a
+  panorama seam around 1:00–1:01, the dog dark-on-dark for 2–3 frames.
+- **Review status:** accepted only on **frame-level QA**; real playback review is still pending. A separate targeted
+  review of the v4 dog shot (0:55.6–0:58.5) confirmed it passes behind the couple, runs out of frame with complete legs,
+  and shows no fragments or merging; its only limit is the 2D style with few drawn frames. That is a targeted check of
+  one shot, **not** a whole-film pass. Not tested on a real phone.
+
+Integration fixes (only what the real file exposed):
+- `.hm-film-v` now fills the layer (`position:absolute; inset:0; width/height 100%; object-fit:contain`). Before, a
+  grid cell's `max-height:100%` did not resolve and on an 844×390 landscape phone the video element was 474 px tall,
+  cutting off the bottom of the picture.
+- Tests: `ONLY=real node tools/v03r-verify.mjs` (no routing, the real file over the real server).
+
+Real playback (Chromium with H.264, swiftshader, headless box): json 200 / poster 200 / mp4 206 under the relative
+`media/` base; `/home/` never requests anniv-200; currentTime 2.1 → 4.6 s with decoded frames 54 → advancing (1 dropped),
+1920×1080, picture luminance spread 193 (not blank); sound switch unmutes and the AAC track decodes (audio bytes rise);
+skip / sound pills sit outside the burned text bands; simulated hidden tab pauses, return shows 轻触播放 and resumes;
+end → end card with 再看一遍 / 继续布置 and no second finale text; replay restarts at 0 and decodes; skip mid-film shows the
+finale text; 继续布置 returns the same saved pieces; refused autoplay on a touch phone (844×390) → 轻触播放 → plays; turned
+to portrait 390×844 keeps playing, whole picture contained; no page or video errors. **WebKit** here has no H.264
+decoder (`canPlayType` empty): the manifest is ignored and the page lines + end card play instead — that fallback is
+tested, real WebKit/Safari playback is **not**. Screenshots: `review/v03r/chromium-real-film-*.png`.
 
 ### t26c — arbitration of the second review (2026-11-09 evening, PT)
 

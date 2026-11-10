@@ -472,14 +472,158 @@ async function homeBlocked(browser, tag) {
   await ctx.close();
 }
 
+// the committed candidate film itself (public/media/future-home.*), no routing: real requests, real H.264 decode
+async function realFilm(browser, tag) {
+  const L = (n, ok, x) => log(`[${tag}] real-film ${n}`, ok, x);
+  const layout = [{ kind: 'sofa', x: 0, z: -1.6, yaw: 0 }, { kind: 'bed', x: 2.8, z: -2, yaw: 180 }];
+  const open = async (viewport, extra = {}) => {
+    const ctx = await browser.newContext({ viewport, ...extra });
+    const page = await ctx.newPage();
+    const net = []; page.on('response', r => { if (/\/media\//.test(r.url())) net.push({ url: r.url().replace(BASE, ''), status: r.status() }); });
+    const reqs = []; page.on('request', r => reqs.push(r.url()));
+    const errs = []; page.on('pageerror', e => errs.push(e.message));
+    await page.addInitScript(items => localStorage.setItem('gift.home.layout.v2', JSON.stringify({ v: 2, items })), layout);
+    await page.goto(`${BASE}/home/?lang=zh&at=room`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await waitCurtain(page);
+    await page.waitForFunction(() => !!window.__homeRoom?.items, { timeout: 20000 });
+    return { ctx, page, net, reqs, errs };
+  };
+  const can = await (async () => { const c = await browser.newContext(); const p = await c.newPage(); await p.goto(`${BASE}/home/?lang=zh`); const r = await p.evaluate(() => document.createElement('video').canPlayType('video/mp4; codecs="avc1.640028, mp4a.40.2"')); await c.close(); return r; })();
+  if (!can) {
+    const { ctx, page, reqs } = await open({ width: 1280, height: 720 });
+    await page.click('.hm-tools [data-k="save"]');
+    await page.waitForFunction(() => window.__home.phase() === 'end', { timeout: 15000 }).catch(() => {});
+    await sleep(3600);
+    const st = await page.evaluate(() => ({ phase: window.__home.phase(), video: !!document.querySelector('video'), line: document.querySelector('.hm-line')?.dataset.i18n, finale: document.querySelector('.hm-finale').classList.contains('on') }));
+    L('no H.264 in this browser build: real manifest ignored, page lines + end card instead (fallback)', st.phase === 'end' && !st.video && st.finale, st);
+    L('/home/ never requests the 200-day film', !reqs.some(u => /anniv-200/.test(u)), {});
+    console.log(`NOTE [${tag}] real-film playback not runnable: canPlayType(H.264 High) empty`);
+    await ctx.close();
+    return;
+  }
+  // frame probe: decoded frames + a pixel sample of what the video element is actually showing
+  const probe = page => page.evaluate(() => {
+    const v = document.querySelector('video.hm-film-v'); if (!v) return null;
+    const q = v.getVideoPlaybackQuality?.() || {};
+    let lum = null, spread = null;
+    try { const c = document.createElement('canvas'); c.width = 64; c.height = 36; const g = c.getContext('2d'); g.drawImage(v, 0, 0, 64, 36); const d = g.getImageData(0, 0, 64, 36).data; let s = 0, mn = 255, mx = 0; for (let i = 0; i < d.length; i += 4) { const y = (d[i] + d[i + 1] + d[i + 2]) / 3; s += y; mn = Math.min(mn, y); mx = Math.max(mx, y); } lum = +(s / (d.length / 4)).toFixed(1); spread = +(mx - mn).toFixed(0); } catch (e) { lum = String(e); }
+    return { t: +v.currentTime.toFixed(2), paused: v.paused, muted: v.muted, w: v.videoWidth, h: v.videoHeight, ready: v.readyState, err: v.error?.code ?? null, frames: q.totalVideoFrames ?? null, dropped: q.droppedVideoFrames ?? null, audioBytes: v.webkitAudioDecodedByteCount ?? null, videoBytes: v.webkitVideoDecodedByteCount ?? null, lum, spread, state: window.__home.film(), phase: window.__home.phase(), src: v.currentSrc.replace(location.origin, '') };
+  });
+  // (a) desktop: save → film plays, real frames decode, burned lines not doubled, sound follows the switch
+  {
+    const { ctx, page, net, reqs, errs } = await open({ width: 1280, height: 720 });
+    await page.click('.hm-tools [data-k="save"]');
+    let lineOn = false;
+    for (let i = 0; i < 14; i++) { await sleep(150); lineOn ||= await page.evaluate(() => document.querySelector('.hm-line')?.classList.contains('on')); }
+    await page.waitForFunction(() => window.__home.film() === 'playing', { timeout: 20000 }).catch(() => {});
+    const p1 = await probe(page);
+    await sleep(2500);
+    const p2 = await probe(page);
+    await page.screenshot({ path: `${OUT}/${tag}-real-film-playing-3s.png` });
+    L('the three media files load from the site base (json, poster, mp4 range)', ['/media/future-home.json', '/media/future-home-poster.jpg', '/media/future-home.mp4'].every(u => net.some(n => n.url.endsWith(u) && n.status < 400)), { net: net.slice(0, 6) });
+    L('/home/ never requests the 200-day film', !reqs.some(u => /anniv-200/.test(u)), {});
+    L('H.264 1920×1080 decodes and plays: currentTime and decoded frames advance, picture is not blank', p1 && p2 && p2.err === null && p2.w === 1920 && p2.h === 1080 && p2.t > p1.t + 1.5 && p2.frames > p1.frames + 30 && p2.spread > 40 && !p2.paused, { p1, p2 });
+    L('burned-in first line: no page caption on top of the film', !lineOn, { lineOn });
+    // the site sound switch unmutes the film; its own AAC track decodes
+    await page.click('.gift-chrome button').catch(() => {});
+    await sleep(1200);
+    const p3 = await probe(page);
+    L('sound switch → film unmuted, its AAC track decodes (video element is the clock)', p3.muted === false && p3.audioBytes > 0, { muted: p3.muted, audioBytes: p3.audioBytes });
+    // controls vs the burned text bands (VTT: line 40 % and 20–34 % from the top of the picture)
+    const geo = await page.evaluate(() => {
+      const v = document.querySelector('video.hm-film-v').getBoundingClientRect();
+      const ar = 16 / 9; let w = v.width, h = v.width / ar; if (h > v.height) { h = v.height; w = h * ar; }
+      const top = v.top + (v.height - h) / 2, left = v.left + (v.width - w) / 2;
+      const band = (a, b) => ({ top: top + h * a, bottom: top + h * b, left: left + w * 0.15, right: left + w * 0.85 });
+      const r = s => { const e = document.querySelector(s); if (!e) return null; const cs = getComputedStyle(e); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.05 || !e.getClientRects().length) return null; const b = e.getBoundingClientRect(); return { sel: s, top: b.top, bottom: b.bottom, left: b.left, right: b.right }; };
+      return { bands: [band(0.33, 0.55), band(0.12, 0.42)], ctrls: ['.hm-skip', '.gift-chrome', '.hm-film-tap'].map(r).filter(Boolean) };
+    });
+    const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    L('skip / sound controls do not cover the burned text bands', geo.ctrls.every(c => geo.bands.every(b => !hit(c, b))), geo);
+    // tab hidden → pause, back → tap to resume (visibility simulated: headless tabs do not hide)
+    await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => true }); document.dispatchEvent(new Event('visibilitychange')); });
+    await sleep(300);
+    const hid = await probe(page);
+    await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => false }); document.dispatchEvent(new Event('visibilitychange')); });
+    await sleep(300);
+    const back = await probe(page);
+    await page.click('.hm-film-tap').catch(() => {});
+    await sleep(1200);
+    const resumed = await probe(page);
+    L('tab hidden pauses the film; on return a tap resumes it (visibility simulated)', hid.paused && back.state === 'tap' && !resumed.paused && resumed.t > back.t, { hid: hid.state, back: back.state, resumed: resumed.state, t: [back.t, resumed.t] });
+    // jump to just before the end (test-only seek) and let it play out: finale burned in → buttons only
+    await page.evaluate(() => { const v = document.querySelector('video.hm-film-v'); v.currentTime = v.duration - 3; });
+    await sleep(800);
+    await page.screenshot({ path: `${OUT}/${tag}-real-film-finale-frame.png` });
+    await page.waitForFunction(() => window.__home.phase() === 'end', { timeout: 15000 }).catch(() => {});
+    await sleep(2500);
+    const end = await page.evaluate(() => ({ phase: window.__home.phase(), finaleText: document.querySelector('.hm-finale').classList.contains('on'), replay: getComputedStyle(document.querySelector('.hm-replay')).display !== 'none', edit: getComputedStyle(document.querySelector('.hm-edit')).display !== 'none', video: !!document.querySelector('video.hm-film-v') }));
+    await page.screenshot({ path: `${OUT}/${tag}-real-film-endcard.png` });
+    L('played to the end: end card with 再看一遍 / 继续布置, no second finale text over the burned one', end.phase === 'end' && !end.finaleText && end.replay && end.edit, end);
+    await page.click('.hm-replay');
+    await page.waitForFunction(() => window.__home.film() === 'playing', { timeout: 15000 }).catch(() => {});
+    const r1 = await probe(page); await sleep(1500); const r2 = await probe(page);
+    L('再看一遍 restarts from the beginning and decodes again', r1 && r1.t < 1.5 && r2.t > r1.t && r2.frames > r1.frames, { r1: r1 && { t: r1.t, frames: r1.frames }, r2: r2 && { t: r2.t, frames: r2.frames } });
+    // skip mid-film → end card; the finale was not seen in the film, so the page shows it
+    await page.click('.hm-skip');
+    await page.waitForFunction(() => window.__home.phase() === 'end', { timeout: 8000 }).catch(() => {});
+    await sleep(3500);
+    const sk = await page.evaluate(() => ({ phase: window.__home.phase(), finaleText: document.querySelector('.hm-finale').classList.contains('on'), video: !!document.querySelector('video.hm-film-v') }));
+    L('跳过 mid-film → end card shows the finale line (not yet seen in the film)', sk.phase === 'end' && sk.finaleText, sk);
+    await page.click('.hm-edit');
+    await page.waitForFunction(() => window.__home.phase() === 'room' && !!window.__homeRoom?.items, { timeout: 12000 }).catch(() => {});
+    const back2 = await page.evaluate(() => window.__homeRoom.items());
+    const same = back2.length === layout.length && layout.every((q, i) => back2[i].kind === q.kind && Math.abs(back2[i].x - q.x) < 1e-6 && Math.abs(back2[i].z - q.z) < 1e-6 && back2[i].yaw === q.yaw);
+    L('继续布置 after the film returns the same saved pieces', same, { back2 });
+    L('no page errors / video errors', errs.length === 0, { errs: errs.slice(0, 2) });
+    await ctx.close();
+  }
+  // (b) autoplay refused (first play() rejected) → 轻触播放 → real playback
+  {
+    // the editor asks for landscape on phones, so save in landscape, then turn the phone while the film plays
+    const ctx = await browser.newContext({ viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
+    const page = await ctx.newPage();
+    await page.addInitScript(items => {
+      localStorage.setItem('gift.home.layout.v2', JSON.stringify({ v: 2, items }));
+      const real = HTMLMediaElement.prototype.play; let n = 0;
+      HTMLMediaElement.prototype.play = function () { if (this.classList?.contains('hm-film-v') && n++ === 0) return Promise.reject(new DOMException('blocked', 'NotAllowedError')); return real.call(this); };
+    }, layout);
+    await page.goto(`${BASE}/home/?lang=zh&at=room`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await waitCurtain(page);
+    await page.waitForFunction(() => !!window.__homeRoom?.items, { timeout: 20000 });
+    await page.tap('.hm-tools [data-k="save"]');
+    await page.waitForFunction(() => window.__home.film() === 'tap', { timeout: 15000 }).catch(() => {});
+    await sleep(1600);
+    const st0 = await probe(page);
+    await page.screenshot({ path: `${OUT}/${tag}-real-film-phone-landscape-tap.png` });
+    await page.tap('.hm-film-tap');
+    await page.waitForFunction(() => window.__home.film() === 'playing', { timeout: 15000 }).catch(() => {});
+    await sleep(2000);
+    const st1 = await probe(page);
+    await page.screenshot({ path: `${OUT}/${tag}-real-film-phone-landscape-playing.png` });
+    const fit = () => page.evaluate(() => { const v = document.querySelector('video.hm-film-v').getBoundingClientRect(); return { w: v.width, h: v.height, vw: innerWidth, vh: innerHeight, fit: getComputedStyle(document.querySelector('video.hm-film-v')).objectFit }; });
+    const f1 = await fit();
+    L('phone landscape (touch): refused autoplay → 轻触播放 → tap → real frames play, contained', st0.state === 'tap' && st1.state === 'playing' && st1.t > 1 && st1.frames > 20 && f1.fit === 'contain' && f1.w <= f1.vw + 1 && f1.h <= f1.vh + 1, { st0: st0.state, st1: { t: st1.t, frames: st1.frames }, f1 });
+    // turn the phone to portrait while playing
+    await page.setViewportSize({ width: 390, height: 844 });
+    await sleep(1500);
+    const st2 = await probe(page);
+    const f2 = await fit();
+    await page.screenshot({ path: `${OUT}/${tag}-real-film-phone-portrait-playing.png` });
+    L('turned to portrait: keeps playing, whole picture still visible (contain)', st2.state === 'playing' && st2.t > st1.t && !st2.paused && f2.fit === 'contain' && f2.w <= f2.vw + 1, { t: st2.t, f2 });
+    await ctx.close();
+  }
+}
+
 async function homeFilm(browser, tag) {
   const L = (n, ok, x) => log(`[${tag}] film ${n}`, ok, x);
   const layoutA = [{ kind: 'sofa', x: 0, z: -1.6, yaw: 0 }];
   const layoutB = [{ kind: 'bed', x: 2.5, z: -1.9, yaw: 0 }, { kind: 'rug', x: 0, z: 0.2, yaw: 0 }, { kind: 'tv', x: 3.45, z: 0.9, yaw: 270 }, { kind: 'table', x: -2, z: 1.4, yaw: 90 }];
-  // (1) no reviewed film committed: the end card, no placeholder, no 200-day film
+  // (1) no film manifest (simulated 404, e.g. a build without the film): the end card, no placeholder, no 200-day film
   {
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
     const page = await ctx.newPage();
+    await page.route(/media\/future-home\.json/, r => r.fulfill({ status: 404, body: 'not found' }));
     const reqs = []; page.on('request', r => reqs.push(r.url()));
     await page.addInitScript(items => localStorage.setItem('gift.home.layout.v2', JSON.stringify({ v: 2, items })), layoutA);
     await page.goto(`${BASE}/home/?lang=zh&at=room`, { waitUntil: 'domcontentloaded', timeout: 60000 });
@@ -753,6 +897,7 @@ async function clips(browser) {
       if (want('home')) await homeEditor(b, tag);
       if (want('home') || want('block')) await homeBlocked(b, tag);
       if (want('film')) await homeFilm(b, tag);
+      if (want('film') || want('real')) await realFilm(b, tag);
     }
     if (want('rec')) await recordings(cr);
     if (want('clips')) await clips(cr);

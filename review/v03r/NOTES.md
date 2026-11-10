@@ -24,3 +24,17 @@ The future-home film itself is not in the repo yet (separate workstream) and was
   tap there places nothing; valid near drop; near → far drag; pushed into the sofa it stops at the edge; queen bed
   beside the sofa; orbit + zoom. Strip: `strip-home-blocked-drop-bed.jpg` (1 fps).
 - The `rec-*.mp4` files above predate these fixes.
+
+## t26d real future-home film (v4 candidate, dev branch, not deployed)
+
+`ONLY=real node tools/v03r-verify.mjs` plays the committed `public/media/future-home.mp4` (no request routing).
+Full suite this round: 172/172 (route, woods, home, block, film, real; Chromium + WebKit).
+
+- `chromium-real-film-playing-3s.png` — desktop 1280×720, burned first line in the picture, 跳过 bottom-right, no page caption.
+- `chromium-real-film-finale-frame.png` — near the end: the film's own closing lines, controls clear of them.
+- `chromium-real-film-endcard.png` — after the film: buttons only, no second copy of the closing lines.
+- `chromium-real-film-phone-landscape-tap.png` / `-phone-landscape-playing.png` / `-phone-portrait-playing.png` —
+  touch phone, autoplay refused → 轻触播放 → plays; turned to portrait, letterboxed (contain).
+
+Playback numbers are in `verify.json` and AI_HANDOFF §t26d. Limits: headless Chromium with software rendering, visibility
+change simulated, no real phone, WebKit build has no H.264 (fallback only). Frame-level QA only — not a whole-film pass.
