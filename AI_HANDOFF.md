@@ -24,6 +24,16 @@ After each push, `git rev-parse origin/v03m-spatial-home` is the source of truth
 
 ---
 
+## t35 — no words before the film; closing card in the order 2 · 3 · 1 · 4 (branch `v03s-anniv-ending`, 2026-11-09 night, America/Los_Angeles)
+
+User request t35u: 「我要将播放后顺序改为 2314，播放前不放文字了」. The four sentences: 1 也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。 2 我们已经有属于自己的两百天了， 3 我想第两千天可能也并不遥远吧。 4 我的小臭猫。
+
+- **Before the film:** after SAVE there is no text any more (`.hm-line` stays off in `leaveRoom` and in the transform/end phases). It goes save → cream paper veil → film fades in. Without a playable film (WebKit headless / no H.264 / manifest missing), it goes straight to the closing card after ~1.4 s.
+- **Closing card:** `home.finale` (zh + en in `src/stages/home/dict.ts`) = stanzas split by blank lines: [2, 3] / [1] / [4]. `renderFinale()` in `main.ts` builds `<p class="hm-fs">` per stanza with one `<span>` per line (`.hm-fs-last` = 我的小臭猫。, emphasised, with a short hairline above). `.hm-finale` has no `data-i18n` any more; it is re-rendered on language switch. `textContent` equals the user's exact string: 我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。我的小臭猫。
+- **Layout:** t35 block at the end of `src/stages/home/style.css` (clamp font sized on min(vw, vh), phone portrait and short-landscape media queries). Checked with `tools/v03s-t35-preview.mjs` (screens + geometry at 1280×720, 844×390, 390×844, 360×640, 667×375, en at 844×390; output in `review/v03s/t35/`, mp4 gitignored) and in `tools/v03r-verify.mjs` (exact text, no line before film, fit at 1280×720 / 390×844 / 844×390, WebKit fallback text).
+- `home.transform` is kept in the dict but is no longer shown on /home/.
+- Suite: 208/208 (Chromium + WebKit).
+
 ## t33 — preview: the 200-day film as the ending (branch `v03s-anniv-ending`, 2026-11-09 night, America/Los_Angeles)
 
 User request t33u: 「现在先用第四个视频替代未来的家影片，做好网页给我看看效果」 — the 4th video = `anniv-200.mp4` (the 200-day film).

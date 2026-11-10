@@ -113,6 +113,34 @@ body.hm-endcard .hm-finale {
 body.hm-endcard .hm-line.on,
 body.hm-endcard .hm-finale.on { transform: translate(-50%, -50%); opacity: 1; }
 body.hm-endcard .hm-finale { transition: opacity 2.2s var(--ease); }
+
+/* t35 closing card: four sentences in the order 2 · 3 · 1 · 4, one stanza per thought, the last line on its own.
+   Sized by the smaller of width and height so a 390 px-tall landscape phone keeps it between the top pill and the
+   bottom buttons, and a 390 px-wide portrait phone never breaks a line mid-clause. */
+.hm-finale .hm-fs { margin: 0; }
+.hm-finale .hm-fs + .hm-fs { margin-top: .95em; }
+.hm-finale .hm-fs span { white-space: nowrap; }
+body.hm-endcard .hm-finale {
+  top: 47%;
+  font-size: clamp(14px, min(2.3vw, 3.5vh), 21px); line-height: 1.85; letter-spacing: .1em;
+  max-width: min(90vw, 32em);
+}
+.hm-finale .hm-fs-last {
+  margin-top: 1.25em !important; font-size: 1.22em; letter-spacing: .26em; color: #5A3B2B;
+}
+.hm-finale .hm-fs-last::before {
+  content: ''; display: block; width: 2.2em; height: 1px; margin: 0 auto .85em; background: rgba(90,59,43,.35);
+}
+@media (max-width: 420px) {
+  body.hm-endcard .hm-finale { font-size: clamp(14px, 3.9vw, 17px); letter-spacing: .06em; }
+  .hm-finale .hm-fs-last { letter-spacing: .2em; }
+}
+@media (max-height: 420px) and (orientation: landscape) {
+  body.hm-endcard .hm-finale { top: 46%; line-height: 1.7; }
+  .hm-finale .hm-fs + .hm-fs { margin-top: .6em; }
+  .hm-finale .hm-fs-last { margin-top: .8em !important; }
+  .hm-finale .hm-fs-last::before { margin-bottom: .55em; }
+}
 body.hm-endcard .hm-replay { display: none !important; }
 body.hm-endcard .hm-again { color: rgba(66,52,40,.55); }
 body.hm-endcard .hm-edit { color: rgba(66,52,40,.55); }

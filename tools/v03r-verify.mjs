@@ -19,6 +19,8 @@ const OUT = path.resolve(process.env.VERIFY_OUT || 'review/v03r');
 const CHROME = process.env.CHROME || '/usr/bin/google-chrome';
 const ONLY = (process.env.ONLY || '').split(',').filter(Boolean);
 const want = k => !ONLY.length || ONLY.includes(k);
+// t35: the closing card, order 2 · 3 · 1 · 4 (textContent of .hm-finale; line breaks are layout only)
+const FINALE_ZH = '我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。我的小臭猫。';
 mkdirSync(OUT, { recursive: true });
 
 const report = { ts: new Date().toISOString(), base: BASE, tests: [] };
@@ -527,7 +529,9 @@ async function realFilm(browser, tag) {
     await page.waitForFunction(() => window.__home.phase() === 'end', { timeout: 15000 }).catch(() => {});
     await sleep(3600);
     const st = await page.evaluate(() => ({ phase: window.__home.phase(), video: !!document.querySelector('video'), line: document.querySelector('.hm-line')?.dataset.i18n, finale: document.querySelector('.hm-finale').classList.contains('on') }));
-    L('no H.264 in this browser build: real manifest ignored, page lines + end card instead (fallback)', st.phase === 'end' && !st.video && st.finale, st);
+    L('no H.264 in this browser build: real manifest ignored, closing card instead (fallback)', st.phase === 'end' && !st.video && st.finale, st);
+    const fb = await page.evaluate(() => ({ text: document.querySelector('.hm-finale').textContent, last: document.querySelector('.hm-finale .hm-fs-last')?.textContent, line: document.querySelector('.hm-line').classList.contains('on') }));
+    L('fallback closing card: the four sentences in the order 2·3·1·4, 我的小臭猫。 as its own last line, no separate first line', fb.text === FINALE_ZH && fb.last === '我的小臭猫。' && !fb.line, fb);
     L('fallback requests no film MP4 at all (neither anniv-200 nor future-home)', !reqs.some(u => /anniv-200\.mp4|future-home\.mp4/.test(u)), {});
     console.log(`NOTE [${tag}] real-film playback not runnable: canPlayType(H.264 High) empty`);
     await ctx.close();
@@ -555,9 +559,9 @@ async function realFilm(browser, tag) {
     L('the three media files load from the site base (ending-film.json, anniv-200 poster, anniv-200.mp4 range)', ['/media/ending-film.json', '/media/anniv-200-poster.jpg', '/media/anniv-200.mp4'].every(u => net.some(n => n.url.endsWith(u) && n.status < 400)), { net: net.slice(0, 6) });
     L('/home/ no longer requests the v4 future-home film', !reqs.some(u => /future-home\.(mp4|json)|future-home-poster/.test(u)), {});
     L('H.264 1280×720 (the 200-day film) decodes and plays: currentTime and decoded frames advance, picture is not blank', p1 && p2 && p2.err === null && p2.w === 1280 && p2.h === 720 && /anniv-200\.mp4$/.test(p2.src) && p2.t > p1.t + 1.5 && p2.frames > p1.frames + 30 && p2.spread > 40 && !p2.paused, { p1, p2 });
-    L('no burned opening line in this film: the page shows 也许有一天… itself before the film', lineOn, { lineOn });
-    const lineGone = await page.evaluate(() => !document.querySelector('.hm-line')?.classList.contains('on'));
-    L('the page line has left once the film is up (no caption over the playing film)', lineGone, { lineGone });
+    L('t35: no words before the film (save → paper → film, no 也许有一天… line)', !lineOn, { lineOn });
+    const quiet = await page.evaluate(() => !document.querySelector('.hm-line')?.classList.contains('on') && !document.querySelector('.hm-finale').classList.contains('on'));
+    L('no page text over the playing film', quiet, { quiet });
     // the site sound switch unmutes the film; its own AAC track decodes
     await page.click('.gift-chrome button').catch(() => {});
     await sleep(1200);
@@ -594,6 +598,16 @@ async function realFilm(browser, tag) {
     const end = await page.evaluate(() => ({ phase: window.__home.phase(), finaleText: document.querySelector('.hm-finale').classList.contains('on'), replay: getComputedStyle(document.querySelector('.hm-replay')).display !== 'none', edit: getComputedStyle(document.querySelector('.hm-edit')).display !== 'none', video: !!document.querySelector('video.hm-film-v') }));
     await page.screenshot({ path: `${OUT}/${tag}-real-film-endcard.png` });
     L('played to the end: end card shows the finale line with 再看一遍 / 继续布置, film layer gone', end.phase === 'end' && end.finaleText && end.replay && end.edit && !end.video, end);
+    const card = await page.evaluate(() => {
+      const f = document.querySelector('.hm-finale'); const b = f.getBoundingClientRect();
+      const box = s => { const e = document.querySelector(s); const cs = getComputedStyle(e); if (cs.display === 'none') return null; const r = e.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, left: r.left, right: r.right }; };
+      return { text: f.textContent, stanzas: [...f.querySelectorAll('.hm-fs')].map(p => [...p.querySelectorAll('span')].map(s => s.textContent)), last: f.querySelector('.hm-fs-last')?.textContent,
+        f: { top: b.top, bottom: b.bottom, left: b.left, right: b.right }, vw: innerWidth, vh: innerHeight, ctrls: ['.hm-replay', '.hm-edit', '.hm-again', '.gift-chrome'].map(box).filter(Boolean),
+        oneRow: [...f.querySelectorAll('span')].every(s => s.getClientRects().length === 1) };
+    });
+    const hit2 = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    L('t35 closing card: exact text in the order 2·3·1·4, stanzas [2,3] [1] [4], 我的小臭猫。 last on its own', card.text === FINALE_ZH && card.stanzas.length === 3 && card.stanzas[2].length === 1 && card.last === '我的小臭猫。', { stanzas: card.stanzas });
+    L('closing card fits 1280×720: inside the viewport, no line wraps, clear of the buttons and the top pill', card.oneRow && card.f.top >= 0 && card.f.bottom <= card.vh && card.ctrls.every(c => !hit2(card.f, c)), { f: card.f, ctrls: card.ctrls });
     await page.click('.hm-replay');
     await page.waitForFunction(() => window.__home.film() === 'playing', { timeout: 15000 }).catch(() => {});
     const r1 = await probe(page); await sleep(1500); const r2 = await probe(page);
@@ -645,6 +659,25 @@ async function realFilm(browser, tag) {
     const f2 = await fit();
     await page.screenshot({ path: `${OUT}/${tag}-real-film-phone-portrait-playing.png` });
     L('turned to portrait: keeps playing, whole picture still visible (contain)', st2.state === 'playing' && st2.t > st1.t && !st2.paused && f2.fit === 'contain' && f2.w <= f2.vw + 1, { t: st2.t, f2 });
+    // t35: the closing card on the phone, portrait then landscape — inside the screen, no wrapped line, clear of buttons
+    await page.evaluate(() => { const v = document.querySelector('video.hm-film-v'); v.currentTime = v.duration - 1; });
+    await page.waitForFunction(() => window.__home.phase() === 'end', { timeout: 15000 }).catch(() => {});
+    await sleep(3200);
+    const fitCard = () => page.evaluate(() => {
+      const f = document.querySelector('.hm-finale'); const b = f.getBoundingClientRect();
+      const box = s => { const e = document.querySelector(s); const cs = getComputedStyle(e); if (cs.display === 'none') return null; const r = e.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, left: r.left, right: r.right }; };
+      const ctrls = ['.hm-replay', '.hm-edit', '.hm-again', '.gift-chrome'].map(box).filter(Boolean);
+      const hit = (a, c) => a.left < c.right && c.left < a.right && a.top < c.bottom && c.top < a.bottom;
+      return { on: f.classList.contains('on'), f: { top: Math.round(b.top), bottom: Math.round(b.bottom), left: Math.round(b.left), right: Math.round(b.right) }, vw: innerWidth, vh: innerHeight,
+        inside: b.top >= 0 && b.bottom <= innerHeight && b.left >= 0 && b.right <= innerWidth, clear: ctrls.every(c => !hit(b, c)), oneRow: [...f.querySelectorAll('span')].every(s => s.getClientRects().length === 1) };
+    });
+    const cp = await fitCard();
+    await page.screenshot({ path: `${OUT}/${tag}-real-film-phone-portrait-endcard.png` });
+    L('phone portrait 390×844 closing card: inside the screen, no wrapped line, clear of buttons', cp.on && cp.inside && cp.clear && cp.oneRow, cp);
+    await page.setViewportSize({ width: 844, height: 390 }); await sleep(900);
+    const cl = await fitCard();
+    await page.screenshot({ path: `${OUT}/${tag}-real-film-phone-landscape-endcard.png` });
+    L('phone landscape 844×390 closing card: inside the screen, no wrapped line, clear of buttons', cl.on && cl.inside && cl.clear && cl.oneRow, cl);
     await ctx.close();
   }
 }

@@ -43,14 +43,25 @@ const host = document.getElementById('home')!;
 const screen = new PixelScreen({ host, minW: 176, minH: 248, maxH: 640 });
 
 const line = document.createElement('p'); line.className = 'hm-line'; line.dataset.i18n = 'home.found';
-const finale = document.createElement('p'); finale.className = 'hm-finale'; finale.dataset.i18n = 'home.finale';
+// the closing card (t35): stanzas split on '\n\n', lines on '\n'; the last stanza is the emphasised line.
+// Rendered here (not via data-i18n) so the layout survives a language switch.
+const finale = document.createElement('div'); finale.className = 'hm-finale';
+function renderFinale() {
+  const stanzas = t('home.finale').split('\n\n');
+  finale.replaceChildren(...stanzas.map((st, i) => {
+    const p = document.createElement('p');
+    p.className = i === stanzas.length - 1 && stanzas.length > 1 ? 'hm-fs hm-fs-last' : 'hm-fs';
+    st.split('\n').forEach((ln, j) => { if (j) p.appendChild(document.createElement('br')); const s = document.createElement('span'); s.textContent = ln; p.appendChild(s); });
+    return p;
+  }));
+}
 const skip = document.createElement('button'); skip.type = 'button'; skip.className = 'hm-skip'; skip.dataset.i18n = 'home.skip';
 const replay = document.createElement('button'); replay.type = 'button'; replay.className = 'hm-replay'; replay.dataset.i18n = 'home.replay';
 const again = document.createElement('button'); again.type = 'button'; again.className = 'hm-again'; again.dataset.i18n = 'home.again';
 const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'hm-edit'; edit.dataset.i18n = 'home.edit';
 if (FILM_ENABLED) document.body.classList.add('hm-code-film');
 document.body.append(line, finale, skip, replay, again, edit);
-apply(); onLang(() => apply());
+apply(); renderFinale(); onLang(() => { apply(); renderFinale(); });
 
 startHomeAudio('hearth');
 
@@ -87,9 +98,9 @@ function leaveRoom() {
   transformT = 0; endT = 0;
   phase = 'transform';
   document.body.classList.add('hm-endcard');   // centred paper typography, not the old caption bar
-  line.dataset.i18n = 'home.transform'; apply();
-  // a film that carries this line in its own picture gets no second copy on top
-  if (!manifest?.burned?.transform) line.classList.add('on');
+  // t35: no words before the film — the room's warm light simply clears onto its first frame.
+  // home.transform now lives inside the closing card (order 2 · 3 · 1 · 4).
+  line.classList.remove('on');
   toDream();
   // future-home film (when the reviewed asset is in): starts muted under the veil, so the cream clears onto it
   if (!FILM_ENABLED) void manifestReady.then(m => { if (m && phase === 'transform') startEndingFilm(m); });
@@ -180,22 +191,18 @@ startLoop(dt => {
     transformT += dt;
     for (const s of spark) { s.x += s.vx * dt; s.y += s.vy * dt; s.vy += 18 * dt; s.life -= dt; }
     spark = spark.filter(s => s.life > 0);
-    if (transformT > (reduced ? 1.3 : 2.0)) {
-      if (FILM_ENABLED) enterMontage();
-      else if (player) { phase = 'video'; line.classList.remove('on'); }
-      // no reviewed film yet: let the page line breathe, then the end card (never a placeholder film)
-      else if (transformT > (reduced ? 2.0 : 3.4) && manifest === null) toEndCard();
-    }
+    if (FILM_ENABLED) { if (transformT > (reduced ? 1.3 : 2.0)) enterMontage(); }
+    else if (player) { if (transformT > (reduced ? 1.3 : 2.0)) phase = 'video'; }
+    // no playable film (none committed, or no H.264 decoder): the veil clears straight onto the closing card
+    else if (transformT > (reduced ? 0.8 : 1.4) && manifest === null) toEndCard();
   } else if (phase === 'video') {
     // the film drives itself; if the browser refused to start it, let a tap do it
     // the player shows its own tap / loading states
   } else if (phase === 'end') {
     endT += dt;
-    // when the end card is reached directly (dev link) the first line still needs to play;
-    // when it follows the film, that line already played, so the closing line comes sooner
-    if (!endFromFilm && endT < 0.2) { line.dataset.i18n = 'home.transform'; apply(); line.classList.add('on'); }
-    if (endT > (endFromFilm ? 0.6 : 2.6)) line.classList.remove('on');
-    if (endT > (endFromFilm ? 0.9 : 3.2)) {
+    // t35: no separate first line any more — the closing card carries all four sentences (2 · 3 · 1 · 4)
+    line.classList.remove('on');
+    if (endT > (endFromFilm ? 0.9 : 0.6)) {
       document.body.classList.add('hm-on-finale');
       // the film already showed the closing line in its last shot: the end card keeps only the buttons
       if (!finaleInFilm) finale.classList.add('on');

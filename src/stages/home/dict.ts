@@ -16,7 +16,8 @@ export const en = {
   'home.transform': 'Maybe one day, maybe on day 2000, we will already have a home of our own.',
   'home.film.play': 'Tap to play',
   'home.film.loading': 'Loading the film…',
-  'home.finale': 'We already have two hundred days that belong to us. I don’t think day two thousand is that far away. My little stinky cat.',
+  // t35: the closing card, in the order 2 · 3 · 1 · 4. '\n' = line, '\n\n' = stanza; the last stanza is the emphasised line.
+  'home.finale': 'We already have two hundred days that belong to us,\nand I don’t think day two thousand is that far away.\n\nMaybe one day, maybe on day 2000,\nwe will already have a home of our own.\n\nMy little stinky cat.',
   'home.skip': 'Skip',
   'home.replay': 'Play this again',
   'home.again': 'From the start',
@@ -59,7 +60,7 @@ export const zh: Record<keyof typeof en, string> = {
   'home.transform': '也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。',
   'home.film.play': '轻触播放',
   'home.film.loading': '影片载入中……',
-  'home.finale': '我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。我的小臭猫。',
+  'home.finale': '我们已经有属于自己的两百天了，\n我想第两千天可能也并不遥远吧。\n\n也许有一天，也许会是第 2000 天，\n我们已经拥有了一个自己的家。\n\n我的小臭猫。',
   'home.skip': '跳过',
   'home.replay': '再看一遍',
   'home.again': '从头再来',
