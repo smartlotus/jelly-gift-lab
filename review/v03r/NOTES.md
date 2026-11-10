@@ -3,6 +3,8 @@
 Produced by `node tools/v03r-verify.mjs` against `node tools/serve.mjs dist 8833` (fresh `vite build`), Linux box,
 Playwright Chromium (swiftshader WebGL) + Playwright WebKit. Results: route 29/29, woods 60/60, home + film 49/49.
 
+(The three `rec-*.mp4` files are gitignored — regenerate with `ONLY=rec node tools/v03r-verify.mjs`.)
+
 - `rec-flower-walk.mp4`, `rec-mushroom-walk.mp4` — real-time recordings of a scripted walk (hold right, reverse,
   walk on); the pig follows the cat continuously, crossing behind her on reversals.
 - `rec-home-3d-editing.mp4` — real-time recording of the 3D room: place, drag near→far and back, rotate, more pieces,

@@ -70,7 +70,7 @@ The user asked (t26) for a **new** ending film of a possible future home. So:
 - `npx tsc --noEmit -p .` OK; `npx vite build` OK.
 - `tools/v03r-verify.mjs` (Playwright, Chromium with swiftshader WebGL + WebKit):
   route 29/29, woods 60/60, home + film 49/49 — all PASS. Run per part with `ONLY=route|woods|home|film|rec`.
-- Recordings (real-time Chromium session, not slideshows) in `review/v03r/`: `rec-flower-walk.mp4` (13.9 s),
+- Recordings (real-time Chromium session, not slideshows), **local only** (`review/**/*.mp4` is gitignored; on the build box under `/workspace/jelly/jelly-gift-story/review/v03r/`, regenerate with `ONLY=rec node tools/v03r-verify.mjs`): `rec-flower-walk.mp4` (13.9 s),
   `rec-mushroom-walk.mp4` (20.1 s), `rec-home-3d-editing.mp4` (122 s — place, near↔far drags, rotate, orbit, zoom;
   long because swiftshader renders slowly). Screenshots: `review/v03r/*.png`. Notes: `review/v03r/NOTES.md`.
 - Old verify39 「diff fail」: that log came from the uncommitted Windows puppeteer port; its Python film-diff step ran even
