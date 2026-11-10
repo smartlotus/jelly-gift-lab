@@ -5,6 +5,7 @@
 **t26 pass:** Monday 9 November 2026 — the 200-day ending is withdrawn, web polish (see §"t26").
 **t26d:** Monday 9 November 2026, evening — the v4 future-home film **candidate is integrated on this dev branch** (not merged, not deployed, still under review; see §"t26d").
 **t26e:** same evening — the WebKit page errors from the t26d run explained; two real unhandled rejections fixed (see §"t26e").
+**t29/t30 (v5 film):** same evening — a new realistic cinematic film v5 was made; assets + code synced on branch `v05-film` under `film/v05/`, videos in prerelease `film-v05`. **v5 is NOT integrated** — the site still plays v4 (see §"v5 film").
 
 This file is the durable takeover note. It describes **what is on branch `v03m-spatial-home` right now**, not what the live Pages site runs.
 
@@ -20,6 +21,18 @@ This file is the durable takeover note. It describes **what is on branch `v03m-s
 | Old stable gift | **Do not touch.** `smartlotus/jelly-gift` / `jelly-gift-site`, live https://smartlotus.github.io/jelly-gift/, last deploy `1c2d5de`. Do not merge this work into that default branch. Old source PR 7 stays open and untouched. |
 
 After each push, `git rev-parse origin/v03m-spatial-home` is the source of truth for the SHA.
+
+---
+
+## v5 film — realistic cinematic 《第 2000 天的家》 (2026-11-09 night, America/Los_Angeles)
+
+**Status:** finished as a standalone film; **not integrated into the site**. `public/media/future-home.mp4` and `future-home.json` are still **v4**; no website code changed; nothing merged to `main`, no `gh-pages` deploy. Awaiting the user's look-and-feel verdict before any swap.
+
+- Branch `v05-film` (from `v03m-spatial-home` @ `3a5fd50`), folder [`film/v05/`](film/v05/README.md): scripts (`build_video.py`, `make_text.py`, `audio/compose.py`, `sheet.sh`), `MANIFEST-v5.md` (shot list/EDL, rejected takes), `PROMPTS.md`, refs/keys images, text overlays, stills, review contact sheets, covers, score wav.
+- Videos: GitHub prerelease [`film-v05`](https://github.com/smartlotus/jelly-gift-story/releases/tag/film-v05) — 16:9 web (109 MB) and master (296 MB), 9:16 (58 MB), raw generated clips tar (~400 MB), clean no-text ProRes split in two parts (`cat part00 part01 > clean_notext.mov`), `SHA256SUMS.txt`.
+- Film: 98.66 s, 24 fps, 1080p, every shot AI image-to-video (no stills fallback); text overlaid in post (Noto Serif CJK SC): opening 「也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。」, ending 「我的小臭猫。」 only (per user t29u); original code-synthesised piano/strings score at -16 LUFS.
+- Known defects: see `film/v05/README.md` §已知不足 (cat slightly large; door threshold not fully crossed; inside/outside door mismatch; faces close but not identical; sweater light stripes; synthesized score not listened to; vertical is blurred-fill, not reframed; files too large for site — a lighter encode + real iPhone Safari/Android tests are needed before integration).
+- To integrate later (only after user approval): lighter web encode → replace `public/media/future-home.mp4` + poster, update `future-home.json` `burned` timings (opening text ≈1.3–8.8 s, finale text from 89.0 s), rerun tests, then real-device checks; deploy only with explicit approval.
 
 ---
 
