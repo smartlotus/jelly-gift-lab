@@ -1,133 +1,462 @@
 {
-  "ts": "2026-11-10T01:11:44.832Z",
+  "ts": "2026-11-10T01:23:43.880Z",
   "base": "http://127.0.0.1:8833",
   "tests": [
     {
-      "name": "[chromium] film without a committed film: save → end card, no <video>, no 再看一遍",
+      "name": "[chromium] home front floor edge clears the toolbar and drawer",
       "ok": true,
-      "phase": "end",
-      "film": "none",
-      "video": false,
-      "replayVisible": false,
-      "finale": true,
-      "editVisible": true
+      "frontY": 585,
+      "toolsTop": 604,
+      "drawerTop": 646
     },
     {
-      "name": "[chromium] film the 200-day film is never requested by /home/",
-      "ok": true,
-      "n": 0
-    },
-    {
-      "name": "[chromium] film 继续布置 returns the same saved pieces",
-      "ok": true,
-      "back": [
-        {
-          "kind": "sofa",
-          "x": 0,
-          "z": -1.6,
-          "yaw": 0
-        }
-      ]
-    },
-    {
-      "name": "[chromium] film player: playsinline + webkit-playsinline, poster, muted start",
-      "ok": true,
-      "src": "http://127.0.0.1:8833/media/future-home.mp4",
-      "playsinline": true,
-      "webkit": true,
-      "mutedAtStart": true,
-      "poster": "http://127.0.0.1:8833/media/future-home-poster.jpg"
-    },
-    {
-      "name": "[chromium] film player: plays (fixture), phase video",
-      "ok": true,
-      "st": "playing",
-      "t": 2.321091,
-      "phase": "video",
-      "first": "playing"
-    },
-    {
-      "name": "[chromium] film player: the site sound switch drives the film mute state",
-      "ok": true,
-      "mutedAfterToggle": false
-    },
-    {
-      "name": "[chromium] film player: ended → end card with 再看一遍",
-      "ok": true,
-      "phase": "end",
-      "replay": true,
-      "video": false
-    },
-    {
-      "name": "[chromium] film player: 再看一遍 restarts from the first frame",
-      "ok": true,
-      "phase": "video",
-      "t": 0
-    },
-    {
-      "name": "[chromium] film player: 继续布置 after the film returns the same saved pieces",
+      "name": "[chromium] home all floor corners on screen",
       "ok": true
     },
     {
-      "name": "[chromium] film film is identical for any layout (same source for layout A and B)",
+      "name": "[chromium] home drawer thumbs rendered from the placed meshes",
       "ok": true,
-      "srcs": [
-        "media/future-home.mp4",
-        "media/future-home.mp4"
-      ]
+      "n": 18
     },
     {
-      "name": "[chromium] film player: refused autoplay shows 轻触播放 and a tap starts the film",
+      "name": "[chromium] home chip tap + floor tap places a sofa",
       "ok": true,
-      "tapShown": {
-        "st": "tap",
-        "visible": "1"
-      },
-      "after": "playing"
-    },
-    {
-      "name": "[chromium] film burned-in lines: no page caption over the film, no second finale after it, buttons stay",
-      "ok": true,
-      "lineSeen": false,
-      "phase": "end",
-      "finaleOn": false,
-      "edit": true,
-      "replay": true
-    },
-    {
-      "name": "[webkit] film without a committed film: save → end card, no <video>, no 再看一遍",
-      "ok": true,
-      "phase": "end",
-      "film": "none",
-      "video": false,
-      "replayVisible": false,
-      "finale": true,
-      "editVisible": true
-    },
-    {
-      "name": "[webkit] film the 200-day film is never requested by /home/",
-      "ok": true,
-      "n": 0
-    },
-    {
-      "name": "[webkit] film 继续布置 returns the same saved pieces",
-      "ok": true,
-      "back": [
+      "items": [
         {
           "kind": "sofa",
-          "x": 0,
-          "z": -1.6,
+          "x": -0.6000000000000001,
+          "z": 1.2000000000000002,
           "yaw": 0
         }
       ]
     },
     {
-      "name": "[webkit] film no H.264 decoder in this build → manifest ignored, end card (playback checks not runnable here)",
+      "name": "[chromium] home collision rejects a second sofa on the same spot (UI path), red footprint, chip stays armed",
       "ok": true,
-      "phase": "end",
-      "video": false
+      "n": 1,
+      "armed": {
+        "chip": true,
+        "st": {
+          "ghost": false,
+          "ghostKind": null,
+          "ghostAt": null,
+          "blocked": true,
+          "blockedAt": {
+            "x": -0.6000000000000001,
+            "z": 1.2000000000000002,
+            "hw": 1.02,
+            "hd": 0.48
+          }
+        }
+      }
+    },
+    {
+      "name": "[chromium] home drag moves the sofa from near to far (z decreases)",
+      "ok": true,
+      "from": 1.2000000000000002,
+      "to": -1.8
+    },
+    {
+      "name": "[chromium] home drag moves it back from far to near (z increases)",
+      "ok": true,
+      "from": -1.8,
+      "to": 1.6
+    },
+    {
+      "name": "[chromium] home rotate button turns the selected sofa 90°",
+      "ok": true,
+      "yaw": 90,
+      "selOn": true
+    },
+    {
+      "name": "[chromium] home piece toolbar clear of the save row",
+      "ok": true,
+      "selBottom": 357,
+      "toolsTop": 604
+    },
+    {
+      "name": "[chromium] home orbit drag turns the camera",
+      "ok": true,
+      "az0": 0.22,
+      "az1": 0.55
+    },
+    {
+      "name": "[chromium] home wheel zooms in",
+      "ok": true,
+      "zoom0": 1,
+      "zoom1": 0.74
+    },
+    {
+      "name": "[chromium] home demo furnishing places every piece (no collisions in the demo layout)",
+      "ok": true,
+      "n": 17
+    },
+    {
+      "name": "[chromium] home every solid mesh lies inside its collision footprint",
+      "ok": true,
+      "outside": []
+    },
+    {
+      "name": "[chromium] home no two solid meshes intersect in the furnished room",
+      "ok": true,
+      "hits": []
+    },
+    {
+      "name": "[chromium] home adult proportions: queen bed ≥ 2.0 × 1.6 m and longer than the sofa; sofa ≤ 2.1 m; table top ~0.75 m",
+      "ok": true,
+      "bed": {
+        "long": 2.15,
+        "short": 1.76,
+        "h": 1.15
+      },
+      "sofa": {
+        "long": 2.02,
+        "short": 0.86,
+        "h": 0.88
+      },
+      "table": {
+        "long": 1.5,
+        "short": 0.97,
+        "h": 0.97
+      },
+      "chair": {
+        "long": 0.44,
+        "short": 0.44,
+        "h": 0.96
+      }
+    },
+    {
+      "name": "[chromium] home save writes v2 layout {kind,x,z,yaw}",
+      "ok": true,
+      "n": 17
+    },
+    {
+      "name": "[chromium] home reload restores exactly the saved pieces",
+      "ok": true,
+      "n": 17
+    },
+    {
+      "name": "[chromium] home no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] home phone: touch tap on chip then floor places a piece",
+      "ok": true,
+      "tItems": [
+        {
+          "kind": "armchair",
+          "x": 0.4,
+          "z": 1,
+          "yaw": 0
+        }
+      ]
+    },
+    {
+      "name": "[chromium] home phone: floor above the drawer, clear of the tool column",
+      "ok": true,
+      "front": 314.9959489986621,
+      "drawerTop": 328,
+      "toolsLeft": 737.1875,
+      "rightX": 593.2696081745294
+    },
+    {
+      "name": "[chromium] home-block arming a chip never shows the preview at its stale spot (on the sofa just placed)",
+      "ok": true,
+      "fresh": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "name": "[chromium] home-block armed table over the sofa: no solid preview inside it, red blocked footprint instead",
+      "ok": true,
+      "ghost": false,
+      "ghostKind": null,
+      "ghostAt": null,
+      "blocked": true,
+      "blockedAt": {
+        "x": -0.4,
+        "z": -0.6000000000000001,
+        "hw": 0.78,
+        "hd": 0.5
+      }
+    },
+    {
+      "name": "[chromium] home-block tapping the blocked spot places nothing",
+      "ok": true,
+      "n": 1
+    },
+    {
+      "name": "[chromium] home-block valid spot: preview shown, no red footprint",
+      "ok": true,
+      "ghost": true,
+      "ghostKind": "table",
+      "ghostAt": {
+        "x": 1.8,
+        "z": 2
+      },
+      "blocked": false,
+      "blockedAt": null
+    },
+    {
+      "name": "[chromium] home-block valid drag near → far drops the table at the back",
+      "ok": true,
+      "kind": "table",
+      "x": 1.8,
+      "z": -1.6,
+      "yaw": 0
+    },
+    {
+      "name": "[chromium] home-block drag into the sofa: red footprint shows, the table stays outside it, and nothing intersects after release",
+      "ok": true,
+      "pushed": true,
+      "overlapDuring": false,
+      "overlapAfter": false,
+      "table": {
+        "x": 1.4000000000000001,
+        "z": -1.4000000000000001
+      }
+    },
+    {
+      "name": "[chromium] home-block no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] home front floor edge clears the toolbar and drawer",
+      "ok": true,
+      "frontY": 585,
+      "toolsTop": 604,
+      "drawerTop": 646
+    },
+    {
+      "name": "[webkit] home all floor corners on screen",
+      "ok": true
+    },
+    {
+      "name": "[webkit] home drawer thumbs rendered from the placed meshes",
+      "ok": true,
+      "n": 18
+    },
+    {
+      "name": "[webkit] home chip tap + floor tap places a sofa",
+      "ok": true,
+      "items": [
+        {
+          "kind": "sofa",
+          "x": -0.6000000000000001,
+          "z": 1.2000000000000002,
+          "yaw": 0
+        }
+      ]
+    },
+    {
+      "name": "[webkit] home collision rejects a second sofa on the same spot (UI path), red footprint, chip stays armed",
+      "ok": true,
+      "n": 1,
+      "armed": {
+        "chip": true,
+        "st": {
+          "ghost": false,
+          "ghostKind": null,
+          "ghostAt": null,
+          "blocked": true,
+          "blockedAt": {
+            "x": -0.6000000000000001,
+            "z": 1.2000000000000002,
+            "hw": 1.02,
+            "hd": 0.48
+          }
+        }
+      }
+    },
+    {
+      "name": "[webkit] home drag moves the sofa from near to far (z decreases)",
+      "ok": true,
+      "from": 1.2000000000000002,
+      "to": -1.8
+    },
+    {
+      "name": "[webkit] home drag moves it back from far to near (z increases)",
+      "ok": true,
+      "from": -1.8,
+      "to": 1.6
+    },
+    {
+      "name": "[webkit] home rotate button turns the selected sofa 90°",
+      "ok": true,
+      "yaw": 90,
+      "selOn": true
+    },
+    {
+      "name": "[webkit] home piece toolbar clear of the save row",
+      "ok": true,
+      "selBottom": 357,
+      "toolsTop": 604
+    },
+    {
+      "name": "[webkit] home orbit drag turns the camera",
+      "ok": true,
+      "az0": 0.22,
+      "az1": 0.55
+    },
+    {
+      "name": "[webkit] home wheel zooms in",
+      "ok": true,
+      "zoom0": 1,
+      "zoom1": 0.74
+    },
+    {
+      "name": "[webkit] home demo furnishing places every piece (no collisions in the demo layout)",
+      "ok": true,
+      "n": 17
+    },
+    {
+      "name": "[webkit] home every solid mesh lies inside its collision footprint",
+      "ok": true,
+      "outside": []
+    },
+    {
+      "name": "[webkit] home no two solid meshes intersect in the furnished room",
+      "ok": true,
+      "hits": []
+    },
+    {
+      "name": "[webkit] home adult proportions: queen bed ≥ 2.0 × 1.6 m and longer than the sofa; sofa ≤ 2.1 m; table top ~0.75 m",
+      "ok": true,
+      "bed": {
+        "long": 2.15,
+        "short": 1.76,
+        "h": 1.15
+      },
+      "sofa": {
+        "long": 2.02,
+        "short": 0.86,
+        "h": 0.88
+      },
+      "table": {
+        "long": 1.5,
+        "short": 0.97,
+        "h": 0.97
+      },
+      "chair": {
+        "long": 0.44,
+        "short": 0.44,
+        "h": 0.96
+      }
+    },
+    {
+      "name": "[webkit] home save writes v2 layout {kind,x,z,yaw}",
+      "ok": true,
+      "n": 17
+    },
+    {
+      "name": "[webkit] home reload restores exactly the saved pieces",
+      "ok": true,
+      "n": 17
+    },
+    {
+      "name": "[webkit] home no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] home phone: touch tap on chip then floor places a piece",
+      "ok": true,
+      "tItems": [
+        {
+          "kind": "armchair",
+          "x": 0.4,
+          "z": 0.8,
+          "yaw": 0
+        }
+      ]
+    },
+    {
+      "name": "[webkit] home phone: floor above the drawer, clear of the tool column",
+      "ok": true,
+      "front": 314.9959489986621,
+      "drawerTop": 328,
+      "toolsLeft": 737.1875,
+      "rightX": 593.2696081745294
+    },
+    {
+      "name": "[webkit] home-block arming a chip never shows the preview at its stale spot (on the sofa just placed)",
+      "ok": true,
+      "fresh": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "name": "[webkit] home-block armed table over the sofa: no solid preview inside it, red blocked footprint instead",
+      "ok": true,
+      "ghost": false,
+      "ghostKind": null,
+      "ghostAt": null,
+      "blocked": true,
+      "blockedAt": {
+        "x": -0.4,
+        "z": -0.6000000000000001,
+        "hw": 0.78,
+        "hd": 0.5
+      }
+    },
+    {
+      "name": "[webkit] home-block tapping the blocked spot places nothing",
+      "ok": true,
+      "n": 1
+    },
+    {
+      "name": "[webkit] home-block valid spot: preview shown, no red footprint",
+      "ok": true,
+      "ghost": true,
+      "ghostKind": "table",
+      "ghostAt": {
+        "x": 1.8,
+        "z": 1.8
+      },
+      "blocked": false,
+      "blockedAt": null
+    },
+    {
+      "name": "[webkit] home-block valid drag near → far drops the table at the back",
+      "ok": true,
+      "kind": "table",
+      "x": 1.8,
+      "z": -1.8,
+      "yaw": 0
+    },
+    {
+      "name": "[webkit] home-block drag into the sofa: red footprint shows, the table stays outside it, and nothing intersects after release",
+      "ok": true,
+      "pushed": true,
+      "overlapDuring": false,
+      "overlapAfter": false,
+      "table": {
+        "x": 1.4000000000000001,
+        "z": -1.6
+      }
+    },
+    {
+      "name": "[webkit] home-block no page errors",
+      "ok": true,
+      "errs": []
     }
   ],
   "failed": 0,
-  "total": 16
+  "total": 54
 }

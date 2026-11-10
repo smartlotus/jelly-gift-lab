@@ -426,9 +426,13 @@ async function homeBlocked(browser, tag) {
   await page.waitForFunction(() => !!window.__homeRoom?.project, { timeout: 20000 });
   await sleep(600);
   const at = (x, z) => page.evaluate(([x, z]) => window.__homeRoom.project(x, z), [x, z]);
-  await page.evaluate(() => window.__homeRoom.place('sofa', -0.4, -0.6, 0));
-  await page.click('.hm-chip[data-kind="table"]'); await sleep(200);
+  // place the sofa through the UI, so the preview's last position is exactly on the sofa
   let p = await at(-0.4, -0.6);
+  await page.click('.hm-chip[data-kind="sofa"]'); await page.mouse.move(p.x, p.y, { steps: 4 }); await page.mouse.click(p.x, p.y); await sleep(200);
+  await page.click('.hm-chip[data-kind="table"]');
+  const fresh = [];
+  for (let i = 0; i < 8; i++) { fresh.push(await page.evaluate(() => window.__homeRoom.previewState().ghost)); await sleep(30); }
+  L('arming a chip never shows the preview at its stale spot (on the sofa just placed)', fresh.every(g => !g), { fresh });
   await page.mouse.move(p.x, p.y, { steps: 6 }); await sleep(150);
   const over = await page.evaluate(() => window.__homeRoom.previewState());
   L('armed table over the sofa: no solid preview inside it, red blocked footprint instead', !over.ghost && over.blocked, over);

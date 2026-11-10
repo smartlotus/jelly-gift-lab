@@ -1,0 +1,254 @@
+{
+  "commit": "fe69b7b+uncommitted-src",
+  "ranAt": "2026-11-10T01:24:17.424Z",
+  "base": "http://127.0.0.1:8833",
+  "woods": {
+    "flower": {
+      "clip": "review/v03r/arbitration/woods-flower-desktop.mp4",
+      "duration": 12.2,
+      "frames": 613,
+      "maxFrameGapSec": 0.728,
+      "maxStep": {
+        "cat": {
+          "d": 1.68,
+          "t": 1.261,
+          "dt": 0.018,
+          "perSec": 93.3
+        },
+        "pig": {
+          "d": 3.3,
+          "t": 9.117,
+          "dt": 0.014,
+          "perSec": 235.7
+        },
+        "cam": {
+          "d": 1.68,
+          "t": 10.533,
+          "dt": 0.007,
+          "perSec": 240
+        }
+      },
+      "pigFacingAgainstItsMotion": 0,
+      "catFacingAgainstMotion": 7,
+      "catWalkingLeftFrames": 162,
+      "pigFacingLeftThen": 84,
+      "pigFacingRightWhileCatLeft": {
+        "n": 78,
+        "first": 5.271,
+        "last": 6.567,
+        "sample": [
+          {
+            "wall": 1794273696256,
+            "cat": 283.55,
+            "face": -1,
+            "vx": -21.4,
+            "pig": 213.43,
+            "pigFace": 1,
+            "pigVx": 22.7,
+            "lane": 0.76,
+            "cam": 104.49,
+            "vw": 320,
+            "t": 5.271
+          },
+          {
+            "wall": 1794273696268,
+            "cat": 283.17,
+            "face": -1,
+            "vx": -23.1,
+            "pig": 213.78,
+            "pigFace": 1,
+            "pigVx": 20.8,
+            "lane": 0.8,
+            "cam": 103.52,
+            "vw": 320,
+            "t": 5.283
+          },
+          {
+            "wall": 1794273696289,
+            "cat": 282.75,
+            "face": -1,
+            "vx": -24.7,
+            "pig": 214.24,
+            "pigFace": 1,
+            "pigVx": 27.4,
+            "lane": 0.84,
+            "cam": 102.54,
+            "vw": 320,
+            "t": 5.304
+          }
+        ]
+      }
+    },
+    "mushroom": {
+      "clip": "review/v03r/arbitration/woods-mushroom-desktop.mp4",
+      "duration": 12.52,
+      "frames": 667,
+      "maxFrameGapSec": 0.269,
+      "maxStep": {
+        "cat": {
+          "d": 1.39,
+          "t": 1.394,
+          "dt": 0.017,
+          "perSec": 81.8
+        },
+        "pig": {
+          "d": 1.66,
+          "t": 6.028,
+          "dt": 0.018,
+          "perSec": 92.2
+        },
+        "cam": {
+          "d": 0.96,
+          "t": 5.177,
+          "dt": 0.017,
+          "perSec": 56.5
+        }
+      },
+      "pigFacingAgainstItsMotion": 0,
+      "catFacingAgainstMotion": 8,
+      "catWalkingLeftFrames": 167,
+      "pigFacingLeftThen": 88,
+      "pigFacingRightWhileCatLeft": {
+        "n": 79,
+        "first": 5.144,
+        "last": 6.444,
+        "sample": [
+          {
+            "wall": 1794273710435,
+            "cat": 289.87,
+            "face": -1,
+            "vx": -21.1,
+            "pig": 219.59,
+            "pigFace": 1,
+            "pigVx": 22.8,
+            "lane": 0.76,
+            "cam": 109.43,
+            "vw": 320,
+            "t": 5.144
+          },
+          {
+            "wall": 1794273710451,
+            "cat": 289.49,
+            "face": -1,
+            "vx": -22.8,
+            "pig": 219.94,
+            "pigFace": 1,
+            "pigVx": 20.9,
+            "lane": 0.8,
+            "cam": 108.48,
+            "vw": 320,
+            "t": 5.16
+          },
+          {
+            "wall": 1794273710468,
+            "cat": 289.08,
+            "face": -1,
+            "vx": -24.5,
+            "pig": 220.4,
+            "pigFace": 1,
+            "pigVx": 27.5,
+            "lane": 0.84,
+            "cam": 107.52,
+            "vw": 320,
+            "t": 5.177
+          }
+        ]
+      }
+    }
+  },
+  "home": {
+    "clip": "review/v03r/arbitration/home-blocked-drop-bed.mp4",
+    "duration": 14.44,
+    "frames": 648,
+    "minGapPlacedTableToSofa_m": {
+      "g": 0.042,
+      "t": 7.58
+    },
+    "minGapPreviewTableToSofa_m": {
+      "g": 0.042,
+      "t": 3.618
+    },
+    "blockedFootprintFrames": 170,
+    "solidPreviewDrawnWhileBlocked": 0,
+    "maxPiecesTable": 1,
+    "dimsMetres": {
+      "sofa": {
+        "x": 2.02,
+        "y": 0.88,
+        "z": 0.86
+      },
+      "table": {
+        "x": 1.5,
+        "y": 0.97,
+        "z": 0.97
+      },
+      "bed": {
+        "x": 2.15,
+        "y": 1.15,
+        "z": 1.76
+      }
+    },
+    "timeline": [
+      {
+        "t": 1.228,
+        "state": "|ghost:-|blocked:-"
+      },
+      {
+        "t": 2.48,
+        "state": "|ghost:sofa|blocked:-"
+      },
+      {
+        "t": 2.8,
+        "state": "sofa|ghost:-|blocked:-"
+      },
+      {
+        "t": 3.515,
+        "state": "sofa|ghost:table|blocked:-",
+        "gapGhostSofa": 0.442
+      },
+      {
+        "t": 3.65,
+        "state": "sofa|ghost:-|blocked:yes"
+      },
+      {
+        "t": 4.197,
+        "state": "sofa|ghost:table|blocked:-",
+        "gapGhostSofa": 0.042
+      },
+      {
+        "t": 4.481,
+        "state": "sofa|ghost:-|blocked:yes"
+      },
+      {
+        "t": 5.601,
+        "state": "sofa|ghost:table|blocked:-",
+        "gapGhostSofa": 0.285
+      },
+      {
+        "t": 5.914,
+        "state": "sofa+table|ghost:-|blocked:-",
+        "gapTableSofa": 1.685
+      },
+      {
+        "t": 7.648,
+        "state": "sofa+table|ghost:-|blocked:yes",
+        "gapTableSofa": 0.042
+      },
+      {
+        "t": 8.88,
+        "state": "sofa+table|ghost:-|blocked:-",
+        "gapTableSofa": 0.042
+      },
+      {
+        "t": 9.714,
+        "state": "sofa+table|ghost:bed|blocked:-",
+        "gapTableSofa": 0.042
+      },
+      {
+        "t": 10.02,
+        "state": "sofa+table+bed|ghost:-|blocked:-",
+        "gapTableSofa": 0.042
+      }
+    ]
+  }
+}

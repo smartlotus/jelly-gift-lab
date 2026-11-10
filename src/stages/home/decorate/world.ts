@@ -438,7 +438,8 @@ export function createDecorate(host: HTMLElement): DecorateApi {
       preview.add(ghost);
       previewKind = kind;
     }
-    preview.visible = true;
+    // never show the preview where it was last left (e.g. right where the previous piece was just dropped):
+    // it appears only once the pointer has given it a checked spot (see `move`)
   }
 
   type MeshLike = { material?: { transparent: boolean; opacity: number } | { transparent: boolean; opacity: number }[] };
@@ -451,6 +452,7 @@ export function createDecorate(host: HTMLElement): DecorateApi {
     selectedKind = selectedKind === b.dataset.kind ? null : b.dataset.kind;
     focus = null;
     setPreview(selectedKind);
+    preview.visible = false; showBlocked(null);   // shown again on the next checked floor position
     syncSel();
     wood();
   });
@@ -690,7 +692,7 @@ export function createDecorate(host: HTMLElement): DecorateApi {
     collides: (kind: string, x: number, z: number, yaw = 0, ignore?: number) => collides(pieces, kind, x, z, yaw, ignore),
     /** world-space bounding box of each placed mesh vs its collision footprint (proportion / clipping checks) */
     /** what the editor shows besides real pieces: the placement preview and the red blocked footprint */
-    previewState: () => ({ ghost: preview.visible, blocked: blocked.visible, blockedAt: blocked.visible ? { x: blocked.position.x, z: blocked.position.z } : null }),
+    previewState: () => ({ ghost: preview.visible, ghostKind: preview.visible ? previewKind : null, ghostAt: preview.visible ? { x: preview.position.x, z: preview.position.z } : null, blocked: blocked.visible, blockedAt: blocked.visible ? { x: blocked.position.x, z: blocked.position.z, hw: blocked.scale.x * 0.4, hd: blocked.scale.z * 0.4 } : null }),
     bounds: () => pieces.map(p => {
       p.root.updateMatrixWorld(true);
       // solid geometry only: skip the soft contact-shadow decal (renderOrder 1)

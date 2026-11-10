@@ -80,6 +80,16 @@ burned-lines case **16/16**; tsc + build OK. Targeted real-time clips (local onl
 `clip-mushroom-reverse-phone.mp4` (~12 s each, right → left → right) and `clip-home-blocked-drop-bed.mp4` (15 s).
 Committed frame strips: `review/v03r/strip-*.jpg`. The older `rec-*.mp4` predate these fixes.
 
+### t26c — arbitration of the second review (2026-11-09 evening, PT)
+
+Per-frame telemetry plus a burned sync stamp (`tools/v03r-arbitrate.mjs`, no seek during recording). Full table in
+`review/v03r/arbitration/NOTES.md`. One genuine defect, fixed: arming a chip showed the preview at its stale spot
+(where the previous piece had just been dropped, i.e. inside the sofa) for ~0.25 s. Not reproduced, no change: the table
+penetrating the sofa while dragged (min gap 0.042 m every frame; the red rectangle is the floor decal), the toddler bed
+(bed 2.15 × 1.76 m vs sofa 2.02 × 0.86 m), the pig facing (0 frames against its motion; it faces right only while
+crossing behind the cat), and teleports (max per-frame step 3.3 px of a 320 px view). The final visual gate is
+still pending with the parent.
+
 ### Web fixes in this pass
 
 - **Woods (flower + mushroom):** the follow gap is computed from the *visible* cat width (painted cat has ~5 px clear
