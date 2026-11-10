@@ -47,3 +47,8 @@ film; 继续布置 returns to the saved room. The film never reads the saved lay
 ## Not yet verified
 
 Real phones (iOS Safari / Android Chrome), real WebKit H.264 playback, a full real-time human review of the whole film.
+
+
+## v5 (2026-11-09 night PT) — realistic cinematic remake, not integrated
+
+A standalone realistic v5 of the film exists on branch `v05-film` in [`film/v05/`](../film/v05/README.md) with videos in prerelease [`film-v05`](https://github.com/smartlotus/jelly-gift-story/releases/tag/film-v05). The site still uses v4 (`public/media/future-home.mp4`). Swap only after the user approves; see AI_HANDOFF.md §"v5 film".
