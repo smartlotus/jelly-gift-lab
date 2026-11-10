@@ -134,10 +134,16 @@ export function startWander(opts: WoodOpts) {
   const pigScale = pigArt.scaled ? 2 : 1;
   const pigW = (pigArt.frames[0]?.width ?? 32) * pigScale;
   const catW0 = art.fauna.cat?.walk?.[0]?.width ?? 32;
-  const FOLLOW_GAP = Math.round(Math.max(36, (pigW + catW0) / 2 - 6));
-  const MIN_SEP = Math.round(pigW / 2 + 6);
-  const pig = { x: 16, face: 1 as number, vx: 0, follow: 1 };
-  const floorOf = (w: number, h: number) => h - Math.max(22, Math.round(h * (h > w ? 0.13 : 0.16)));
+  // The painted cat sheet carries ~5 px of transparent margin per side; her tail reaches the
+  // left edge of the visible body. The gap is measured edge-to-edge so the pig's snout never
+  // tucks under the tail (the v03n 57 px centre gap still overlapped on screen).
+  const catVisHalf = Math.max(14, catW0 / 2 - 5);
+  const FOLLOW_GAP = Math.round(Math.max(36, catVisHalf + pigW / 2 + 12));
+  const MIN_SEP = Math.round(catVisHalf + pigW / 2 + 3);
+  // `lane` 0 = on the path beside her, 1 = one step further back (used only while she walks
+  // back past the pig after a turn, so the two read as passing in depth instead of merging)
+  const pig = { x: 16, face: 1 as number, vx: 0, follow: 1, lane: 0 };
+  const floorOf = (w: number, h: number) => h - Math.max(22, Math.round(h * (h > w ? 0.2 : 0.16)));
   const landscape = () => theme === 'flower' ? art.plates.flowerGround : art.plates.mushroomGround;
   const coverOf = (w: number, h: number) => {
     const base = h > w ? 1.16 : 1;
@@ -210,6 +216,8 @@ export function startWander(opts: WoodOpts) {
       pig.x = Math.max(16, cat.x - FOLLOW_GAP);
       pig.follow = 1;
       pig.face = 1;
+      // review shortcut lands at the house: the wood's encounters are behind her already
+      PLAN.forEach((_, i) => spawned.add(i));
       placedEnd = true;
     }
 
@@ -239,33 +247,51 @@ export function startWander(opts: WoodOpts) {
       const wouldCross =
         (pig.x < cat.x - MIN && target > cat.x + MIN) ||
         (pig.x > cat.x + MIN && target < cat.x - MIN);
-      if (wouldCross) {
-        pig.vx += (0 - pig.vx) * Math.min(1, dt * 8);
-        pig.face = cat.x >= pig.x ? 1 : -1;
-      } else {
-        const dx = target - pig.x;
-        const want = Math.abs(dx) < 3 ? 0 : Math.sign(dx) * Math.min(MAX, 18 + Math.abs(dx) * 2.4);
-        pig.vx += (want - pig.vx) * Math.min(1, dt * 5);
-        pig.x += pig.vx * dt;
-        if (Math.abs(pig.vx) > 4) pig.face = Math.sign(pig.vx);
-        else pig.face = pig.follow;
-      }
-      const sep = pig.x - cat.x;
-      if (Math.abs(sep) < MIN) {
-        const push = Math.sign(sep) || -pig.follow;
-        pig.x = cat.x + push * MIN;
-        if (Math.sign(pig.vx) === -push) pig.vx = 0;
+      // After a turn she walks back past the pig; the pig turns round, steps one lane back and
+      // trots on behind her new heading. While the two overlap the pig is drawn a few pixels
+      // up the path (further away) and under the cat, so her whole sheet always stays visible.
+      const crossing = wouldCross || (pig.lane > 0.05 && Math.abs(pig.x - cat.x) < MIN + 16);
+      const dx = target - pig.x;
+      const want = Math.abs(dx) < 3 ? 0 : Math.sign(dx) * Math.min(MAX + (crossing ? 10 : 0), 18 + Math.abs(dx) * 2.4);
+      pig.vx += (want - pig.vx) * Math.min(1, dt * 5);
+      pig.x += pig.vx * dt;
+      if (Math.abs(pig.vx) > 4) pig.face = Math.sign(pig.vx);
+      else pig.face = pig.follow;
+      const near = Math.abs(pig.x - cat.x) < MIN + 16;
+      pig.lane += ((crossing && near ? 1 : 0) - pig.lane) * Math.min(1, dt * 7);
+      if (!crossing) {
+        const sep = pig.x - cat.x;
+        if (Math.abs(sep) < MIN) {
+          const push = Math.sign(sep) || -pig.follow;
+          pig.x = cat.x + push * MIN;
+          if (Math.sign(pig.vx) === -push) pig.vx = 0;
+        }
       }
       pig.x = Math.max(pigHalf + 4, Math.min(worldW - pigHalf - 8, pig.x));
     }
 
     cam.worldW = worldW;
     cam.worldH = Math.max(220, screen.h);
-    cam.follow(cat.x, floor - 18, cat.face, screen.w, screen.h, dt);
+    // frame the pair, not just the cat: centre on the group, keep look-ahead only while it fits,
+    // then make sure neither animal is cut by the screen edge (portrait phones are ~195 px wide)
+    {
+      const gL = Math.min(cat.x - catHalf, pig.x - pigHalf), gR = Math.max(cat.x + catHalf, pig.x + pigHalf);
+      const span = gR - gL;
+      const look = Math.max(0, Math.min(28, (screen.w - span) / 2 - 10));
+      cam.follow((gL + gR) / 2, floor - 18, cat.face, screen.w, screen.h, dt, look);
+      if (span + 8 <= screen.w) {
+        const M = Math.min(10, (screen.w - span) / 2);
+        if (gL - cam.x < M) cam.x = gL - M;
+        if (cam.x + screen.w - gR < M) cam.x = gR + M - screen.w;
+        cam.x = Math.max(0, Math.min(worldW - screen.w, cam.x));
+      }
+    }
 
     PLAN.forEach((p, i) => {
       if (spawned.has(i) || cat.x + 50 < p.at * worldW) return;
       spawned.add(i);
+      // jumped past it (?at=end, a seek, a resize that grew the world): skip, don't pile everyone on her
+      if (cat.x > p.at * worldW + 160) return;
       // same-direction critters spawn ahead (on screen) so a walking player can catch up;
       // oncoming critters still enter from the right edge.
       const x = p.dir > 0 ? Math.min(cam.x + screen.w - 40, cat.x + 100) : cam.x + screen.w + 28;
@@ -281,7 +307,7 @@ export function startWander(opts: WoodOpts) {
         c.x += c.vx * dt;
         c.mode = c.kind === 'owl' ? 'fly' : 'walk';
         c.face = Math.sign(c.vx) || c.face;
-        if (Math.abs(c.x - cat.x) < 38) {
+        if (Math.abs(c.x - cat.x) < catVisHalf + 24) {
           c.phase = 'notice'; c.notice = 0; c.vx = 0;
           c.mode = c.kind === 'owl' ? 'extra' : (c.kind === 'collie' || c.kind === 'kitten' || c.kind === 'greykit' || c.kind === 'lamb' ? 'extra' : 'stand');
           c.face = c.x > cat.x ? -1 : 1;
@@ -389,7 +415,8 @@ export function startWander(opts: WoodOpts) {
     for (const c of critters) {
       const img = critterFrame(c.kind, c.mode, time);
       const fly = c.kind === 'owl' && c.mode === 'fly';
-      const feet = fly ? floorY - 54 - Math.sin(c.age * 1.6) * 7 : floorY;
+      // ground animals walk one lane further up the path than the cat/pig pair, so a greeting reads in depth
+      const feet = fly ? floorY - 54 - Math.sin(c.age * 1.6) * 7 : floorY - 6;
       // Keep owl at 1× so the flat glide (25px) vs raised/down (46–52px) reads as a flap.
       const sc = c.kind === 'owl' ? 1 : (img.height >= 28 ? 1 : 2);
       blit(img, Math.round(c.x - ox - img.width * sc / 2), Math.round(feet), c.face < 0, sc);
@@ -399,7 +426,8 @@ export function startWander(opts: WoodOpts) {
       const { img: pigImg, scale: pigSc } = pigPaintFrame(pigArt, pig.vx, time);
       // painted frames carry PIG_PAD transparent rows under the feet
       const pad = pigArt.scaled ? 0 : 2;
-      blit(pigImg, Math.round(pig.x - ox - (pigImg.width * pigSc) / 2), Math.round(floorY + pad), pig.face < 0, pigSc);
+      const laneUp = Math.round(pig.lane * 5);
+      blit(pigImg, Math.round(pig.x - ox - (pigImg.width * pigSc) / 2), Math.round(floorY + pad - laneUp), pig.face < 0, pigSc);
     }
     const catImg = cat32Frame(catSp, cat.vx, time);
     blit(catImg, Math.round(cat.x - ox - catImg.width / 2), Math.round(floor), cat.face < 0, 1);
@@ -429,6 +457,10 @@ export function startWander(opts: WoodOpts) {
     },
     get pigX() { return pig.x; },
     get pigFace() { return pig.face; },
+    get pigLane() { return pig.lane; },
+    get camX() { return cam.x; },
+    get viewW() { return screen.w; },
+    get catHalf() { return catW0 / 2; },
     get pigVx() { return pig.vx; },
     get face() { return cat.face; },
     get vx() { return cat.vx; },

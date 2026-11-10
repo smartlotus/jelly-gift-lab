@@ -1,9 +1,9 @@
 // /home/ · after 一起玩: pig and cat find an empty house, furnish a future home (spatial Module A),
-// then a cinematic (Module B) plays a fixed, art-directed life-together montage — independent of the layout.
+// then Module B — the fixed future-home film (an independently produced, reviewed MP4; see endingFilm.ts) —
+// plays the same picture for every layout. Until that asset is committed the journey ends on the end card.
 import { register, apply, onLang, t } from '../../shared/i18n';
-import { soundOn, unlock, onSound } from '../../shared/audio';
 import { mountChrome } from '../../shared/chrome';
-import { markReached, go, params, reducedMotion, asset } from '../../shared/flow';
+import { markReached, go, params, reducedMotion } from '../../shared/flow';
 import { irisIn, irisOut } from '../../shared/transition';
 import { peekCarry, clearCarry } from '../../shared/curtain';
 import { PixelScreen } from '../../shared/pixel/screen';
@@ -14,6 +14,8 @@ import { drawPerson } from './people';
 import { preloadArt } from '../../art/loader';
 import { clearLayout } from './save';
 import { startHomeAudio, toDream, leaveHome } from './sfx';
+import { stopTune, startMusic } from '../../shared/music';
+import { probeFutureFilm, createFilmPlayer, type FilmPlayer, type FilmManifest } from './endingFilm';
 import * as dict from './dict';
 import './style.css';
 
@@ -21,10 +23,10 @@ register(dict); mountChrome(); markReached();
 await preloadArt();
 if (params.has('fresh')) clearLayout();
 
-// ── 短片开关 ────────────────────────────────────────────────────────────────
-// 未来短片（Module B，src/stages/home/film.ts）暂时下线：流程到「保存布局」后走一个静态结尾卡，
-// 只留文字与按钮。短片代码仍然在仓库里（含 review/v03o-film/ 的证据），做完/想开回来时把这里改回 true，
-// 其余代码不用动。
+// ── Module B ────────────────────────────────────────────────────────────────
+// FILM_ENABLED wires the old code-drawn six-shot film (film.ts, parked; bookmark branch v03o-film).
+// It stays false: t26 replaces it with an independently produced future-home MP4 played by endingFilm.ts.
+// The /sky/ 200-day film is NOT the ending (t26) — it stays an optional film on /sky/.
 export const FILM_ENABLED = false;
 
 type Phase = 'approach' | 'room' | 'transform' | 'montage' | 'video' | 'end';
@@ -57,9 +59,10 @@ let room: DecorateApi | null = null;
 let film: FilmApi | null = null;
 let transformT = 0;
 let endT = 0;
-let ending: HTMLDivElement | null = null;
 let endFromFilm = false;
-let endingVideo: HTMLVideoElement | null = null;
+let player: FilmPlayer | null = null;
+let manifest: FilmManifest | null = null;
+const manifestReady = probeFutureFilm().then(m => { manifest = m; document.body.classList.toggle('hm-has-film', !!m); return m; });
 let spark: { x: number; y: number; vx: number; vy: number; life: number }[] = [];
 
 async function enterRoom() {
@@ -84,8 +87,8 @@ function leaveRoom() {
   document.body.classList.add('hm-endcard');   // centred paper typography, not the old caption bar
   line.dataset.i18n = 'home.transform'; apply(); line.classList.add('on');
   toDream();
-  // 200-day film: start it under the veil so the cream clears straight onto a moving picture
-  if (!FILM_ENABLED) startEndingFilm();
+  // future-home film (when the reviewed asset is in): starts muted under the veil, so the cream clears onto it
+  if (!FILM_ENABLED) void manifestReady.then(m => { if (m && phase === 'transform') startEndingFilm(m); });
   // The film starts under the veil: the dollhouse light blooms, and the first shot of the film is
   // already there when the cream clears — no cut, no pixel sprites.
   if (FILM_ENABLED) { film = createFilm(); fit(); }
@@ -94,53 +97,30 @@ function leaveRoom() {
   for (let i = 0; i < 40; i++) spark.push({ x: screen.w * 0.5 + (Math.random() - 0.5) * 40, y: floor - 20 + Math.random() * 10, vx: (Math.random() - 0.5) * 26, vy: -10 - Math.random() * 30, life: 0.8 + Math.random() });
 }
 
-/** the 200-day hand-drawn film, played full-bleed under the veil that replaces the dollhouse */
-function startEndingFilm() {
-  if (endingVideo) return;
-  const wrap = document.createElement('div');
-  wrap.className = 'hm-film';
-  const v = document.createElement('video');
-  v.className = 'hm-film-v';
-  v.setAttribute('playsinline', '');
-  v.setAttribute('webkit-playsinline', '');
-  v.preload = 'auto';
-  v.poster = asset('media/anniv-200-poster.jpg');
-  v.src = asset('media/anniv-200.mp4');
-  v.muted = true;                       // always allowed to start; unmuted below when the site sound is on
-  wrap.appendChild(v);
-  document.body.appendChild(wrap);
-  ending = wrap; endingVideo = v;
-  document.body.classList.add('hm-watching');
-  // if the browser blocks the autoplay, a tap on the film starts it (label follows the language)
-  const tap = document.createElement('button');
-  tap.type = 'button'; tap.className = 'hm-film-tap'; tap.dataset.i18n = 'home.film.play';
-  wrap.appendChild(tap);
-  tap.addEventListener('click', (e) => { e.stopPropagation(); unlock(); void v.play().then(syncMute).catch(() => {}); });
-  v.addEventListener('play', () => wrap.classList.remove('tap'));
-  const finish = () => toEndCard();
-  v.addEventListener('ended', finish);
-  v.addEventListener('error', finish);
-  const syncMute = () => { if (v) v.muted = !soundOn(); };
-  onSound(syncMute);
-  void v.play().then(() => { syncMute(); }).catch(() => { wrap.classList.add('tap'); });
-  wrap.addEventListener('click', () => { if (v.paused) { unlock(); void v.play().then(syncMute).catch(() => {}); } });
+/** Module B: the fixed future-home film. Same picture for every layout; never reads the save. */
+function startEndingFilm(m: FilmManifest) {
+  if (player) return;
+  player = createFilmPlayer(m, {
+    onEnded: () => toEndCard(),
+    // a film with its own soundtrack takes over from the page music, which comes back on the end card
+    onAudio: audible => { if (audible) stopTune(0.8); },
+  });
   // the veil has to clear first, otherwise the caption sits on the opening frame of the film
-  window.setTimeout(() => wrap.classList.add('on'), reduced ? 300 : 1050);
+  const p = player;
+  window.setTimeout(() => p.show(), reduced ? 300 : 1050);
 }
 
 function stopEndingFilm() {
-  const v = endingVideo, w = ending;
-  endingVideo = null; ending = null;
-  if (!v || !w) return;
-  v.pause();
-  document.body.classList.remove('hm-watching');
-  w.classList.add('out');
-  setTimeout(() => { w.remove(); v.removeAttribute('src'); v.load(); }, 900);
+  const p = player;
+  player = null;
+  p?.close();
 }
 
 function toEndCard() {
   if (phase === 'end') return;
+  const fromFilm = !!player;
   stopEndingFilm();
+  if (fromFilm) startMusic('dream');
   document.body.classList.add('hm-endcard');
   endFromFilm = true;          // the "maybe one day" line already played before the film
   line.classList.remove('on');
@@ -162,7 +142,7 @@ function enterMontage() {
 
 skip.addEventListener('click', () => {
   if (phase === 'approach') approach.skip();
-  else if (phase === 'transform') enterMontage();
+  else if (phase === 'transform') { if (FILM_ENABLED) enterMontage(); else toEndCard(); }
   else if (phase === 'montage') film?.skip();
   else if (phase === 'video') toEndCard();
   else if (phase === 'end') endT = 4;
@@ -171,9 +151,12 @@ replay.addEventListener('click', () => {
   finale.classList.remove('on');
   document.body.classList.remove('hm-on-finale');
   if (FILM_ENABLED) { film?.replay(); return; }
+  if (!manifest) return;
   endFromFilm = false;
+  document.body.classList.remove('hm-on-finale');
   phase = 'video';
-  startEndingFilm();
+  startEndingFilm(manifest);
+  player?.show();
 });
 again.addEventListener('click', () => { leaveHome(); void go('meadow', () => reducedMotion() ? Promise.resolve() : irisOut(innerWidth / 2, innerHeight / 2, 700, '#f3ebe0')); });
 edit.addEventListener('click', () => { void enterRoom(); });
@@ -192,11 +175,13 @@ startLoop(dt => {
     spark = spark.filter(s => s.life > 0);
     if (transformT > (reduced ? 1.3 : 2.0)) {
       if (FILM_ENABLED) enterMontage();
-      else { phase = 'video'; line.classList.remove('on'); }
+      else if (player) { phase = 'video'; line.classList.remove('on'); }
+      // no reviewed film yet: let the page line breathe, then the end card (never a placeholder film)
+      else if (transformT > (reduced ? 2.0 : 3.4) && manifest === null) toEndCard();
     }
   } else if (phase === 'video') {
     // the film drives itself; if the browser refused to start it, let a tap do it
-    if (endingVideo && endingVideo.paused && endingVideo.currentTime === 0) ending?.classList.add('tap');
+    // the player shows its own tap / loading states
   } else if (phase === 'end') {
     endT += dt;
     // when the end card is reached directly (dev link) the first line still needs to play;
@@ -294,15 +279,16 @@ fit(); window.addEventListener('resize', fit);
 if (phase === 'room') await enterRoom();
 else if (phase === 'transform') { await enterRoom(); leaveRoom(); }
 else if (phase === 'montage') enterMontage();
-else if (phase === 'video') startEndingFilm();
+else if (phase === 'video') void manifestReady.then(m => { if (m) { startEndingFilm(m); player?.show(); } else toEndCard(); });
 else if (phase === 'end') document.body.classList.add('hm-endcard');
 
 const carry = peekCarry();
 void irisIn(innerWidth * 0.7, innerHeight * 0.6, 700, carry?.color || '#f3ebe0', carry?.img).then(() => clearCarry());
 void t;
 
-(window as unknown as { __home?: { phase: () => string; skip: () => void; save: () => void; seek: (id: string, tt?: number) => void; edit: () => void } }).__home = {
+(window as unknown as { __home?: { phase: () => string; film: () => string; skip: () => void; save: () => void; seek: (id: string, tt?: number) => void; edit: () => void } }).__home = {
   phase: () => phase === 'montage' ? (film?.scene ?? phase) : phase,
+  film: () => player?.state() ?? (manifest ? 'ready' : 'none'),
   skip: () => skip.click(),
   save: () => (window as unknown as { __homeRoom?: { save: () => void } }).__homeRoom?.save(),
   seek: (id: string, tt = 0) => film?.seek(id as 'walk', tt),

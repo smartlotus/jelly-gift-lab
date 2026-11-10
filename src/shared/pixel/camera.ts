@@ -3,8 +3,8 @@
 export class Camera {
   x = 0; y = 0; private lx = 0;
   constructor(public worldW: number, public worldH: number) {}
-  follow(tx: number, ty: number, face: number, vw: number, vh: number, dt: number) {
-    this.lx += (face * 28 - this.lx) * Math.min(1, dt * 2.5);
+  follow(tx: number, ty: number, face: number, vw: number, vh: number, dt: number, look = 28) {
+    this.lx += (face * look - this.lx) * Math.min(1, dt * 2.5);
     const gx = tx + this.lx - vw / 2, gy = ty - vh * 0.58;
     this.x += (gx - this.x) * Math.min(1, dt * 6); this.y += (gy - this.y) * Math.min(1, dt * 4);
     this.x = Math.max(0, Math.min(this.worldW - vw, this.x));

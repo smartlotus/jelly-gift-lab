@@ -2,6 +2,7 @@
 
 **Last checkpoint:** Saturday 7 November 2026, late evening, America/Los_Angeles (this file updates with each pushed increment).
 **Follow-up pass:** Sunday 8 November 2026 — pig companion, caption clearance, cottage, dollhouse polish (see §"v03n pass").
+**t26 pass:** Monday 9 November 2026 — the 200-day ending is withdrawn, the future-home film is in production elsewhere and **not integrated**, web polish (see §"t26").
 
 This file is the durable takeover note. It describes **what is on branch `v03m-spatial-home` right now**, not what the live Pages site runs.
 
@@ -17,6 +18,67 @@ This file is the durable takeover note. It describes **what is on branch `v03m-s
 | Old stable gift | **Do not touch.** `smartlotus/jelly-gift` / `jelly-gift-site`, live https://smartlotus.github.io/jelly-gift/, last deploy `1c2d5de`. Do not merge this work into that default branch. Old source PR 7 stays open and untouched. |
 
 After each push, `git rev-parse origin/v03m-spatial-home` is the source of truth for the SHA.
+
+---
+
+## t26 — the 200-day ending is withdrawn; web polish; future-home film in production (2026-11-09, America/Los_Angeles)
+
+**Status:** still **not deployed**, nothing merged to `main` / `gh-pages`, old stable `smartlotus/jelly-gift(-site)` and PR 7 untouched.
+
+### Ending decision (supersedes v03q below)
+
+The user asked (t26) for a **new** ending film of a possible future home. So:
+
+- `/home/` **no longer plays `public/media/anniv-200.mp4`**. That 200-day film stays only as the optional film on `/sky/`.
+  `tools/v03r-verify.mjs` checks that `/home/` never requests `anniv-200`.
+- The future-home film is **being produced in a separate workstream** (six scenes, the three protected lines retained) and
+  goes through an independent video review first. **It is not in this repo yet and not ready.** No placeholder video is
+  committed and none must be.
+- Until it lands, 保存布局 → the line 「也许有一天…」 under the warm veil → the static end card (second line, 继续布置 / 从头再来).
+  No 再看一遍 is shown while there is no film.
+- Integration contract (`src/stages/home/endingFilm.ts`): commit exactly
+  `public/media/future-home.json` `{ "v": 1, "src": "media/future-home.mp4", "poster": "media/future-home-poster.jpg", "audio": true }`,
+  `public/media/future-home.mp4` (H.264 + AAC, faststart) and `public/media/future-home-poster.jpg`. The page probes the
+  manifest (`no-cache`); 404 / bad JSON / a browser without an H.264 decoder → end card. With a manifest the player is
+  `playsinline` + `webkit-playsinline`, poster shown while loading (「影片载入中……」), starts muted and follows the site
+  sound switch (a user gesture), shows 「轻触播放」 if autoplay is refused, pauses on tab hide, 跳过 works during the film,
+  ended → end card with 再看一遍 (restarts at 0) and 继续布置 (returns the same saved pieces). The film never reads the
+  saved layout (same `src` for any layout — tested). The code-drawn six-shot film stays parked (`FILM_ENABLED = false`).
+
+### Web fixes in this pass
+
+- **Woods (flower + mushroom):** the follow gap is computed from the *visible* cat width (painted cat has ~5 px clear
+  margin per side): `FOLLOW_GAP ≈ 70`, hard minimum separation outside crossings. When the cat reverses, the pig walks
+  *behind* her on a back lane (drawn 5 px higher, under the cat) instead of being pushed through her body, then falls in
+  behind. The camera frames the group (centre of both sprites, look-ahead shrinks when the pair is wide, clamped so both
+  keep ≥ 8 px margin) — fixes the portrait pig half out of frame. Portrait floor sits higher (0.2) and the caption no
+  longer covers the feet; the key hint hides while a line is spoken on tall portrait screens. Cat frames repaired
+  (transparent slits bridged, green fringe recoloured, cat-1 cropped muzzle replaced).
+- **Cottage (`src/stages/wander/house.ts`):** rewritten as a baked, textured night building (plaster, timber, plinth,
+  tiles, moss, chimney) graded to the moonlit scene, with only the warm window/porch light and smoke animated.
+- **Dollhouse (Module A):** soft shadows (PCF), plank floor texture; every model rebuilt with real parts (sofa cushions
+  and rolled arms, oval coffee table with shelf, dining table with apron/turned legs/runner, spindle chairs, nightstand
+  with drawers + lamp, bookcase with varied books, console TV, tripod lamp, panelled wardrobe, cat tree with den, dog
+  bed, two vases with only 戴安娜粉玫瑰 / 云南紫精灵, bordered rug). Footprints shrunk where the old table read as a big flat
+  slab. Camera auto-fits the whole room above the drawer and tool row (or left of the side tool column on short
+  landscape phones); pinch + wheel zoom; drawer thumbnails are rendered from the same 3D meshes. Tapping a piece that
+  is already placed now picks it up even if a chip is still armed (previously a failed placement left the chip armed and
+  blocked dragging). Demo layout: 17 pieces, collision-free.
+
+### Verification (fresh, this machine, Linux, 2026-11-09 ~16:50 PT)
+
+- `npx tsc --noEmit -p .` OK; `npx vite build` OK.
+- `tools/v03r-verify.mjs` (Playwright, Chromium with swiftshader WebGL + WebKit):
+  route 29/29, woods 60/60, home + film 49/49 — all PASS. Run per part with `ONLY=route|woods|home|film|rec`.
+- Recordings (real-time Chromium session, not slideshows) in `review/v03r/`: `rec-flower-walk.mp4` (13.9 s),
+  `rec-mushroom-walk.mp4` (20.1 s), `rec-home-3d-editing.mp4` (122 s — place, near↔far drags, rotate, orbit, zoom;
+  long because swiftshader renders slowly). Screenshots: `review/v03r/*.png`. Notes: `review/v03r/NOTES.md`.
+- Old verify39 「diff fail」: that log came from the uncommitted Windows puppeteer port; its Python film-diff step ran even
+  with the film parked, found no `film-*.png` and errored. `tools/v03m-verify.mjs` now skips it unless the code film is
+  on, and takes `VERIFY_OUT` so it does not overwrite the tracked `review/v03m/`. Superseded by `v03r-verify.mjs`.
+- Limits: headless swiftshader (not a real GPU), no real iPhone/Android; this Linux WebKit build has **no H.264
+  decoder**, so film *playback* is verified in Chromium only (WebKit verifies the fallback to the end card); the real
+  film asset has not been tested because it does not exist in the repo yet.
 
 ---
 
@@ -85,7 +147,7 @@ persist, and film independence (mean pixel difference **0.51** greet, **0** sofa
 - the editor's 撤回 / 重置 buttons are disabled (and dimmed) when there is nothing to undo or clear, so an empty room no
   longer offers dead controls.
 
-### v03q — the ending now plays the 200-day film (2026-11-08, parent request)
+### v03q — the ending now plays the 200-day film (2026-11-08, parent request) — **SUPERSEDED by t26** (history only)
 
 Parent's brief: *「结尾就用这支 200 天视频，重新做好相关的部分之间的衔接」* — i.e. the `/sky/` 200-day MP4 (`public/media/
 anniv-200.mp4`, 67.7 s, 1280×720, B&W hand-drawn) is the ending of `/home/`, and the seams around it had to be rebuilt.

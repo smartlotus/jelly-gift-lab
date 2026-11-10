@@ -6,7 +6,8 @@ import { spawnSync } from 'child_process';
 import path from 'path';
 
 const BASE = (process.env.BASE || 'http://127.0.0.1:8833').replace(/\/$/, '');
-const OUT = path.resolve('review/v03m');
+// superseded by tools/v03r-verify.mjs (t26); kept for history. VERIFY_OUT keeps tracked review/v03m untouched.
+const OUT = path.resolve(process.env.VERIFY_OUT || 'review/v03m');
 const CHROME = '/usr/bin/google-chrome';
 mkdirSync(OUT, { recursive: true });
 mkdirSync(`${OUT}/frames`, { recursive: true });
@@ -389,7 +390,8 @@ for a,b,d in pairs:
     out[d.split('/')[-1]] = {'mean': mean, 'size': A.size}
 print(json.dumps(out))
 `;
-  const diff = spawnSync('python3', ['-c', py], { encoding: 'utf8' });
+  // the old verify39 "diff fail": this ran even with the film parked, found no film-*.png and errored
+  const diff = filmOn ? spawnSync('python3', ['-c', py], { encoding: 'utf8' }) : { stdout: '{}', stderr: '' };
   let diffJson = {};
   try { diffJson = JSON.parse(diff.stdout.trim() || '{}'); } catch { diffJson = { raw: diff.stdout, err: diff.stderr }; }
   const greetMean = diffJson['film-greet-diff.png']?.mean ?? 999;

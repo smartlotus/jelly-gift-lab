@@ -46,7 +46,7 @@ Routing, curtain skip-ahead `NEXT`, and explicit `go(...)` targets on this branc
 | 13 | mushroom | Shortly after entering | 天暗了下来。这些蘑菇，一盏一盏的。 | It’s gotten dark. The mushrooms are lighting the way, one by one. | Her other love; dusk. The pig still follows. |
 | 14 | mushroom | Near the arch | 前面有暖光。窗子亮着。 | There’s a warm light ahead. A window is glowing. | Hands off to the empty house. Does not repeat `home.found`. |
 | 15 | home · find | When they stop at the house | 这里有一间空房子诶，我们可以布置一下 | There’s an empty house — we could furnish it a little. | Exact user line. |
-| 16 | home · save | On 保存布局 — leaves the spatial room and starts the fixed film | 也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。 | Maybe one day, maybe on day 2000, we already have a home of our own. | Exact user line. |
+| 16 | home · save | On 保存布局 — leaves the spatial room and starts the fixed future-home film (t26: in production, not yet integrated; until then the end card follows) | 也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。 | Maybe one day, maybe on day 2000, we already have a home of our own. | Exact user line. |
 | 17 | home · finale | After the sunrise | 我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。我的小臭猫。 | We already have two hundred days of our own. I don’t think day two thousand is that far away. My little stinky cat. | Exact user line. |
 
 Visual connective cues (not extra species): petals of the two bouquet flowers may drift in the meadow toward the shop door. After coop, pig and cat walk the same way into the flower wood. On **both** flower and mushroom paths a small pig **follows the cat continuously** (walking frames, same grounded path and gap, no overlapping or trapping, coherent facing) — not an entrance send-off and not waiting at the exit. The flower wood may gradually dusken with the first glowing mushrooms near its exit. The mushroom grove ends at a warm home-cottage window, not a shop window. Sea and sky are remembered views — they do not turn the couple into a shark.
@@ -57,7 +57,7 @@ Visual connective cues (not extra species): petals of the two bouquet flowers ma
 - AR is a side room from the shop and always returns to the shop.
 - The 200-day film on `/sky/` is optional; the path continues to coop without watching it.
 - The jelly mushroom egg is optional; 入海 on the jelly page is the mainline way into the sea.
-- Home decorating is a spatial room (Module A). Save leaves that game and plays a fixed cinematic (Module B) whose furniture and blocking never read the saved layout. An empty save still continues. 「继续布置」 returns to the saved spatial room; 「再看一遍」 replays only the film.
+- Home decorating is a spatial room (Module A). Save leaves that game and plays a fixed cinematic (Module B) whose furniture and blocking never read the saved layout. As of t26 (2026-11-09) that cinematic is a new six-scene future-home film made in a separate workstream; the 200-day film is **not** the ending (it stays optional on `/sky/`). The film is not in the repo yet. An empty save still continues. 「继续布置」 returns to the saved spatial room; 「再看一遍」 replays only the film.
 
 There are no new chapter title cards. The pig loading curtain still appears only if a page takes longer than 700 ms. Outgoing colour and canvas are handed to the next page so hops are not a flat flash. Music fades out and in across page loads — a single uninterrupted AudioContext cannot span this multi-page app.
 

@@ -11,3 +11,5 @@ body.gift-telling .fl-hint { transform: translateY(-52px); }
   .fl-hint { bottom: calc(56px + var(--sab)); }
 }
 @media (prefers-reduced-motion: reduce) { .fl-hint { transition: none; } }
+/* portrait: the caption sits in the band under the path; the key hint yields to it instead of landing on the animals */
+@media (orientation: portrait) and (min-height: 521px) { body.gift-telling .fl-hint { opacity: 0; transform: none; } }
