@@ -111,7 +111,13 @@ async function routeTests(browser, tag) {
   const log = (name, ok, extra) => logT(`[${tag}] ${name}`, ok, extra);
   const hop = (page, name, ...a) => hopT(page, `[${tag}] ${name}`, ...a);
   const page = await ctx.newPage();
-  page.on('pageerror', e => console.log('pageerror', e.message));
+  // every uncaught page error is recorded with the page it came from and its stack, and classified below (no silent pass)
+  const routeErrs = [];
+  let navAt = -1e9; page.on('request', q => { if (q.isNavigationRequest() && q.frame() === page.mainFrame()) navAt = Date.now(); });
+  page.on('pageerror', e => { const r = { url: page.url(), sinceNavMs: Date.now() - navAt, msg: e.message, stack: String(e.stack || '').split('\n').slice(0, 8).join(' | ') }; routeErrs.push(r); console.log('pageerror', JSON.stringify(r)); });
+  const aborted = new Set();
+  page.on('requestfailed', q => { aborted.add(q.url()); console.log('requestfailed', JSON.stringify({ page: page.url(), req: q.url(), err: q.failure()?.errorText })); });
+  page.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') console.log('console', m.type(), JSON.stringify({ page: page.url(), text: m.text().slice(0, 300) })); });
 
   await hop(page, 'meadow door -> shop', '?lang=zh', async p => {
     await p.waitForFunction(() => window.__meadow?.door, { timeout: 15000 });
@@ -200,7 +206,33 @@ async function routeTests(browser, tag) {
   const skip = await page.evaluate(() => document.querySelector('.gcc-skip')?.getAttribute('href') || '');
   log('curtain skip from shop points at night', /night/.test(skip), { skip });
 
+  // Uncaught page errors during the hops. The only accepted kind: WebKit reporting a same-origin load that the hop's own
+  // navigation aborted ("… due to access control checks" for a URL that also failed as aborted/cancelled) — the app
+  // already handles that path (jelly boot().catch). Anything else fails the run instead of hiding behind the passes.
+  const sameOrigin = e => { const m = /(?:load|Load) (https?:\/\/[^ ]+) due to access control checks/.exec(e.stack) || []; return !!m[1] && m[1].startsWith(BASE); };
+  const navAbort = e => /due to access control checks/.test(e.msg) && sameOrigin(e)
+    && ([...aborted].some(u => e.stack.includes(u)) || e.sinceNavMs < 2500);   // fired while the hop's navigation tore the page down
+  const unexplained = routeErrs.filter(e => !navAbort(e));
+  log('no unexplained uncaught page errors during the hops', unexplained.length === 0, { unexplained, navAbortOnly: routeErrs.filter(navAbort).map(e => e.msg) });
   await ctx.close();
+
+  // Settled pages (no navigation while loading): zero uncaught errors. coop solo used to leak the wake-lock
+  // NotAllowedError in WebKit; a failed/aborted exhibit fetch used to leak from the shop's fire-and-forget load.
+  for (const [name, url, abortGlb] of [
+    ['coop solo (wake lock refused)', 'coop/?lang=zh&solo&from=sky', false],
+    ['shop', 'shop/?lang=zh', false],
+    ['shop with figure-pig.glb aborted (offline / leaving)', 'shop/?lang=zh', true],
+    ['shop back from AR with the model aborted', 'shop/?lang=zh&from=ar&ex=figure-pig', true],
+    ['jelly', 'jelly/?lang=zh&from=night', false],
+  ]) {
+    const c2 = await browser.newContext({ viewport: { width: 1280, height: 720 } }); const p2 = await c2.newPage();
+    const errs = []; p2.on('pageerror', e => errs.push({ msg: e.message, stack: String(e.stack || '').split('\n').slice(0, 4).join(' | ') }));
+    if (abortGlb) await p2.route(/figure-pig\.glb/, r => r.abort());
+    await p2.goto(`${BASE}/${url}`); await p2.waitForTimeout(7000);
+    const alive = await p2.evaluate(() => document.body.childElementCount > 0);
+    log(`settled ${name}: no uncaught page errors`, errs.length === 0 && alive, { errs });
+    await c2.close();
+  }
 }
 
 // ───────────────────────────────── woods ─────────────────────────────────
@@ -889,15 +921,20 @@ async function clips(browser) {
   const wk = await webkit.launch();
   try {
     for (const [tag, b] of [['chromium', cr], ['webkit', wk]]) {
-      if (want('route')) await routeTests(b, tag);
-      if (want('woods')) for (const theme of ['flower', 'mushroom']) {
+      if (want('route')) await routeTests(b, tag);   // classifies its own errors (navigation aborts)
+      // every other page, in every context (phone and fixture contexts too), must end with zero uncaught page errors
+      const seen = []; const nc = b.newContext.bind(b);
+      b.newContext = async o => { const c = await nc(o); c.on('page', pg => pg.on('pageerror', e => seen.push({ url: pg.url(), msg: e.message, stack: String(e.stack || '').split('\n').slice(0, 3).join(' | ') }))); return c; };
+      const sweep = key => { log(`[${tag}] ${key}: no uncaught page errors in any context`, seen.length === 0, { errs: seen.slice(0, 3) }); seen.length = 0; };
+      if (want('woods')) { for (const theme of ['flower', 'mushroom']) {
         await woods(b, tag, theme, { width: 1280, height: 720 }, false);
         await woods(b, tag, theme, { width: 390, height: 844 }, true);
-      }
-      if (want('home')) await homeEditor(b, tag);
-      if (want('home') || want('block')) await homeBlocked(b, tag);
-      if (want('film')) await homeFilm(b, tag);
-      if (want('film') || want('real')) await realFilm(b, tag);
+      } sweep('woods'); }
+      if (want('home')) { await homeEditor(b, tag); sweep('home editor'); }
+      if (want('home') || want('block')) { await homeBlocked(b, tag); sweep('home blocked'); }
+      if (want('film')) { await homeFilm(b, tag); sweep('film fixtures'); }
+      if (want('film') || want('real')) { await realFilm(b, tag); sweep('real film'); }
+      b.newContext = nc;
     }
     if (want('rec')) await recordings(cr);
     if (want('clips')) await clips(cr);

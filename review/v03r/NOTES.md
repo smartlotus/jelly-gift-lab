@@ -38,3 +38,9 @@ Full suite this round: 172/172 (route, woods, home, block, film, real; Chromium 
 
 Playback numbers are in `verify.json` and AI_HANDOFF §t26d. Limits: headless Chromium with software rendering, visibility
 change simulated, no real phone, WebKit build has no H.264 (fallback only). Frame-level QA only — not a whole-film pass.
+
+## t26e page-error audit
+
+The WebKit `pageerror` lines in the t26d run came from the route hops, not the film. Two were app bugs (coop wake-lock
+rejection, shop model-load rejection) and are fixed; two are WebKit's wording for same-origin loads cancelled by the
+hop's own navigation and stay classified in the log. Details and the new assertions: AI_HANDOFF §t26e.

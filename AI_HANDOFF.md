@@ -4,6 +4,7 @@
 **Follow-up pass:** Sunday 8 November 2026 — pig companion, caption clearance, cottage, dollhouse polish (see §"v03n pass").
 **t26 pass:** Monday 9 November 2026 — the 200-day ending is withdrawn, web polish (see §"t26").
 **t26d:** Monday 9 November 2026, evening — the v4 future-home film **candidate is integrated on this dev branch** (not merged, not deployed, still under review; see §"t26d").
+**t26e:** same evening — the WebKit page errors from the t26d run explained; two real unhandled rejections fixed (see §"t26e").
 
 This file is the durable takeover note. It describes **what is on branch `v03m-spatial-home` right now**, not what the live Pages site runs.
 
@@ -80,6 +81,31 @@ burned-lines case **16/16**; tsc + build OK. Targeted real-time clips (local onl
 `review/v03r/`: `clip-flower-reverse-desktop.mp4`, `clip-flower-reverse-phone.mp4`, `clip-mushroom-reverse-desktop.mp4`,
 `clip-mushroom-reverse-phone.mp4` (~12 s each, right → left → right) and `clip-home-blocked-drop-bed.mp4` (15 s).
 Committed frame strips: `review/v03r/strip-*.jpg`. The older `rec-*.mp4` predate these fixes.
+
+### t26e — the WebKit page errors, explained and fixed where they were app bugs (2026-11-09 evening, PT)
+
+The t26d run printed four kinds of uncaught page errors in the **WebKit route hops** (not in the film tests), which the
+suite logged but did not assert. Reproduced with full message, stack, page and request path:
+
+| Message (WebKit) | Where | Cause | Verdict |
+| --- | --- | --- | --- |
+| `NotAllowedError: Permission was denied` (no stack) | `/coop/` on start, also when the page sits still | `navigator.wakeLock.request('screen')` rejected (no user gesture); the promise was `void`-ed, so the rejection was unhandled | **app bug** — fixed: `.catch()` in `src/stages/coop/main.ts` |
+| `TypeError: Load failed` (no stack); Chromium: `TypeError: Failed to fetch` | `/shop/` | a failed `figure-pig.glb` fetch (offline, or aborted by leaving) rejected the fire-and-forget `viewer.load()` promise unhandled | **app bug** — fixed: `Viewer.load()` marks its promise handled once (callers that await still see the rejection; a failed exhibit stays empty as before) and the AR-return chain has a catch (`src/stages/shop/viewer.ts`, `main.ts`) |
+| `Fetch API cannot load …/models/figure-pig.glb due to access control checks` | `/shop/`, 150–170 ms after the hop's own navigation began | same-origin fetch cancelled by the navigation; WebKit reports cancelled loads with this wording and surfaces it even when the promise is handled | **test environment** (navigation abort), not CORS — kept in the log, classified, not silenced |
+| `Cannot load …/assets/worker-*.js due to access control checks` | `/jelly/`, ~40 ms after the hop's navigation began | `new Worker()` started while the page was being left; the app's `boot().catch` already handles it | **test environment** (navigation abort) |
+
+None of them is related to H.264, the future-home film or its fallback. Regression (`tools/v03r-verify.mjs`):
+- route hops: every uncaught error is recorded with page, stack and time since the last navigation; only a same-origin
+  "access control checks" error fired within 2.5 s of a navigation (or for a request that failed as aborted) is accepted —
+  anything else **fails**.
+- settled pages (coop solo, shop, shop with `figure-pig.glb` forced to abort, shop back from AR with it aborted, jelly):
+  zero uncaught errors in both browsers. Against the pre-fix build these failed (Chromium 2, WebKit 4); after the fix they pass.
+- every other test key (woods, home editor, blocked, film fixtures, real film — phone and fixture contexts included) now
+  ends with a "no uncaught page errors in any context" assertion. Full suite after the fix: 194/194 (route, woods, home,
+  block, film, real; Chromium + WebKit).
+
+This does **not** mean Safari plays the film: the headless WebKit here still has no H.264 decoder, so only the fallback is tested.
+Not fixed (not reproduced, out of scope): `src/stages/coop/qr.ts` also does `void video.play()` for the camera preview.
 
 ### t26d — v4 future-home film candidate integrated on the dev branch (2026-11-09 evening, PT)
 

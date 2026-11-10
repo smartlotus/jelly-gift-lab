@@ -106,7 +106,8 @@ function boot() {
   function play(role: 'solo' | 'host' | 'guest', link?: Link, remoteW = 0) {
     const ears = coopEars(); if (role !== 'solo') Sfx.coopJoin();
     ui.innerHTML = ''; document.body.classList.add('cp-playing');
-    try { void (navigator as Navigator & { wakeLock?: { request(t: string): Promise<unknown> } }).wakeLock?.request('screen'); } catch { /* */ }
+    // the promise rejects (NotAllowedError) when the browser refuses the lock, e.g. WebKit without a user gesture: keep the screen policy, no uncaught rejection
+    try { (navigator as Navigator & { wakeLock?: { request(t: string): Promise<unknown> } }).wakeLock?.request('screen').catch(() => { /* not allowed: fine */ }); } catch { /* */ }
     // minH > world height: smaller pixels, a wider view, and room under the picture for the thumbs
     const scr = new PixelScreen({ host: gameEl, minW: 200, minH: matchMedia('(pointer: coarse)').matches ? 236 : WH, maxH: WH });
     let otherW = remoteW;

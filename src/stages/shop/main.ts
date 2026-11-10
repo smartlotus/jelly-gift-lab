@@ -64,7 +64,7 @@ const viewerP = import('./viewer').then(m => {
   viewer = new m.Viewer(glHost); inspect = new Inspect(viewer); (window as unknown as { __shopViewer: unknown }).__shopViewer = viewer;
   inspect.onClose = closeInspect;
   viewer.onJoin = () => { blip(1318, 0.08, 'sine', 0.08); setTimeout(() => blip(1760, 0.16, 'sine', 0.06), 70); }; viewer.onClosed = () => { input.enabled = started && !leaving; actLock = true; };
-  void viewer.load('figure-pig');
+  viewer.load('figure-pig').catch(() => { /* offline or aborted by leaving the page: the curtain still opens after its timeout */ });
   return viewer;
 });
 
@@ -200,7 +200,7 @@ const begin = () => {
   started = true; input.enabled = true; begunAt = performance.now(); walkIn = startX < 60 ? 0.55 : 0;
   blip(1568, 0.25, 'sine', 0.1); setTimeout(() => blip(2093, 0.4, 'sine', 0.07), 90);   // shop door bell
   if (viewerOnly) void viewerP.then(() => openInspect('figure-pig'));
-  if (backEx) void viewerP.then(() => viewer!.load(backEx.id)).then(() => openInspect(backEx.id));
+  if (backEx) viewerP.then(() => viewer!.load(backEx.id)).then(() => openInspect(backEx.id)).catch(() => { /* model unavailable: stay in the shop */ });
 };
 begin(); // v03g: no title card — the door bell rings as the cat walks in
 setTimeout(() => tell('story.shop.in'), 1400);

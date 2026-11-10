@@ -1,5 +1,5 @@
 {
-  "ts": "2026-11-10T03:22:07.431Z",
+  "ts": "2026-11-10T03:58:45.063Z",
   "base": "http://127.0.0.1:8833",
   "tests": [
     {
@@ -68,16 +68,47 @@
       "skip": "../night/?lang=zh"
     },
     {
+      "name": "[chromium] no unexplained uncaught page errors during the hops",
+      "ok": true,
+      "unexplained": [],
+      "navAbortOnly": []
+    },
+    {
+      "name": "[chromium] settled coop solo (wake lock refused): no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] settled shop: no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] settled shop with figure-pig.glb aborted (offline / leaving): no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] settled shop back from AR with the model aborted: no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] settled jelly: no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
       "name": "[chromium] flower desktop pig keeps clear of the cat outside a crossing",
       "ok": true,
-      "minEdgeGapPx": 9.5,
+      "minEdgeGapPx": 9.6,
       "n": 32
     },
     {
       "name": "[chromium] flower desktop any overlap happens only as a back-lane crossing",
       "ok": true,
-      "overlaps": 18,
-      "minLane": 0.98
+      "overlaps": 17,
+      "minLane": 0.99
     },
     {
       "name": "[chromium] flower desktop pig follows after the reversal (ends up behind her new heading)",
@@ -93,7 +124,7 @@
     {
       "name": "[chromium] flower desktop pig faces its direction of travel",
       "ok": true,
-      "n": 63
+      "n": 64
     },
     {
       "name": "[chromium] flower desktop cat faces travel",
@@ -109,7 +140,7 @@
       "name": "[chromium] flower phone pig keeps clear of the cat outside a crossing",
       "ok": true,
       "minEdgeGapPx": 9.5,
-      "n": 33
+      "n": 32
     },
     {
       "name": "[chromium] flower phone any overlap happens only as a back-lane crossing",
@@ -136,7 +167,7 @@
     {
       "name": "[chromium] flower phone cat faces travel",
       "ok": true,
-      "n": 50
+      "n": 49
     },
     {
       "name": "[chromium] flower phone no page errors",
@@ -147,7 +178,7 @@
       "name": "[chromium] flower phone caption sits below the animals' feet",
       "ok": true,
       "feetY": 676,
-      "capTop": 712.6251220703125
+      "capTop": 712.6256103515625
     },
     {
       "name": "[chromium] mushroom desktop pig keeps clear of the cat outside a crossing",
@@ -158,7 +189,7 @@
     {
       "name": "[chromium] mushroom desktop any overlap happens only as a back-lane crossing",
       "ok": true,
-      "overlaps": 18,
+      "overlaps": 17,
       "minLane": 0.98
     },
     {
@@ -191,7 +222,7 @@
       "name": "[chromium] mushroom phone pig keeps clear of the cat outside a crossing",
       "ok": true,
       "minEdgeGapPx": 9.6,
-      "n": 32
+      "n": 31
     },
     {
       "name": "[chromium] mushroom phone any overlap happens only as a back-lane crossing",
@@ -213,12 +244,12 @@
     {
       "name": "[chromium] mushroom phone pig faces its direction of travel",
       "ok": true,
-      "n": 64
+      "n": 63
     },
     {
       "name": "[chromium] mushroom phone cat faces travel",
       "ok": true,
-      "n": 49
+      "n": 48
     },
     {
       "name": "[chromium] mushroom phone no page errors",
@@ -230,6 +261,11 @@
       "ok": true,
       "feetY": 676,
       "capTop": 712.6256103515625
+    },
+    {
+      "name": "[chromium] woods: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
     },
     {
       "name": "[chromium] home front floor edge clears the toolbar and drawer",
@@ -390,6 +426,11 @@
       "rightX": 593.2696081745294
     },
     {
+      "name": "[chromium] home editor: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
       "name": "[chromium] home-block arming a chip never shows the preview at its stale spot (on the sofa just placed)",
       "ok": true,
       "fresh": [
@@ -459,6 +500,11 @@
       "errs": []
     },
     {
+      "name": "[chromium] home blocked: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
       "name": "[chromium] film without a committed film: save → end card, no <video>, no 再看一遍",
       "ok": true,
       "phase": "end",
@@ -498,7 +544,7 @@
       "name": "[chromium] film player: plays (fixture), phase video",
       "ok": true,
       "st": "playing",
-      "t": 2.34753,
+      "t": 2.32816,
       "phase": "video",
       "first": "playing"
     },
@@ -551,6 +597,11 @@
       "replay": true
     },
     {
+      "name": "[chromium] film fixtures: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
       "name": "[chromium] real-film the three media files load from the site base (json, poster, mp4 range)",
       "ok": true,
       "net": [
@@ -576,7 +627,7 @@
       "name": "[chromium] real-film H.264 1920×1080 decodes and plays: currentTime and decoded frames advance, picture is not blank",
       "ok": true,
       "p1": {
-        "t": 2.11,
+        "t": 2.13,
         "paused": false,
         "muted": true,
         "w": 1920,
@@ -585,8 +636,8 @@
         "err": null,
         "frames": 54,
         "dropped": 1,
-        "audioBytes": 47166,
-        "videoBytes": 40924,
+        "audioBytes": 47574,
+        "videoBytes": 40808,
         "lum": 233.6,
         "spread": 193,
         "state": "playing",
@@ -594,7 +645,7 @@
         "src": "/media/future-home.mp4"
       },
       "p2": {
-        "t": 4.63,
+        "t": 4.65,
         "paused": false,
         "muted": true,
         "w": 1920,
@@ -603,10 +654,10 @@
         "err": null,
         "frames": 115,
         "dropped": 1,
-        "audioBytes": 97582,
+        "audioBytes": 98040,
         "videoBytes": 1255507,
-        "lum": 63.9,
-        "spread": 237,
+        "lum": 64.5,
+        "spread": 238,
         "state": "playing",
         "phase": "video",
         "src": "/media/future-home.mp4"
@@ -621,7 +672,7 @@
       "name": "[chromium] real-film sound switch → film unmuted, its AAC track decodes (video element is the clock)",
       "ok": true,
       "muted": false,
-      "audioBytes": 130023
+      "audioBytes": 130458
     },
     {
       "name": "[chromium] real-film skip / sound controls do not cover the burned text bands",
@@ -664,8 +715,8 @@
       "back": "tap",
       "resumed": "playing",
       "t": [
-        6.22,
-        7.46
+        6.25,
+        7.47
       ]
     },
     {
@@ -681,12 +732,12 @@
       "name": "[chromium] real-film 再看一遍 restarts from the beginning and decodes again",
       "ok": true,
       "r1": {
-        "t": 0.04,
-        "frames": 5
+        "t": 0.05,
+        "frames": 4
       },
       "r2": {
-        "t": 1.55,
-        "frames": 41
+        "t": 1.58,
+        "frames": 42
       }
     },
     {
@@ -738,7 +789,7 @@
     {
       "name": "[chromium] real-film turned to portrait: keeps playing, whole picture still visible (contain)",
       "ok": true,
-      "t": 3.65,
+      "t": 3.69,
       "f2": {
         "w": 390,
         "h": 844,
@@ -746,6 +797,11 @@
         "vh": 844,
         "fit": "contain"
       }
+    },
+    {
+      "name": "[chromium] real film: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
     },
     {
       "name": "[webkit] meadow door -> shop",
@@ -813,10 +869,45 @@
       "skip": "../night/?lang=zh"
     },
     {
+      "name": "[webkit] no unexplained uncaught page errors during the hops",
+      "ok": true,
+      "unexplained": [],
+      "navAbortOnly": [
+        "/127.0.0.1:8833/models/figure-pig.glb due to access control checks.",
+        "/127.0.0.1:8833/assets/worker-Cs6hxqL-.js due to access control checks.",
+        "/127.0.0.1:8833/models/figure-pig.glb due to access control checks."
+      ]
+    },
+    {
+      "name": "[webkit] settled coop solo (wake lock refused): no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] settled shop: no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] settled shop with figure-pig.glb aborted (offline / leaving): no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] settled shop back from AR with the model aborted: no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] settled jelly: no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
       "name": "[webkit] flower desktop pig keeps clear of the cat outside a crossing",
       "ok": true,
-      "minEdgeGapPx": 9.6,
-      "n": 37
+      "minEdgeGapPx": 9.8,
+      "n": 36
     },
     {
       "name": "[webkit] flower desktop any overlap happens only as a back-lane crossing",
@@ -838,7 +929,7 @@
     {
       "name": "[webkit] flower desktop pig faces its direction of travel",
       "ok": true,
-      "n": 69
+      "n": 68
     },
     {
       "name": "[webkit] flower desktop cat faces travel",
@@ -853,13 +944,13 @@
     {
       "name": "[webkit] flower phone pig keeps clear of the cat outside a crossing",
       "ok": true,
-      "minEdgeGapPx": 9.8,
-      "n": 35
+      "minEdgeGapPx": 9.5,
+      "n": 36
     },
     {
       "name": "[webkit] flower phone any overlap happens only as a back-lane crossing",
       "ok": true,
-      "overlaps": 19,
+      "overlaps": 20,
       "minLane": 0.97
     },
     {
@@ -876,7 +967,7 @@
     {
       "name": "[webkit] flower phone pig faces its direction of travel",
       "ok": true,
-      "n": 68
+      "n": 67
     },
     {
       "name": "[webkit] flower phone cat faces travel",
@@ -892,19 +983,19 @@
       "name": "[webkit] flower phone caption sits below the animals' feet",
       "ok": true,
       "feetY": 676,
-      "capTop": 712.6250610351562
+      "capTop": 712.625
     },
     {
       "name": "[webkit] mushroom desktop pig keeps clear of the cat outside a crossing",
       "ok": true,
-      "minEdgeGapPx": 9.4,
-      "n": 37
+      "minEdgeGapPx": 9.6,
+      "n": 35
     },
     {
       "name": "[webkit] mushroom desktop any overlap happens only as a back-lane crossing",
       "ok": true,
       "overlaps": 18,
-      "minLane": 0.99
+      "minLane": 0.98
     },
     {
       "name": "[webkit] mushroom desktop pig follows after the reversal (ends up behind her new heading)",
@@ -920,12 +1011,12 @@
     {
       "name": "[webkit] mushroom desktop pig faces its direction of travel",
       "ok": true,
-      "n": 69
+      "n": 68
     },
     {
       "name": "[webkit] mushroom desktop cat faces travel",
       "ok": true,
-      "n": 54
+      "n": 53
     },
     {
       "name": "[webkit] mushroom desktop no page errors",
@@ -935,13 +1026,13 @@
     {
       "name": "[webkit] mushroom phone pig keeps clear of the cat outside a crossing",
       "ok": true,
-      "minEdgeGapPx": 9.6,
-      "n": 36
+      "minEdgeGapPx": 9.5,
+      "n": 34
     },
     {
       "name": "[webkit] mushroom phone any overlap happens only as a back-lane crossing",
       "ok": true,
-      "overlaps": 18,
+      "overlaps": 19,
       "minLane": 0.97
     },
     {
@@ -958,7 +1049,7 @@
     {
       "name": "[webkit] mushroom phone pig faces its direction of travel",
       "ok": true,
-      "n": 68
+      "n": 67
     },
     {
       "name": "[webkit] mushroom phone cat faces travel",
@@ -974,7 +1065,12 @@
       "name": "[webkit] mushroom phone caption sits below the animals' feet",
       "ok": true,
       "feetY": 676,
-      "capTop": 712.625
+      "capTop": 712.6250610351562
+    },
+    {
+      "name": "[webkit] woods: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
     },
     {
       "name": "[webkit] home front floor edge clears the toolbar and drawer",
@@ -1135,6 +1231,11 @@
       "rightX": 593.2696081745294
     },
     {
+      "name": "[webkit] home editor: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
       "name": "[webkit] home-block arming a chip never shows the preview at its stale spot (on the sofa just placed)",
       "ok": true,
       "fresh": [
@@ -1204,6 +1305,11 @@
       "errs": []
     },
     {
+      "name": "[webkit] home blocked: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
       "name": "[webkit] film without a committed film: save → end card, no <video>, no 再看一遍",
       "ok": true,
       "phase": "end",
@@ -1237,6 +1343,11 @@
       "video": false
     },
     {
+      "name": "[webkit] film fixtures: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
       "name": "[webkit] real-film no H.264 in this browser build: real manifest ignored, page lines + end card instead (fallback)",
       "ok": true,
       "phase": "end",
@@ -1247,8 +1358,13 @@
     {
       "name": "[webkit] real-film /home/ never requests the 200-day film",
       "ok": true
+    },
+    {
+      "name": "[webkit] real film: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
     }
   ],
   "failed": 0,
-  "total": 172
+  "total": 194
 }
