@@ -1,159 +1,133 @@
 {
-  "ts": "2026-11-10T00:46:36.419Z",
+  "ts": "2026-11-10T01:11:44.832Z",
   "base": "http://127.0.0.1:8833",
   "tests": [
     {
-      "name": "[chromium] meadow door -> shop",
+      "name": "[chromium] film without a committed film: save → end card, no <video>, no 再看一遍",
       "ok": true,
-      "url": "http://127.0.0.1:8833/shop/?lang=zh&from=meadow"
+      "phase": "end",
+      "film": "none",
+      "video": false,
+      "replayVisible": false,
+      "finale": true,
+      "editVisible": true
     },
     {
-      "name": "[chromium] shop dark door -> night",
+      "name": "[chromium] film the 200-day film is never requested by /home/",
       "ok": true,
-      "url": "http://127.0.0.1:8833/night/?lang=zh&from=shop"
+      "n": 0
     },
     {
-      "name": "[chromium] shop ?at=lit does not skip to jelly",
+      "name": "[chromium] film 继续布置 returns the same saved pieces",
       "ok": true,
-      "url": "http://127.0.0.1:8833/shop/?lang=zh&at=lit"
+      "back": [
+        {
+          "kind": "sofa",
+          "x": 0,
+          "z": -1.6,
+          "yaw": 0
+        }
+      ]
     },
     {
-      "name": "[chromium] night kawaii continue -> jelly",
+      "name": "[chromium] film player: playsinline + webkit-playsinline, poster, muted start",
       "ok": true,
-      "url": "http://127.0.0.1:8833/jelly/?lang=zh&from=night"
+      "src": "http://127.0.0.1:8833/media/future-home.mp4",
+      "playsinline": true,
+      "webkit": true,
+      "mutedAtStart": true,
+      "poster": "http://127.0.0.1:8833/media/future-home-poster.jpg"
     },
     {
-      "name": "[chromium] jelly 入海 visible without the egg",
+      "name": "[chromium] film player: plays (fixture), phase video",
       "ok": true,
-      "egg": "present-optional",
-      "seaVisible": true
+      "st": "playing",
+      "t": 2.321091,
+      "phase": "video",
+      "first": "playing"
     },
     {
-      "name": "[chromium] jelly 入海 -> sea",
+      "name": "[chromium] film player: the site sound switch drives the film mute state",
       "ok": true,
-      "url": "http://127.0.0.1:8833/sea/?lang=zh&from=jelly"
+      "mutedAfterToggle": false
     },
     {
-      "name": "[chromium] sky film control present (optional)",
+      "name": "[chromium] film player: ended → end card with 再看一遍",
+      "ok": true,
+      "phase": "end",
+      "replay": true,
+      "video": false
+    },
+    {
+      "name": "[chromium] film player: 再看一遍 restarts from the first frame",
+      "ok": true,
+      "phase": "video",
+      "t": 0
+    },
+    {
+      "name": "[chromium] film player: 继续布置 after the film returns the same saved pieces",
       "ok": true
     },
     {
-      "name": "[chromium] sky next without film -> coop",
+      "name": "[chromium] film film is identical for any layout (same source for layout A and B)",
       "ok": true,
-      "url": "http://127.0.0.1:8833/coop/?lang=zh&from=sky&hz=0.629"
+      "srcs": [
+        "media/future-home.mp4",
+        "media/future-home.mp4"
+      ]
     },
     {
-      "name": "[chromium] coop 往前走走 -> flower",
+      "name": "[chromium] film player: refused autoplay shows 轻触播放 and a tap starts the film",
       "ok": true,
-      "url": "http://127.0.0.1:8833/flower/?lang=zh&from=coop"
+      "tapShown": {
+        "st": "tap",
+        "visible": "1"
+      },
+      "after": "playing"
     },
     {
-      "name": "[chromium] flower exit -> mushroom",
+      "name": "[chromium] film burned-in lines: no page caption over the film, no second finale after it, buttons stay",
       "ok": true,
-      "url": "http://127.0.0.1:8833/mushroom/?lang=zh&from=flower"
+      "lineSeen": false,
+      "phase": "end",
+      "finaleOn": false,
+      "edit": true,
+      "replay": true
     },
     {
-      "name": "[chromium] mushroom exit -> home",
+      "name": "[webkit] film without a committed film: save → end card, no <video>, no 再看一遍",
       "ok": true,
-      "url": "http://127.0.0.1:8833/home/?lang=zh&from=mushroom"
+      "phase": "end",
+      "film": "none",
+      "video": false,
+      "replayVisible": false,
+      "finale": true,
+      "editVisible": true
     },
     {
-      "name": "[chromium] AR returns to shop",
+      "name": "[webkit] film the 200-day film is never requested by /home/",
       "ok": true,
-      "url": "http://127.0.0.1:8833/shop/?lang=zh&from=ar&ex=figure-pig"
+      "n": 0
     },
     {
-      "name": "[chromium] curtain skip from shop points at night",
+      "name": "[webkit] film 继续布置 returns the same saved pieces",
       "ok": true,
-      "skip": "../night/?lang=zh"
+      "back": [
+        {
+          "kind": "sofa",
+          "x": 0,
+          "z": -1.6,
+          "yaw": 0
+        }
+      ]
     },
     {
-      "name": "[webkit] meadow door -> shop",
+      "name": "[webkit] film no H.264 decoder in this build → manifest ignored, end card (playback checks not runnable here)",
       "ok": true,
-      "url": "http://127.0.0.1:8833/shop/?lang=zh&from=meadow"
-    },
-    {
-      "name": "[webkit] shop dark door -> night",
-      "ok": true,
-      "url": "http://127.0.0.1:8833/night/?lang=zh&from=shop"
-    },
-    {
-      "name": "[webkit] shop ?at=lit does not skip to jelly",
-      "ok": true,
-      "url": "http://127.0.0.1:8833/shop/?lang=zh&at=lit"
-    },
-    {
-      "name": "[webkit] night kawaii continue -> jelly",
-      "ok": true,
-      "url": "http://127.0.0.1:8833/jelly/?lang=zh&from=night"
-    },
-    {
-      "name": "[webkit] jelly 入海 visible without the egg",
-      "ok": true,
-      "egg": "present-optional",
-      "seaVisible": true
-    },
-    {
-      "name": "[webkit] jelly 入海 -> sea",
-      "ok": true,
-      "url": "http://127.0.0.1:8833/sea/?lang=zh&from=jelly"
-    },
-    {
-      "name": "[webkit] sky film control present (optional)",
-      "ok": true
-    },
-    {
-      "name": "[webkit] sky next without film -> coop",
-      "ok": true,
-      "url": "http://127.0.0.1:8833/coop/?lang=zh&from=sky&hz=0.629"
-    },
-    {
-      "name": "[webkit] coop 往前走走 -> flower",
-      "ok": true,
-      "url": "http://127.0.0.1:8833/flower/?lang=zh&from=coop"
-    },
-    {
-      "name": "[webkit] flower exit -> mushroom",
-      "ok": true,
-      "url": "http://127.0.0.1:8833/mushroom/?lang=zh&from=flower"
-    },
-    {
-      "name": "[webkit] mushroom exit -> home",
-      "ok": true,
-      "url": "http://127.0.0.1:8833/home/?lang=zh&from=mushroom"
-    },
-    {
-      "name": "[webkit] AR returns to shop",
-      "ok": true,
-      "url": "http://127.0.0.1:8833/shop/?lang=zh&from=ar&ex=figure-pig"
-    },
-    {
-      "name": "[webkit] curtain skip from shop points at night",
-      "ok": true,
-      "skip": "../night/?lang=zh"
-    },
-    {
-      "name": "recording flower woods walk (real time, continuous) ≥ 8 s",
-      "ok": true,
-      "duration": 13.88,
-      "wall": 14.735,
-      "file": "review/v03r/rec-flower-walk.mp4"
-    },
-    {
-      "name": "recording mushroom woods walk (real time, continuous) ≥ 8 s",
-      "ok": true,
-      "duration": 20.12,
-      "wall": 20.38,
-      "file": "review/v03r/rec-mushroom-walk.mp4"
-    },
-    {
-      "name": "recording 3D editing (place, near↔far drag, rotate, orbit, zoom) ≥ 8 s",
-      "ok": true,
-      "duration": 122,
-      "wall": 122.798,
-      "file": "review/v03r/rec-home-3d-editing.mp4"
+      "phase": "end",
+      "video": false
     }
   ],
   "failed": 0,
-  "total": 29
+  "total": 16
 }

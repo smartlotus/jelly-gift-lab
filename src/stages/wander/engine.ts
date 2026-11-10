@@ -140,6 +140,8 @@ export function startWander(opts: WoodOpts) {
   const catVisHalf = Math.max(14, catW0 / 2 - 5);
   const FOLLOW_GAP = Math.round(Math.max(36, catVisHalf + pigW / 2 + 12));
   const MIN_SEP = Math.round(catVisHalf + pigW / 2 + 3);
+  // how far up the path (further from the viewer) the pig walks while she passes it
+  const PIG_LANE_PX = 9;
   // `lane` 0 = on the path beside her, 1 = one step further back (used only while she walks
   // back past the pig after a turn, so the two read as passing in depth instead of merging)
   const pig = { x: 16, face: 1 as number, vx: 0, follow: 1, lane: 0 };
@@ -252,14 +254,16 @@ export function startWander(opts: WoodOpts) {
       // up the path (further away) and under the cat, so her whole sheet always stays visible.
       const crossing = wouldCross || (pig.lane > 0.05 && Math.abs(pig.x - cat.x) < MIN + 16);
       const dx = target - pig.x;
-      const want = Math.abs(dx) < 3 ? 0 : Math.sign(dx) * Math.min(MAX + (crossing ? 10 : 0), 18 + Math.abs(dx) * 2.4);
+      // she is about to walk back through the pig: the pig first steps one lane up the path and only
+      // then trots past *behind* her — it never advances into her while still on her lane
+      const yielding = crossing && pig.lane < 0.8;
+      const want = yielding ? 0 : Math.abs(dx) < 3 ? 0 : Math.sign(dx) * Math.min(MAX + (crossing ? 10 : 0), 18 + Math.abs(dx) * 2.4);
       pig.vx += (want - pig.vx) * Math.min(1, dt * 5);
       pig.x += pig.vx * dt;
       if (Math.abs(pig.vx) > 4) pig.face = Math.sign(pig.vx);
       else pig.face = pig.follow;
-      const near = Math.abs(pig.x - cat.x) < MIN + 16;
-      pig.lane += ((crossing && near ? 1 : 0) - pig.lane) * Math.min(1, dt * 7);
-      if (!crossing) {
+      pig.lane += ((crossing ? 1 : 0) - pig.lane) * Math.min(1, dt * 11);
+      if (!crossing && pig.lane < 0.3) {
         const sep = pig.x - cat.x;
         if (Math.abs(sep) < MIN) {
           const push = Math.sign(sep) || -pig.follow;
@@ -389,6 +393,15 @@ export function startWander(opts: WoodOpts) {
       ctx.drawImage(img, flip ? -img.width : 0, -img.height);
       ctx.restore();
     };
+    // blocky contact shadow (pixel rows, no blur) so both animals sit on the path at their own depth
+    const groundShadow = (cx: number, feetY: number, wd: number) => {
+      ctx.save(); ctx.fillStyle = 'rgba(40,24,16,.22)';
+      const x = Math.round(cx - wd / 2), y = Math.round(feetY);
+      ctx.fillRect(x + 2, y - 2, Math.round(wd) - 4, 1);
+      ctx.fillRect(x, y - 1, Math.round(wd), 2);
+      ctx.fillRect(x + 3, y + 1, Math.round(wd) - 6, 1);
+      ctx.restore();
+    };
     if (theme === 'flower') {
       const dusk = Math.max(0, Math.min(1, (cat.x - worldW * 0.48) / (worldW * 0.42)));
       if (dusk > 0) {
@@ -411,6 +424,18 @@ export function startWander(opts: WoodOpts) {
       drawCottage(ctx, worldW - COTTAGE_W - 26 - ox, floorY, time);
     }
 
+    // painter's order by depth: ground critters walk 6 px up the path; a pig stepping further back
+    // (passing behind the cat) is behind them too, so it is drawn first
+    const drawPig = () => {
+      const { img: pigImg, scale: pigSc } = pigPaintFrame(pigArt, pig.vx, time);
+      // painted frames carry PIG_PAD transparent rows under the feet
+      const pad = pigArt.scaled ? 0 : 2;
+      const laneUp = Math.round(pig.lane * PIG_LANE_PX);
+      groundShadow(pig.x - ox, floorY - laneUp, pigW * 0.62);
+      blit(pigImg, Math.round(pig.x - ox - (pigImg.width * pigSc) / 2), Math.round(floorY + pad - laneUp), pig.face < 0, pigSc);
+    };
+    const pigBehindCritters = pig.lane * PIG_LANE_PX > 6;
+    if (pigBehindCritters) drawPig();
     critters.sort((a, b) => a.x - b.x);
     for (const c of critters) {
       const img = critterFrame(c.kind, c.mode, time);
@@ -422,14 +447,9 @@ export function startWander(opts: WoodOpts) {
       blit(img, Math.round(c.x - ox - img.width * sc / 2), Math.round(feet), c.face < 0, sc);
     }
 
-    {
-      const { img: pigImg, scale: pigSc } = pigPaintFrame(pigArt, pig.vx, time);
-      // painted frames carry PIG_PAD transparent rows under the feet
-      const pad = pigArt.scaled ? 0 : 2;
-      const laneUp = Math.round(pig.lane * 5);
-      blit(pigImg, Math.round(pig.x - ox - (pigImg.width * pigSc) / 2), Math.round(floorY + pad - laneUp), pig.face < 0, pigSc);
-    }
+    if (!pigBehindCritters) drawPig();
     const catImg = cat32Frame(catSp, cat.vx, time);
+    groundShadow(cat.x - ox, floor, catVisHalf * 1.5);
     blit(catImg, Math.round(cat.x - ox - catImg.width / 2), Math.round(floor), cat.face < 0, 1);
 
     for (const p of parts) {

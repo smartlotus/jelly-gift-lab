@@ -6,7 +6,7 @@
 //
 // To integrate the final asset, commit three files and nothing else:
 //   public/media/future-home.json   { "v": 1, "src": "media/future-home.mp4", "poster": "media/future-home-poster.jpg",
-//                                     "audio": true|false }
+//                                     "audio": true|false, "burned": { "transform": [a, b], "finale": c } }
 //   public/media/future-home.mp4    H.264 + AAC, faststart (moov first), ≤ 1080p
 //   public/media/future-home-poster.jpg
 // The 200-day film on /sky/ stays an optional side film there; it is never used here.
@@ -14,7 +14,12 @@ import { asset } from '../../shared/flow';
 import { soundOn, onSound, unlock } from '../../shared/audio';
 import { apply } from '../../shared/i18n';
 
-export interface FilmManifest { v: number; src: string; poster?: string; audio?: boolean }
+/**
+ * `burned`: protected lines that are already rendered into the picture (seconds). The page then does not put the
+ * same words on top: no page caption for `transform`, and no second finale text on the end card once the film has
+ * played past `finale`. Absent → the page shows both lines itself.
+ */
+export interface FilmManifest { v: number; src: string; poster?: string; audio?: boolean; burned?: { transform?: [number, number]; finale?: number } }
 
 export const FUTURE_FILM_MANIFEST = 'media/future-home.json';
 
@@ -43,6 +48,8 @@ export interface FilmPlayer {
   close(): void;
   /** user-facing state for tests / review */
   state(): 'loading' | 'tap' | 'playing' | 'paused' | 'ended' | 'error' | 'closed';
+  /** seconds into the film (the film's own clock — picture and its embedded soundtrack stay in sync) */
+  time(): number;
 }
 
 export interface PlayerHooks {
@@ -116,5 +123,6 @@ export function createFilmPlayer(m: FilmManifest, hooks: PlayerHooks): FilmPlaye
       setTimeout(() => { wrap.remove(); v.removeAttribute('src'); v.load(); }, 900);
     },
     state: () => st,
+    time: () => (st === 'ended' ? Number.POSITIVE_INFINITY : v.currentTime || 0),
   };
 }

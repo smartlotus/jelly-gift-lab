@@ -220,27 +220,27 @@ function sofa(): Group {
   const back = cloth('#EAD8BC');
   const rose = cloth('#E59C9C');
   const w = wood();
-  // tapered legs under a plinth rail
-  for (const [x, z] of [[-1.0, -0.32], [1.0, -0.32], [-1.0, 0.32], [1.0, 0.32]] as const) cyl(g, 0.035, 0.024, 0.14, w, x, 0.07, z, 8);
-  box(g, 2.18, 0.08, 0.84, w, 0, 0.16, 0, 0.02);
+  // a three-seater at adult scale: 2.0 m over the arms, 0.88 m deep, seat at ~0.48 m, back at ~0.86 m
+  for (const [x, z] of [[-0.88, -0.32], [0.88, -0.32], [-0.88, 0.32], [0.88, 0.32]] as const) cyl(g, 0.035, 0.024, 0.14, w, x, 0.07, z, 8);
+  box(g, 1.96, 0.08, 0.84, w, 0, 0.16, 0, 0.02);
   // base frame and back frame
-  box(g, 2.08, 0.16, 0.84, shell, 0, 0.27, 0.0, 0.05);
-  box(g, 2.2, 0.44, 0.18, shell, 0, 0.5, -0.34, 0.07);
+  box(g, 1.86, 0.16, 0.84, shell, 0, 0.27, 0.0, 0.05);
+  box(g, 1.98, 0.44, 0.18, shell, 0, 0.5, -0.34, 0.07);
   // arms: panel + rolled top
   for (const sx of [-1, 1]) {
-    box(g, 0.16, 0.34, 0.84, shell, sx * 1.04, 0.37, 0, 0.05);
-    roll(g, 0.1, 0.86, shell, sx * 1.04, 0.56, 0);
+    box(g, 0.16, 0.34, 0.84, shell, sx * 0.92, 0.37, 0, 0.05);
+    roll(g, 0.09, 0.86, shell, sx * 0.92, 0.55, 0);
   }
   // two seat cushions with a seam between, two back cushions leaning back
-  for (const sx of [-0.46, 0.46]) {
-    cushionBlock(g, 0.9, 0.14, 0.62, seat, sx, 0.42, 0.08);
-    const bc = cushionBlock(g, 0.88, 0.42, 0.16, back, sx, 0.66, -0.2);
+  for (const sx of [-0.42, 0.42]) {
+    cushionBlock(g, 0.82, 0.14, 0.62, seat, sx, 0.42, 0.08);
+    const bc = cushionBlock(g, 0.8, 0.42, 0.16, back, sx, 0.66, -0.2);
     bc.rotation.x = -0.16;
   }
   // a rose throw pillow tucked in the corner, turned a little
-  const tp = cushionBlock(g, 0.34, 0.3, 0.1, rose, -0.74, 0.62, -0.05);
+  const tp = cushionBlock(g, 0.32, 0.3, 0.1, rose, -0.62, 0.62, -0.05);
   tp.rotation.set(-0.3, 0.35, 0.12);
-  g.add(contactShadow(1.18, 0.5));
+  g.add(contactShadow(1.02, 0.46));
   return g;
 }
 
@@ -355,27 +355,28 @@ function bed(): Group {
   const sheet = cloth('#F4EDE0');
   const quilt = cloth('#E8B0B8');
   const pillow = cloth('#F7EFE4');
-  for (const [x, z] of [[-0.92, -0.68], [0.92, -0.68], [-0.92, 0.68], [0.92, 0.68]] as const) cyl(g, 0.035, 0.03, 0.16, w, x, 0.08, z, 6);
-  box(g, 2.1, 0.10, 1.6, w, 0, 0.21, 0, 0.02);
-  box(g, 2.0, 0.20, 1.5, sheet, 0, 0.34, 0, 0.06);
+  // queen bed at adult scale: 1.6 x 2.0 m mattress, mattress top ~0.6 m, headboard ~1.1 m
+  for (const [x, z] of [[-0.92, -0.68], [0.92, -0.68], [-0.92, 0.68], [0.92, 0.68]] as const) cyl(g, 0.04, 0.034, 0.2, w, x, 0.1, z, 6);
+  box(g, 2.1, 0.12, 1.64, w, 0, 0.26, 0, 0.02);
+  box(g, 2.0, 0.26, 1.54, sheet, 0, 0.45, 0, 0.07);
   // quilt drapes over both long sides and the foot, with a turned-down band
-  box(g, 1.36, 0.12, 1.56, quilt, 0.30, 0.48, 0, 0.05);
-  box(g, 1.36, 0.22, 0.04, quilt, 0.30, 0.37, 0.79, 0.02);
-  box(g, 1.36, 0.22, 0.04, quilt, 0.30, 0.37, -0.79, 0.02);
-  box(g, 0.04, 0.2, 1.56, quilt, 0.99, 0.38, 0, 0.02);
-  box(g, 0.16, 0.09, 1.54, painted('#F2C8CE'), -0.33, 0.53, 0, 0.04);
+  box(g, 1.36, 0.1, 1.6, quilt, 0.30, 0.6, 0, 0.045);
+  box(g, 1.36, 0.28, 0.04, quilt, 0.30, 0.47, 0.8, 0.02);
+  box(g, 1.36, 0.28, 0.04, quilt, 0.30, 0.47, -0.8, 0.02);
+  box(g, 0.04, 0.26, 1.6, quilt, 1.0, 0.48, 0, 0.02);
+  box(g, 0.16, 0.08, 1.58, painted('#F2C8CE'), -0.33, 0.65, 0, 0.035);
   // pillows leaning on the headboard
-  for (const z of [-0.36, 0.36]) {
-    const pl = cushionBlock(g, 0.34, 0.16, 0.6, pillow, -0.76, 0.5, z);
+  for (const z of [-0.37, 0.37]) {
+    const pl = cushionBlock(g, 0.36, 0.18, 0.66, pillow, -0.76, 0.66, z);
     pl.rotation.z = 0.35;
   }
   // headboard with a rounded top rail and slats, low footboard
-  box(g, 0.08, 0.7, 1.66, w, -1.03, 0.52, 0, 0.03);
-  roll(g, 0.05, 1.72, w, -1.03, 0.9, 0);
-  for (let i = 0; i < 6; i++) box(g, 0.02, 0.42, 0.06, painted('#9A7048'), -0.985, 0.6, -0.6 + i * 0.24, 0.01);
-  box(g, 0.07, 0.3, 1.62, w, 1.03, 0.3, 0, 0.02);
-  roll(g, 0.04, 1.66, w, 1.03, 0.46, 0);
-  g.add(contactShadow(1.12, 0.88));
+  box(g, 0.08, 0.96, 1.7, w, -1.03, 0.6, 0, 0.03);
+  roll(g, 0.05, 1.76, w, -1.03, 1.1, 0);
+  for (let i = 0; i < 6; i++) box(g, 0.02, 0.36, 0.06, painted('#9A7048'), -0.985, 0.86, -0.6 + i * 0.24, 0.01);
+  box(g, 0.07, 0.4, 1.66, w, 1.03, 0.36, 0, 0.02);
+  roll(g, 0.04, 1.7, w, 1.03, 0.57, 0);
+  g.add(contactShadow(1.1, 0.9));
   return g;
 }
 

@@ -298,7 +298,9 @@ async function homeEditor(browser, tag) {
   await page.mouse.click(p.x, p.y);
   await sleep(150);
   items = await page.evaluate(() => window.__homeRoom.items());
-  L('collision rejects a second sofa on the same spot (UI path)', items.length === 1, { n: items.length });
+  const armed = await page.evaluate(() => ({ chip: !!document.querySelector('.hm-chip.on'), st: window.__homeRoom.previewState() }));
+  L('collision rejects a second sofa on the same spot (UI path), red footprint, chip stays armed', items.length === 1 && armed.chip && armed.st.blocked, { n: items.length, armed });
+  await page.click('.hm-chip[data-kind="sofa"]'); // tap the chip again to put it down
   await page.mouse.click(5, fitInfo.drawerTop - 300); // deselect by tapping empty space
   // drag near → far
   const s0 = items[0];
@@ -339,6 +341,21 @@ async function homeEditor(browser, tag) {
   await sleep(300);
   const demo = await page.evaluate(() => window.__homeRoom.items());
   L('demo furnishing places every piece (no collisions in the demo layout)', demo.length === 17, { n: demo.length });
+  // real geometry, not just the footprint table: every solid mesh sits inside its own footprint, no two solid
+  // meshes intersect, and the big pieces have adult proportions (metres)
+  const bnd = await page.evaluate(() => window.__homeRoom.bounds());
+  const outside = bnd.filter(r => r.max[0] - r.x > r.hw + 0.005 || r.x - r.min[0] > r.hw + 0.005 || r.max[2] - r.z > r.hd + 0.005 || r.z - r.min[2] > r.hd + 0.005).map(r => r.kind);
+  L('every solid mesh lies inside its collision footprint', outside.length === 0, { outside });
+  const solid = bnd.filter(r => r.kind !== 'rug');
+  const hits = [];
+  for (let i = 0; i < solid.length; i++) for (let j = i + 1; j < solid.length; j++) {
+    const A = solid[i], B = solid[j];
+    if (A.min[0] < B.max[0] - 0.002 && B.min[0] < A.max[0] - 0.002 && A.min[2] < B.max[2] - 0.002 && B.min[2] < A.max[2] - 0.002) hits.push(`${A.kind}×${B.kind}`);
+  }
+  L('no two solid meshes intersect in the furnished room', hits.length === 0, { hits });
+  const dims = k => { const r = bnd.find(b => b.kind === k); const sx = r.max[0] - r.min[0], sz = r.max[2] - r.min[2]; return { long: +Math.max(sx, sz).toFixed(2), short: +Math.min(sx, sz).toFixed(2), h: +(r.max[1] - r.min[1]).toFixed(2) }; };
+  const D = { bed: dims('bed'), sofa: dims('sofa'), table: dims('table'), chair: dims('chair') };
+  L('adult proportions: queen bed ≥ 2.0 × 1.6 m and longer than the sofa; sofa ≤ 2.1 m; table top ~0.75 m', D.bed.long >= 2.0 && D.bed.short >= 1.6 && D.bed.long > D.sofa.long && D.sofa.long <= 2.1 && D.table.long >= 1.4 && D.chair.h > 0.85, D);
   await page.screenshot({ path: `${OUT}/${tag}-home-furnished.png` });
   await page.evaluate(() => window.__homeRoom.setView({ zoom: 0.66, az: -0.32, pol: 0.96 }));
   await sleep(300);
@@ -385,8 +402,8 @@ function fixtureFilm() {
   return { mp4: readFileSync(mp4), jpg: readFileSync(jpg) };
 }
 
-async function routeFilm(page, fx) {
-  await page.route(/media\/future-home\.json/, r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ v: 1, src: 'media/future-home.mp4', poster: 'media/future-home-poster.jpg', audio: true }) }));
+async function routeFilm(page, fx, extra = {}) {
+  await page.route(/media\/future-home\.json/, r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ v: 1, src: 'media/future-home.mp4', poster: 'media/future-home-poster.jpg', audio: true, ...extra }) }));
   await page.route(/media\/future-home-poster\.jpg/, r => r.fulfill({ status: 200, contentType: 'image/jpeg', body: fx.jpg }));
   await page.route(/media\/future-home\.mp4/, async r => {
     const range = r.request().headers()['range'];
@@ -397,6 +414,58 @@ async function routeFilm(page, fx) {
     }
     return r.fulfill({ status: 200, headers: { 'content-type': 'video/mp4', 'accept-ranges': 'bytes' }, body: fx.mp4 });
   });
+}
+
+async function homeBlocked(browser, tag) {
+  const L = (n, ok, x) => log(`[${tag}] home-block ${n}`, ok, x);
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+  const page = await ctx.newPage();
+  const errs = []; page.on('pageerror', e => errs.push(e.message));
+  await page.goto(`${BASE}/home/?lang=zh&at=room&fresh=1`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await waitCurtain(page);
+  await page.waitForFunction(() => !!window.__homeRoom?.project, { timeout: 20000 });
+  await sleep(600);
+  const at = (x, z) => page.evaluate(([x, z]) => window.__homeRoom.project(x, z), [x, z]);
+  await page.evaluate(() => window.__homeRoom.place('sofa', -0.4, -0.6, 0));
+  await page.click('.hm-chip[data-kind="table"]'); await sleep(200);
+  let p = await at(-0.4, -0.6);
+  await page.mouse.move(p.x, p.y, { steps: 6 }); await sleep(150);
+  const over = await page.evaluate(() => window.__homeRoom.previewState());
+  L('armed table over the sofa: no solid preview inside it, red blocked footprint instead', !over.ghost && over.blocked, over);
+  await page.mouse.click(p.x, p.y); await sleep(200);
+  const n1 = await page.evaluate(() => window.__homeRoom.items().length);
+  L('tapping the blocked spot places nothing', n1 === 1, { n: n1 });
+  p = await at(1.8, 1.9);
+  await page.mouse.move(p.x, p.y, { steps: 6 }); await sleep(120);
+  const ok = await page.evaluate(() => window.__homeRoom.previewState());
+  L('valid spot: preview shown, no red footprint', ok.ghost && !ok.blocked, ok);
+  await page.mouse.click(p.x, p.y); await sleep(250);
+  // near → far
+  const tbl = () => page.evaluate(() => window.__homeRoom.items().find(i => i.kind === 'table'));
+  let a = await at(1.8, 1.9), b = await at(1.8, -1.6);
+  await page.mouse.move(a.x, a.y - 4); await page.mouse.down(); await page.mouse.move(b.x, b.y - 4, { steps: 30 }); await page.mouse.up(); await sleep(200);
+  const far = await tbl();
+  L('valid drag near → far drops the table at the back', far && far.z < -1.0, far);
+  // far-right → into the sofa: stops at the sofa, red footprint while pushed, never overlapping
+  a = await at(far.x, far.z); b = await at(-0.4, -0.6);
+  await page.mouse.move(a.x, a.y - 4); await page.mouse.down();
+  let pushed = false, overlapDuring = false;
+  for (let i = 1; i <= 24; i++) {
+    await page.mouse.move(a.x + (b.x - a.x) * i / 24, a.y - 4 + (b.y - a.y) * i / 24); await sleep(30);
+    const st = await page.evaluate(() => ({ blocked: window.__homeRoom.previewState().blocked }));
+    pushed ||= st.blocked;
+  }
+  const mid = await page.evaluate(() => window.__homeRoom.bounds());
+  const T = mid.find(r => r.kind === 'table'), S = mid.find(r => r.kind === 'sofa');
+  overlapDuring = T.min[0] < S.max[0] && S.min[0] < T.max[0] && T.min[2] < S.max[2] && S.min[2] < T.max[2];
+  await page.mouse.up(); await sleep(200);
+  const after = await page.evaluate(() => ({ st: window.__homeRoom.previewState(), b: window.__homeRoom.bounds() }));
+  const T2 = after.b.find(r => r.kind === 'table'), S2 = after.b.find(r => r.kind === 'sofa');
+  const overlapAfter = T2.min[0] < S2.max[0] && S2.min[0] < T2.max[0] && T2.min[2] < S2.max[2] && S2.min[2] < T2.max[2];
+  L('drag into the sofa: red footprint shows, the table stays outside it, and nothing intersects after release', pushed && !overlapDuring && !overlapAfter && !after.st.blocked, { pushed, overlapDuring, overlapAfter, table: { x: T2.x, z: T2.z } });
+  await page.screenshot({ path: `${OUT}/${tag}-home-blocked.png` });
+  L('no page errors', errs.length === 0, { errs: errs.slice(0, 2) });
+  await ctx.close();
 }
 
 async function homeFilm(browser, tag) {
@@ -520,13 +589,31 @@ async function homeFilm(browser, tag) {
     L('player: refused autoplay shows 轻触播放 and a tap starts the film', tapShown.st === 'tap' && after === 'playing', { tapShown, after });
     await ctx.close();
   }
+  // (4) a film with the protected lines burned into its picture: the page does not overlay the same words
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+    const page = await ctx.newPage();
+    await routeFilm(page, fx, { burned: { transform: [0.2, 2.0], finale: 1.0 } });
+    await page.addInitScript(items => localStorage.setItem('gift.home.layout.v2', JSON.stringify({ v: 2, items })), layoutA);
+    await page.goto(`${BASE}/home/?lang=zh&at=room`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await waitCurtain(page);
+    await page.waitForFunction(() => !!window.__homeRoom?.items && document.body.classList.contains('hm-has-film'), { timeout: 20000 });
+    await page.click('.hm-tools [data-k="save"]');
+    let lineSeen = false;
+    for (let i = 0; i < 12; i++) { await sleep(150); lineSeen ||= await page.evaluate(() => document.querySelector('.hm-line')?.classList.contains('on')); }
+    await page.waitForFunction(() => window.__home.phase() === 'end', { timeout: 15000 }).catch(() => {});
+    await sleep(2500);
+    const end = await page.evaluate(() => ({ phase: window.__home.phase(), finaleOn: document.querySelector('.hm-finale').classList.contains('on'), edit: getComputedStyle(document.querySelector('.hm-edit')).display !== 'none', replay: getComputedStyle(document.querySelector('.hm-replay')).display !== 'none' }));
+    L('burned-in lines: no page caption over the film, no second finale after it, buttons stay', !lineSeen && end.phase === 'end' && !end.finaleOn && end.edit && end.replay, { lineSeen, ...end });
+    await ctx.close();
+  }
 }
 
 // ───────────────────────────────── recordings (real time) ─────────────────────────────────
-async function record(browser, name, size, fn) {
+async function record(browser, name, size, fn, ctxExtra = {}) {
   const dir = path.join(os.tmpdir(), `gift-rec-${name}`);
   rmSync(dir, { recursive: true, force: true }); mkdirSync(dir, { recursive: true });
-  const ctx = await browser.newContext({ viewport: size, recordVideo: { dir, size } });
+  const ctx = await browser.newContext({ viewport: size, recordVideo: { dir, size }, ...ctxExtra });
   const page = await ctx.newPage();
   const t0 = Date.now();
   await fn(page);
@@ -592,6 +679,63 @@ async function recordings(browser) {
   log('recording 3D editing (place, near↔far drag, rotate, orbit, zoom) ≥ 8 s', r.ok && r.duration >= 8, { duration: r.duration, wall: r.secs, file: path.relative(process.cwd(), r.mp4) });
 }
 
+// short targeted real-time clips for the t26 review: the pig passing behind the cat on reversals
+// (both directions, desktop + phone, both woods), and the home blocked / valid drop / bed-vs-sofa scale
+async function clips(browser) {
+  const walk = (theme, phone) => async page => {
+    await page.goto(`${BASE}/${theme}/?lang=zh`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await waitCurtain(page);
+    await page.waitForFunction(() => window.__wander?.worldW > 100 && window.__wander.plates > 0, { timeout: 20000 });
+    await sleep(900);
+    await page.evaluate(() => window.__wander.seek(window.__wander.worldW * 0.4));
+    await sleep(500);
+    const vp = page.viewportSize(), y = vp.height * 0.6;
+    const hold = async (x, ms) => { await page.mouse.move(x, y); await page.mouse.down(); await sleep(ms); await page.mouse.up(); };
+    if (phone) { await hold(vp.width * 0.95, 2400); await hold(vp.width * 0.05, 3200); await hold(vp.width * 0.95, 3200); }
+    else {
+      await page.keyboard.down('ArrowRight'); await sleep(2400); await page.keyboard.up('ArrowRight');
+      await page.keyboard.down('ArrowLeft'); await sleep(3200); await page.keyboard.up('ArrowLeft');
+      await page.keyboard.down('ArrowRight'); await sleep(3200); await page.keyboard.up('ArrowRight');
+    }
+    await sleep(700);
+  };
+  for (const [theme, phone] of [['flower', false], ['flower', true], ['mushroom', false], ['mushroom', true]]) {
+    const name = `clip-${theme}-reverse-${phone ? 'phone' : 'desktop'}`;
+    const r = await record(browser, name, phone ? { width: 390, height: 844 } : { width: 960, height: 540 }, walk(theme, phone), phone ? { hasTouch: true } : {});
+    log(`clip ${name} (real time, continuous, right → left → right)`, r.ok && r.duration >= 8, { duration: r.duration, file: path.relative(process.cwd(), r.mp4) });
+  }
+  const r = await record(browser, 'clip-home-blocked-drop-bed', { width: 1280, height: 720 }, async page => {
+    await page.goto(`${BASE}/home/?lang=zh&at=room&fresh=1`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await waitCurtain(page);
+    await page.waitForFunction(() => !!window.__homeRoom?.project, { timeout: 20000 });
+    await sleep(700);
+    const at = (x, z) => page.evaluate(([x, z]) => window.__homeRoom.project(x, z), [x, z]);
+    const click = async (x, z) => { const p = await at(x, z); await page.mouse.move(p.x, p.y, { steps: 10 }); await sleep(200); await page.mouse.click(p.x, p.y); await sleep(400); };
+    await page.click('.hm-chip[data-kind="sofa"]'); await sleep(200); await click(-0.4, -0.6);
+    // armed table: sweep across the sofa (red footprint, no preview inside it), try to drop there, then drop near
+    await page.click('.hm-chip[data-kind="table"]'); await sleep(250);
+    let a = await at(-2.6, 0.3), b = await at(1.6, -0.6);
+    await page.mouse.move(a.x, a.y); await page.mouse.move(b.x, b.y, { steps: 40 }); await sleep(200);
+    const s = await at(-0.4, -0.6); await page.mouse.move(s.x, s.y, { steps: 20 }); await sleep(300); await page.mouse.click(s.x, s.y); await sleep(500);
+    await click(1.8, 1.9);
+    // valid drag near → far
+    a = await at(1.8, 1.9); b = await at(1.8, -1.6);
+    await page.mouse.move(a.x, a.y - 4); await page.mouse.down(); await page.mouse.move(b.x, b.y - 4, { steps: 40 }); await page.mouse.up(); await sleep(400);
+    // push it into the sofa: it stops at the sofa's edge, red footprint shows where it cannot go; release leaves it outside
+    a = await at(1.8, -1.6); b = await at(-0.6, -0.6);
+    await page.mouse.move(a.x, a.y - 4); await page.mouse.down(); await page.mouse.move(b.x, b.y - 4, { steps: 50 }); await sleep(500); await page.mouse.up(); await sleep(500);
+    // a queen bed beside the three-seater, then turn the room to compare them
+    await page.click('.hm-chip[data-kind="bed"]'); await sleep(200); await click(-2.6, 1.6);
+    await page.mouse.click(8, 140); await sleep(200);
+    const e = await at(3.9, 2.9);
+    await page.mouse.move(e.x, e.y); await page.mouse.down(); await page.mouse.move(e.x - 260, e.y - 30, { steps: 40 }); await page.mouse.up(); await sleep(300);
+    await page.mouse.move(640, 360);
+    for (let i = 0; i < 6; i++) { await page.mouse.wheel(0, -60); await sleep(120); }
+    await sleep(1200);
+  });
+  log('clip home: blocked over the sofa, valid near drop, near → far drag, push into sofa stops, bed vs sofa', r.ok && r.duration >= 8, { duration: r.duration, file: path.relative(process.cwd(), r.mp4) });
+}
+
 (async () => {
   const cr = await launchChromium();
   const wk = await webkit.launch();
@@ -603,9 +747,11 @@ async function recordings(browser) {
         await woods(b, tag, theme, { width: 390, height: 844 }, true);
       }
       if (want('home')) await homeEditor(b, tag);
+      if (want('home') || want('block')) await homeBlocked(b, tag);
       if (want('film')) await homeFilm(b, tag);
     }
     if (want('rec')) await recordings(cr);
+    if (want('clips')) await clips(cr);
   } finally {
     await cr.close(); await wk.close();
   }

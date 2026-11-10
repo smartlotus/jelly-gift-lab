@@ -1,5 +1,6 @@
 // Floor furniture for Module A. Wall stickers (frame / lights) stay out —
-// they had no volumetric footprint. Sizes are half-extents at yaw 0 (x = width, z = depth).
+// they had no volumetric footprint. Sizes are half-extents at yaw 0 (x = width, z = depth), in metres,
+// and must enclose the solid mesh (checked by __homeRoom.bounds() in tools/v03r-verify.mjs) so pieces never interpenetrate.
 import type { SavedItem } from '../save';
 
 export interface Kind3 {
@@ -12,21 +13,21 @@ export interface Kind3 {
 
 export const FLOOR_KINDS: Kind3[] = [
   { id: 'rug', label: 'home.item.rug', w: 1.85, d: 1.22, collide: false },
-  { id: 'sofa', label: 'home.item.sofa', w: 1.18, d: 0.50, collide: true },
+  { id: 'sofa', label: 'home.item.sofa', w: 1.02, d: 0.48, collide: true },
   { id: 'armchair', label: 'home.item.armchair', w: 0.50, d: 0.48, collide: true },
   { id: 'coffee', label: 'home.item.coffee', w: 0.68, d: 0.42, collide: true },
   { id: 'table', label: 'home.item.table', w: 0.78, d: 0.5, collide: true },
   { id: 'chair', label: 'home.item.chair', w: 0.28, d: 0.30, collide: true },
-  { id: 'bed', label: 'home.item.bed', w: 1.12, d: 0.88, collide: true },
+  { id: 'bed', label: 'home.item.bed', w: 1.1, d: 0.9, collide: true },
   { id: 'night', label: 'home.item.night', w: 0.28, d: 0.28, collide: true },
   { id: 'shelf', label: 'home.item.shelf', w: 0.58, d: 0.24, collide: true },
   { id: 'tv', label: 'home.item.tv', w: 0.88, d: 0.30, collide: true },
-  { id: 'lamp', label: 'home.item.lamp', w: 0.20, d: 0.20, collide: true },
-  { id: 'wardrobe', label: 'home.item.wardrobe', w: 0.58, d: 0.30, collide: true },
+  { id: 'lamp', label: 'home.item.lamp', w: 0.27, d: 0.27, collide: true },
+  { id: 'wardrobe', label: 'home.item.wardrobe', w: 0.64, d: 0.33, collide: true },
   { id: 'side', label: 'home.item.side', w: 0.28, d: 0.28, collide: true },
   { id: 'cushion', label: 'home.item.cushion', w: 0.32, d: 0.32, collide: true },
-  { id: 'cattree', label: 'home.item.cattree', w: 0.34, d: 0.34, collide: true },
-  { id: 'dogbed', label: 'home.item.dogbed', w: 0.44, d: 0.40, collide: true },
+  { id: 'cattree', label: 'home.item.cattree', w: 0.36, d: 0.34, collide: true },
+  { id: 'dogbed', label: 'home.item.dogbed', w: 0.47, d: 0.41, collide: true },
   { id: 'roses', label: 'home.item.roses', w: 0.14, d: 0.14, collide: true },
   { id: 'lisi', label: 'home.item.lisi', w: 0.14, d: 0.14, collide: true },
 ];
@@ -57,7 +58,7 @@ export function demoLayout3(): SavedItem[] {
     { kind: 'table', x: 2.3, z: 1.45, yaw: 0 },
     { kind: 'chair', x: 1.95, z: 0.55, yaw: 0 },
     { kind: 'chair', x: 2.65, z: 0.55, yaw: 0 },
-    { kind: 'bed', x: 2.7, z: -1.95, yaw: 0 },
+    { kind: 'bed', x: 2.85, z: -1.95, yaw: 180 },
     { kind: 'night', x: 1.3, z: -2.6, yaw: 0 },
     { kind: 'roses', x: 1.05, z: 0.15, yaw: 0 },
     { kind: 'lisi', x: -3.15, z: -1.55, yaw: 0 },

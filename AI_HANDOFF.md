@@ -32,7 +32,8 @@ The user asked (t26) for a **new** ending film of a possible future home. So:
 - `/home/` **no longer plays `public/media/anniv-200.mp4`**. That 200-day film stays only as the optional film on `/sky/`.
   `tools/v03r-verify.mjs` checks that `/home/` never requests `anniv-200`.
 - The future-home film is **being produced in a separate workstream** (six scenes, the three protected lines retained) and
-  goes through an independent video review first. **It is not in this repo yet and not ready.** No placeholder video is
+  goes through an independent video review first. A first full draft has been rendered in the separate workstream
+  and is **under review — not accepted, not in this repo, no media deployed**. No placeholder video is
   committed and none must be.
 - Until it lands, 保存布局 → the line 「也许有一天…」 under the warm veil → the static end card (second line, 继续布置 / 从头再来).
   No 再看一遍 is shown while there is no film.
@@ -44,6 +45,40 @@ The user asked (t26) for a **new** ending film of a possible future home. So:
   sound switch (a user gesture), shows 「轻触播放」 if autoplay is refused, pauses on tab hide, 跳过 works during the film,
   ended → end card with 再看一遍 (restarts at 0) and 继续布置 (returns the same saved pieces). The film never reads the
   saved layout (same `src` for any layout — tested). The code-drawn six-shot film stays parked (`FILM_ENABLED = false`).
+
+### t26b — fixes from the independent review of the v03r recordings (2026-11-09 evening, PT)
+
+Reviewer kept: whole cat cycles, both animals on camera, caption clear of the feet, real 3D perspective/orbit/zoom.
+Reviewer blockers and what changed (still **awaiting a new independent visual review** — not a full pass):
+
+- **Flower reversal, pig in front of the cat** (`rec-flower-walk` 00:08–00:10). Cause: the pig only started moving to
+  the back lane once it was already overlapping her, and the lane was 5 px, so for a few frames it read as the same
+  depth. Now (`engine.ts`) the pig *yields* when she turns toward it: it stops, steps 9 px up the path first, and only
+  then trots past while drawn under the cat; it returns to her lane after she has passed. Both animals have a blocky
+  contact shadow so the depth step reads as ground, and a pig on the back lane is drawn behind the ground critters
+  too (painter's order by depth).
+- **Table passing through the sofa** (`rec-home-3d-editing` 01:06–01:11). That was the armed-chip preview: a 45 %
+  see-through ghost let the sofa show through it and read as two solids inside each other. Now: over an occupied
+  spot there is no preview, only a red footprint on the floor; the tap places nothing and the chip stays armed (tap
+  it again to put it down). On a valid spot the preview is near-solid (depth-sorted like an object, warm tint, no
+  shadow). Dragging a placed piece into another stops at the last valid spot and shows the red footprint where it
+  cannot go; release leaves it there. Every footprint now encloses its solid mesh (measured with
+  `__homeRoom.bounds()`; before, several meshes overhung their footprint by a few cm).
+- **Bed too small next to the sofa.** Measured in metres: the sofa was 2.2–2.26 m over the arms (oversized) and the
+  bed's mattress top was only ~0.5 m with a thin quilt. Now sofa 2.0 × 0.86 × 0.88 m (seat ~0.48 m), queen bed
+  2.15 × 1.76 m with mattress top ~0.6 m and headboard ~1.1 m; dining table 1.5 × 0.95 m top at 0.78 m; chairs
+  0.96 m. Other pieces unchanged. The demo bed now stands with its headboard against the right wall.
+- **Future film with burned-in lines.** The manifest may carry `burned: { transform: [a, b], finale: c }`; then the
+  page does not show its own 「也许有一天…」 caption over the film, and if the film played past `c` the end card
+  shows only the buttons (no second finale). The film's own AAC track is used (the video element is the clock,
+  muted state follows the site switch). The draft film (95.6 s) is **under the parent's independent review and is
+  not in this repo**; nothing was copied or integrated.
+
+Fresh results (Chromium + WebKit): route + woods + home + blocked + film **153/153**, then film again with the
+burned-lines case **16/16**; tsc + build OK. Targeted real-time clips (local only, gitignored mp4) in
+`review/v03r/`: `clip-flower-reverse-desktop.mp4`, `clip-flower-reverse-phone.mp4`, `clip-mushroom-reverse-desktop.mp4`,
+`clip-mushroom-reverse-phone.mp4` (~12 s each, right → left → right) and `clip-home-blocked-drop-bed.mp4` (15 s).
+Committed frame strips: `review/v03r/strip-*.jpg`. The older `rec-*.mp4` predate these fixes.
 
 ### Web fixes in this pass
 

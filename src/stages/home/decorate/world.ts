@@ -1,7 +1,7 @@
 // Module A: realtime spatial home decoration. Isolated from the cinematic montage.
 import {
   AmbientLight, Box3, Color, DirectionalLight, Group, HemisphereLight, PCFSoftShadowMap, PerspectiveCamera,
-  Raycaster, Scene, Vector2, Vector3, WebGLRenderer,
+  Mesh, MeshBasicMaterial, MeshStandardMaterial, Raycaster, Scene, Vector2, Vector3, WebGLRenderer,
 } from 'three';
 import { t, apply } from '../../../shared/i18n';
 import { thumb } from '../furniture';
@@ -253,6 +253,20 @@ export function createDecorate(host: HTMLElement): DecorateApi {
   const preview = new Group();
   preview.visible = false;
   scene.add(preview);
+  // red floor footprint where a piece cannot go (armed chip over an occupied spot, or a drag pushed into
+  // another piece). The real piece never enters that space: the drag stays at its last valid spot.
+  const blocked = footprintMarker(0.4, 0.4);
+  blocked.traverse(o => { const m = (o as Mesh).material as MeshBasicMaterial | undefined; if (m?.color) { m.color.set(0xE0504A); m.opacity = 0.42; } });
+  blocked.visible = false;
+  scene.add(blocked);
+  let blockedT = 0;
+  const showBlocked = (kind: string | null, x = 0, z = 0, yaw = 0) => {
+    if (!kind) { blocked.visible = false; return; }
+    const ext = footerOf(kind, yaw);
+    blocked.position.set(x, 0.004, z);
+    blocked.scale.set(ext.hw / 0.4, 1, ext.hd / 0.4);
+    blocked.visible = true;
+  };
   let previewKind = '';
 
   const raycaster = new Raycaster();
@@ -410,8 +424,16 @@ export function createDecorate(host: HTMLElement): DecorateApi {
         const m = o as MeshLike;
         if (m.material) {
           const mats = Array.isArray(m.material) ? m.material : [m.material];
-          mats.forEach(mat => { if ('opacity' in mat) { mat.transparent = true; mat.opacity = 0.45; } });
+          // a near-solid, warmly lit preview that still depth-sorts like a real object: a see-through
+          // ghost let the furniture behind show through it and read as two pieces inside each other
+          mats.forEach(mat => {
+            if ('opacity' in mat) { mat.transparent = true; mat.opacity = 0.86; }
+            const sm = mat as unknown as MeshStandardMaterial;
+            if (sm.emissive) { sm.emissive.set('#F4D070'); sm.emissiveIntensity = 0.22; }
+          });
         }
+        (o as Mesh).castShadow = false;
+        if ((o as Mesh).renderOrder === 1) o.visible = false;
       });
       preview.add(ghost);
       previewKind = kind;
@@ -488,12 +510,19 @@ export function createDecorate(host: HTMLElement): DecorateApi {
     lastPtr = { x: e.clientX, y: e.clientY };
     const floor = hitFloor(e.clientX, e.clientY);
     const piece = hitPiece(e.clientX, e.clientY);
-    // tapping a piece that is already in the room always picks it up, even with a chip armed
-    if (selectedKind && piece) { selectedKind = null; setPreview(null); }
+    // with a chip armed every tap is a placement attempt; over another piece it shows the red footprint and
+    // keeps the chip armed (tap the chip again to put it down and move existing pieces)
     if (selectedKind && floor) {
       snap();
       const made = addPiece(selectedKind, floor.x, floor.z, 0);
-      if (made) { focus = made.id; placed(); selectedKind = null; setPreview(null); }
+      if (made) { focus = made.id; placed(); selectedKind = null; setPreview(null); showBlocked(null); }
+      else {
+        // touch has no hover: show where it would not fit, then clear
+        const pos = inBounds(selectedKind, snapped(floor.x), snapped(floor.z), 0);
+        preview.visible = false;
+        showBlocked(selectedKind, pos.x, pos.z, 0);
+        clearTimeout(blockedT); blockedT = window.setTimeout(() => { if (!dragging && !selectedKind) showBlocked(null); }, 900);
+      }
       syncSel();
       return;
     }
@@ -525,7 +554,8 @@ export function createDecorate(host: HTMLElement): DecorateApi {
         p.x = raw.x; p.z = raw.z;
         applyPose(p);
         syncSel();
-      }
+        showBlocked(null);
+      } else showBlocked(p.kind, raw.x, raw.z, p.yaw);
       return;
     }
     if (orbiting) {
@@ -543,7 +573,9 @@ export function createDecorate(host: HTMLElement): DecorateApi {
         setPreview(selectedKind);
         const pos = inBounds(selectedKind, snapped(floor.x), snapped(floor.z), 0);
         preview.position.set(pos.x, 0, pos.z);
-        preview.visible = !collides(pieces, selectedKind, pos.x, pos.z, 0);
+        const bad = collides(pieces, selectedKind, pos.x, pos.z, 0);
+        preview.visible = !bad;
+        showBlocked(bad ? selectedKind : null, pos.x, pos.z, 0);
       }
     }
   };
@@ -551,6 +583,7 @@ export function createDecorate(host: HTMLElement): DecorateApi {
   const up = (e?: PointerEvent) => {
     if (e) touches.delete(e.pointerId);
     if (touches.size < 2) pinch0 = 0;
+    if (dragging) showBlocked(null);
     dragging = null; orbiting = false;
   };
 
@@ -655,6 +688,17 @@ export function createDecorate(host: HTMLElement): DecorateApi {
       return { x: r.left + (v.x * 0.5 + 0.5) * r.width, y: r.top + (-v.y * 0.5 + 0.5) * r.height };
     },
     collides: (kind: string, x: number, z: number, yaw = 0, ignore?: number) => collides(pieces, kind, x, z, yaw, ignore),
+    /** world-space bounding box of each placed mesh vs its collision footprint (proportion / clipping checks) */
+    /** what the editor shows besides real pieces: the placement preview and the red blocked footprint */
+    previewState: () => ({ ghost: preview.visible, blocked: blocked.visible, blockedAt: blocked.visible ? { x: blocked.position.x, z: blocked.position.z } : null }),
+    bounds: () => pieces.map(p => {
+      p.root.updateMatrixWorld(true);
+      // solid geometry only: skip the soft contact-shadow decal (renderOrder 1)
+      const bb = new Box3();
+      p.root.traverse(o => { if ((o as Mesh).isMesh && (o as Mesh).renderOrder !== 1 && o.visible) bb.expandByObject(o, false); });
+      const f = footerOf(p.kind, p.yaw);
+      return { kind: p.kind, x: p.x, z: p.z, yaw: p.yaw, min: bb.min.toArray().map(n => +n.toFixed(3)), max: bb.max.toArray().map(n => +n.toFixed(3)), hw: f.hw, hd: f.hd };
+    }),
   };
 
   return api;

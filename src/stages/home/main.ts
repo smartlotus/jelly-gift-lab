@@ -62,6 +62,7 @@ let endT = 0;
 let endFromFilm = false;
 let player: FilmPlayer | null = null;
 let manifest: FilmManifest | null = null;
+let finaleInFilm = false;
 const manifestReady = probeFutureFilm().then(m => { manifest = m; document.body.classList.toggle('hm-has-film', !!m); return m; });
 let spark: { x: number; y: number; vx: number; vy: number; life: number }[] = [];
 
@@ -85,7 +86,9 @@ function leaveRoom() {
   transformT = 0; endT = 0;
   phase = 'transform';
   document.body.classList.add('hm-endcard');   // centred paper typography, not the old caption bar
-  line.dataset.i18n = 'home.transform'; apply(); line.classList.add('on');
+  line.dataset.i18n = 'home.transform'; apply();
+  // a film that carries this line in its own picture gets no second copy on top
+  if (!manifest?.burned?.transform) line.classList.add('on');
   toDream();
   // future-home film (when the reviewed asset is in): starts muted under the veil, so the cream clears onto it
   if (!FILM_ENABLED) void manifestReady.then(m => { if (m && phase === 'transform') startEndingFilm(m); });
@@ -119,6 +122,9 @@ function stopEndingFilm() {
 function toEndCard() {
   if (phase === 'end') return;
   const fromFilm = !!player;
+  const fin = manifest?.burned?.finale;
+  finaleInFilm = fromFilm && fin !== undefined && (player?.time() ?? 0) >= fin;
+  document.body.classList.toggle('hm-finale-in-film', finaleInFilm);
   stopEndingFilm();
   if (fromFilm) startMusic('dream');
   document.body.classList.add('hm-endcard');
@@ -190,7 +196,8 @@ startLoop(dt => {
     if (endT > (endFromFilm ? 0.6 : 2.6)) line.classList.remove('on');
     if (endT > (endFromFilm ? 0.9 : 3.2)) {
       document.body.classList.add('hm-on-finale');
-      finale.classList.add('on');
+      // the film already showed the closing line in its last shot: the end card keeps only the buttons
+      if (!finaleInFilm) finale.classList.add('on');
     }
   } else {
     film?.update(dt);

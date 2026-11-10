@@ -14,3 +14,13 @@ Playwright Chromium (swiftshader WebGL) + Playwright WebKit. Results: route 29/2
 
 Limits: no real GPU or phone; the WebKit build here has no H.264 decoder, so WebKit only checks the end-card fallback.
 The future-home film itself is not in the repo yet (separate workstream) and was not tested.
+
+## t26b targeted clips (after the review fixes)
+
+- `clip-flower-reverse-desktop.mp4`, `clip-flower-reverse-phone.mp4`, `clip-mushroom-reverse-desktop.mp4`,
+  `clip-mushroom-reverse-phone.mp4` — real time, ~12 s, right → left → right; the pig steps up the path and passes
+  behind the cat in both directions. Strips: `strip-*-reverse-*.jpg` (2.5 fps).
+- `clip-home-blocked-drop-bed.mp4` — sofa placed; armed table swept across it (red footprint, no preview inside);
+  tap there places nothing; valid near drop; near → far drag; pushed into the sofa it stops at the edge; queen bed
+  beside the sofa; orbit + zoom. Strip: `strip-home-blocked-drop-bed.jpg` (1 fps).
+- The `rec-*.mp4` files above predate these fixes.
