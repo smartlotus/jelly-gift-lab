@@ -15,10 +15,10 @@ This file is the durable takeover note. It describes **what is on branch `v03m-s
 | Repo | [`smartlotus/jelly-gift-story`](https://github.com/smartlotus/jelly-gift-story) (public) |
 | Working tree | `/workspace/jelly/jelly-gift-story` |
 | WIP branch | `v03m-spatial-home` |
-| Default branch `main` | `e08e1c2` — “Record v03l live Pages hashes and delivered-art screenshots.” |
+| Default branch `main` | `a2094e3` — merge of `v03s-anniv-ending` (t36, Wednesday 11 November 2026); previous `e08e1c2` (v03l record) |
 | Live delivered source | tag **`v03l`** = `ef2405b635d532cd219914812f7681f523640be7` (merge of [PR #2](https://github.com/smartlotus/jelly-gift-story/pull/2)) |
-| Live Pages | https://smartlotus.github.io/jelly-gift-story/ — `gh-pages` `de208c3e903f6397f8ccb869680ae1421d28488f` (“Deploy story edition (ef2405b)”) |
-| This WIP | **not deployed**. Do not run `scripts/deploy_pages.sh` until a parent visual + functional gate says so. |
+| Live Pages | https://smartlotus.github.io/jelly-gift-story/ — `gh-pages` `c4818cbe68a10b39676bc62ad930656f33a0460b` (“Deploy story edition (a2094e3)”, t36: v03s-anniv-ending + complete 1080p 200-day film). Previous: `de208c3` (v03l, source `ef2405b`) |
+| This WIP | **deployed in t36** (user asked: 「现在把这个版本部署上网站」). Do not redeploy further changes without a new user request. |
 | Old stable gift | **Do not touch.** `smartlotus/jelly-gift` / `jelly-gift-site`, live https://smartlotus.github.io/jelly-gift/, last deploy `1c2d5de`. Do not merge this work into that default branch. Old source PR 7 stays open and untouched. |
 
 After each push, `git rev-parse origin/v03m-spatial-home` is the source of truth for the SHA.
@@ -33,7 +33,8 @@ User request t36u: 「这个视频才那么短吗？Notion 里面的不是很长
 - `public/media/anniv-200.mp4` is now that file **byte for byte** (no re-encode, no cut, already faststart: `moov` before `mdat`): H.264 High 1920×1080 30 fps 2030 frames + AAC, 58,067,050 bytes, md5 `d570c6b239b61cd6a933b5a52375e76e`. Same filename, so `ending-film.json` and `/sky/` cinema both pick it up.
 - `public/media/anniv-200-poster.jpg` regenerated from the 1080p film at the same frame as before (~66.67 s, the 臭猪臭猫 / 200天纪念日快乐 title card), 1920×1080.
 - `tools/v03r-verify.mjs`: real-film check now expects 1920×1080 and duration 67.712 s. Suite 208/208 (Chromium + WebKit), log `review/v03s/t36-verify.log`.
-- Deploy: `v03s-anniv-ending` merged into `main` (non-force `--no-ff`), then `GIFT_DEPLOY=1 scripts/deploy_pages.sh`. Live hashes are recorded in the follow-up commit below / in the table at the top.
+- Deploy: `v03s-anniv-ending` merged into `main` (non-force `--no-ff`) = `a2094e3`, then `GIFT_DEPLOY=1 scripts/deploy_pages.sh` → `gh-pages` `c4818cb` (Pages build `built`). GitHub warned the 55 MB mp4 is over the 50 MB recommendation (limit 100 MB); no LFS.
+- Live check: `/media/ending-film.json` → `media/anniv-200.mp4`; live mp4 md5 `d570c6b239b61cd6a933b5a52375e76e`, 58,067,050 bytes, 1920×1080, 2030 frames, 67.712 s; poster md5 `1718fb42…`. `tools/check-pages.mjs` on the live base: all 16 pages OK. `ONLY=real` of `v03r-verify.mjs` against the live base: 24/24 (Chromium real film + WebKit fallback).
 
  closing card in the order 2 · 3 · 1 · 4 (branch `v03s-anniv-ending`, 2026-11-09 night, America/Los_Angeles)
 
