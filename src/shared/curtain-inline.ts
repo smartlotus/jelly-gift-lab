@@ -44,7 +44,7 @@ export const CURTAIN_STAGES: Record<string, [string, string, string]> = {
   home: ['#f3ebe0', '小家', 'our home'],
   ar: ['#eeece8', '桌上', 'on the table'],
 };
-const NEXT: Record<string, string> = { meadow: 'flower/', flower: 'mushroom/', mushroom: 'shop/', shop: 'night/', night: 'jelly/', jelly: 'sea/', sea: 'sky/', sky: 'coop/', coop: 'home/', home: '', ar: 'shop/' };
+const NEXT: Record<string, string> = { meadow: 'shop/', shop: 'night/', night: 'jelly/', jelly: 'sea/', sea: 'sky/', sky: 'coop/', coop: 'flower/', flower: 'mushroom/', mushroom: 'home/', home: '', ar: 'shop/' };
 /** the pig only appears if the page takes longer than this to be ready */
 export const LATE_MS = 700;
 const TXT = {

@@ -1,0 +1,265 @@
+{
+  "ts": "2026-11-08T09:26:35.313Z",
+  "tests": [
+    {
+      "name": "meadow door -> shop",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/shop/?lang=zh&from=meadow",
+      "from": "/127.0.0.1:8833/?lang=zh"
+    },
+    {
+      "name": "shop dark door -> night",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/night/?lang=zh&from=shop",
+      "from": "33/shop/?lang=zh&at=door"
+    },
+    {
+      "name": "shop ?at=lit does not skip to jelly",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/shop/?lang=zh&at=lit"
+    },
+    {
+      "name": "night kawaii continue -> jelly",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/jelly/?lang=zh&from=night",
+      "from": "night/?lang=zh&at=kawaii"
+    },
+    {
+      "name": "jelly 入海 exists outside egg",
+      "ok": true,
+      "egg": "present-optional"
+    },
+    {
+      "name": "jelly 入海 -> sea",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/sea/?lang=zh&from=jelly"
+    },
+    {
+      "name": "sky film control present (optional)",
+      "ok": true
+    },
+    {
+      "name": "sky next without film -> coop",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/coop/?lang=zh&from=sky&hz=0.622",
+      "from": "lang=zh&from=sea&hz=0.66"
+    },
+    {
+      "name": "coop 往前走走 -> flower",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/flower/?lang=zh&from=coop",
+      "from": "p/?lang=zh&solo&from=sky"
+    },
+    {
+      "name": "flower exit -> mushroom",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/mushroom/?lang=zh&from=flower",
+      "from": "0.1:8833/flower/?lang=zh"
+    },
+    {
+      "name": "mushroom exit -> home",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/home/?lang=zh&from=mushroom",
+      "from": "1:8833/mushroom/?lang=zh"
+    },
+    {
+      "name": "AR returns to shop",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/shop/?lang=zh&from=ar&ex=figure-pig"
+    },
+    {
+      "name": "curtain skip from shop points at night",
+      "ok": true,
+      "skip": "../night/?lang=zh"
+    },
+    {
+      "name": "stage boots meadow",
+      "ok": true,
+      "stage": "meadow",
+      "errs": []
+    },
+    {
+      "name": "stage boots shop/",
+      "ok": true,
+      "stage": "shop",
+      "errs": []
+    },
+    {
+      "name": "stage boots night/",
+      "ok": true,
+      "stage": "night",
+      "errs": []
+    },
+    {
+      "name": "stage boots jelly/",
+      "ok": true,
+      "stage": "jelly",
+      "errs": []
+    },
+    {
+      "name": "stage boots sea/",
+      "ok": true,
+      "stage": "sea",
+      "errs": []
+    },
+    {
+      "name": "stage boots sky/",
+      "ok": true,
+      "stage": "sky",
+      "errs": []
+    },
+    {
+      "name": "stage boots coop/",
+      "ok": true,
+      "stage": "coop",
+      "errs": []
+    },
+    {
+      "name": "stage boots flower/",
+      "ok": true,
+      "stage": "flower",
+      "errs": []
+    },
+    {
+      "name": "stage boots mushroom/",
+      "ok": true,
+      "stage": "mushroom",
+      "errs": []
+    },
+    {
+      "name": "stage boots home/",
+      "ok": true,
+      "stage": "home",
+      "errs": []
+    },
+    {
+      "name": "stage boots ar/",
+      "ok": true,
+      "stage": "ar",
+      "errs": []
+    },
+    {
+      "name": "flower pig follows (not parked)",
+      "ok": true,
+      "gaps": [
+        62.1,
+        68.2,
+        68.2,
+        68,
+        67.9,
+        67.9,
+        67.9,
+        67.9,
+        67.9,
+        67.9
+      ],
+      "parked": false
+    },
+    {
+      "name": "flower pig gap comfortable",
+      "ok": true,
+      "min": 62.1,
+      "max": 68.2
+    },
+    {
+      "name": "flower pig does not overlap/trap cat",
+      "ok": true,
+      "closest": 62.1
+    },
+    {
+      "name": "mushroom pig follows (not parked)",
+      "ok": true,
+      "gaps": [
+        62.4,
+        67.1,
+        68.2,
+        68.2,
+        68,
+        67.9,
+        67.9,
+        67.9,
+        67.9,
+        67.9
+      ],
+      "parked": false
+    },
+    {
+      "name": "mushroom pig gap comfortable",
+      "ok": true,
+      "min": 62.4,
+      "max": 68.2
+    },
+    {
+      "name": "mushroom pig does not overlap/trap cat",
+      "ok": true,
+      "closest": 62.4
+    },
+    {
+      "name": "home empty webgl canvas",
+      "ok": true,
+      "canvas": true,
+      "n": 0,
+      "hit": {
+        "x": -0.006311673408016194,
+        "z": -0.1782250681320443
+      },
+      "phase": "room"
+    },
+    {
+      "name": "home empty raycast hits floor",
+      "ok": true,
+      "x": -0.006311673408016194,
+      "z": -0.1782250681320443
+    },
+    {
+      "name": "home place sofa",
+      "ok": true,
+      "n": 1
+    },
+    {
+      "name": "home collision rejects overlapping sofa",
+      "ok": true,
+      "overlap": false
+    },
+    {
+      "name": "home rotate 90",
+      "ok": true,
+      "yaw": 90,
+      "rotated": true
+    },
+    {
+      "name": "editor layout persists on reload",
+      "ok": true,
+      "n": 3,
+      "kinds": [
+        "sofa",
+        "rug",
+        "table"
+      ]
+    },
+    {
+      "name": "film greet identical across empty vs cluttered save",
+      "ok": true,
+      "mean": 0.512
+    },
+    {
+      "name": "film sofa identical across empty vs cluttered save",
+      "ok": true,
+      "mean": 0
+    },
+    {
+      "name": "save leaves editor into transform/film",
+      "ok": true,
+      "phaseAfterSave": "transform",
+      "beforeSave": 6
+    },
+    {
+      "name": "edit returns persisted layout",
+      "ok": true,
+      "phase": "room",
+      "n": 6
+    }
+  ],
+  "failed": 0,
+  "total": 40
+}

@@ -236,7 +236,7 @@ export function buildShop() {
   R(g, 788, 121, 56, 3, '#FBF7F1'); R(g, 788, 121, 56, 1, '#FFFFFF'); R(g, 842, 121, 2, 3, '#E4D8C6'); R(g, 788, 124, 56, 1, '#BFA27E');
   R(g, 807, 137, 18, 9, '#B48A45'); R(g, 808, 138, 16, 7, '#E2BE73'); R(g, 808, 138, 16, 1, '#F3DDA6');
 
-  // the back door: dark, ajar, night outside
+  // the back door: dark, ajar, night outside (mainline onward)
   const B = BACKDOOR;
   R(g, B.x - 3, B.y - 3, B.w + 6, B.h + 3, '#6E5E58'); R(g, B.x - 3, B.y - 3, B.w + 6, 1, '#8A7A72');
   R(g, B.x, B.y, B.w, B.h, '#0C0B10');

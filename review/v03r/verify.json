@@ -1,0 +1,1370 @@
+{
+  "ts": "2026-11-10T03:58:45.063Z",
+  "base": "http://127.0.0.1:8833",
+  "tests": [
+    {
+      "name": "[chromium] meadow door -> shop",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/shop/?lang=zh&from=meadow"
+    },
+    {
+      "name": "[chromium] shop dark door -> night",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/night/?lang=zh&from=shop"
+    },
+    {
+      "name": "[chromium] shop ?at=lit does not skip to jelly",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/shop/?lang=zh&at=lit"
+    },
+    {
+      "name": "[chromium] night kawaii continue -> jelly",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/jelly/?lang=zh&from=night"
+    },
+    {
+      "name": "[chromium] jelly 入海 visible without the egg",
+      "ok": true,
+      "egg": "present-optional",
+      "seaVisible": true
+    },
+    {
+      "name": "[chromium] jelly 入海 -> sea",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/sea/?lang=zh&from=jelly"
+    },
+    {
+      "name": "[chromium] sky film control present (optional)",
+      "ok": true
+    },
+    {
+      "name": "[chromium] sky next without film -> coop",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/coop/?lang=zh&from=sky&hz=0.628"
+    },
+    {
+      "name": "[chromium] coop 往前走走 -> flower",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/flower/?lang=zh&from=coop"
+    },
+    {
+      "name": "[chromium] flower exit -> mushroom",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/mushroom/?lang=zh&from=flower"
+    },
+    {
+      "name": "[chromium] mushroom exit -> home",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/home/?lang=zh&from=mushroom"
+    },
+    {
+      "name": "[chromium] AR returns to shop",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/shop/?lang=zh&from=ar&ex=figure-pig"
+    },
+    {
+      "name": "[chromium] curtain skip from shop points at night",
+      "ok": true,
+      "skip": "../night/?lang=zh"
+    },
+    {
+      "name": "[chromium] no unexplained uncaught page errors during the hops",
+      "ok": true,
+      "unexplained": [],
+      "navAbortOnly": []
+    },
+    {
+      "name": "[chromium] settled coop solo (wake lock refused): no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] settled shop: no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] settled shop with figure-pig.glb aborted (offline / leaving): no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] settled shop back from AR with the model aborted: no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] settled jelly: no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] flower desktop pig keeps clear of the cat outside a crossing",
+      "ok": true,
+      "minEdgeGapPx": 9.6,
+      "n": 32
+    },
+    {
+      "name": "[chromium] flower desktop any overlap happens only as a back-lane crossing",
+      "ok": true,
+      "overlaps": 17,
+      "minLane": 0.99
+    },
+    {
+      "name": "[chromium] flower desktop pig follows after the reversal (ends up behind her new heading)",
+      "ok": true,
+      "crossed": true
+    },
+    {
+      "name": "[chromium] flower desktop camera keeps both whole sheets in frame",
+      "ok": true,
+      "worstMarginPx": 61.2,
+      "viewW": 320
+    },
+    {
+      "name": "[chromium] flower desktop pig faces its direction of travel",
+      "ok": true,
+      "n": 64
+    },
+    {
+      "name": "[chromium] flower desktop cat faces travel",
+      "ok": true,
+      "n": 49
+    },
+    {
+      "name": "[chromium] flower desktop no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] flower phone pig keeps clear of the cat outside a crossing",
+      "ok": true,
+      "minEdgeGapPx": 9.5,
+      "n": 32
+    },
+    {
+      "name": "[chromium] flower phone any overlap happens only as a back-lane crossing",
+      "ok": true,
+      "overlaps": 18,
+      "minLane": 0.98
+    },
+    {
+      "name": "[chromium] flower phone pig follows after the reversal (ends up behind her new heading)",
+      "ok": true,
+      "crossed": true
+    },
+    {
+      "name": "[chromium] flower phone camera keeps both whole sheets in frame",
+      "ok": true,
+      "worstMarginPx": 10,
+      "viewW": 195
+    },
+    {
+      "name": "[chromium] flower phone pig faces its direction of travel",
+      "ok": true,
+      "n": 64
+    },
+    {
+      "name": "[chromium] flower phone cat faces travel",
+      "ok": true,
+      "n": 49
+    },
+    {
+      "name": "[chromium] flower phone no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] flower phone caption sits below the animals' feet",
+      "ok": true,
+      "feetY": 676,
+      "capTop": 712.6256103515625
+    },
+    {
+      "name": "[chromium] mushroom desktop pig keeps clear of the cat outside a crossing",
+      "ok": true,
+      "minEdgeGapPx": 9.6,
+      "n": 32
+    },
+    {
+      "name": "[chromium] mushroom desktop any overlap happens only as a back-lane crossing",
+      "ok": true,
+      "overlaps": 17,
+      "minLane": 0.98
+    },
+    {
+      "name": "[chromium] mushroom desktop pig follows after the reversal (ends up behind her new heading)",
+      "ok": true,
+      "crossed": true
+    },
+    {
+      "name": "[chromium] mushroom desktop camera keeps both whole sheets in frame",
+      "ok": true,
+      "worstMarginPx": 61.2,
+      "viewW": 320
+    },
+    {
+      "name": "[chromium] mushroom desktop pig faces its direction of travel",
+      "ok": true,
+      "n": 64
+    },
+    {
+      "name": "[chromium] mushroom desktop cat faces travel",
+      "ok": true,
+      "n": 49
+    },
+    {
+      "name": "[chromium] mushroom desktop no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] mushroom phone pig keeps clear of the cat outside a crossing",
+      "ok": true,
+      "minEdgeGapPx": 9.6,
+      "n": 31
+    },
+    {
+      "name": "[chromium] mushroom phone any overlap happens only as a back-lane crossing",
+      "ok": true,
+      "overlaps": 18,
+      "minLane": 0.98
+    },
+    {
+      "name": "[chromium] mushroom phone pig follows after the reversal (ends up behind her new heading)",
+      "ok": true,
+      "crossed": true
+    },
+    {
+      "name": "[chromium] mushroom phone camera keeps both whole sheets in frame",
+      "ok": true,
+      "worstMarginPx": 10,
+      "viewW": 195
+    },
+    {
+      "name": "[chromium] mushroom phone pig faces its direction of travel",
+      "ok": true,
+      "n": 63
+    },
+    {
+      "name": "[chromium] mushroom phone cat faces travel",
+      "ok": true,
+      "n": 48
+    },
+    {
+      "name": "[chromium] mushroom phone no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] mushroom phone caption sits below the animals' feet",
+      "ok": true,
+      "feetY": 676,
+      "capTop": 712.6256103515625
+    },
+    {
+      "name": "[chromium] woods: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] home front floor edge clears the toolbar and drawer",
+      "ok": true,
+      "frontY": 585,
+      "toolsTop": 604,
+      "drawerTop": 646
+    },
+    {
+      "name": "[chromium] home all floor corners on screen",
+      "ok": true
+    },
+    {
+      "name": "[chromium] home drawer thumbs rendered from the placed meshes",
+      "ok": true,
+      "n": 18
+    },
+    {
+      "name": "[chromium] home chip tap + floor tap places a sofa",
+      "ok": true,
+      "items": [
+        {
+          "kind": "sofa",
+          "x": -0.6000000000000001,
+          "z": 1.2000000000000002,
+          "yaw": 0
+        }
+      ]
+    },
+    {
+      "name": "[chromium] home collision rejects a second sofa on the same spot (UI path), red footprint, chip stays armed",
+      "ok": true,
+      "n": 1,
+      "armed": {
+        "chip": true,
+        "st": {
+          "ghost": false,
+          "ghostKind": null,
+          "ghostAt": null,
+          "blocked": true,
+          "blockedAt": {
+            "x": -0.6000000000000001,
+            "z": 1.2000000000000002,
+            "hw": 1.02,
+            "hd": 0.48
+          }
+        }
+      }
+    },
+    {
+      "name": "[chromium] home drag moves the sofa from near to far (z decreases)",
+      "ok": true,
+      "from": 1.2000000000000002,
+      "to": -1.8
+    },
+    {
+      "name": "[chromium] home drag moves it back from far to near (z increases)",
+      "ok": true,
+      "from": -1.8,
+      "to": 1.6
+    },
+    {
+      "name": "[chromium] home rotate button turns the selected sofa 90°",
+      "ok": true,
+      "yaw": 90,
+      "selOn": true
+    },
+    {
+      "name": "[chromium] home piece toolbar clear of the save row",
+      "ok": true,
+      "selBottom": 357,
+      "toolsTop": 604
+    },
+    {
+      "name": "[chromium] home orbit drag turns the camera",
+      "ok": true,
+      "az0": 0.22,
+      "az1": 0.55
+    },
+    {
+      "name": "[chromium] home wheel zooms in",
+      "ok": true,
+      "zoom0": 1,
+      "zoom1": 0.74
+    },
+    {
+      "name": "[chromium] home demo furnishing places every piece (no collisions in the demo layout)",
+      "ok": true,
+      "n": 17
+    },
+    {
+      "name": "[chromium] home every solid mesh lies inside its collision footprint",
+      "ok": true,
+      "outside": []
+    },
+    {
+      "name": "[chromium] home no two solid meshes intersect in the furnished room",
+      "ok": true,
+      "hits": []
+    },
+    {
+      "name": "[chromium] home adult proportions: queen bed ≥ 2.0 × 1.6 m and longer than the sofa; sofa ≤ 2.1 m; table top ~0.75 m",
+      "ok": true,
+      "bed": {
+        "long": 2.15,
+        "short": 1.76,
+        "h": 1.15
+      },
+      "sofa": {
+        "long": 2.02,
+        "short": 0.86,
+        "h": 0.88
+      },
+      "table": {
+        "long": 1.5,
+        "short": 0.97,
+        "h": 0.97
+      },
+      "chair": {
+        "long": 0.44,
+        "short": 0.44,
+        "h": 0.96
+      }
+    },
+    {
+      "name": "[chromium] home save writes v2 layout {kind,x,z,yaw}",
+      "ok": true,
+      "n": 17
+    },
+    {
+      "name": "[chromium] home reload restores exactly the saved pieces",
+      "ok": true,
+      "n": 17
+    },
+    {
+      "name": "[chromium] home no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] home phone: touch tap on chip then floor places a piece",
+      "ok": true,
+      "tItems": [
+        {
+          "kind": "armchair",
+          "x": 0.4,
+          "z": 1,
+          "yaw": 0
+        }
+      ]
+    },
+    {
+      "name": "[chromium] home phone: floor above the drawer, clear of the tool column",
+      "ok": true,
+      "front": 314.9959489986621,
+      "drawerTop": 328,
+      "toolsLeft": 737.1875,
+      "rightX": 593.2696081745294
+    },
+    {
+      "name": "[chromium] home editor: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] home-block arming a chip never shows the preview at its stale spot (on the sofa just placed)",
+      "ok": true,
+      "fresh": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "name": "[chromium] home-block armed table over the sofa: no solid preview inside it, red blocked footprint instead",
+      "ok": true,
+      "ghost": false,
+      "ghostKind": null,
+      "ghostAt": null,
+      "blocked": true,
+      "blockedAt": {
+        "x": -0.4,
+        "z": -0.6000000000000001,
+        "hw": 0.78,
+        "hd": 0.5
+      }
+    },
+    {
+      "name": "[chromium] home-block tapping the blocked spot places nothing",
+      "ok": true,
+      "n": 1
+    },
+    {
+      "name": "[chromium] home-block valid spot: preview shown, no red footprint",
+      "ok": true,
+      "ghost": true,
+      "ghostKind": "table",
+      "ghostAt": {
+        "x": 1.8,
+        "z": 2
+      },
+      "blocked": false,
+      "blockedAt": null
+    },
+    {
+      "name": "[chromium] home-block valid drag near → far drops the table at the back",
+      "ok": true,
+      "kind": "table",
+      "x": 1.8,
+      "z": -1.6,
+      "yaw": 0
+    },
+    {
+      "name": "[chromium] home-block drag into the sofa: red footprint shows, the table stays outside it, and nothing intersects after release",
+      "ok": true,
+      "pushed": true,
+      "overlapDuring": false,
+      "overlapAfter": false,
+      "table": {
+        "x": 1.4000000000000001,
+        "z": -1.4000000000000001
+      }
+    },
+    {
+      "name": "[chromium] home-block no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] home blocked: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] film without a committed film: save → end card, no <video>, no 再看一遍",
+      "ok": true,
+      "phase": "end",
+      "film": "none",
+      "video": false,
+      "replayVisible": false,
+      "finale": true,
+      "editVisible": true
+    },
+    {
+      "name": "[chromium] film the 200-day film is never requested by /home/",
+      "ok": true,
+      "n": 0
+    },
+    {
+      "name": "[chromium] film 继续布置 returns the same saved pieces",
+      "ok": true,
+      "back": [
+        {
+          "kind": "sofa",
+          "x": 0,
+          "z": -1.6,
+          "yaw": 0
+        }
+      ]
+    },
+    {
+      "name": "[chromium] film player: playsinline + webkit-playsinline, poster, muted start",
+      "ok": true,
+      "src": "http://127.0.0.1:8833/media/future-home.mp4",
+      "playsinline": true,
+      "webkit": true,
+      "mutedAtStart": true,
+      "poster": "http://127.0.0.1:8833/media/future-home-poster.jpg"
+    },
+    {
+      "name": "[chromium] film player: plays (fixture), phase video",
+      "ok": true,
+      "st": "playing",
+      "t": 2.32816,
+      "phase": "video",
+      "first": "playing"
+    },
+    {
+      "name": "[chromium] film player: the site sound switch drives the film mute state",
+      "ok": true,
+      "mutedAfterToggle": false
+    },
+    {
+      "name": "[chromium] film player: ended → end card with 再看一遍",
+      "ok": true,
+      "phase": "end",
+      "replay": true,
+      "video": false
+    },
+    {
+      "name": "[chromium] film player: 再看一遍 restarts from the first frame",
+      "ok": true,
+      "phase": "video",
+      "t": 0
+    },
+    {
+      "name": "[chromium] film player: 继续布置 after the film returns the same saved pieces",
+      "ok": true
+    },
+    {
+      "name": "[chromium] film film is identical for any layout (same source for layout A and B)",
+      "ok": true,
+      "srcs": [
+        "media/future-home.mp4",
+        "media/future-home.mp4"
+      ]
+    },
+    {
+      "name": "[chromium] film player: refused autoplay shows 轻触播放 and a tap starts the film",
+      "ok": true,
+      "tapShown": {
+        "st": "tap",
+        "visible": "1"
+      },
+      "after": "playing"
+    },
+    {
+      "name": "[chromium] film burned-in lines: no page caption over the film, no second finale after it, buttons stay",
+      "ok": true,
+      "lineSeen": false,
+      "phase": "end",
+      "finaleOn": false,
+      "edit": true,
+      "replay": true
+    },
+    {
+      "name": "[chromium] film fixtures: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] real-film the three media files load from the site base (json, poster, mp4 range)",
+      "ok": true,
+      "net": [
+        {
+          "url": "/media/future-home.json",
+          "status": 200
+        },
+        {
+          "url": "/media/future-home-poster.jpg",
+          "status": 200
+        },
+        {
+          "url": "/media/future-home.mp4",
+          "status": 206
+        }
+      ]
+    },
+    {
+      "name": "[chromium] real-film /home/ never requests the 200-day film",
+      "ok": true
+    },
+    {
+      "name": "[chromium] real-film H.264 1920×1080 decodes and plays: currentTime and decoded frames advance, picture is not blank",
+      "ok": true,
+      "p1": {
+        "t": 2.13,
+        "paused": false,
+        "muted": true,
+        "w": 1920,
+        "h": 1080,
+        "ready": 4,
+        "err": null,
+        "frames": 54,
+        "dropped": 1,
+        "audioBytes": 47574,
+        "videoBytes": 40808,
+        "lum": 233.6,
+        "spread": 193,
+        "state": "playing",
+        "phase": "video",
+        "src": "/media/future-home.mp4"
+      },
+      "p2": {
+        "t": 4.65,
+        "paused": false,
+        "muted": true,
+        "w": 1920,
+        "h": 1080,
+        "ready": 4,
+        "err": null,
+        "frames": 115,
+        "dropped": 1,
+        "audioBytes": 98040,
+        "videoBytes": 1255507,
+        "lum": 64.5,
+        "spread": 238,
+        "state": "playing",
+        "phase": "video",
+        "src": "/media/future-home.mp4"
+      }
+    },
+    {
+      "name": "[chromium] real-film burned-in first line: no page caption on top of the film",
+      "ok": true,
+      "lineOn": false
+    },
+    {
+      "name": "[chromium] real-film sound switch → film unmuted, its AAC track decodes (video element is the clock)",
+      "ok": true,
+      "muted": false,
+      "audioBytes": 130458
+    },
+    {
+      "name": "[chromium] real-film skip / sound controls do not cover the burned text bands",
+      "ok": true,
+      "bands": [
+        {
+          "top": 237.60000000000002,
+          "bottom": 396.00000000000006,
+          "left": 192,
+          "right": 1088
+        },
+        {
+          "top": 86.39999999999999,
+          "bottom": 302.4,
+          "left": 192,
+          "right": 1088
+        }
+      ],
+      "ctrls": [
+        {
+          "sel": ".hm-skip",
+          "top": 660,
+          "bottom": 704,
+          "left": 1199.671875,
+          "right": 1264
+        },
+        {
+          "sel": ".gift-chrome",
+          "top": 22.515625,
+          "bottom": 62.515625,
+          "left": 1105.359375,
+          "right": 1251.328125
+        }
+      ]
+    },
+    {
+      "name": "[chromium] real-film tab hidden pauses the film; on return a tap resumes it (visibility simulated)",
+      "ok": true,
+      "hid": "paused",
+      "back": "tap",
+      "resumed": "playing",
+      "t": [
+        6.25,
+        7.47
+      ]
+    },
+    {
+      "name": "[chromium] real-film played to the end: end card with 再看一遍 / 继续布置, no second finale text over the burned one",
+      "ok": true,
+      "phase": "end",
+      "finaleText": false,
+      "replay": true,
+      "edit": true,
+      "video": false
+    },
+    {
+      "name": "[chromium] real-film 再看一遍 restarts from the beginning and decodes again",
+      "ok": true,
+      "r1": {
+        "t": 0.05,
+        "frames": 4
+      },
+      "r2": {
+        "t": 1.58,
+        "frames": 42
+      }
+    },
+    {
+      "name": "[chromium] real-film 跳过 mid-film → end card shows the finale line (not yet seen in the film)",
+      "ok": true,
+      "phase": "end",
+      "finaleText": true,
+      "video": false
+    },
+    {
+      "name": "[chromium] real-film 继续布置 after the film returns the same saved pieces",
+      "ok": true,
+      "back2": [
+        {
+          "kind": "sofa",
+          "x": 0,
+          "z": -1.6,
+          "yaw": 0
+        },
+        {
+          "kind": "bed",
+          "x": 2.8000000000000003,
+          "z": -2,
+          "yaw": 180
+        }
+      ]
+    },
+    {
+      "name": "[chromium] real-film no page errors / video errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[chromium] real-film phone landscape (touch): refused autoplay → 轻触播放 → tap → real frames play, contained",
+      "ok": true,
+      "st0": "tap",
+      "st1": {
+        "t": 2.01,
+        "frames": 52
+      },
+      "f1": {
+        "w": 844,
+        "h": 390,
+        "vw": 844,
+        "vh": 390,
+        "fit": "contain"
+      }
+    },
+    {
+      "name": "[chromium] real-film turned to portrait: keeps playing, whole picture still visible (contain)",
+      "ok": true,
+      "t": 3.69,
+      "f2": {
+        "w": 390,
+        "h": 844,
+        "vw": 390,
+        "vh": 844,
+        "fit": "contain"
+      }
+    },
+    {
+      "name": "[chromium] real film: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] meadow door -> shop",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/shop/?lang=zh&from=meadow"
+    },
+    {
+      "name": "[webkit] shop dark door -> night",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/night/?lang=zh&from=shop"
+    },
+    {
+      "name": "[webkit] shop ?at=lit does not skip to jelly",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/shop/?lang=zh&at=lit"
+    },
+    {
+      "name": "[webkit] night kawaii continue -> jelly",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/jelly/?lang=zh&from=night"
+    },
+    {
+      "name": "[webkit] jelly 入海 visible without the egg",
+      "ok": true,
+      "egg": "present-optional",
+      "seaVisible": true
+    },
+    {
+      "name": "[webkit] jelly 入海 -> sea",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/sea/?lang=zh&from=jelly"
+    },
+    {
+      "name": "[webkit] sky film control present (optional)",
+      "ok": true
+    },
+    {
+      "name": "[webkit] sky next without film -> coop",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/coop/?lang=zh&from=sky&hz=0.628"
+    },
+    {
+      "name": "[webkit] coop 往前走走 -> flower",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/flower/?lang=zh&from=coop"
+    },
+    {
+      "name": "[webkit] flower exit -> mushroom",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/mushroom/?lang=zh&from=flower"
+    },
+    {
+      "name": "[webkit] mushroom exit -> home",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/home/?lang=zh&from=mushroom"
+    },
+    {
+      "name": "[webkit] AR returns to shop",
+      "ok": true,
+      "url": "http://127.0.0.1:8833/shop/?lang=zh&from=ar&ex=figure-pig"
+    },
+    {
+      "name": "[webkit] curtain skip from shop points at night",
+      "ok": true,
+      "skip": "../night/?lang=zh"
+    },
+    {
+      "name": "[webkit] no unexplained uncaught page errors during the hops",
+      "ok": true,
+      "unexplained": [],
+      "navAbortOnly": [
+        "/127.0.0.1:8833/models/figure-pig.glb due to access control checks.",
+        "/127.0.0.1:8833/assets/worker-Cs6hxqL-.js due to access control checks.",
+        "/127.0.0.1:8833/models/figure-pig.glb due to access control checks."
+      ]
+    },
+    {
+      "name": "[webkit] settled coop solo (wake lock refused): no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] settled shop: no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] settled shop with figure-pig.glb aborted (offline / leaving): no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] settled shop back from AR with the model aborted: no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] settled jelly: no uncaught page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] flower desktop pig keeps clear of the cat outside a crossing",
+      "ok": true,
+      "minEdgeGapPx": 9.8,
+      "n": 36
+    },
+    {
+      "name": "[webkit] flower desktop any overlap happens only as a back-lane crossing",
+      "ok": true,
+      "overlaps": 19,
+      "minLane": 0.97
+    },
+    {
+      "name": "[webkit] flower desktop pig follows after the reversal (ends up behind her new heading)",
+      "ok": true,
+      "crossed": true
+    },
+    {
+      "name": "[webkit] flower desktop camera keeps both whole sheets in frame",
+      "ok": true,
+      "worstMarginPx": 61.2,
+      "viewW": 320
+    },
+    {
+      "name": "[webkit] flower desktop pig faces its direction of travel",
+      "ok": true,
+      "n": 68
+    },
+    {
+      "name": "[webkit] flower desktop cat faces travel",
+      "ok": true,
+      "n": 53
+    },
+    {
+      "name": "[webkit] flower desktop no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] flower phone pig keeps clear of the cat outside a crossing",
+      "ok": true,
+      "minEdgeGapPx": 9.5,
+      "n": 36
+    },
+    {
+      "name": "[webkit] flower phone any overlap happens only as a back-lane crossing",
+      "ok": true,
+      "overlaps": 20,
+      "minLane": 0.97
+    },
+    {
+      "name": "[webkit] flower phone pig follows after the reversal (ends up behind her new heading)",
+      "ok": true,
+      "crossed": true
+    },
+    {
+      "name": "[webkit] flower phone camera keeps both whole sheets in frame",
+      "ok": true,
+      "worstMarginPx": 10,
+      "viewW": 195
+    },
+    {
+      "name": "[webkit] flower phone pig faces its direction of travel",
+      "ok": true,
+      "n": 67
+    },
+    {
+      "name": "[webkit] flower phone cat faces travel",
+      "ok": true,
+      "n": 53
+    },
+    {
+      "name": "[webkit] flower phone no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] flower phone caption sits below the animals' feet",
+      "ok": true,
+      "feetY": 676,
+      "capTop": 712.625
+    },
+    {
+      "name": "[webkit] mushroom desktop pig keeps clear of the cat outside a crossing",
+      "ok": true,
+      "minEdgeGapPx": 9.6,
+      "n": 35
+    },
+    {
+      "name": "[webkit] mushroom desktop any overlap happens only as a back-lane crossing",
+      "ok": true,
+      "overlaps": 18,
+      "minLane": 0.98
+    },
+    {
+      "name": "[webkit] mushroom desktop pig follows after the reversal (ends up behind her new heading)",
+      "ok": true,
+      "crossed": true
+    },
+    {
+      "name": "[webkit] mushroom desktop camera keeps both whole sheets in frame",
+      "ok": true,
+      "worstMarginPx": 61.2,
+      "viewW": 320
+    },
+    {
+      "name": "[webkit] mushroom desktop pig faces its direction of travel",
+      "ok": true,
+      "n": 68
+    },
+    {
+      "name": "[webkit] mushroom desktop cat faces travel",
+      "ok": true,
+      "n": 53
+    },
+    {
+      "name": "[webkit] mushroom desktop no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] mushroom phone pig keeps clear of the cat outside a crossing",
+      "ok": true,
+      "minEdgeGapPx": 9.5,
+      "n": 34
+    },
+    {
+      "name": "[webkit] mushroom phone any overlap happens only as a back-lane crossing",
+      "ok": true,
+      "overlaps": 19,
+      "minLane": 0.97
+    },
+    {
+      "name": "[webkit] mushroom phone pig follows after the reversal (ends up behind her new heading)",
+      "ok": true,
+      "crossed": true
+    },
+    {
+      "name": "[webkit] mushroom phone camera keeps both whole sheets in frame",
+      "ok": true,
+      "worstMarginPx": 10,
+      "viewW": 195
+    },
+    {
+      "name": "[webkit] mushroom phone pig faces its direction of travel",
+      "ok": true,
+      "n": 67
+    },
+    {
+      "name": "[webkit] mushroom phone cat faces travel",
+      "ok": true,
+      "n": 53
+    },
+    {
+      "name": "[webkit] mushroom phone no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] mushroom phone caption sits below the animals' feet",
+      "ok": true,
+      "feetY": 676,
+      "capTop": 712.6250610351562
+    },
+    {
+      "name": "[webkit] woods: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] home front floor edge clears the toolbar and drawer",
+      "ok": true,
+      "frontY": 585,
+      "toolsTop": 604,
+      "drawerTop": 646
+    },
+    {
+      "name": "[webkit] home all floor corners on screen",
+      "ok": true
+    },
+    {
+      "name": "[webkit] home drawer thumbs rendered from the placed meshes",
+      "ok": true,
+      "n": 18
+    },
+    {
+      "name": "[webkit] home chip tap + floor tap places a sofa",
+      "ok": true,
+      "items": [
+        {
+          "kind": "sofa",
+          "x": -0.6000000000000001,
+          "z": 1.2000000000000002,
+          "yaw": 0
+        }
+      ]
+    },
+    {
+      "name": "[webkit] home collision rejects a second sofa on the same spot (UI path), red footprint, chip stays armed",
+      "ok": true,
+      "n": 1,
+      "armed": {
+        "chip": true,
+        "st": {
+          "ghost": false,
+          "ghostKind": null,
+          "ghostAt": null,
+          "blocked": true,
+          "blockedAt": {
+            "x": -0.6000000000000001,
+            "z": 1.2000000000000002,
+            "hw": 1.02,
+            "hd": 0.48
+          }
+        }
+      }
+    },
+    {
+      "name": "[webkit] home drag moves the sofa from near to far (z decreases)",
+      "ok": true,
+      "from": 1.2000000000000002,
+      "to": -1.8
+    },
+    {
+      "name": "[webkit] home drag moves it back from far to near (z increases)",
+      "ok": true,
+      "from": -1.8,
+      "to": 1.6
+    },
+    {
+      "name": "[webkit] home rotate button turns the selected sofa 90°",
+      "ok": true,
+      "yaw": 90,
+      "selOn": true
+    },
+    {
+      "name": "[webkit] home piece toolbar clear of the save row",
+      "ok": true,
+      "selBottom": 357,
+      "toolsTop": 604
+    },
+    {
+      "name": "[webkit] home orbit drag turns the camera",
+      "ok": true,
+      "az0": 0.22,
+      "az1": 0.55
+    },
+    {
+      "name": "[webkit] home wheel zooms in",
+      "ok": true,
+      "zoom0": 1,
+      "zoom1": 0.74
+    },
+    {
+      "name": "[webkit] home demo furnishing places every piece (no collisions in the demo layout)",
+      "ok": true,
+      "n": 17
+    },
+    {
+      "name": "[webkit] home every solid mesh lies inside its collision footprint",
+      "ok": true,
+      "outside": []
+    },
+    {
+      "name": "[webkit] home no two solid meshes intersect in the furnished room",
+      "ok": true,
+      "hits": []
+    },
+    {
+      "name": "[webkit] home adult proportions: queen bed ≥ 2.0 × 1.6 m and longer than the sofa; sofa ≤ 2.1 m; table top ~0.75 m",
+      "ok": true,
+      "bed": {
+        "long": 2.15,
+        "short": 1.76,
+        "h": 1.15
+      },
+      "sofa": {
+        "long": 2.02,
+        "short": 0.86,
+        "h": 0.88
+      },
+      "table": {
+        "long": 1.5,
+        "short": 0.97,
+        "h": 0.97
+      },
+      "chair": {
+        "long": 0.44,
+        "short": 0.44,
+        "h": 0.96
+      }
+    },
+    {
+      "name": "[webkit] home save writes v2 layout {kind,x,z,yaw}",
+      "ok": true,
+      "n": 17
+    },
+    {
+      "name": "[webkit] home reload restores exactly the saved pieces",
+      "ok": true,
+      "n": 17
+    },
+    {
+      "name": "[webkit] home no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] home phone: touch tap on chip then floor places a piece",
+      "ok": true,
+      "tItems": [
+        {
+          "kind": "armchair",
+          "x": 0.4,
+          "z": 0.8,
+          "yaw": 0
+        }
+      ]
+    },
+    {
+      "name": "[webkit] home phone: floor above the drawer, clear of the tool column",
+      "ok": true,
+      "front": 314.9959489986621,
+      "drawerTop": 328,
+      "toolsLeft": 737.1875,
+      "rightX": 593.2696081745294
+    },
+    {
+      "name": "[webkit] home editor: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] home-block arming a chip never shows the preview at its stale spot (on the sofa just placed)",
+      "ok": true,
+      "fresh": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "name": "[webkit] home-block armed table over the sofa: no solid preview inside it, red blocked footprint instead",
+      "ok": true,
+      "ghost": false,
+      "ghostKind": null,
+      "ghostAt": null,
+      "blocked": true,
+      "blockedAt": {
+        "x": -0.4,
+        "z": -0.6000000000000001,
+        "hw": 0.78,
+        "hd": 0.5
+      }
+    },
+    {
+      "name": "[webkit] home-block tapping the blocked spot places nothing",
+      "ok": true,
+      "n": 1
+    },
+    {
+      "name": "[webkit] home-block valid spot: preview shown, no red footprint",
+      "ok": true,
+      "ghost": true,
+      "ghostKind": "table",
+      "ghostAt": {
+        "x": 1.8,
+        "z": 1.8
+      },
+      "blocked": false,
+      "blockedAt": null
+    },
+    {
+      "name": "[webkit] home-block valid drag near → far drops the table at the back",
+      "ok": true,
+      "kind": "table",
+      "x": 1.8,
+      "z": -1.8,
+      "yaw": 0
+    },
+    {
+      "name": "[webkit] home-block drag into the sofa: red footprint shows, the table stays outside it, and nothing intersects after release",
+      "ok": true,
+      "pushed": true,
+      "overlapDuring": false,
+      "overlapAfter": false,
+      "table": {
+        "x": 1.4000000000000001,
+        "z": -1.6
+      }
+    },
+    {
+      "name": "[webkit] home-block no page errors",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] home blocked: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] film without a committed film: save → end card, no <video>, no 再看一遍",
+      "ok": true,
+      "phase": "end",
+      "film": "none",
+      "video": false,
+      "replayVisible": false,
+      "finale": true,
+      "editVisible": true
+    },
+    {
+      "name": "[webkit] film the 200-day film is never requested by /home/",
+      "ok": true,
+      "n": 0
+    },
+    {
+      "name": "[webkit] film 继续布置 returns the same saved pieces",
+      "ok": true,
+      "back": [
+        {
+          "kind": "sofa",
+          "x": 0,
+          "z": -1.6,
+          "yaw": 0
+        }
+      ]
+    },
+    {
+      "name": "[webkit] film no H.264 decoder in this build → manifest ignored, end card (playback checks not runnable here)",
+      "ok": true,
+      "phase": "end",
+      "video": false
+    },
+    {
+      "name": "[webkit] film fixtures: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    },
+    {
+      "name": "[webkit] real-film no H.264 in this browser build: real manifest ignored, page lines + end card instead (fallback)",
+      "ok": true,
+      "phase": "end",
+      "video": false,
+      "line": "home.transform",
+      "finale": true
+    },
+    {
+      "name": "[webkit] real-film /home/ never requests the 200-day film",
+      "ok": true
+    },
+    {
+      "name": "[webkit] real film: no uncaught page errors in any context",
+      "ok": true,
+      "errs": []
+    }
+  ],
+  "failed": 0,
+  "total": 194
+}

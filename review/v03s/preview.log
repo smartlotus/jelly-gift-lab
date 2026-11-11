@@ -1,0 +1,104 @@
+06:35:58 save
+06:35:59 line {
+  phase: 'transform',
+  film: 'playing',
+  t: 0.9,
+  d: 67.71,
+  src: '/media/anniv-200.mp4',
+  w: 1280,
+  h: 720,
+  line: true,
+  finale: false
+}
+06:36:05 playing {
+  phase: 'video',
+  film: 'playing',
+  t: 7.02,
+  d: 67.71,
+  src: '/media/anniv-200.mp4',
+  w: 1280,
+  h: 720,
+  line: false,
+  finale: false
+}
+06:36:12 seek (test-only, to shorten the preview) from 14.03 to 59.709999999999994
+06:36:16 near end {
+  phase: 'video',
+  film: 'playing',
+  t: 63.2,
+  d: 67.71,
+  src: '/media/anniv-200.mp4',
+  w: 1280,
+  h: 720,
+  line: false,
+  finale: false
+}
+06:36:25 endcard {
+  phase: 'end',
+  film: 'ready',
+  t: null,
+  d: null,
+  src: null,
+  w: undefined,
+  h: undefined,
+  line: false,
+  finale: true
+}
+06:36:25 replay
+06:36:29 replaying {
+  phase: 'video',
+  film: 'playing',
+  t: 4.47,
+  d: 67.71,
+  src: '/media/anniv-200.mp4',
+  w: 1280,
+  h: 720,
+  line: false,
+  finale: false
+}
+06:36:32 skip → end {
+  phase: 'end',
+  film: 'ready',
+  t: null,
+  d: null,
+  src: null,
+  w: undefined,
+  h: undefined,
+  line: false,
+  finale: true
+}
+06:36:35 继续布置 → room { phase: 'room', n: 5 } pageerrors []
+06:36:41 recording /workspace/jelly-preview-v03s/v03s-anniv-ending-landscape.mp4 45.640000
+06:36:50 phone landscape {
+  phase: 'video',
+  film: 'playing',
+  t: 7.11,
+  d: 67.71,
+  src: '/media/anniv-200.mp4',
+  w: 1280,
+  h: 720,
+  line: false,
+  finale: false
+}
+06:36:52 phone portrait {
+  phase: 'video',
+  film: 'playing',
+  t: 9.74,
+  d: 67.71,
+  src: '/media/anniv-200.mp4',
+  w: 1280,
+  h: 720,
+  line: false,
+  finale: false
+}
+06:36:59 phone portrait end {
+  phase: 'end',
+  film: 'ready',
+  t: null,
+  d: null,
+  src: null,
+  w: undefined,
+  h: undefined,
+  line: false,
+  finale: true
+}

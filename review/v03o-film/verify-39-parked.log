@@ -1,0 +1,42 @@
+PASS meadow door -> shop {"url":"http://127.0.0.1:8833/shop/?lang=zh&from=meadow","from":"/127.0.0.1:8833/?lang=zh"}
+PASS shop dark door -> night {"url":"http://127.0.0.1:8833/night/?lang=zh&from=shop","from":"33/shop/?lang=zh&at=door"}
+PASS shop ?at=lit does not skip to jelly {"url":"http://127.0.0.1:8833/shop/?lang=zh&at=lit"}
+PASS night kawaii continue -> jelly {"url":"http://127.0.0.1:8833/jelly/?lang=zh&from=night","from":"night/?lang=zh&at=kawaii"}
+PASS jelly 入海 exists outside egg {"egg":"present-optional"}
+PASS jelly 入海 -> sea {"url":"http://127.0.0.1:8833/sea/?lang=zh&from=jelly"}
+PASS sky film control present (optional) 
+PASS sky next without film -> coop {"url":"http://127.0.0.1:8833/coop/?lang=zh&from=sky&hz=0.592","from":"lang=zh&from=sea&hz=0.66"}
+PASS coop 往前走走 -> flower {"url":"http://127.0.0.1:8833/flower/?lang=zh&from=coop","from":"p/?lang=zh&solo&from=sky"}
+PASS flower exit -> mushroom {"url":"http://127.0.0.1:8833/mushroom/?lang=zh&from=flower","from":"0.1:8833/flower/?lang=zh"}
+PASS mushroom exit -> home {"url":"http://127.0.0.1:8833/home/?lang=zh&from=mushroom","from":"1:8833/mushroom/?lang=zh"}
+PASS AR returns to shop {"url":"http://127.0.0.1:8833/shop/?lang=zh&from=ar&ex=figure-pig"}
+PASS curtain skip from shop points at night {"skip":"../night/?lang=zh"}
+PASS stage boots meadow {"stage":"meadow","errs":[]}
+PASS stage boots shop/ {"stage":"shop","errs":[]}
+PASS stage boots night/ {"stage":"night","errs":[]}
+PASS stage boots jelly/ {"stage":"jelly","errs":[]}
+PASS stage boots sea/ {"stage":"sea","errs":[]}
+PASS stage boots sky/ {"stage":"sky","errs":[]}
+PASS stage boots coop/ {"stage":"coop","errs":[]}
+PASS stage boots flower/ {"stage":"flower","errs":[]}
+PASS stage boots mushroom/ {"stage":"mushroom","errs":[]}
+PASS stage boots home/ {"stage":"home","errs":[]}
+PASS stage boots ar/ {"stage":"ar","errs":[]}
+PASS flower pig follows (not parked) {"gaps":[62.4,67.8,68.2,68.1,68,67.9,67.9,67.9,67.9,67.9],"parked":false}
+PASS flower pig gap comfortable {"min":62.4,"max":68.2}
+PASS flower pig does not overlap/trap cat {"closest":62.4}
+PASS mushroom pig follows (not parked) {"gaps":[61.4,66.5,68.1,68.2,68,67.9,67.9,67.9,67.9,67.9],"parked":false}
+PASS mushroom pig gap comfortable {"min":61.4,"max":68.2}
+PASS mushroom pig does not overlap/trap cat {"closest":61.4}
+PASS home empty webgl canvas {"canvas":true,"n":0,"hit":{"x":-0.006311673408016194,"z":-0.1782250681320443},"phase":"room"}
+PASS home empty raycast hits floor {"x":-0.006311673408016194,"z":-0.1782250681320443}
+PASS home place sofa {"n":1}
+PASS home collision rejects overlapping sofa {"overlap":false}
+PASS home rotate 90 {"yaw":90,"rotated":true}
+PASS editor layout persists on reload {"n":3,"kinds":["sofa","rug","table"]}
+PASS film disabled (FILM_ENABLED=false) — independence checks skipped 
+diff fail 
+PASS save leaves editor into transform/film/end {"phaseAfterSave":"end","beforeSave":6}
+PASS edit returns persisted layout {"phase":"room","n":6}
+
+39/39 passed, 0 failed

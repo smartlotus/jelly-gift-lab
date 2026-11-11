@@ -1,0 +1,231 @@
+PASS [chromium] meadow door -> shop {"url":"http://127.0.0.1:8833/shop/?lang=zh&from=meadow"}
+requestfailed {"page":"http://127.0.0.1:8833/shop/?lang=zh&from=meadow","req":"http://127.0.0.1:8833/assets/NotoSerifSC-sub-B6z6hsDI.woff2","err":"net::ERR_ABORTED"}
+PASS [chromium] shop dark door -> night {"url":"http://127.0.0.1:8833/night/?lang=zh&from=shop"}
+PASS [chromium] shop ?at=lit does not skip to jelly {"url":"http://127.0.0.1:8833/shop/?lang=zh&at=lit"}
+console warning {"page":"http://127.0.0.1:8833/jelly/?lang=zh&from=night","text":"No available adapters."}
+PASS [chromium] night kawaii continue -> jelly {"url":"http://127.0.0.1:8833/jelly/?lang=zh&from=night"}
+requestfailed {"page":"http://127.0.0.1:8833/jelly/?lang=zh&from=night","req":"http://127.0.0.1:8833/jelly/assets/pig/lo.bin","err":"net::ERR_ABORTED"}
+requestfailed {"page":"http://127.0.0.1:8833/jelly/?lang=zh&from=night","req":"http://127.0.0.1:8833/assets/worker-Cs6hxqL-.js","err":"net::ERR_ABORTED"}
+console warning {"page":"http://127.0.0.1:8833/jelly/?lang=zh","text":"No available adapters."}
+PASS [chromium] jelly 入海 visible without the egg {"egg":"present-optional","seaVisible":true}
+PASS [chromium] jelly 入海 -> sea {"url":"http://127.0.0.1:8833/sea/?lang=zh&from=jelly"}
+PASS [chromium] sky film control present (optional) 
+PASS [chromium] sky next without film -> coop {"url":"http://127.0.0.1:8833/coop/?lang=zh&from=sky&hz=0.629"}
+requestfailed {"page":"http://127.0.0.1:8833/coop/?lang=zh&from=sky&hz=0.629","req":"http://127.0.0.1:8833/assets/NotoSerifSC-sub-B6z6hsDI.woff2","err":"net::ERR_ABORTED"}
+PASS [chromium] coop 往前走走 -> flower {"url":"http://127.0.0.1:8833/flower/?lang=zh&from=coop"}
+PASS [chromium] flower exit -> mushroom {"url":"http://127.0.0.1:8833/mushroom/?lang=zh&from=flower"}
+PASS [chromium] mushroom exit -> home {"url":"http://127.0.0.1:8833/home/?lang=zh&from=mushroom"}
+PASS [chromium] AR returns to shop {"url":"http://127.0.0.1:8833/shop/?lang=zh&from=ar&ex=figure-pig"}
+requestfailed {"page":"http://127.0.0.1:8833/shop/?lang=zh&from=ar&ex=figure-pig","req":"http://127.0.0.1:8833/models/figure-pig.glb","err":"net::ERR_ABORTED"}
+requestfailed {"page":"http://127.0.0.1:8833/shop/?lang=zh&from=ar&ex=figure-pig","req":"http://127.0.0.1:8833/assets/NotoSerifSC-sub-B6z6hsDI.woff2","err":"net::ERR_ABORTED"}
+PASS [chromium] curtain skip from shop points at night {"skip":"../night/?lang=zh"}
+PASS [chromium] no unexplained uncaught page errors during the hops {"unexplained":[],"navAbortOnly":[]}
+PASS [chromium] settled coop solo (wake lock refused): no uncaught page errors {"errs":[]}
+PASS [chromium] settled shop: no uncaught page errors {"errs":[]}
+PASS [chromium] settled shop with figure-pig.glb aborted (offline / leaving): no uncaught page errors {"errs":[]}
+PASS [chromium] settled shop back from AR with the model aborted: no uncaught page errors {"errs":[]}
+PASS [chromium] settled jelly: no uncaught page errors {"errs":[]}
+PASS [chromium] flower desktop pig keeps clear of the cat outside a crossing {"minEdgeGapPx":9.6,"n":33}
+PASS [chromium] flower desktop any overlap happens only as a back-lane crossing {"overlaps":17,"minLane":0.98}
+PASS [chromium] flower desktop pig follows after the reversal (ends up behind her new heading) {"crossed":true}
+PASS [chromium] flower desktop camera keeps both whole sheets in frame {"worstMarginPx":61.2,"viewW":320}
+PASS [chromium] flower desktop pig faces its direction of travel {"n":64}
+PASS [chromium] flower desktop cat faces travel {"n":49}
+PASS [chromium] flower desktop no page errors {"errs":[]}
+PASS [chromium] flower phone pig keeps clear of the cat outside a crossing {"minEdgeGapPx":9.4,"n":32}
+PASS [chromium] flower phone any overlap happens only as a back-lane crossing {"overlaps":17,"minLane":0.98}
+PASS [chromium] flower phone pig follows after the reversal (ends up behind her new heading) {"crossed":true}
+PASS [chromium] flower phone camera keeps both whole sheets in frame {"worstMarginPx":10,"viewW":195}
+PASS [chromium] flower phone pig faces its direction of travel {"n":63}
+PASS [chromium] flower phone cat faces travel {"n":48}
+PASS [chromium] flower phone no page errors {"errs":[]}
+PASS [chromium] flower phone caption sits below the animals' feet {"feetY":676,"capTop":712.62744140625}
+PASS [chromium] mushroom desktop pig keeps clear of the cat outside a crossing {"minEdgeGapPx":9.6,"n":32}
+PASS [chromium] mushroom desktop any overlap happens only as a back-lane crossing {"overlaps":18,"minLane":0.98}
+PASS [chromium] mushroom desktop pig follows after the reversal (ends up behind her new heading) {"crossed":true}
+PASS [chromium] mushroom desktop camera keeps both whole sheets in frame {"worstMarginPx":61.2,"viewW":320}
+PASS [chromium] mushroom desktop pig faces its direction of travel {"n":64}
+PASS [chromium] mushroom desktop cat faces travel {"n":49}
+PASS [chromium] mushroom desktop no page errors {"errs":[]}
+PASS [chromium] mushroom phone pig keeps clear of the cat outside a crossing {"minEdgeGapPx":9.6,"n":32}
+PASS [chromium] mushroom phone any overlap happens only as a back-lane crossing {"overlaps":18,"minLane":0.98}
+PASS [chromium] mushroom phone pig follows after the reversal (ends up behind her new heading) {"crossed":true}
+PASS [chromium] mushroom phone camera keeps both whole sheets in frame {"worstMarginPx":10,"viewW":195}
+PASS [chromium] mushroom phone pig faces its direction of travel {"n":64}
+PASS [chromium] mushroom phone cat faces travel {"n":49}
+PASS [chromium] mushroom phone no page errors {"errs":[]}
+PASS [chromium] mushroom phone caption sits below the animals' feet {"feetY":676,"capTop":712.6256103515625}
+PASS [chromium] woods: no uncaught page errors in any context {"errs":[]}
+PASS [chromium] home front floor edge clears the toolbar and drawer {"frontY":585,"toolsTop":604,"drawerTop":646}
+PASS [chromium] home all floor corners on screen 
+PASS [chromium] home drawer thumbs rendered from the placed meshes {"n":18}
+PASS [chromium] home chip tap + floor tap places a sofa {"items":[{"kind":"sofa","x":-0.6000000000000001,"z":1.2000000000000002,"yaw":0}]}
+PASS [chromium] home collision rejects a second sofa on the same spot (UI path), red footprint, chip stays armed {"n":1,"armed":{"chip":true,"st":{"ghost":false,"ghostKind":null,"ghostAt":null,"blocked":true,"blockedAt":{"x":-0.6000000000000001,"z":1.2000000000000002,"hw":1.02,"hd":0.48}}}}
+PASS [chromium] home drag moves the sofa from near to far (z decreases) {"from":1.2000000000000002,"to":-1.8}
+PASS [chromium] home drag moves it back from far to near (z increases) {"from":-1.8,"to":1.6}
+PASS [chromium] home rotate button turns the selected sofa 90° {"yaw":90,"selOn":true}
+PASS [chromium] home piece toolbar clear of the save row {"selBottom":357,"toolsTop":604}
+PASS [chromium] home orbit drag turns the camera {"az0":0.22,"az1":0.55}
+PASS [chromium] home wheel zooms in {"zoom0":1,"zoom1":0.74}
+PASS [chromium] home demo furnishing places every piece (no collisions in the demo layout) {"n":17}
+PASS [chromium] home every solid mesh lies inside its collision footprint {"outside":[]}
+PASS [chromium] home no two solid meshes intersect in the furnished room {"hits":[]}
+PASS [chromium] home adult proportions: queen bed ≥ 2.0 × 1.6 m and longer than the sofa; sofa ≤ 2.1 m; table top ~0.75 m {"bed":{"long":2.15,"short":1.76,"h":1.15},"sofa":{"long":2.02,"short":0.86,"h":0.88},"table":{"long":1.5,"short":0.97,"h":0.97},"chair":{"long":0.44,"short":0.44,"h":0.96}}
+PASS [chromium] home save writes v2 layout {kind,x,z,yaw} {"n":17}
+PASS [chromium] home reload restores exactly the saved pieces {"n":17}
+PASS [chromium] home no page errors {"errs":[]}
+PASS [chromium] home phone: touch tap on chip then floor places a piece {"tItems":[{"kind":"armchair","x":0.4,"z":1,"yaw":0}]}
+PASS [chromium] home phone: floor above the drawer, clear of the tool column {"front":314.9959489986621,"drawerTop":328,"toolsLeft":737.1875,"rightX":593.2696081745294}
+PASS [chromium] home editor: no uncaught page errors in any context {"errs":[]}
+PASS [chromium] home-block arming a chip never shows the preview at its stale spot (on the sofa just placed) {"fresh":[false,false,false,false,false,false,false,false]}
+PASS [chromium] home-block armed table over the sofa: no solid preview inside it, red blocked footprint instead {"ghost":false,"ghostKind":null,"ghostAt":null,"blocked":true,"blockedAt":{"x":-0.4,"z":-0.6000000000000001,"hw":0.78,"hd":0.5}}
+PASS [chromium] home-block tapping the blocked spot places nothing {"n":1}
+PASS [chromium] home-block valid spot: preview shown, no red footprint {"ghost":true,"ghostKind":"table","ghostAt":{"x":1.8,"z":2},"blocked":false,"blockedAt":null}
+PASS [chromium] home-block valid drag near → far drops the table at the back {"kind":"table","x":1.8,"z":-1.6,"yaw":0}
+PASS [chromium] home-block drag into the sofa: red footprint shows, the table stays outside it, and nothing intersects after release {"pushed":true,"overlapDuring":false,"overlapAfter":false,"table":{"x":1.4000000000000001,"z":-1.4000000000000001}}
+PASS [chromium] home-block no page errors {"errs":[]}
+PASS [chromium] home blocked: no uncaught page errors in any context {"errs":[]}
+PASS [chromium] film without a committed film: save → end card, no <video>, no 再看一遍 {"phase":"end","film":"none","video":false,"replayVisible":false,"finale":true,"editVisible":true}
+PASS [chromium] film without a manifest no film MP4 is requested by /home/ {"n":0}
+PASS [chromium] film 继续布置 returns the same saved pieces {"back":[{"kind":"sofa","x":0,"z":-1.6,"yaw":0}]}
+PASS [chromium] film player: playsinline + webkit-playsinline, poster, muted start {"src":"http://127.0.0.1:8833/media/future-home.mp4","playsinline":true,"webkit":true,"mutedAtStart":true,"poster":"http://127.0.0.1:8833/media/future-home-poster.jpg"}
+PASS [chromium] film player: plays (fixture), phase video {"st":"playing","t":2.343705,"phase":"video","first":"playing"}
+PASS [chromium] film player: the site sound switch drives the film mute state {"mutedAfterToggle":false}
+PASS [chromium] film player: ended → end card with 再看一遍 {"phase":"end","replay":true,"video":false}
+PASS [chromium] film player: 再看一遍 restarts from the first frame {"phase":"video","t":0}
+PASS [chromium] film player: 继续布置 after the film returns the same saved pieces 
+PASS [chromium] film film is identical for any layout (same source for layout A and B) {"srcs":["media/future-home.mp4","media/future-home.mp4"]}
+PASS [chromium] film player: refused autoplay shows 轻触播放 and a tap starts the film {"tapShown":{"st":"tap","visible":"1"},"after":"playing"}
+PASS [chromium] film burned-in lines: no page caption over the film, no second finale after it, buttons stay {"lineSeen":false,"phase":"end","finaleOn":false,"edit":true,"replay":true}
+PASS [chromium] film fixtures: no uncaught page errors in any context {"errs":[]}
+PASS [chromium] real-film the three media files load from the site base (ending-film.json, anniv-200 poster, anniv-200.mp4 range) {"net":[{"url":"/media/ending-film.json","status":200},{"url":"/media/anniv-200-poster.jpg","status":200},{"url":"/media/anniv-200.mp4","status":206}]}
+PASS [chromium] real-film /home/ no longer requests the v4 future-home film 
+PASS [chromium] real-film H.264 1920×1080 (t36: the complete 200-day film, v2 成片 67.712 s) decodes and plays: currentTime and decoded frames advance, picture is not blank {"p1":{"t":2.1,"dur":67.712,"paused":false,"muted":true,"w":1920,"h":1080,"ready":4,"err":null,"frames":66,"dropped":0,"audioBytes":48972,"videoBytes":837923,"lum":245.6,"spread":251,"state":"playing","phase":"video","src":"/media/anniv-200.mp4"},"p2":{"t":4.62,"dur":67.712,"paused":false,"muted":true,"w":1920,"h":1080,"ready":4,"err":null,"frames":142,"dropped":0,"audioBytes":94868,"videoBytes":2
+PASS [chromium] real-film t35: no words before the film (save → paper → film, no 也许有一天… line) {"lineOn":false}
+PASS [chromium] real-film no page text over the playing film {"quiet":true}
+PASS [chromium] real-film sound switch → film unmuted, its AAC track decodes (video element is the clock) {"muted":false,"audioBytes":122445}
+PASS [chromium] real-film skip / sound controls do not cover the film title band {"bands":[{"top":108,"bottom":360,"left":192,"right":1088}],"ctrls":[{"sel":".hm-skip","top":660,"bottom":704,"left":1199.671875,"right":1264},{"sel":".gift-chrome","top":22.515625,"bottom":62.515625,"left":1105.359375,"right":1251.328125}]}
+PASS [chromium] real-film tab hidden pauses the film; on return a tap resumes it (visibility simulated) {"hid":"paused","back":"tap","resumed":"playing","t":[6.02,7.23]}
+PASS [chromium] real-film played to the end: end card shows the finale line with 再看一遍 / 继续布置, film layer gone {"phase":"end","finaleText":true,"replay":true,"edit":true,"video":false}
+PASS [chromium] real-film t35 closing card: exact text in the order 2·3·1·4, stanzas [2,3] [1] [4], 我的小臭猫。 last on its own {"stanzas":[["我们已经有属于自己的两百天了，","我想第两千天可能也并不遥远吧。"],["也许有一天，也许会是第 2000 天，","我们已经拥有了一个自己的家。"],["我的小臭猫。"]]}
+PASS [chromium] real-film closing card fits 1280×720: inside the viewport, no line wraps, clear of the buttons and the top pill {"f":{"top":199.640625,"bottom":477.140625,"left":457.71875,"right":822.28125},"ctrls":[{"top":660,"bottom":704,"left":16,"right":80.640625},{"top":660,"bottom":704,"left":607.6796875,"right":672.3203125},{"top":660,"bottom":704,"left":1199.359375,"right":1264},{"top":22.515625,"bottom":62.515625,"left":1105.359375,"right":1251.328125}]}
+PASS [chromium] real-film 再看一遍 restarts from the beginning and decodes again {"r1":{"t":0.03,"frames":4},"r2":{"t":1.54,"frames":50}}
+PASS [chromium] real-film 跳过 mid-film → end card shows the finale line {"phase":"end","finaleText":true,"video":false}
+PASS [chromium] real-film 继续布置 after the film returns the same saved pieces {"back2":[{"kind":"sofa","x":0,"z":-1.6,"yaw":0},{"kind":"bed","x":2.8000000000000003,"z":-2,"yaw":180}]}
+PASS [chromium] real-film no page errors / video errors {"errs":[]}
+PASS [chromium] real-film phone landscape (touch): refused autoplay → 轻触播放 → tap → real frames play, contained {"st0":"tap","st1":{"t":2,"frames":65},"f1":{"w":844,"h":390,"vw":844,"vh":390,"fit":"contain"}}
+PASS [chromium] real-film turned to portrait: keeps playing, whole picture still visible (contain) {"t":3.71,"f2":{"w":390,"h":844,"vw":390,"vh":844,"fit":"contain"}}
+PASS [chromium] real-film phone portrait 390×844 closing card: inside the screen, no wrapped line, clear of buttons {"on":true,"f":{"top":296,"bottom":497,"left":68,"right":322},"vw":390,"vh":844,"inside":true,"clear":true,"oneRow":true}
+PASS [chromium] real-film phone landscape 844×390 closing card: inside the screen, no wrapped line, clear of buttons {"on":true,"f":{"top":101,"bottom":258,"left":300,"right":544},"vw":844,"vh":390,"inside":true,"clear":true,"oneRow":true}
+PASS [chromium] real film: no uncaught page errors in any context {"errs":[]}
+PASS [webkit] meadow door -> shop {"url":"http://127.0.0.1:8833/shop/?lang=zh&from=meadow"}
+pageerror {"url":"http://127.0.0.1:8833/shop/?lang=zh&from=meadow","sinceNavMs":234,"msg":"/127.0.0.1:8833/models/figure-pig.glb due to access control checks.","stack":"Fetch API cannot load http://127.0.0.1:8833/models/figure-pig.glb due to access control checks. |     at load (http://127.0.0.1:8833/assets/three.core-CyIeZfRY.js:5:28069) |     at load (http://127.0.0.1:8833/assets/meshopt_decoder.module-DMeP4LM2.js:1:3481) |     at Promise (:1:11) |     at load (http://127.0.0.1:8833/assets/viewer-BjplEHzX.js:1:25008) |     at unknown (http://127.0.0.1:8833/assets/shop-D6NTVIeF.js:17:9093)"}
+PASS [webkit] shop dark door -> night {"url":"http://127.0.0.1:8833/night/?lang=zh&from=shop"}
+PASS [webkit] shop ?at=lit does not skip to jelly {"url":"http://127.0.0.1:8833/shop/?lang=zh&at=lit"}
+console warning {"page":"http://127.0.0.1:8833/night/?lang=zh&at=kawaii","text":"The resource http://127.0.0.1:8833/assets/jelly-Cd4zeXW8.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it wasn't preloaded for nothing."}
+console warning {"page":"http://127.0.0.1:8833/night/?lang=zh&at=kawaii","text":"The resource http://127.0.0.1:8833/assets/i18n-D9M8x3VK.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it wasn't preloaded for nothing."}
+console warning {"page":"http://127.0.0.1:8833/night/?lang=zh&at=kawaii","text":"The resource http://127.0.0.1:8833/assets/params-_WclEtF4.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it wasn't preloaded for nothing."}
+console warning {"page":"http://127.0.0.1:8833/night/?lang=zh&at=kawaii","text":"The resource http://127.0.0.1:8833/assets/preload-helper-CRzLMJPS.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it wasn't preloaded for nothing."}
+console warning {"page":"http://127.0.0.1:8833/night/?lang=zh&at=kawaii","text":"The resource http://127.0.0.1:8833/assets/story-Cqzj4fjh.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it wasn't preloaded for nothing."}
+console warning {"page":"http://127.0.0.1:8833/night/?lang=zh&at=kawaii","text":"The resource http://127.0.0.1:8833/assets/jelly-BG4E8u1m.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it wasn't preloaded for nothing."}
+PASS [webkit] night kawaii continue -> jelly {"url":"http://127.0.0.1:8833/jelly/?lang=zh&from=night"}
+pageerror {"url":"http://127.0.0.1:8833/jelly/?lang=zh&from=night","sinceNavMs":42,"msg":"/127.0.0.1:8833/assets/worker-Cs6hxqL-.js due to access control checks.","stack":"Cannot load http://127.0.0.1:8833/assets/worker-Cs6hxqL-.js due to access control checks. |     at Sn (http://127.0.0.1:8833/assets/jelly-Cd4zeXW8.js:436:10801) |     at unknown (http://127.0.0.1:8833/assets/jelly-Cd4zeXW8.js:436:17161)"}
+console error {"page":"http://127.0.0.1:8833/jelly/?lang=zh&from=night","text":"Event"}
+PASS [webkit] jelly 入海 visible without the egg {"egg":"present-optional","seaVisible":true}
+PASS [webkit] jelly 入海 -> sea {"url":"http://127.0.0.1:8833/sea/?lang=zh&from=jelly"}
+PASS [webkit] sky film control present (optional) 
+PASS [webkit] sky next without film -> coop {"url":"http://127.0.0.1:8833/coop/?lang=zh&from=sky&hz=0.629"}
+PASS [webkit] coop 往前走走 -> flower {"url":"http://127.0.0.1:8833/flower/?lang=zh&from=coop"}
+PASS [webkit] flower exit -> mushroom {"url":"http://127.0.0.1:8833/mushroom/?lang=zh&from=flower"}
+PASS [webkit] mushroom exit -> home {"url":"http://127.0.0.1:8833/home/?lang=zh&from=mushroom"}
+PASS [webkit] AR returns to shop {"url":"http://127.0.0.1:8833/shop/?lang=zh&from=ar&ex=figure-pig"}
+pageerror {"url":"http://127.0.0.1:8833/shop/?lang=zh&from=ar&ex=figure-pig","sinceNavMs":130,"msg":"/127.0.0.1:8833/models/figure-pig.glb due to access control checks.","stack":"Fetch API cannot load http://127.0.0.1:8833/models/figure-pig.glb due to access control checks. |     at load (http://127.0.0.1:8833/assets/three.core-CyIeZfRY.js:5:28069) |     at load (http://127.0.0.1:8833/assets/meshopt_decoder.module-DMeP4LM2.js:1:3481) |     at Promise (:1:11) |     at load (http://127.0.0.1:8833/assets/viewer-BjplEHzX.js:1:25008) |     at unknown (http://127.0.0.1:8833/assets/shop-D6NTVIeF.js:17:9093)"}
+PASS [webkit] curtain skip from shop points at night {"skip":"../night/?lang=zh"}
+PASS [webkit] no unexplained uncaught page errors during the hops {"unexplained":[],"navAbortOnly":["/127.0.0.1:8833/models/figure-pig.glb due to access control checks.","/127.0.0.1:8833/assets/worker-Cs6hxqL-.js due to access control checks.","/127.0.0.1:8833/models/figure-pig.glb due to access control checks."]}
+PASS [webkit] settled coop solo (wake lock refused): no uncaught page errors {"errs":[]}
+PASS [webkit] settled shop: no uncaught page errors {"errs":[]}
+PASS [webkit] settled shop with figure-pig.glb aborted (offline / leaving): no uncaught page errors {"errs":[]}
+PASS [webkit] settled shop back from AR with the model aborted: no uncaught page errors {"errs":[]}
+PASS [webkit] settled jelly: no uncaught page errors {"errs":[]}
+PASS [webkit] flower desktop pig keeps clear of the cat outside a crossing {"minEdgeGapPx":9.5,"n":35}
+PASS [webkit] flower desktop any overlap happens only as a back-lane crossing {"overlaps":19,"minLane":0.97}
+PASS [webkit] flower desktop pig follows after the reversal (ends up behind her new heading) {"crossed":true}
+PASS [webkit] flower desktop camera keeps both whole sheets in frame {"worstMarginPx":61.2,"viewW":320}
+PASS [webkit] flower desktop pig faces its direction of travel {"n":68}
+PASS [webkit] flower desktop cat faces travel {"n":53}
+PASS [webkit] flower desktop no page errors {"errs":[]}
+PASS [webkit] flower phone pig keeps clear of the cat outside a crossing {"minEdgeGapPx":9.6,"n":35}
+PASS [webkit] flower phone any overlap happens only as a back-lane crossing {"overlaps":19,"minLane":0.97}
+PASS [webkit] flower phone pig follows after the reversal (ends up behind her new heading) {"crossed":true}
+PASS [webkit] flower phone camera keeps both whole sheets in frame {"worstMarginPx":10,"viewW":195}
+PASS [webkit] flower phone pig faces its direction of travel {"n":68}
+PASS [webkit] flower phone cat faces travel {"n":53}
+PASS [webkit] flower phone no page errors {"errs":[]}
+PASS [webkit] flower phone caption sits below the animals' feet {"feetY":676,"capTop":712.625}
+PASS [webkit] mushroom desktop pig keeps clear of the cat outside a crossing {"minEdgeGapPx":9.5,"n":35}
+PASS [webkit] mushroom desktop any overlap happens only as a back-lane crossing {"overlaps":19,"minLane":0.97}
+PASS [webkit] mushroom desktop pig follows after the reversal (ends up behind her new heading) {"crossed":true}
+PASS [webkit] mushroom desktop camera keeps both whole sheets in frame {"worstMarginPx":61.3,"viewW":320}
+PASS [webkit] mushroom desktop pig faces its direction of travel {"n":67}
+PASS [webkit] mushroom desktop cat faces travel {"n":53}
+PASS [webkit] mushroom desktop no page errors {"errs":[]}
+PASS [webkit] mushroom phone pig keeps clear of the cat outside a crossing {"minEdgeGapPx":9.6,"n":35}
+PASS [webkit] mushroom phone any overlap happens only as a back-lane crossing {"overlaps":18,"minLane":0.99}
+PASS [webkit] mushroom phone pig follows after the reversal (ends up behind her new heading) {"crossed":true}
+PASS [webkit] mushroom phone camera keeps both whole sheets in frame {"worstMarginPx":10,"viewW":195}
+PASS [webkit] mushroom phone pig faces its direction of travel {"n":69}
+PASS [webkit] mushroom phone cat faces travel {"n":53}
+PASS [webkit] mushroom phone no page errors {"errs":[]}
+PASS [webkit] mushroom phone caption sits below the animals' feet {"feetY":676,"capTop":712.6250610351562}
+PASS [webkit] woods: no uncaught page errors in any context {"errs":[]}
+PASS [webkit] home front floor edge clears the toolbar and drawer {"frontY":585,"toolsTop":604,"drawerTop":646}
+PASS [webkit] home all floor corners on screen 
+PASS [webkit] home drawer thumbs rendered from the placed meshes {"n":18}
+PASS [webkit] home chip tap + floor tap places a sofa {"items":[{"kind":"sofa","x":-0.6000000000000001,"z":1.2000000000000002,"yaw":0}]}
+PASS [webkit] home collision rejects a second sofa on the same spot (UI path), red footprint, chip stays armed {"n":1,"armed":{"chip":true,"st":{"ghost":false,"ghostKind":null,"ghostAt":null,"blocked":true,"blockedAt":{"x":-0.6000000000000001,"z":1.2000000000000002,"hw":1.02,"hd":0.48}}}}
+PASS [webkit] home drag moves the sofa from near to far (z decreases) {"from":1.2000000000000002,"to":-1.8}
+PASS [webkit] home drag moves it back from far to near (z increases) {"from":-1.8,"to":1.6}
+PASS [webkit] home rotate button turns the selected sofa 90° {"yaw":90,"selOn":true}
+PASS [webkit] home piece toolbar clear of the save row {"selBottom":357,"toolsTop":604}
+PASS [webkit] home orbit drag turns the camera {"az0":0.22,"az1":0.55}
+PASS [webkit] home wheel zooms in {"zoom0":1,"zoom1":0.74}
+PASS [webkit] home demo furnishing places every piece (no collisions in the demo layout) {"n":17}
+PASS [webkit] home every solid mesh lies inside its collision footprint {"outside":[]}
+PASS [webkit] home no two solid meshes intersect in the furnished room {"hits":[]}
+PASS [webkit] home adult proportions: queen bed ≥ 2.0 × 1.6 m and longer than the sofa; sofa ≤ 2.1 m; table top ~0.75 m {"bed":{"long":2.15,"short":1.76,"h":1.15},"sofa":{"long":2.02,"short":0.86,"h":0.88},"table":{"long":1.5,"short":0.97,"h":0.97},"chair":{"long":0.44,"short":0.44,"h":0.96}}
+PASS [webkit] home save writes v2 layout {kind,x,z,yaw} {"n":17}
+PASS [webkit] home reload restores exactly the saved pieces {"n":17}
+PASS [webkit] home no page errors {"errs":[]}
+PASS [webkit] home phone: touch tap on chip then floor places a piece {"tItems":[{"kind":"armchair","x":0.4,"z":0.8,"yaw":0}]}
+PASS [webkit] home phone: floor above the drawer, clear of the tool column {"front":314.9959489986621,"drawerTop":328,"toolsLeft":737.1875,"rightX":593.2696081745294}
+PASS [webkit] home editor: no uncaught page errors in any context {"errs":[]}
+PASS [webkit] home-block arming a chip never shows the preview at its stale spot (on the sofa just placed) {"fresh":[false,false,false,false,false,false,false,false]}
+PASS [webkit] home-block armed table over the sofa: no solid preview inside it, red blocked footprint instead {"ghost":false,"ghostKind":null,"ghostAt":null,"blocked":true,"blockedAt":{"x":-0.4,"z":-0.6000000000000001,"hw":0.78,"hd":0.5}}
+PASS [webkit] home-block tapping the blocked spot places nothing {"n":1}
+PASS [webkit] home-block valid spot: preview shown, no red footprint {"ghost":true,"ghostKind":"table","ghostAt":{"x":1.8,"z":1.8},"blocked":false,"blockedAt":null}
+PASS [webkit] home-block valid drag near → far drops the table at the back {"kind":"table","x":1.8,"z":-1.8,"yaw":0}
+PASS [webkit] home-block drag into the sofa: red footprint shows, the table stays outside it, and nothing intersects after release {"pushed":true,"overlapDuring":false,"overlapAfter":false,"table":{"x":1.4000000000000001,"z":-1.6}}
+PASS [webkit] home-block no page errors {"errs":[]}
+PASS [webkit] home blocked: no uncaught page errors in any context {"errs":[]}
+PASS [webkit] film without a committed film: save → end card, no <video>, no 再看一遍 {"phase":"end","film":"none","video":false,"replayVisible":false,"finale":true,"editVisible":true}
+PASS [webkit] film without a manifest no film MP4 is requested by /home/ {"n":0}
+PASS [webkit] film 继续布置 returns the same saved pieces {"back":[{"kind":"sofa","x":0,"z":-1.6,"yaw":0}]}
+PASS [webkit] film no H.264 decoder in this build → manifest ignored, end card (playback checks not runnable here) {"phase":"end","video":false}
+NOTE [webkit] film playback checks skipped: canPlayType(mp4/H.264) is empty in this headless build
+PASS [webkit] film fixtures: no uncaught page errors in any context {"errs":[]}
+PASS [webkit] real-film no H.264 in this browser build: real manifest ignored, closing card instead (fallback) {"phase":"end","video":false,"line":"home.found","finale":true}
+PASS [webkit] real-film fallback closing card: the four sentences in the order 2·3·1·4, 我的小臭猫。 as its own last line, no separate first line {"text":"我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。我的小臭猫。","last":"我的小臭猫。","line":false}
+PASS [webkit] real-film fallback requests no film MP4 at all (neither anniv-200 nor future-home) 
+NOTE [webkit] real-film playback not runnable: canPlayType(H.264 High) empty
+PASS [webkit] real film: no uncaught page errors in any context {"errs":[]}
+PASS recording flower woods walk (real time, continuous) ≥ 8 s {"duration":13.88,"wall":12.961,"file":"../../jelly-preview-v03s/t36/verify/rec-flower-walk.mp4"}
+PASS recording mushroom woods walk (real time, continuous) ≥ 8 s {"duration":18.28,"wall":17.382,"file":"../../jelly-preview-v03s/t36/verify/rec-mushroom-walk.mp4"}
+PASS recording 3D editing (place, near↔far drag, rotate, orbit, zoom) ≥ 8 s {"duration":21.32,"wall":20.406,"file":"../../jelly-preview-v03s/t36/verify/rec-home-3d-editing.mp4"}
+PASS clip clip-flower-reverse-desktop (real time, continuous, right → left → right) {"duration":12.04,"file":"../../jelly-preview-v03s/t36/verify/clip-flower-reverse-desktop.mp4"}
+PASS clip clip-flower-reverse-phone (real time, continuous, right → left → right) {"duration":12.08,"file":"../../jelly-preview-v03s/t36/verify/clip-flower-reverse-phone.mp4"}
+PASS clip clip-mushroom-reverse-desktop (real time, continuous, right → left → right) {"duration":12.08,"file":"../../jelly-preview-v03s/t36/verify/clip-mushroom-reverse-desktop.mp4"}
+PASS clip clip-mushroom-reverse-phone (real time, continuous, right → left → right) {"duration":12.04,"file":"../../jelly-preview-v03s/t36/verify/clip-mushroom-reverse-phone.mp4"}
+PASS clip home: blocked over the sofa, valid near drop, near → far drag, push into sofa stops, bed vs sofa {"duration":13.96,"file":"../../jelly-preview-v03s/t36/verify/clip-home-blocked-drop-bed.mp4"}
+
+208/208 passed, 0 failed
+EXIT 0

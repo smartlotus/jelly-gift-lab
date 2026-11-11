@@ -26,11 +26,14 @@ export function tell(key: string, hold = 4400, once = true) {
   el.dataset.i18n = key;
   el.textContent = t(key);
   el.classList.add('on');
+  // Stage hints (walk keys, "keep going") sit near the same bottom edge; let them step aside while a line is spoken.
+  document.body.classList.add('gift-telling');
   clearTimeout(hideT);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  hideT = window.setTimeout(() => el?.classList.remove('on'), reduce ? Math.min(hold, 1800) : hold);
+  hideT = window.setTimeout(() => hush(), reduce ? Math.min(hold, 1800) : hold);
 }
 
 export function hush() {
   el?.classList.remove('on');
+  document.body.classList.remove('gift-telling');
 }

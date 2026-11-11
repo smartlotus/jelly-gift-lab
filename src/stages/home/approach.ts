@@ -57,12 +57,16 @@ function house(g: CanvasRenderingContext2D, hx: number, floor: number, open: num
 }
 
 export function createApproach(): ApproachApi {
+  // This scene's logical canvas is only ~320 px wide while the cottage plate is painted at 480: full-size painted
+  // frames tower over the door, and shrunk to door height they lose their faces. The 16² sheets are the right tool
+  // here — they read at 60–80 real px — so the pair keeps the pixel-stage look, grounded with a soft shadow.
   const catSp = catSprites();
   const pigSp = pigSprites();
+  const SC = 1.2;
   let t0 = 0, catX = 20, pigX = 4, phase: 'walk' | 'look' | 'talk' | 'enter' = 'walk';
   let done = false, lineOn = false, spoken = false;
 
-  const floorOf = (h: number) => h - Math.max(36, Math.round(h * 0.18));
+  const floorOf = (h: number) => h - Math.max(38, Math.round(h * 0.205));
 
   const api: ApproachApi = {
     get done() { return done; },
@@ -104,13 +108,20 @@ export function createApproach(): ApproachApi {
       drawLisianthusBloom(g, hx - 14, floor - 28, 7.2, -0.1);
       drawDianaRose(g, hx + 92, floor - 30, 7.6, 1);
       }
-      const pigImg = pigFrame(pigSp, { vx: phase === 'look' || phase === 'talk' ? 0 : 22, vy: 0, ground: true }, t0, 1);
-      const catImg = catFrame(catSp, { vx: phase === 'look' || phase === 'talk' ? 0 : 22, vy: 0, ground: true }, t0, 1);
-      const blit = (img: HTMLCanvasElement, x: number) => {
-        g.save(); g.imageSmoothingEnabled = false; g.translate(x, floor); g.scale(1.35, 1.35); g.drawImage(img, 0, -img.height); g.restore();
+      const moving = phase === 'walk' || phase === 'enter' ? 22 : 0;
+      const pigImg = pigFrame(pigSp, { vx: moving, vy: 0, ground: true }, t0, 1);
+      const catImg = catFrame(catSp, { vx: moving, vy: 0, ground: true }, t0, 1);
+      // soft contact shadows so the pair sits on the path instead of floating over the flowers
+      const shadow = (x: number, w: number) => {
+        g.save(); g.globalAlpha = 0.26; g.fillStyle = '#2A1E16';
+        for (let i = 0; i < 3; i++) g.fillRect(Math.round(x - w / 2 + i), Math.round(floor + i), Math.round(w - i * 2), 1);
+        g.restore();
       };
-      blit(pigImg, Math.round(pigX));
-      blit(catImg, Math.round(catX));
+      const blit = (img: HTMLCanvasElement, x: number) => {
+        g.save(); g.imageSmoothingEnabled = false; g.translate(Math.round(x), Math.round(floor)); g.scale(SC, SC); g.drawImage(img, -img.width / 2, -img.height); g.restore();
+      };
+      shadow(pigX, 15 * SC); blit(pigImg, pigX);
+      shadow(catX, 16 * SC); blit(catImg, catX);
       void w;
     },
   };

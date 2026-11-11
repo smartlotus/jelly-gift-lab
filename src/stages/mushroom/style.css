@@ -2,8 +2,10 @@ html, body { background: #1a2830; }
 #mushroom { background: #1a2830; }
 .mu-hint { position: fixed; z-index: 20; left: 0; right: 0; bottom: calc(108px + var(--sab)); margin: 0; text-align: center;
   color: rgba(226, 238, 232, .92); font-size: 12px; letter-spacing: .18em; text-shadow: 0 1px 8px rgba(0,0,0,.35);
-  opacity: 0; transition: opacity .9s var(--ease); pointer-events: none; }
+  opacity: 0; transition: opacity .9s var(--ease), transform .45s var(--ease); pointer-events: none; }
 .mu-hint.on { opacity: .92; } .mu-hint.on.out { opacity: 0; }
+/* a spoken line owns the bottom edge (see shared/story.css) */
+body.gift-telling .mu-hint { transform: translateY(-52px); }
 @media (pointer: coarse) { .mu-hint { bottom: calc(108px + var(--sab)); font-size: 11px; } }
 @media (orientation: landscape), (max-height: 520px) {
   .mu-hint { bottom: calc(56px + var(--sab)); }
@@ -13,3 +15,5 @@ html, body { background: #1a2830; }
 .gc-lang [aria-pressed="false"] { color: rgba(226, 236, 232, .42); }
 .gc-sep { background: rgba(226, 236, 232, .4); }
 @media (prefers-reduced-motion: reduce) { .mu-hint { transition: none; } }
+/* portrait: the caption sits in the band under the path; the key hint yields to it instead of landing on the animals */
+@media (orientation: portrait) and (min-height: 521px) { body.gift-telling .mu-hint { opacity: 0; transform: none; } }

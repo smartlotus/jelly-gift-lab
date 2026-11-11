@@ -1,10 +1,9 @@
 // Future-life montage: six animated scenes dissolving into each other,
-// then the final line fades in. Saved furniture is reused in the home / sofa frames.
+// then the final line fades in. Furniture and blocking are fixed (Module B) — never the player layout.
 import { drawPerson, drawPair, type Pose, type Who } from './people';
 import { swingDoor } from './door';
-import { drawFurnished } from './room';
+import { drawCinematicRoom } from './cineRoom';
 import { critterFrame } from '../../shared/pixel/fauna';
-import { type SavedItem } from './save';
 import { drawDianaRose, drawLisianthusBloom } from '../wander/blooms';
 import { art } from '../../art/loader';
 import { coverPlate } from '../../art/blit';
@@ -177,10 +176,9 @@ function drawWalk(g: CanvasRenderingContext2D, w: number, h: number, t: number) 
   drawPair(g, paused ? 'hold' : 'walk', x, floor - 2, t, false, Math.round(h * 0.46));
 }
 
-function drawGreet(g: CanvasRenderingContext2D, w: number, h: number, t: number, layout: SavedItem[]) {
+function drawGreet(g: CanvasRenderingContext2D, w: number, h: number, t: number) {
   const floor = Math.round(h * 0.72);
-  const sofa = layout.find(i => i.kind === 'sofa');
-  const sofaX = sofa ? (sofa.x / 320) * w : w * 0.48;
+  const sofaX = w * 0.48;
   g.save();
   g.beginPath(); g.rect(0, 0, w, h); g.clip();
   const k = Math.min(1, t / 5.6);
@@ -188,11 +186,11 @@ function drawGreet(g: CanvasRenderingContext2D, w: number, h: number, t: number,
   // the closer floorboards so feet never plant on the coffee table or TV.
   // Standing adults ~1.8× the drawn sofa height (not giants over it).
   const feetY = Math.round(floor + (h - floor) * 0.70);
-  const herX = Math.min(Math.max(w * 0.50, sofaX - 4), w * 0.58);
+  const herX = w * 0.54;
   const himX = herX - 48;
   const dogSettle = Math.max(w * 0.20, himX - 40);
   const catSettle = Math.min(w * 0.78, herX + 36);
-  drawFurnished(g, w, h, layout, 1.15);
+  drawCinematicRoom(g, w, h, 1.15);
   const personS = 0.84;
   figure(g, 'him', 'stand', himX, feetY, false, t, personS);
   figure(g, 'her', 'stand', herX, feetY, false, t, personS);
@@ -204,16 +202,15 @@ function drawGreet(g: CanvasRenderingContext2D, w: number, h: number, t: number,
   g.restore();
 }
 
-function drawSofa(g: CanvasRenderingContext2D, w: number, h: number, t: number, layout: SavedItem[]) {
+function drawSofa(g: CanvasRenderingContext2D, w: number, h: number, t: number) {
   const floor = Math.round(h * 0.72);
-  const sofa = layout.find(i => i.kind === 'sofa');
-  const sx = sofa ? (sofa.x / 320) * w : w * 0.48;
+  const sx = w * 0.48;
   g.save();
   g.beginPath(); g.rect(0, 0, w, h); g.clip();
   g.translate(w * 0.5, h * 0.72);
   g.scale(1.38, 1.38);
   g.translate(-sx, -floor);
-  drawFurnished(g, w, h, layout, 1.15);
+  drawCinematicRoom(g, w, h, 1.15);
   drawPair(g, 'sit', sx, floor - 3, t, false, Math.round(h * 0.33));
   g.restore();
 }
@@ -310,12 +307,12 @@ function mix(a: string, b: string, k: number): string {
   return `rgb(${r},${gv},${bl})`;
 }
 
-export function createMontage(layout: SavedItem[]): MontageApi {
+export function createMontage(): MontageApi {
   let idx = 0, t = 0, finaleT = 0;
   const drawScene = (id: SceneId, g: CanvasRenderingContext2D, w: number, h: number, tt: number) => {
     if (id === 'walk') drawWalk(g, w, h, tt);
-    else if (id === 'greet') drawGreet(g, w, h, tt, layout);
-    else if (id === 'sofa') drawSofa(g, w, h, tt, layout);
+    else if (id === 'greet') drawGreet(g, w, h, tt);
+    else if (id === 'sofa') drawSofa(g, w, h, tt);
     else if (id === 'sleep') drawSleep(g, w, h, tt);
     else if (id === 'snow') drawSnow(g, w, h, tt);
     else drawDawn(g, w, h, tt);

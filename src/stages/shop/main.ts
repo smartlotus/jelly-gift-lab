@@ -1,8 +1,9 @@
-// Stage 2 · Shop (workstream B) - the pixel cat walks through a warm pixel shop of lotus's 3D-printed objects -> /night/.
+// Stage 2 · Shop (workstream B) - the pixel cat walks through a warm pixel shop of lotus's 3D-printed objects -> the dark rear door to /night/.
 // Layers (back to front): pixel shop canvas · inspect backdrop · three.js canvas (live models) · pixel front canvas (the cat)
 // · card / inspect UI · touch pad · chrome. See docs/GIFT_PLAN.md §5.2 and docs/status/B.md.
 // Dev: ?skip (no title card) · ?viewer (open the 3D viewer at once; browse all 4) · ?at=pig|cat|fridge|counter|door
-import { markReached, go, prefetchNext, params, from } from '../../shared/flow';
+import { markReached, go, prefetchNext, warm, params, from } from '../../shared/flow';
+import { stashCanvas, peekCarry, clearCarry } from '../../shared/curtain';
 import { register, t, onLang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
 import { irisIn, irisOut, dissolve } from '../../shared/transition';
@@ -47,7 +48,7 @@ const bg = buildShop();
 const cols = WORLD_W / TILE, rows = WORLD_H / TILE;
 const map = makeMap(Array.from({ length: rows }, (_, y) => (y * TILE >= FLOOR_Y ? '#' : ' ').repeat(cols)), c => c === '#');
 const cam = new Camera(WORLD_W, WORLD_H);
-const AT: Record<string, number> = { pig: 230, cat: 392, fridge: 600, pair: 760, counter: 806, door: 990 };
+const AT: Record<string, number> = { pig: 230, cat: 392, fridge: 600, pair: 760, counter: 806, door: 1412, night: 1412 };
 // back from /ar/ (?from=ar&ex=figure-cat): stand at that exhibit again and reopen it, no start card
 const backEx = from === 'ar' ? EXHIBITS.find(e => e.id === params.get('ex')) : undefined;
 const startX = viewerOnly ? 250 : backEx ? Math.max(26, backEx.x - 40) : AT[params.get('at') ?? ''] ?? 26;
@@ -63,7 +64,7 @@ const viewerP = import('./viewer').then(m => {
   viewer = new m.Viewer(glHost); inspect = new Inspect(viewer); (window as unknown as { __shopViewer: unknown }).__shopViewer = viewer;
   inspect.onClose = closeInspect;
   viewer.onJoin = () => { blip(1318, 0.08, 'sine', 0.08); setTimeout(() => blip(1760, 0.16, 'sine', 0.06), 70); }; viewer.onClosed = () => { input.enabled = started && !leaving; actLock = true; };
-  void viewer.load('figure-pig');
+  viewer.load('figure-pig').catch(() => { /* offline or aborted by leaving the page: the curtain still opens after its timeout */ });
   return viewer;
 });
 
@@ -150,12 +151,14 @@ startLoop(dt => {
   if (viewer) for (const e of EXHIBITS) if (Math.abs(cx - e.x) < 380) void viewer.load(e.id);
   // the back door: lights flicker twice, then the dark
   if (!flickered && cx > BACKDOOR.x - 110) { flickered = true; flicker = 1.4; blip(110, 0.25, 'sawtooth', 0.05, -40); }
-  if (!prefetched && cx > BACKDOOR.x - 200) { prefetched = true; prefetchNext(); }
+  if (!prefetched && cx > BACKDOOR.x - 240) { prefetched = true; warm('night'); prefetchNext(); }
   if (flicker > 0) flicker = Math.max(0, flicker - dt);
+  if (!leaving && started && cx > BACKDOOR.x - 90) tell('shop.door', 2800);
   if (!leaving && started && overlap(cat, doorBox)) {
     leaving = true; input.enabled = false; card.show(null);
+    const snap = stashCanvas(scr.canvas);
     const c = scr.toClient(BACKDOOR.x + BACKDOOR.w / 2 - cam.ix, BACKDOOR.y + 30 - cam.iy);
-    void go('night', () => irisOut(c.x, c.y, 900));
+    void go('night', () => irisOut(c.x, c.y, 900, snap?.color || '#0b0b0c', snap?.img));
   }
 }, () => {
   const g = scr.ctx, ox = -cam.ix, oy = -cam.iy;
@@ -188,12 +191,16 @@ startLoop(dt => {
 
 // continuity: the meadow closed its iris onto a door; the shop opens it from the entry door the cat just came through
 if (backEx) void dissolve(0, 700, '#eeece8'); // the paper of /ar/ dissolves back into the shop
-else { const d = scr.toClient(ENTRY.x + ENTRY.w / 2 - cam.ix, ENTRY.y + 30 - cam.iy); void irisIn(d.x, d.y, 750); }
+else {
+  const carry = peekCarry();
+  const d = scr.toClient(ENTRY.x + ENTRY.w / 2 - cam.ix, ENTRY.y + 30 - cam.iy);
+  void irisIn(d.x, d.y, 750, carry?.color, carry?.img).then(() => clearCarry());
+}
 const begin = () => {
   started = true; input.enabled = true; begunAt = performance.now(); walkIn = startX < 60 ? 0.55 : 0;
   blip(1568, 0.25, 'sine', 0.1); setTimeout(() => blip(2093, 0.4, 'sine', 0.07), 90);   // shop door bell
   if (viewerOnly) void viewerP.then(() => openInspect('figure-pig'));
-  if (backEx) void viewerP.then(() => viewer!.load(backEx.id)).then(() => openInspect(backEx.id));
+  if (backEx) viewerP.then(() => viewer!.load(backEx.id)).then(() => openInspect(backEx.id)).catch(() => { /* model unavailable: stay in the shop */ });
 };
 begin(); // v03g: no title card — the door bell rings as the cat walks in
 setTimeout(() => tell('story.shop.in'), 1400);

@@ -19,8 +19,10 @@ html[lang="en"] .hm-line, html[lang="en"] .hm-finale { font-family: var(--displa
 .hm-tools { position: fixed; z-index: 32; left: calc(14px + var(--sal)); right: calc(14px + var(--sar));
   bottom: calc(72px + var(--sab)); display: none; justify-content: center; gap: 16px; align-items: center; pointer-events: none; }
 body.hm-decorating .hm-tools { display: flex; }
-.hm-tools button { pointer-events: auto; min-height: 44px; padding: 8px 14px; letter-spacing: .16em; font-size: 12px;
-  border-bottom: 1px solid rgba(42,34,32,.35); color: rgba(42,34,32,.72); }
+.hm-tools button { pointer-events: auto; min-height: 44px; padding: 9px 18px; letter-spacing: .16em; font-size: 12px;
+  border: 0; border-radius: 999px; color: rgba(42,34,32,.82); background: rgba(255,250,244,.88);
+  box-shadow: 0 1px 0 rgba(255,255,255,.5) inset; }
+.hm-tools button:active { background: #fff; }
 .hm-tools button.primary { background: #2E2A2B; color: #f6efe8; border: 0; border-radius: 999px; padding: 10px 22px; letter-spacing: .2em; }
 .hm-tools button:disabled { opacity: .35; }
 
@@ -34,6 +36,7 @@ body.hm-decorating .hm-drawer { display: flex; }
 .hm-chip { flex: 0 0 auto; width: 64px; height: 58px; border: 1px solid rgba(46,42,43,.2); background: rgba(255,250,244,.7);
   display: grid; place-items: center; border-radius: 8px; touch-action: manipulation; }
 .hm-chip canvas { image-rendering: pixelated; }
+.hm-chip canvas.hm-thumb3d { image-rendering: auto; border-radius: 6px; }
 .hm-chip.on { outline: 2px solid #2E2A2B; background: #fff; }
 .hm-chip span { display: none; }
 
@@ -72,3 +75,139 @@ body.hm-on-finale .hm-replay, body.hm-on-finale .hm-again { display: inline-bloc
 }
 
 body.hm-decorating .hm-skip { display: none; }
+
+#hm-space { position: fixed; inset: 0; z-index: 8; }
+#hm-space canvas { width: 100%; height: 100%; display: block; touch-action: none;
+  image-rendering: pixelated; image-rendering: crisp-edges; }
+body.hm-decorating .pixel-host canvas { visibility: hidden; }
+
+.hm-migrate, .hm-nowebgl {
+  position: fixed; z-index: 34; left: 50%; transform: translateX(-50%);
+  top: calc(14px + var(--sat) + 72px); width: max-content; max-width: min(92vw, 36em);
+  text-align: center; font-size: 12px; letter-spacing: .12em; line-height: 1.55;
+  color: #f6efe8; background: rgba(24,18,16,.58); padding: 8px 16px; border-radius: 10px;
+  display: none; pointer-events: none;
+}
+.hm-migrate.on, .hm-nowebgl.on { display: block; }
+.hm-nowebgl { top: 42%; }
+
+.hm-edit { position: fixed; z-index: 34; left: 50%; transform: translateX(-50%);
+  bottom: calc(16px + var(--sab)); letter-spacing: .18em; font-size: 12px;
+  color: rgba(42,34,32,.6); min-height: 44px; padding: 8px 4px;
+  border-bottom: 1px solid rgba(42,34,32,.3); display: none; }
+body.hm-on-finale .hm-edit { display: inline-block; }
+body.hm-decorating .hm-edit { display: none; }
+
+
+/* ── 短片下线时的静态结尾（main.ts: FILM_ENABLED = false） ─────────────────────────
+   两句受保护的原话居中先后出现，替掉原来的底部字幕条；没有影片就不该有「再看一遍」。 */
+body.hm-endcard .hm-line,
+body.hm-endcard .hm-finale {
+  left: 50%; right: auto; top: 50%; bottom: auto;
+  width: max-content; max-width: min(86vw, 30em);
+  transform: translate(-50%, -50%);
+  background: none; padding: 0; border-radius: 0;
+  color: #43332A; text-shadow: none;
+  font-size: clamp(16px, 2.5vw, 22px); letter-spacing: .12em; line-height: 1.9;
+}
+body.hm-endcard .hm-line.on,
+body.hm-endcard .hm-finale.on { transform: translate(-50%, -50%); opacity: 1; }
+body.hm-endcard .hm-finale { transition: opacity 2.2s var(--ease); }
+
+/* t35 closing card: four sentences in the order 2 · 3 · 1 · 4, one stanza per thought, the last line on its own.
+   Sized by the smaller of width and height so a 390 px-tall landscape phone keeps it between the top pill and the
+   bottom buttons, and a 390 px-wide portrait phone never breaks a line mid-clause. */
+.hm-finale .hm-fs { margin: 0; }
+.hm-finale .hm-fs + .hm-fs { margin-top: .95em; }
+.hm-finale .hm-fs span { white-space: nowrap; }
+body.hm-endcard .hm-finale {
+  top: 47%;
+  font-size: clamp(14px, min(2.3vw, 3.5vh), 21px); line-height: 1.85; letter-spacing: .1em;
+  max-width: min(90vw, 32em);
+}
+.hm-finale .hm-fs-last {
+  margin-top: 1.25em !important; font-size: 1.22em; letter-spacing: .26em; color: #5A3B2B;
+}
+.hm-finale .hm-fs-last::before {
+  content: ''; display: block; width: 2.2em; height: 1px; margin: 0 auto .85em; background: rgba(90,59,43,.35);
+}
+@media (max-width: 420px) {
+  body.hm-endcard .hm-finale { font-size: clamp(14px, 3.9vw, 17px); letter-spacing: .06em; }
+  .hm-finale .hm-fs-last { letter-spacing: .2em; }
+}
+@media (max-height: 420px) and (orientation: landscape) {
+  body.hm-endcard .hm-finale { top: 46%; line-height: 1.7; }
+  .hm-finale .hm-fs + .hm-fs { margin-top: .6em; }
+  .hm-finale .hm-fs-last { margin-top: .8em !important; }
+  .hm-finale .hm-fs-last::before { margin-bottom: .55em; }
+}
+body.hm-endcard .hm-replay { display: none !important; }
+body.hm-endcard .hm-again { color: rgba(66,52,40,.55); }
+body.hm-endcard .hm-edit { color: rgba(66,52,40,.55); }
+body.hm-endcard .hm-skip { display: none; }
+
+
+/* ── 200 天影片层（main.ts: startEndingFilm） ─────────────────────────────────────
+   画布之上、字幕与按钮之下；纸色底，影片居中，像翻到一本手绘册子的最后一页。 */
+.hm-film {
+  position: fixed; inset: 0; z-index: 26;
+  display: grid; place-items: center;
+  background: #EFE6D6;
+  opacity: 0; transition: opacity 1.4s var(--ease);
+  touch-action: manipulation;
+}
+.hm-film.on { opacity: 1; }
+.hm-film.out { opacity: 0; pointer-events: none; }
+.hm-film-v {
+  /* fill the layer and letterbox inside it: a grid cell's % max-height does not resolve, so a
+     short landscape phone (844×390) used to get a 474 px tall element with the bottom cut off */
+  display: block; position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: contain;
+  background: #EFE6D6;
+}
+/* soft page edge so a letterboxed phone still reads as paper, not as a failed load */
+.hm-film::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  box-shadow: inset 0 0 90px rgba(72,52,34,.14);
+}
+.hm-film-tap {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  min-height: 44px; padding: 12px 26px; border-radius: 999px;
+  background: rgba(34,28,24,.72); color: #F7EFE3;
+  font-size: 12px; letter-spacing: .2em; backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none; transition: opacity .4s var(--ease);
+}
+.hm-film.tap .hm-film-tap { opacity: 1; pointer-events: auto; }
+.hm-film.on .hm-film-tap { transition-delay: .8s; }
+
+
+/* 影片播放中：「跳过」在白底画面上必须读得出来 */
+body.hm-watching .hm-skip {
+  display: inline-block !important;
+  color: #F7EFE3; background: rgba(34,28,24,.62);
+  border: 0; border-radius: 999px; padding: 10px 18px;
+  backdrop-filter: blur(4px);
+}
+
+/* short landscape phones: the room needs the height — tools become a right-hand column and the
+   drawer chips shrink, so the camera fit (decorate/world.ts band()) can give the floor more room */
+@media (orientation: landscape) and (max-height: 500px) {
+  .hm-tools { left: auto; right: calc(10px + var(--sar)); bottom: auto; top: calc(64px + var(--sat));
+    flex-direction: column; align-items: stretch; gap: 8px; }
+  .hm-tools button { min-height: 40px; padding: 8px 14px; font-size: 11px; }
+  .hm-chip { width: 52px; height: 48px; }
+  .hm-chip canvas.hm-thumb3d { width: 44px !important; height: 44px !important; }
+  .hm-drawer { padding-top: 6px; }
+  .hm-hint { font-size: 10px; padding: 4px 12px; top: calc(8px + var(--sat)); left: calc(12px + var(--sal)); transform: none; max-width: 60vw; }
+}
+
+/* future-home film (endingFilm.ts): replay only exists once a reviewed film is committed */
+body.hm-endcard.hm-has-film.hm-on-finale .hm-replay { display: inline-block !important; color: rgba(66,52,40,.55); }
+.hm-film-load {
+  position: absolute; left: 50%; bottom: calc(22% + var(--sab)); transform: translateX(-50%); margin: 0;
+  font-size: 11px; letter-spacing: .24em; color: rgba(66,52,40,.6);
+  opacity: 0; transition: opacity .6s var(--ease); pointer-events: none;
+}
+.hm-film.loading .hm-film-load { opacity: 1; transition-delay: .7s; }
+.hm-film.tap .hm-film-load { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .hm-film, .hm-film-load { transition: none; } }

@@ -1,0 +1,466 @@
+[
+ {
+  "name": "no text between save and film",
+  "ok": true,
+  "seen": [
+   {
+    "phase": "transform",
+    "line": "",
+    "finale": false
+   },
+   {
+    "phase": "transform",
+    "line": "",
+    "finale": false
+   },
+   {
+    "phase": "transform",
+    "line": "",
+    "finale": false
+   },
+   {
+    "phase": "video",
+    "line": "",
+    "finale": false
+   }
+  ]
+ },
+ {
+  "name": "endcard 1280x720",
+  "ok": true,
+  "vw": 1280,
+  "vh": 720,
+  "finale": {
+   "top": 200,
+   "bottom": 477,
+   "left": 458,
+   "right": 822
+  },
+  "text": "我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。我的小臭猫。",
+  "lines": [
+   {
+    "text": "我们已经有属于自己的两百天了，",
+    "rects": 1
+   },
+   {
+    "text": "我想第两千天可能也并不遥远吧。",
+    "rects": 1
+   },
+   {
+    "text": "也许有一天，也许会是第 2000 天，",
+    "rects": 1
+   },
+   {
+    "text": "我们已经拥有了一个自己的家。",
+    "rects": 1
+   },
+   {
+    "text": "我的小臭猫。",
+    "rects": 1
+   }
+  ],
+  "ctrls": [
+   {
+    "s": ".hm-replay",
+    "b": {
+     "top": 660,
+     "bottom": 704,
+     "left": 16,
+     "right": 81
+    }
+   },
+   {
+    "s": ".hm-edit",
+    "b": {
+     "top": 660,
+     "bottom": 704,
+     "left": 608,
+     "right": 672
+    }
+   },
+   {
+    "s": ".hm-again",
+    "b": {
+     "top": 660,
+     "bottom": 704,
+     "left": 1199,
+     "right": 1264
+    }
+   },
+   {
+    "s": ".gift-chrome",
+    "b": {
+     "top": 23,
+     "bottom": 63,
+     "left": 1105,
+     "right": 1251
+    }
+   }
+  ]
+ },
+ {
+  "name": "endcard phone-landscape-844x390",
+  "ok": true,
+  "vw": 844,
+  "vh": 390,
+  "finale": {
+   "top": 101,
+   "bottom": 258,
+   "left": 300,
+   "right": 544
+  },
+  "text": "我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。我的小臭猫。",
+  "lines": [
+   {
+    "text": "我们已经有属于自己的两百天了，",
+    "rects": 1
+   },
+   {
+    "text": "我想第两千天可能也并不遥远吧。",
+    "rects": 1
+   },
+   {
+    "text": "也许有一天，也许会是第 2000 天，",
+    "rects": 1
+   },
+   {
+    "text": "我们已经拥有了一个自己的家。",
+    "rects": 1
+   },
+   {
+    "text": "我的小臭猫。",
+    "rects": 1
+   }
+  ],
+  "ctrls": [
+   {
+    "s": ".hm-replay",
+    "b": {
+     "top": 330,
+     "bottom": 374,
+     "left": 16,
+     "right": 81
+    }
+   },
+   {
+    "s": ".hm-edit",
+    "b": {
+     "top": 330,
+     "bottom": 374,
+     "left": 390,
+     "right": 454
+    }
+   },
+   {
+    "s": ".hm-again",
+    "b": {
+     "top": 330,
+     "bottom": 374,
+     "left": 763,
+     "right": 828
+    }
+   },
+   {
+    "s": ".gift-chrome",
+    "b": {
+     "top": 15,
+     "bottom": 55,
+     "left": 679,
+     "right": 825
+    }
+   }
+  ]
+ },
+ {
+  "name": "endcard phone-portrait-390x844",
+  "ok": true,
+  "vw": 390,
+  "vh": 844,
+  "finale": {
+   "top": 296,
+   "bottom": 497,
+   "left": 68,
+   "right": 322
+  },
+  "text": "我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。我的小臭猫。",
+  "lines": [
+   {
+    "text": "我们已经有属于自己的两百天了，",
+    "rects": 1
+   },
+   {
+    "text": "我想第两千天可能也并不遥远吧。",
+    "rects": 1
+   },
+   {
+    "text": "也许有一天，也许会是第 2000 天，",
+    "rects": 1
+   },
+   {
+    "text": "我们已经拥有了一个自己的家。",
+    "rects": 1
+   },
+   {
+    "text": "我的小臭猫。",
+    "rects": 1
+   }
+  ],
+  "ctrls": [
+   {
+    "s": ".hm-replay",
+    "b": {
+     "top": 784,
+     "bottom": 828,
+     "left": 16,
+     "right": 81
+    }
+   },
+   {
+    "s": ".hm-edit",
+    "b": {
+     "top": 784,
+     "bottom": 828,
+     "left": 163,
+     "right": 227
+    }
+   },
+   {
+    "s": ".hm-again",
+    "b": {
+     "top": 784,
+     "bottom": 828,
+     "left": 309,
+     "right": 374
+    }
+   },
+   {
+    "s": ".gift-chrome",
+    "b": {
+     "top": 10,
+     "bottom": 50,
+     "left": 231,
+     "right": 377
+    }
+   }
+  ]
+ },
+ {
+  "name": "endcard phone-portrait-360x640",
+  "ok": true,
+  "vw": 360,
+  "vh": 640,
+  "finale": {
+   "top": 208,
+   "bottom": 394,
+   "left": 63,
+   "right": 297
+  },
+  "text": "我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。我的小臭猫。",
+  "lines": [
+   {
+    "text": "我们已经有属于自己的两百天了，",
+    "rects": 1
+   },
+   {
+    "text": "我想第两千天可能也并不遥远吧。",
+    "rects": 1
+   },
+   {
+    "text": "也许有一天，也许会是第 2000 天，",
+    "rects": 1
+   },
+   {
+    "text": "我们已经拥有了一个自己的家。",
+    "rects": 1
+   },
+   {
+    "text": "我的小臭猫。",
+    "rects": 1
+   }
+  ],
+  "ctrls": [
+   {
+    "s": ".hm-replay",
+    "b": {
+     "top": 580,
+     "bottom": 624,
+     "left": 16,
+     "right": 81
+    }
+   },
+   {
+    "s": ".hm-edit",
+    "b": {
+     "top": 580,
+     "bottom": 624,
+     "left": 148,
+     "right": 212
+    }
+   },
+   {
+    "s": ".hm-again",
+    "b": {
+     "top": 580,
+     "bottom": 624,
+     "left": 279,
+     "right": 344
+    }
+   },
+   {
+    "s": ".gift-chrome",
+    "b": {
+     "top": 10,
+     "bottom": 50,
+     "left": 201,
+     "right": 347
+    }
+   }
+  ]
+ },
+ {
+  "name": "endcard phone-landscape-667x375",
+  "ok": true,
+  "vw": 667,
+  "vh": 375,
+  "finale": {
+   "top": 94,
+   "bottom": 251,
+   "left": 211,
+   "right": 456
+  },
+  "text": "我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。我的小臭猫。",
+  "lines": [
+   {
+    "text": "我们已经有属于自己的两百天了，",
+    "rects": 1
+   },
+   {
+    "text": "我想第两千天可能也并不遥远吧。",
+    "rects": 1
+   },
+   {
+    "text": "也许有一天，也许会是第 2000 天，",
+    "rects": 1
+   },
+   {
+    "text": "我们已经拥有了一个自己的家。",
+    "rects": 1
+   },
+   {
+    "text": "我的小臭猫。",
+    "rects": 1
+   }
+  ],
+  "ctrls": [
+   {
+    "s": ".hm-replay",
+    "b": {
+     "top": 315,
+     "bottom": 359,
+     "left": 16,
+     "right": 81
+    }
+   },
+   {
+    "s": ".hm-edit",
+    "b": {
+     "top": 315,
+     "bottom": 359,
+     "left": 301,
+     "right": 366
+    }
+   },
+   {
+    "s": ".hm-again",
+    "b": {
+     "top": 315,
+     "bottom": 359,
+     "left": 586,
+     "right": 651
+    }
+   },
+   {
+    "s": ".gift-chrome",
+    "b": {
+     "top": 12,
+     "bottom": 52,
+     "left": 506,
+     "right": 652
+    }
+   }
+  ]
+ },
+ {
+  "name": "endcard en 844x390",
+  "ok": true,
+  "vw": 844,
+  "vh": 390,
+  "finale": {
+   "top": 101,
+   "bottom": 258,
+   "left": 230,
+   "right": 614
+  },
+  "text": "We already have two hundred days that belong to us,and I don’t think day two thousand is that far away.Maybe one day, maybe on day 2000,we will already have a home of our own.My little stinky cat.",
+  "lines": [
+   {
+    "text": "We already have two hundred days that belong to us,",
+    "rects": 1
+   },
+   {
+    "text": "and I don’t think day two thousand is that far away.",
+    "rects": 1
+   },
+   {
+    "text": "Maybe one day, maybe on day 2000,",
+    "rects": 1
+   },
+   {
+    "text": "we will already have a home of our own.",
+    "rects": 1
+   },
+   {
+    "text": "My little stinky cat.",
+    "rects": 1
+   }
+  ],
+  "ctrls": [
+   {
+    "s": ".hm-replay",
+    "b": {
+     "top": 330,
+     "bottom": 374,
+     "left": 16,
+     "right": 141
+    }
+   },
+   {
+    "s": ".hm-edit",
+    "b": {
+     "top": 330,
+     "bottom": 374,
+     "left": 355,
+     "right": 489
+    }
+   },
+   {
+    "s": ".hm-again",
+    "b": {
+     "top": 330,
+     "bottom": 374,
+     "left": 707,
+     "right": 828
+    }
+   },
+   {
+    "s": ".gift-chrome",
+    "b": {
+     "top": 15,
+     "bottom": 55,
+     "left": 660,
+     "right": 825
+    }
+   }
+  ]
+ }
+]

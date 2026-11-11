@@ -1,6 +1,8 @@
 # jelly-gift-story
 
-Public **story edition** of the 200-day anniversary gift (meadow → flower woods → mushroom woods → shop → night → jelly → sea → sky → coop → home) plus a through-line of small plot beats.
+> **WIP takeover:** branch `v03m-spatial-home` is **not** what live Pages runs. Read [`AI_HANDOFF.md`](AI_HANDOFF.md) first (also pointed from [`docs/HANDOFF.md`](docs/HANDOFF.md)). The **required** journey is meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → empty house → spatial furnish → fixed future film. Live published edition remains tag **v03l** at [https://smartlotus.github.io/jelly-gift-story/](https://smartlotus.github.io/jelly-gift-story/) (`gh-pages` `de208c3`, source `ef2405b`). Do not deploy this WIP until a parent visual + functional gate.
+
+Public **story edition** of the 200-day anniversary gift. Live Pages still follow the older published order (meadow → flower woods → mushroom woods → shop → night → jelly → sea → sky → coop → home). The current required order and an honest list of unfinished routing/pig/spatial work live in [`AI_HANDOFF.md`](AI_HANDOFF.md) and [`docs/STORY.md`](docs/STORY.md).
 
 - Live site: [https://smartlotus.github.io/jelly-gift-story/](https://smartlotus.github.io/jelly-gift-story/)
 - This is **not** the older stable gift. That site remains at [`smartlotus/jelly-gift-site`](https://github.com/smartlotus/jelly-gift-site) (source) and [https://smartlotus.github.io/jelly-gift/](https://smartlotus.github.io/jelly-gift/). Do not merge this tree back into those remotes and do not deploy over the old Pages site.

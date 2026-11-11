@@ -6,6 +6,8 @@ import { input } from '../../shared/pixel/input';
 import { makeMap, body, moveBody, overlap, setTile, landOn, tileAt, FEEL, TILE, type Body } from '../../shared/pixel/tiles';
 import { raster, draw } from '../../shared/pixel/sprite';
 import { catSprites, catFrame } from '../../shared/pixel/cat';
+import { pigSprites, pigFrame } from '../../shared/pixel/pig';
+import { drawPetal } from '../wander/blooms';
 import { Particles } from '../../shared/pixel/particles';
 import { PAL, TILES, SPRITES, HEARTS, DECO, bigCloud, hills } from './art';
 import { buildLevel, W, H, G, type Content } from './level';
@@ -33,6 +35,7 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 export function startMeadow(host: HTMLElement, hooks: Hooks, opts: { ready: Promise<void>; at?: string | null; dev?: boolean }) {
   // ---------- assets ----------
   const sp = catSprites();
+  const pigSp = pigSprites();
   const T = {
     grass: TILES.grass.map(v => v.map(R)), dirt: TILES.dirt.map(v => v.map(R)), brick: R(TILES.brick), q: TILES.q.map(R), used: R(TILES.used), stone: R(TILES.stone),
     pipe: { '[': R(TILES.pipe.TL), ']': R(TILES.pipe.TR), '{': R(TILES.pipe.L), '}': R(TILES.pipe.R) } as Record<string, Img>,
@@ -95,6 +98,8 @@ export function startMeadow(host: HTMLElement, hooks: Hooks, opts: { ready: Prom
   const fountain = { x: fE.x, y: fE.y, state: 'idle' as 'idle' | 'show' | 'after', t: 0 };
   const dE = ent('door')[0];
   const door = { x: dE.x, x0: dE.x, y: dE.y, hopTo: dE.hop as number, state: 'idle' as 'idle' | 'hop' | 'still' | 'enter' | 'done', t: 0, hopY: 0 };
+  const escort = { x: dE.x - 36, face: 1 as number };
+  const trail: { x: number; y: number; vx: number; vy: number; rot: number; kind: 'diana' | 'lisi'; s: number; life: number }[] = [];
   const pickups = ent('pickup').map(e => ({ x: e.x, y: e.y, taken: false, ph: Math.random() * 6 }));
   const pops: { x: number; y: number; t: number; big: boolean }[] = [];
   const bumps = new Map<string, number>();
@@ -292,6 +297,28 @@ export function startMeadow(host: HTMLElement, hooks: Hooks, opts: { ready: Prom
 
     // door
     const dr = door;
+    escort.x = dr.x - 36;
+    escort.face = cat.x < escort.x ? -1 : 1;
+    if (cat.x > dr.x - 320 && trail.length < 28 && Math.random() < dt * 14) {
+      const k: 'diana' | 'lisi' = Math.random() < 0.5 ? 'diana' : 'lisi';
+      trail.push({
+        x: cat.x + 8 + Math.random() * 40,
+        y: cat.y - 6 - Math.random() * 28,
+        vx: 18 + Math.random() * 22,
+        vy: -6 + Math.random() * 10,
+        rot: Math.random() * 6,
+        kind: k,
+        s: 1.6 + Math.random(),
+        life: 1,
+      });
+    }
+    for (let i = trail.length - 1; i >= 0; i--) {
+      const p = trail[i]!;
+      p.x += p.vx * dt; p.y += p.vy * dt; p.rot += dt * 1.8; p.life -= dt * 0.22;
+      // drift toward the door
+      p.vx += ((dr.x + 16) - p.x) * dt * 0.35;
+      if (p.life <= 0) trail.splice(i, 1);
+    }
     if (!nearExit && cat.x > dr.x - 260) { nearExit = true; hooks.nearExit(); }
     if (dr.state === 'idle' && cat.x + cat.w > dr.x - 40) { dr.state = 'hop'; dr.t = 0; bangs.push({ x: dr.x + 14, y: dr.y - 62, t: 0 }); sfx.squeak(); }
     else if (dr.state === 'hop') {
@@ -395,6 +422,14 @@ export function startMeadow(host: HTMLElement, hooks: Hooks, opts: { ready: Prom
     g.drawImage(S.fountain[Math.floor(time * (fountain.state === 'show' ? 12 : 6)) & 3], fountain.x - 32 - cx, fountain.y - 64 - cy);
     const dr = door, dframe = dr.state === 'enter' ? 2 : dr.state === 'done' ? 0 : (dr.state === 'still' && Math.abs(catCx() - dr.x - 16) < 64) ? 1 : 0;
     g.drawImage(S.door[dframe], Math.round(dr.x - cx), Math.round(dr.y - 48 - cy + dr.hopY));
+    {
+      const pigImg = pigFrame(pigSp, { vx: 0, vy: 0, ground: true }, time, 1);
+      draw(g, pigImg, escort.x + 6 - 8 - cx, dr.y - 16 - cy, escort.face < 0);
+    }
+    for (const p of trail) {
+      if (p.x - cx < -8 || p.x - cx > vw + 8) continue;
+      drawPetal(g, p.x - cx, p.y - cy, p.kind, p.rot, p.s);
+    }
     if (dframe) { const lx = Math.round(dr.x - cx), ly = dr.y - cy; g.fillStyle = PAL.L; g.fillRect(lx + 8, ly, 16, 1); g.fillRect(lx + 4, ly + 1, 24, 1); g.fillStyle = PAL.Y; g.fillRect(lx + 11, ly, 10, 1); if (Math.floor(time * 3) & 1) { g.fillStyle = PAL.w; g.fillRect(lx + 2 + ((time * 7) % 28 | 0), ly - 18 - ((time * 11) % 20 | 0), 1, 1); } }
     // the cat
     if (splashT < 0 && dr.state !== 'done' && !(blinkT > 0 && Math.floor(blinkT * 16) % 2)) {

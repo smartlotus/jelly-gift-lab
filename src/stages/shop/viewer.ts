@@ -136,12 +136,15 @@ export class Viewer {
         for (const pt of m.parts) { let o: Object3D | null = pt.mesh, side = 0; while (o && !side) { side = o.userData.side ?? 0; o = o.parent; } pt.dir.set(side * 0.11, 0, 0); }
         m.split = 1; m.splitT = 1; this.models.set(id, m); this.prog.set(id, 1); this.warm(m); return m;
       });
-      this.loading.set(id, p); return p;
+      this.loading.set(id, p); p.catch(() => { /* see below */ }); return p;
     }
     p = new Promise<Model>((res, rej) => this.loader.load(asset(`models/${id}.glb`), g => {
       const m = this.prepare(id, g.scene); this.models.set(id, m); this.prog.set(id, 1); this.warm(m); res(m);
     }, e => { if (e.total) this.prog.set(id, Math.max(0.02, e.loaded / e.total) * 0.95); }, rej));
-    this.loading.set(id, p); return p;
+    // fire-and-forget callers (lazy load each frame) must not leave an unhandled rejection when a fetch fails —
+    // offline, or aborted because the page is being left (WebKit reports that as "access control checks").
+    // Callers that await still see the rejection; a failed exhibit stays empty, as before.
+    this.loading.set(id, p); p.catch(() => { /* handled: see above */ }); return p;
   }
 
   /** compile the model's shader programs right after it loads (during the title card for No.01), so its first
