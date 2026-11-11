@@ -5,7 +5,8 @@
 **t26 pass:** Monday 9 November 2026 — the 200-day ending is withdrawn, web polish (see §"t26").
 **t26d:** Monday 9 November 2026, evening — the v4 future-home film **candidate is integrated on this dev branch** (not merged, not deployed, still under review; see §"t26d").
 **t26e:** same evening — the WebKit page errors from the t26d run explained; two real unhandled rejections fixed (see §"t26e").
-**t33 (branch `v03s-anniv-ending`):** same night — preview branch where the ending plays the **200-day film** (`anniv-200.mp4`) instead of the v4 future-home film (see §"t33"). Not merged, not deployed.
+**t33 (branch `v03s-anniv-ending`):** same night — preview branch where the ending plays the **200-day film** (`anniv-200.mp4`) instead of the v4 future-home film (see §"t33").
+**t35 / t36:** no pre-film text, closing card order 2·3·1·4 (t35); the complete 1080p v2 200-day film swapped in, `v03s-anniv-ending` **merged into `main` and deployed to Pages** on Wednesday 11 November 2026 (see §"t36").
 
 This file is the durable takeover note. It describes **what is on branch `v03m-spatial-home` right now**, not what the live Pages site runs.
 
@@ -24,7 +25,17 @@ After each push, `git rev-parse origin/v03m-spatial-home` is the source of truth
 
 ---
 
-## t35 — no words before the film; closing card in the order 2 · 3 · 1 · 4 (branch `v03s-anniv-ending`, 2026-11-09 night, America/Los_Angeles)
+## t36 — complete 1080p 200-day film; merged and deployed (Wednesday 11 November 2026, Asia/Shanghai)
+
+User request t36u: 「这个视频才那么短吗？Notion 里面的不是很长吗？把 Notion 里面的完整视频加进去啊我要的是完整版，同时现在把这个版本部署上网站，给我网站网址」.
+
+- Source: Notion page 臭猪臭猫｜200天纪念日动画完整项目 (`bdb0d79231e4434885f3d359c66b5239`), project zip → `anniv/out/臭猪臭猫_200天纪念日_v2.mp4` (final v2 成片). It is the same film as the old site file (Remotion `durationInFrames={2030}`, 30 fps = **67.712 s**); there is no longer cut in that project. The old site copy was a 1280×720 / 11.6 MB downscale.
+- `public/media/anniv-200.mp4` is now that file **byte for byte** (no re-encode, no cut, already faststart: `moov` before `mdat`): H.264 High 1920×1080 30 fps 2030 frames + AAC, 58,067,050 bytes, md5 `d570c6b239b61cd6a933b5a52375e76e`. Same filename, so `ending-film.json` and `/sky/` cinema both pick it up.
+- `public/media/anniv-200-poster.jpg` regenerated from the 1080p film at the same frame as before (~66.67 s, the 臭猪臭猫 / 200天纪念日快乐 title card), 1920×1080.
+- `tools/v03r-verify.mjs`: real-film check now expects 1920×1080 and duration 67.712 s. Suite 208/208 (Chromium + WebKit), log `review/v03s/t36-verify.log`.
+- Deploy: `v03s-anniv-ending` merged into `main` (non-force `--no-ff`), then `GIFT_DEPLOY=1 scripts/deploy_pages.sh`. Live hashes are recorded in the follow-up commit below / in the table at the top.
+
+ closing card in the order 2 · 3 · 1 · 4 (branch `v03s-anniv-ending`, 2026-11-09 night, America/Los_Angeles)
 
 User request t35u: 「我要将播放后顺序改为 2314，播放前不放文字了」. The four sentences: 1 也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。 2 我们已经有属于自己的两百天了， 3 我想第两千天可能也并不遥远吧。 4 我的小臭猫。
 

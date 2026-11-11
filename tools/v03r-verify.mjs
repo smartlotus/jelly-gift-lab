@@ -543,7 +543,7 @@ async function realFilm(browser, tag) {
     const q = v.getVideoPlaybackQuality?.() || {};
     let lum = null, spread = null;
     try { const c = document.createElement('canvas'); c.width = 64; c.height = 36; const g = c.getContext('2d'); g.drawImage(v, 0, 0, 64, 36); const d = g.getImageData(0, 0, 64, 36).data; let s = 0, mn = 255, mx = 0; for (let i = 0; i < d.length; i += 4) { const y = (d[i] + d[i + 1] + d[i + 2]) / 3; s += y; mn = Math.min(mn, y); mx = Math.max(mx, y); } lum = +(s / (d.length / 4)).toFixed(1); spread = +(mx - mn).toFixed(0); } catch (e) { lum = String(e); }
-    return { t: +v.currentTime.toFixed(2), paused: v.paused, muted: v.muted, w: v.videoWidth, h: v.videoHeight, ready: v.readyState, err: v.error?.code ?? null, frames: q.totalVideoFrames ?? null, dropped: q.droppedVideoFrames ?? null, audioBytes: v.webkitAudioDecodedByteCount ?? null, videoBytes: v.webkitVideoDecodedByteCount ?? null, lum, spread, state: window.__home.film(), phase: window.__home.phase(), src: v.currentSrc.replace(location.origin, '') };
+    return { t: +v.currentTime.toFixed(2), dur: v.duration, paused: v.paused, muted: v.muted, w: v.videoWidth, h: v.videoHeight, ready: v.readyState, err: v.error?.code ?? null, frames: q.totalVideoFrames ?? null, dropped: q.droppedVideoFrames ?? null, audioBytes: v.webkitAudioDecodedByteCount ?? null, videoBytes: v.webkitVideoDecodedByteCount ?? null, lum, spread, state: window.__home.film(), phase: window.__home.phase(), src: v.currentSrc.replace(location.origin, '') };
   });
   // (a) desktop: save → the 200-day film plays, real frames decode, the page's own lines frame it, sound follows the switch
   {
@@ -558,7 +558,7 @@ async function realFilm(browser, tag) {
     await page.screenshot({ path: `${OUT}/${tag}-real-film-playing-3s.png` });
     L('the three media files load from the site base (ending-film.json, anniv-200 poster, anniv-200.mp4 range)', ['/media/ending-film.json', '/media/anniv-200-poster.jpg', '/media/anniv-200.mp4'].every(u => net.some(n => n.url.endsWith(u) && n.status < 400)), { net: net.slice(0, 6) });
     L('/home/ no longer requests the v4 future-home film', !reqs.some(u => /future-home\.(mp4|json)|future-home-poster/.test(u)), {});
-    L('H.264 1280×720 (the 200-day film) decodes and plays: currentTime and decoded frames advance, picture is not blank', p1 && p2 && p2.err === null && p2.w === 1280 && p2.h === 720 && /anniv-200\.mp4$/.test(p2.src) && p2.t > p1.t + 1.5 && p2.frames > p1.frames + 30 && p2.spread > 40 && !p2.paused, { p1, p2 });
+    L('H.264 1920×1080 (t36: the complete 200-day film, v2 成片 67.712 s) decodes and plays: currentTime and decoded frames advance, picture is not blank', p1 && p2 && p2.err === null && p2.w === 1920 && p2.h === 1080 && Math.abs((p2.dur ?? 67.712) - 67.712) < 0.1 && /anniv-200\.mp4$/.test(p2.src) && p2.t > p1.t + 1.5 && p2.frames > p1.frames + 30 && p2.spread > 40 && !p2.paused, { p1, p2 });
     L('t35: no words before the film (save → paper → film, no 也许有一天… line)', !lineOn, { lineOn });
     const quiet = await page.evaluate(() => !document.querySelector('.hm-line')?.classList.contains('on') && !document.querySelector('.hm-finale').classList.contains('on'));
     L('no page text over the playing film', quiet, { quiet });
