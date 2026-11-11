@@ -1,11 +1,17 @@
 # jelly-gift-story
 
-> **WIP takeover:** branch `v03m-spatial-home` is **not** what live Pages runs. Read [`AI_HANDOFF.md`](AI_HANDOFF.md) first (also pointed from [`docs/HANDOFF.md`](docs/HANDOFF.md)). The **required** journey is meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → empty house → spatial furnish → fixed future film. Live published edition remains tag **v03l** at [https://smartlotus.github.io/jelly-gift-story/](https://smartlotus.github.io/jelly-gift-story/) (`gh-pages` `de208c3`, source `ef2405b`). Do not deploy this WIP until a parent visual + functional gate.
+Public **story edition** of the 200-day anniversary gift. On 11 November 2026 (Asia/Shanghai) branch `v03s-anniv-ending` was merged into `main` (`a2094e3`, 11:34) and deployed to GitHub Pages (`gh-pages` `c4818cb`; Pages build completed 11:35, status `built`). A follow-up commit on `main`, `1598fc4` (11:37), records those live hashes. Read [`AI_HANDOFF.md`](AI_HANDOFF.md) first (also pointed from [`docs/HANDOFF.md`](docs/HANDOFF.md)).
 
-Public **story edition** of the 200-day anniversary gift. Live Pages still follow the older published order (meadow → flower woods → mushroom woods → shop → night → jelly → sea → sky → coop → home). The current required order and an honest list of unfinished routing/pig/spatial work live in [`AI_HANDOFF.md`](AI_HANDOFF.md) and [`docs/STORY.md`](docs/STORY.md).
+Live journey (`STAGES` in `src/shared/flow.ts`):
+
+`meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → home`
+
+AR is a side room from the shop and always returns to the shop. After 「保存布局」, `/home/` plays the complete Notion v2 200-day film (`public/media/anniv-200.mp4`, 1920×1080, 67.712 s) with no text before the film; the closing card then uses the t35 order (2·3·1·4), ending on 「我的小臭猫。」. The unused v4 future-home film remains in the repo; a v5 realistic cut exists only as pre-release [`film-v05`](https://github.com/smartlotus/jelly-gift-story/releases/tag/film-v05) / draft [PR #3](https://github.com/smartlotus/jelly-gift-story/pull/3) and is not integrated. Do not redeploy without a new user request.
+
+Known leftovers: the film’s white background leaves letterbox bands on a portrait phone; a real iPhone Safari walkthrough is still needed (automated tests are not a substitute); the 55 MB `anniv-200.mp4` is over GitHub’s 50 MB recommendation (hard limit 100 MB) and is not on LFS.
 
 - Live site: [https://smartlotus.github.io/jelly-gift-story/](https://smartlotus.github.io/jelly-gift-story/)
-- This is **not** the older stable gift. That site remains at [`smartlotus/jelly-gift-site`](https://github.com/smartlotus/jelly-gift-site) (source) and [https://smartlotus.github.io/jelly-gift/](https://smartlotus.github.io/jelly-gift/). Do not merge this tree back into those remotes and do not deploy over the old Pages site.
+- This is **not** the older stable gift. That site remains at [`smartlotus/jelly-gift-site`](https://github.com/smartlotus/jelly-gift-site) (private source, delivered **v03i**) and [https://smartlotus.github.io/jelly-gift/](https://smartlotus.github.io/jelly-gift/) (last deploy `1c2d5de`, 5 November 2026 10:10 Asia/Shanghai). Do not merge this tree back into those remotes and do not deploy over the old Pages site.
 
 - Story intent and beat table: [`docs/STORY.md`](docs/STORY.md)
 - Engineering notes: [`docs/HANDOFF.md`](docs/HANDOFF.md)
@@ -17,8 +23,8 @@ Public **story edition** of the 200-day anniversary gift. Live Pages still follo
 
 # Jelly Studies（果冻标本）— Hammerhead · Little Pig · Sleepy Cat
 
-> **200 天礼物旅程（进行中）**：本仓库现在是一个多页面网站——`/` 第一章像素闯关 → `/shop/` 3D 模型小店 → `/night/` 夜路整蛊 → `/jelly/` 本果冻页（终章）。
-> 计划见 [`docs/GIFT_PLAN.md`](docs/GIFT_PLAN.md)，接手/进度见 [`docs/HANDOFF.md`](docs/HANDOFF.md)。下文描述的是果冻页本身（现位于 `jelly/index.html`，资源在 `public/jelly/assets/`）。
+> **200 天礼物旅程**：本仓库是一个多页面网站。现行顺序见上文；果冻页在 `jelly/index.html`，不再是终章。
+> 计划见 [`docs/GIFT_PLAN.md`](docs/GIFT_PLAN.md)，接手/进度见 [`AI_HANDOFF.md`](AI_HANDOFF.md) 与 [`docs/HANDOFF.md`](docs/HANDOFF.md)。下文描述的是果冻页本身（资源在 `public/jelly/assets/`）。
 
 Interactive soft-body jelly characters for a 200-day anniversary gift: No. 1 hammerhead shark, No. 2 the pig and
 No. 3 the cat from the couple's doodles. A hidden line-art mushroom (top right) opens the easter egg.

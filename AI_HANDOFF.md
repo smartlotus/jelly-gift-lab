@@ -1,27 +1,27 @@
 # AI handoff — story edition WIP (read this first)
 
-**Last checkpoint:** Saturday 7 November 2026, late evening, America/Los_Angeles (this file updates with each pushed increment).
+**Last checkpoint:** Wednesday 11 November 2026, Asia/Shanghai — t36 merged and deployed (this file updates with each pushed increment).
 **Follow-up pass:** Sunday 8 November 2026 — pig companion, caption clearance, cottage, dollhouse polish (see §"v03n pass").
-**t26 pass:** Monday 9 November 2026 — the 200-day ending is withdrawn, web polish (see §"t26").
-**t26d:** Monday 9 November 2026, evening — the v4 future-home film **candidate is integrated on this dev branch** (not merged, not deployed, still under review; see §"t26d").
+**t26 pass:** Monday 9 November 2026 — the 200-day ending is withdrawn, web polish (see §"t26"; later superseded by t33/t36).
+**t26d:** Monday 9 November 2026, evening — the v4 future-home film candidate was integrated on the then-dev branch (see §"t26d"; v4 is now in the repo but unused on live Pages).
 **t26e:** same evening — the WebKit page errors from the t26d run explained; two real unhandled rejections fixed (see §"t26e").
-**t33 (branch `v03s-anniv-ending`):** same night — preview branch where the ending plays the **200-day film** (`anniv-200.mp4`) instead of the v4 future-home film (see §"t33").
+**t33 (branch `v03s-anniv-ending`):** same night — preview branch where the ending plays the **200-day film** (`anniv-200.mp4`) instead of the v4 future-home film (see §"t33"; merged in t36).
 **t35 / t36:** no pre-film text, closing card order 2·3·1·4 (t35); the complete 1080p v2 200-day film swapped in, `v03s-anniv-ending` **merged into `main` and deployed to Pages** on Wednesday 11 November 2026 (see §"t36").
 
-This file is the durable takeover note. It describes **what is on branch `v03m-spatial-home` right now**, not what the live Pages site runs.
+This file is the durable takeover note. It describes **what is on `main` and on live Pages as of t36**. Pass notes below t36 (§t33, §t26, §v03n, and so on) are historical: they describe the branch at that time, not the current live site.
 
 | Item | Value |
 | --- | --- |
 | Repo | [`smartlotus/jelly-gift-story`](https://github.com/smartlotus/jelly-gift-story) (public) |
-| Working tree | `/workspace/jelly/jelly-gift-story` |
-| WIP branch | `v03m-spatial-home` |
-| Default branch `main` | `a2094e3` — merge of `v03s-anniv-ending` (t36, Wednesday 11 November 2026); previous `e08e1c2` (v03l record) |
-| Live delivered source | tag **`v03l`** = `ef2405b635d532cd219914812f7681f523640be7` (merge of [PR #2](https://github.com/smartlotus/jelly-gift-story/pull/2)) |
-| Live Pages | https://smartlotus.github.io/jelly-gift-story/ — `gh-pages` `c4818cbe68a10b39676bc62ad930656f33a0460b` (“Deploy story edition (a2094e3)”, t36: v03s-anniv-ending + complete 1080p 200-day film). Previous: `de208c3` (v03l, source `ef2405b`) |
-| This WIP | **deployed in t36** (user asked: 「现在把这个版本部署上网站」). Do not redeploy further changes without a new user request. |
-| Old stable gift | **Do not touch.** `smartlotus/jelly-gift` / `jelly-gift-site`, live https://smartlotus.github.io/jelly-gift/, last deploy `1c2d5de`. Do not merge this work into that default branch. Old source PR 7 stays open and untouched. |
+| Working tree | `/workspace/jelly/jelly-gift-story` (local checkout path may differ) |
+| Default branch `main` | merge `a2094e3` — `v03s-anniv-ending` (t36, 11 November 2026 11:34 Asia/Shanghai); tip after the hash record is `1598fc4` (11:37). Earlier published tag **`v03l`** (`ef2405b`, [PR #2](https://github.com/smartlotus/jelly-gift-story/pull/2)) is no longer what Pages runs. |
+| Live Pages | https://smartlotus.github.io/jelly-gift-story/ — `gh-pages` `c4818cbe68a10b39676bc62ad930656f33a0460b` (“Deploy story edition (a2094e3)”), Pages build completed 11:35, status `built`. Previous: `de208c3` (v03l, source `ef2405b`). |
+| Live journey | `meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → home` (`STAGES` in `src/shared/flow.ts`). AR is a shop side room and always returns to the shop. |
+| Ending film | `public/media/ending-film.json` → complete Notion v2 200-day film `anniv-200.mp4` (1920×1080, 30 fps, 2030 frames, 67.712 s, 58,067,050 bytes). No text before the film; closing card t35 order 2·3·1·4, last line 「我的小臭猫。」. v4 `future-home.*` is in the repo but unused. v5 is only pre-release [`film-v05`](https://github.com/smartlotus/jelly-gift-story/releases/tag/film-v05) / draft [PR #3](https://github.com/smartlotus/jelly-gift-story/pull/3), not integrated. |
+| Deploy | **Done in t36** (user asked: 「现在把这个版本部署上网站」). Do not redeploy further changes without a new user request. |
+| Old stable gift | **Do not touch.** `smartlotus/jelly-gift` / private source `jelly-gift-site` (delivered **v03i**), live https://smartlotus.github.io/jelly-gift/, last deploy `1c2d5de` (5 November 2026 10:10 Asia/Shanghai). Do not merge this work into that default branch. Old source PR 7 stays open (draft, DO NOT MERGE) and untouched. |
 
-After each push, `git rev-parse origin/v03m-spatial-home` is the source of truth for the SHA.
+After each push, `git rev-parse origin/main` is the source of truth for the SHA.
 
 ---
 
@@ -49,7 +49,7 @@ User request t35u: 「我要将播放后顺序改为 2314，播放前不放文�
 ## t33 — preview: the 200-day film as the ending (branch `v03s-anniv-ending`, 2026-11-09 night, America/Los_Angeles)
 
 User request t33u: 「现在先用第四个视频替代未来的家影片，做好网页给我看看效果」 — the 4th video = `anniv-200.mp4` (the 200-day film).
-Branch `v03s-anniv-ending` from `v03m-spatial-home` @ `3a5fd50`. **Not merged, not deployed**; `main` / `gh-pages` unchanged.
+Branch `v03s-anniv-ending` from `v03m-spatial-home` @ `3a5fd50`. **At the time of this pass:** not yet merged or deployed; `main` / `gh-pages` unchanged. **Superseded by t36:** this branch was merged into `main` (`a2094e3`) and deployed (`gh-pages` `c4818cb`) on 11 November 2026.
 
 - New `public/media/ending-film.json` → `{src: media/anniv-200.mp4, poster: media/anniv-200-poster.jpg, audio: true}`, **no `burned`**:
   the film has none of the protected lines in its picture (it ends on its own drawn title 臭猪臭猫 / 200天纪念日快乐), so the
@@ -70,7 +70,7 @@ Branch `v03s-anniv-ending` from `v03m-spatial-home` @ `3a5fd50`. **Not merged, n
 
 ## t26 — the 200-day ending is withdrawn; web polish; future-home film in production (2026-11-09, America/Los_Angeles)
 
-**Status:** still **not deployed**, nothing merged to `main` / `gh-pages`, old stable `smartlotus/jelly-gift(-site)` and PR 7 untouched.
+**Status at the time of this pass:** not yet deployed, nothing yet merged to `main` / `gh-pages`. **Superseded by t36** (merged and deployed 11 November 2026). Old stable `smartlotus/jelly-gift(-site)` and PR 7 remain untouched.
 
 ### Ending decision (supersedes v03q below)
 
@@ -154,8 +154,7 @@ Not fixed (not reproduced, out of scope): `src/stages/coop/qr.ts` also does `voi
 
 ### t26d — v4 future-home film candidate integrated on the dev branch (2026-11-09 evening, PT)
 
-**Status:** candidate, under review. On `v03m-spatial-home` only; **not merged, not deployed**; `main`, `gh-pages` and
-the old stable gift are unchanged. Earlier notes in this file that say "not integrated" describe the state before t26d.
+**Status at the time of this pass:** candidate, under review. On `v03m-spatial-home` only; not yet merged or deployed. **As of t36:** v4 `future-home.*` landed on `main` with the merge but is unused (live ending is `anniv-200.mp4`). The old stable gift is unchanged. Earlier notes in this file that say "not integrated" describe the state before t26d.
 
 Files (copied byte for byte from the render dir `jelly-future-film-v03r/out/v4/`, nothing else from it):
 
@@ -247,7 +246,7 @@ still pending with the parent.
 
 ## v03n pass — pig companion, caption clearance, cottage, dollhouse polish (2026-11-08)
 
-Still **not deployed**; nothing merged to `main`. Everything below is on `v03m-spatial-home` only.
+**At the time of this pass:** not yet deployed; nothing yet merged to `main`. Everything below was on `v03m-spatial-home` only. **Superseded by t36:** this work is now on `main` and on live Pages.
 
 ### Painted pig companion (flower + mushroom woods)
 
@@ -386,7 +385,7 @@ sprites on painted plates, so figures dissolved into the set; the transform stil
 
 ### Journey order (t23u)
 
-**meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → empty-house discovery → spatial furnishing → fixed independent future film**
+**meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → home** (empty-house discovery → spatial furnishing → ending film). Live Pages follow this `STAGES` order as of t36. The ending film is the complete Notion v2 200-day film (`anniv-200.mp4`), still independent of the saved layout.
 
 User wording: 「我要求现在顺序是草地到小店再到夜路再到果冻海天空再到一起玩再到花海蘑菇海再到空房子再到布置和未来生活，合理衔接调整」.
 
@@ -404,7 +403,7 @@ Two independent modules: **A** realtime volumetric decoration; **B** a fixed cin
 
 ### Protected copy, art, music
 
-Do not change the three exact Chinese home lines in `src/stages/home/dict.ts` (`home.found` / `home.transform` / `home.finale`). Only two named flower species: **戴安娜粉玫瑰** and **云南紫精灵**. Keep the original airy BGM. No original private photos. Pig loader only if a page takes longer than 700 ms.
+Do not change the exact Chinese home lines in `src/stages/home/dict.ts` (`home.found` / `home.transform` / `home.finale`). Presentation as of t35: no pre-film text (`home.transform` is kept in the dict but not shown on `/home/`); the closing card shows `home.finale` in order 2·3·1·4, last line 「我的小臭猫。」. Only two named flower species: **戴安娜粉玫瑰** and **云南紫精灵**. Keep the original airy BGM. No original private photos. Pig loader only if a page takes longer than 700 ms.
 
 ---
 
@@ -422,7 +421,7 @@ Historical `docs/HANDOFF.md` paragraphs about v03j’s old sequence are history,
 
 ---
 
-## What is implemented on this branch (verified 2026-11-07 evening, America/Los_Angeles)
+## What is implemented (verified 2026-11-07 evening, America/Los_Angeles; now on `main` and live as of t36)
 
 ### Routing — done and hop-tested (Chromium)
 
@@ -490,8 +489,11 @@ Honest aesthetic caveat: the furniture is hand-built from boxes/textures in a pi
 
 ## Still unfinished / caveats
 
-- **Not deployed.** Live Pages are still v03l / the old published order (meadow → flower → mushroom → shop → … → coop → home).
-- No merge to `main`.
+- **Live as of t36 (11 November 2026).** `main` merge `a2094e3`, `gh-pages` `c4818cb`, Pages built 11:35. The live journey is meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → home, not the old v03l order (meadow → flower → mushroom → shop → …).
+- A real-device walkthrough on iPhone Safari is still needed. Automated tests (208/208 in the t36 commit) are not a substitute.
+- The ending film has a white background; on a portrait phone the picture is letterboxed with white bands above and below. This is a known leftover visual issue.
+- The live `anniv-200.mp4` is 55 MB, over GitHub’s 50 MB recommendation (hard limit 100 MB), and is not on LFS.
+- v4 `future-home.*` remains in the repo unused. v5 (draft PR #3, pre-release `film-v05`) is not integrated and must not be merged or deployed without a new user request.
 - ~~Pig companion uses the procedural 16×16 walk cycle~~ — **fixed in the v03n pass**: she now uses painted 46×41 frames (`public/art/fauna/pig-0..3.png`). The 16² sheet still drives the pure-pixel stages (meadow/shop/coop/home transform), where it matches the art there.
 - On a sudden reverse, the pig **waits** on its current side until the cat passes, then falls in behind (so it never walks through her). A short left-walk strip taken immediately after a right-walk can still show the pig on the old side.
 - After-strips include an iris-pink first frame on some captures. Videos are short (~1–2 s) assembled from those frames, not a long handheld phone recording.
@@ -504,10 +506,11 @@ Honest aesthetic caveat: the furniture is hand-built from boxes/textures in a pi
 
 ## Next priorities (for whoever picks this up)
 
-1. Parent visual + functional gate of this increment (journey, pig follow, cottage, spatial dollhouse, film independence). Do not deploy until that happens.
-2. If the gate wants richer furniture or a less overlay-like mushroom cottage, polish those without changing the t23 order or the three home lines.
-3. Optional: a longer normal-speed flower/mushroom walk video and a dedicated drag-near/far recording if the parent wants more motion evidence than the short webms + strips.
-4. Open a PR against `main` only if convention requires review; do not merge or deploy.
+1. Walk the live site on a real iPhone Safari (and, if possible, an Android Chrome). Automated tests are not a substitute.
+2. Decide whether the portrait letterbox around the white-background 200-day film needs a visual fix.
+3. If richer furniture or a less overlay-like mushroom cottage is wanted, polish those without changing the t23 order or the protected home lines.
+4. Ending-film alternatives stay parked: to switch back to v4, copy `future-home.json` into `ending-film.json`. v5 is only in `film-v05` / draft PR #3 — do not merge or deploy it without a new user request.
+5. Do not redeploy Pages without a new user request.
 
 ---
 
@@ -525,7 +528,7 @@ GIO_USE_PROXY_RESOLVER=dummy GSETTINGS_BACKEND=memory \
 
 Playwright import used by this repo’s tools: `file:///workspace/jelly/pw/node_modules/playwright/index.mjs`. Chrome: `/usr/bin/google-chrome`.
 
-Deploy (**do not run** until parent authorizes; story repo only, non-force):
+Deploy (**do not run** unless the user newly authorizes a redeploy; story repo only, non-force). t36 already published `gh-pages` `c4818cb` from `a2094e3`:
 
 ```bash
 GIFT_DEPLOY=1 scripts/deploy_pages.sh
@@ -549,7 +552,7 @@ The deploy script hard-refuses `jelly-gift.git`.
 | Coop → flower | `src/stages/coop/{main,game}.ts` |
 | Woods + pig follow + cottage | `src/stages/wander/engine.ts` |
 | Home Module A | `src/stages/home/decorate/*`, `save.ts` |
-| Home Module B | `src/stages/home/cineRoom.ts`, `montage.ts`, `main.ts` |
+| Home Module B / ending film | `src/stages/home/endingFilm.ts`, `main.ts`, `public/media/ending-film.json` |
 | Verification | `tools/v03m-verify.mjs`, `review/v03m/verify.json` |
 
 Vite MPA `base: './'`. Never use absolute `/art/...` URLs.
@@ -559,5 +562,5 @@ Vite MPA `base: './'`. Never use absolute `/art/...` URLs.
 ## Constraints
 
 - Story repo only. No edits under `/workspace/jelly/jelly-gift` or `smartlotus/jelly-gift`.
-- No deploy, no force-push, no amend of already-pushed commits.
-- No original private photos, no `*-far.jpg` dumps, no secrets, no giant mp4s.
+- No deploy, no force-push, no amend of already-pushed commits, unless the user newly asks for a deploy.
+- No original private photos, no `*-far.jpg` dumps, no secrets. The live 55 MB `anniv-200.mp4` is already on `main` and Pages (over the 50 MB recommendation, no LFS); do not add further giant media without asking.

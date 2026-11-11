@@ -1,6 +1,6 @@
 # Story edition — intent and beat table
 
-A single walk through two hundred days, and a glimpse of two thousand. The cat (and later the pig with her) moves through places they already share: the flowers he will give her, the mushrooms she loves, the things he made, a playful night, the jelly they can poke, the sea and the Changchun sky, a game they play together, and a house they might one day fill.
+A single walk through two hundred days, and a glimpse of two thousand. The cat (and later the pig with her) moves through places they already share: a bright meadow, the things he made, a playful night, the jelly they can poke, the sea and the Changchun sky, a game they play together, the flowers he will give her, the mushrooms she loves, and a house they might one day fill.
 
 There are no chapter title cards. Lines are short, spoken in the scene, and fade on their own. Existing tunings stay: the shop door still says 「外面天黑了。」, night keeps its map and back, the pink iris into jelly, the sea and sky handoffs, coop’s 「往前走走」.
 
@@ -19,13 +19,15 @@ No other flower species appear in the woods.
 
 ## Order
 
-**Required (t23u, supersedes earlier flower-before-shop and optional-night plans):**
+**Required (t23u, supersedes earlier flower-before-shop and optional-night plans).** This is also what live Pages run as of t36 (11 November 2026, Asia/Shanghai), matching `STAGES` in `src/shared/flow.ts`:
 
-`meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → empty-house discovery → spatial furnish → fixed independent future film`
+`meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → home`
 
-AR remains a side path from the shop and always returns to the shop (`go('shop')`). Night is **on the mainline** (do not skip it via a lit shop exit). Night’s internal map and “turn back” stay inside the night; every night ending goes to jelly. Jelly has a clear 入海 control outside the mushroom egg (the egg is optional). The 200-day film on `/sky/` is optional. Coop’s 「往前走走」 continues into the flower wood along an open path (not a cottage, not `/home/`). Flower → mushroom keeps the canvas/iris handoff. The mushroom grove ends at a warm **home cottage** window, then the empty house, then spatial decorate. Save starts a cinematic whose furniture and blocking never read the saved layout. Home “再看一遍” replays only that film; “从头再来” returns to the meadow. Progress still uses `gift.progress` for the discreet continue affordance.
+(`home` is empty-house discovery, then spatial furnish, then the ending film.)
 
-Routing, curtain skip-ahead `NEXT`, and explicit `go(...)` targets on this branch now follow that order. Live Pages (tag v03l) still use the older published order until a parent-authorized deploy.
+AR remains a side path from the shop and always returns to the shop (`go('shop')`). Night is **on the mainline** (do not skip it via a lit shop exit). Night’s internal map and “turn back” stay inside the night; every night ending goes to jelly. Jelly has a clear 入海 control outside the mushroom egg (the egg is optional). The 200-day film on `/sky/` is optional. Coop’s 「往前走走」 continues into the flower wood along an open path (not a cottage, not `/home/`). Flower → mushroom keeps the canvas/iris handoff. The mushroom grove ends at a warm **home cottage** window, then the empty house, then spatial decorate. 「保存布局」 leaves the room with no pre-film text and plays the complete Notion v2 200-day film (`anniv-200.mp4`, 1920×1080, 67.712 s). That film’s furniture and blocking never read the saved layout. After it ends, the closing card uses the t35 order (2·3·1·4), last line 「我的小臭猫。」. Home “再看一遍” replays only that film; “从头再来” returns to the meadow. Progress still uses `gift.progress` for the discreet continue affordance.
+
+The unused v4 future-home film (`public/media/future-home.*`) stays in the repo and can be switched back by copying `future-home.json` into `ending-film.json`. A v5 realistic cut is only in pre-release `film-v05` and draft PR #3 — not integrated, not on Pages. The old published order (meadow → flower → mushroom → shop → …) is no longer what live Pages run.
 
 ## Beat table
 
@@ -46,8 +48,8 @@ Routing, curtain skip-ahead `NEXT`, and explicit `go(...)` targets on this branc
 | 13 | mushroom | Shortly after entering | 天暗了下来。这些蘑菇，一盏一盏的。 | It’s gotten dark. The mushrooms are lighting the way, one by one. | Her other love; dusk. The pig still follows. |
 | 14 | mushroom | Near the arch | 前面有暖光。窗子亮着。 | There’s a warm light ahead. A window is glowing. | Hands off to the empty house. Does not repeat `home.found`. |
 | 15 | home · find | When they stop at the house | 这里有一间空房子诶，我们可以布置一下 | There’s an empty house — we could furnish it a little. | Exact user line. |
-| 16 | home · save | On 保存布局 — leaves the spatial room and starts the fixed future-home film (t26d: v4 candidate integrated on the dev branch, under review; its first and closing lines are burned into the picture, so the page does not repeat them) | 也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。 | Maybe one day, maybe on day 2000, we already have a home of our own. | Exact user line. |
-| 17 | home · finale | After the sunrise | 我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。我的小臭猫。 | We already have two hundred days of our own. I don’t think day two thousand is that far away. My little stinky cat. | Exact user line. |
+| 16 | home · save | On 保存布局 — leaves the spatial room; no text before the film (t35). Plays the complete Notion v2 200-day film (`anniv-200.mp4`). The line below is **not** shown here; it appears on the closing card (stanza 1 of t35 order 2·3·1·4). | （播放前不出现文字） | (no pre-film text) | Save → cream paper veil → film. |
+| 17 | home · finale | After the film ends (t35 closing card, order 2·3·1·4). The four sentences are: 1 也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。 2 我们已经有属于自己的两百天了， 3 我想第两千天可能也并不遥远吧。 4 我的小臭猫。 Shown as [2, 3] / [1] / [4], with 「我的小臭猫。」 last, slightly larger, a hairline above. | 我们已经有属于自己的两百天了，我想第两千天可能也并不遥远吧。 / 也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。 / 我的小臭猫。 | We already have two hundred days that belong to us, and I don’t think day two thousand is that far away. / Maybe one day, maybe on day 2000, we will already have a home of our own. / My little stinky cat. | Exact user lines, t35 order. |
 
 Visual connective cues (not extra species): petals of the two bouquet flowers may drift in the meadow toward the shop door. After coop, pig and cat walk the same way into the flower wood. On **both** flower and mushroom paths a small pig **follows the cat continuously** (walking frames, same grounded path and gap, no overlapping or trapping, coherent facing) — not an entrance send-off and not waiting at the exit. The flower wood may gradually dusken with the first glowing mushrooms near its exit. The mushroom grove ends at a warm home-cottage window, not a shop window. Sea and sky are remembered views — they do not turn the couple into a shark.
 
@@ -57,7 +59,7 @@ Visual connective cues (not extra species): petals of the two bouquet flowers ma
 - AR is a side room from the shop and always returns to the shop.
 - The 200-day film on `/sky/` is optional; the path continues to coop without watching it.
 - The jelly mushroom egg is optional; 入海 on the jelly page is the mainline way into the sea.
-- Home decorating is a spatial room (Module A). Save leaves that game and plays a fixed cinematic (Module B) whose furniture and blocking never read the saved layout. As of t26 (2026-11-09) that cinematic is a new six-scene future-home film made in a separate workstream; the 200-day film is **not** the ending (it stays optional on `/sky/`). Since t26d the v4 candidate (`public/media/future-home.*`, 95.6 s) is on the dev branch, not deployed, still under review; see `docs/FUTURE_FILM.md`. An empty save still continues. 「继续布置」 returns to the saved spatial room; 「再看一遍」 replays only the film.
+- Home decorating is a spatial room (Module A). Save leaves that game and plays a fixed cinematic (Module B) whose furniture and blocking never read the saved layout. As of t36 (11 November 2026) that cinematic is the complete Notion v2 200-day film (`anniv-200.mp4`); the same film remains optional on `/sky/`. The v4 future-home candidate (`public/media/future-home.*`, 95.6 s) is still in the repo but unused — see `docs/FUTURE_FILM.md`. v5 is only a pre-release / draft PR, not integrated. An empty save still continues. 「继续布置」 returns to the saved spatial room; 「再看一遍」 replays only the film. Known leftover: the film’s white background leaves letterbox bands on a portrait phone.
 
 There are no new chapter title cards. The pig loading curtain still appears only if a page takes longer than 700 ms. Outgoing colour and canvas are handed to the next page so hops are not a flat flash. Music fades out and in across page loads — a single uninterrupted AudioContext cannot span this multi-page app.
 
