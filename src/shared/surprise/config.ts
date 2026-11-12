@@ -4,7 +4,9 @@
 // (the Vite base is './', so this works on any host or subpath). The owner has not designed that page yet: secret/ is a
 // placeholder (secret/index.html → src/secret/main.ts). To point somewhere else, change only this value
 // (another path in this site, e.g. 'bonus/', or a full https:// URL).
-export const SECRET_PAGE = 'secret/';
+// Now the album site (its own repo smartlotus/rhine-album, own GitHub Pages). ?from=jelly lets it greet the visit.
+// The old placeholder secret/ page stays in this build (it is what you see if you open it before finding everything).
+export const SECRET_PAGE = 'https://smartlotus.github.io/rhine-album/?from=jelly';
 /** seconds the closing card stays on screen before the secret page opens by itself (all found) */
 export const SECRET_DELAY_S = 9;
 /** seconds the closing card stays on screen before the collection list slides up (something missing) */

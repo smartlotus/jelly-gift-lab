@@ -5,9 +5,11 @@
 // Checks: every stage has the dock (惊喜 / 跳过 / pouch, touch-sized) and 跳过 reaches the next stage; 惊喜 reveals the
 // hidden thing, a tap collects it, it survives a reload and shows in the list; the list's 回去找 goes back; after the
 // ending film: something missing → list, everything found → the secret page; 再看一遍/继续布置 cancel it; 从头再来 resets.
-import { chromium } from 'file:///workspace/jelly/pw/node_modules/playwright/index.mjs';
+const { chromium } = await import(process.env.PLAYWRIGHT || 'file:///workspace/jelly/pw/node_modules/playwright/index.mjs');
 const BASE = (process.env.BASE || 'http://127.0.0.1:8833').replace(/\/$/, '');
 const KEY = 'gift.collect.v1';
+// SECRET_PAGE (src/shared/surprise/config.ts) now points to the album site; any jump there counts as reaching it.
+const SECRET_RE = /\/secret\/|rhine-album\/\?from=jelly/;
 const ALL = ['meadow', 'shop', 'night', 'jelly', 'sea', 'sky', 'coop', 'flower', 'mushroom', 'home'];
 const PATH = id => (id === 'meadow' ? '' : `${id}/`);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -103,7 +105,7 @@ async function endCase(found, tag) {
   const missing = await p.evaluate(() => [...document.querySelectorAll('.gs-panel .gs-row:not(.got)')].length);
   log('end (2/10): 8 missing rows', missing === 8, missing);
   await sleep(6000);
-  log('end (2/10): no jump to the secret page', !/\/secret\//.test(p.url()), p.url());
+  log('end (2/10): no jump to the secret page', !SECRET_RE.test(p.url()), p.url());
   // 从头再来 resets
   await p.evaluate(() => document.querySelector('.gs-panel .gs-close')?.click()); await sleep(500);
   await p.evaluate(() => document.querySelector('.hm-again').click());
@@ -116,11 +118,11 @@ async function endCase(found, tag) {
   const { ctx, p } = await endCase(ALL, 'end-all');
   const card = await p.waitForSelector('.gs-end.on', { timeout: 9000 }).then(() => true, () => false);
   log('end (10/10): the 全部找到 card comes up', card);
-  const went = await p.waitForURL(/\/secret\//, { timeout: 12000 }).then(() => true, () => false);
+  const went = await p.waitForURL(SECRET_RE, { timeout: 12000 }).then(() => true, () => false);
   log('end (10/10): then the secret page opens by itself', went, p.url());
   await sleep(2000);
   const sec = await p.evaluate(() => ({ stage: document.documentElement.dataset.giftStage || document.body.dataset.giftStage || null, txt: document.body.innerText.slice(0, 200) }));
-  log('secret page renders (placeholder)', sec.txt.length > 0, sec);
+  log('secret page renders (album site)', sec.txt.length > 0 || /rhine-album/.test(p.url()), { url: p.url(), ...sec });
   await ctx.close();
 }
 {
@@ -128,7 +130,7 @@ async function endCase(found, tag) {
   await sleep(1500);
   await p.evaluate(() => document.querySelector('.hm-edit').click());
   await sleep(10000);
-  log('end (10/10) + 继续布置: the pending jump is cancelled, back to the room', !/\/secret\//.test(p.url()) && (await p.evaluate(() => window.__home?.phase())) === 'room', { url: p.url(), ph: await p.evaluate(() => window.__home?.phase()) });
+  log('end (10/10) + 继续布置: the pending jump is cancelled, back to the room', !SECRET_RE.test(p.url()) && (await p.evaluate(() => window.__home?.phase())) === 'room', { url: p.url(), ph: await p.evaluate(() => window.__home?.phase()) });
   await ctx.close();
 }
 {
@@ -136,7 +138,7 @@ async function endCase(found, tag) {
   await sleep(1500);
   await p.evaluate(() => document.querySelector('.hm-replay').click());
   await sleep(10000);
-  log('end (10/10) + 再看一遍: no jump while it replays', !/\/secret\//.test(p.url()), p.url());
+  log('end (10/10) + 再看一遍: no jump while it replays', !SECRET_RE.test(p.url()), p.url());
   await ctx.close();
 }
 {
