@@ -6,7 +6,7 @@ import { register, apply, onLang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
 import { irisIn, irisOut } from '../../shared/transition';
 import { stashCanvas } from '../../shared/curtain';
-import { params, from, go, markReached, prefetchNext } from '../../shared/flow';
+import { params, from, go, markReached, prefetchNext, reducedMotion } from '../../shared/flow';
 import { PixelScreen } from '../../shared/pixel/screen';
 import { drawDawn, bayer, DAWN_LINES } from '../../shared/dawn';
 import { startLoop } from '../../shared/pixel/loop';
@@ -20,6 +20,7 @@ import { qrCanvas, scan } from './qr';
 import * as dict from './dict';
 import { tell } from '../../shared/story';
 import * as Sfx from '../../shared/sfx';
+import { mountSurprise } from '../../shared/surprise/kit';
 import './style.css';
 
 /** v03i: listen to the shared sim (host/solo step or guest snapshot) and play the edges — jumps, landings, plates, gate, steps, finale */
@@ -63,6 +64,9 @@ if (/^a[zr]/.test(hashCode)) {
 } else boot();
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// lab: 跳过 = 往前走走 into the flower wood (from the menu or mid-game), same iris colour
+let gsLeaving = false;
+mountSurprise({ stage: 'coop', skip: at => { if (gsLeaving) return; gsLeaving = true; prefetchNext(); const cv = document.querySelector<HTMLCanvasElement>('#coop canvas'); const snap = stashCanvas(cv); void go('flower', () => reducedMotion() ? Promise.resolve() : irisOut(at.x, at.y, 800, snap?.color || '#f3d4e0', snap?.img)); } });
 let tapX = innerWidth / 2, tapY = innerHeight / 2; // the iris closes onto the last tap, like the meadow's doors
 window.addEventListener('pointerdown', (e: PointerEvent) => { tapX = e.clientX; tapY = e.clientY; }, true);
 /** the meadow's pixel iris: close onto the tap, swap, open again (reduced motion -> instant) */

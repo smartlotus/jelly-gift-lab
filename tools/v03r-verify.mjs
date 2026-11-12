@@ -952,10 +952,12 @@ async function clips(browser) {
 }
 
 (async () => {
+  // BROWSERS=chromium runs without WebKit (lab box: WebKit's system libraries are not installable there)
+  const BROWSERS = (process.env.BROWSERS || 'chromium,webkit').split(',');
   const cr = await launchChromium();
-  const wk = await webkit.launch();
+  const wk = BROWSERS.includes('webkit') ? await webkit.launch() : null;
   try {
-    for (const [tag, b] of [['chromium', cr], ['webkit', wk]]) {
+    for (const [tag, b] of [['chromium', cr], ['webkit', wk]].filter(([, b]) => b)) {
       if (want('route')) await routeTests(b, tag);   // classifies its own errors (navigation aborts)
       // every other page, in every context (phone and fixture contexts too), must end with zero uncaught page errors
       const seen = []; const nc = b.newContext.bind(b);
@@ -974,7 +976,7 @@ async function clips(browser) {
     if (want('rec')) await recordings(cr);
     if (want('clips')) await clips(cr);
   } finally {
-    await cr.close(); await wk.close();
+    await cr.close(); await wk?.close();
   }
   const fails = report.tests.filter(t => !t.ok);
   writeFileSync(`${OUT}/verify.json`, JSON.stringify({ ...report, failed: fails.length, total: report.tests.length }, null, 2));

@@ -1,4 +1,10 @@
-# jelly-gift-story
+# jelly-gift-lab
+
+> **Experimental copy** of the story edition (stable v2). Work here, not in `jelly-gift-story` / `jelly-gift`. Deploys (only when asked) go to this repo's own Pages: https://smartlotus.github.io/jelly-gift-lab/ via `GIFT_DEPLOY=1 scripts/deploy_pages.sh`. Lab notes: top of [`AI_HANDOFF.md`](AI_HANDOFF.md). All visible copy: [`docs/copy/copy.md`](docs/copy/copy.md) (`npm run copy`).
+
+---
+
+## Inherited README (jelly-gift-story)
 
 > **WIP takeover:** branch `v03m-spatial-home` is **not** what live Pages runs. Read [`AI_HANDOFF.md`](AI_HANDOFF.md) first (also pointed from [`docs/HANDOFF.md`](docs/HANDOFF.md)). The **required** journey is meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → empty house → spatial furnish → fixed future film. Live published edition remains tag **v03l** at [https://smartlotus.github.io/jelly-gift-story/](https://smartlotus.github.io/jelly-gift-story/) (`gh-pages` `de208c3`, source `ef2405b`). Do not deploy this WIP until a parent visual + functional gate.
 

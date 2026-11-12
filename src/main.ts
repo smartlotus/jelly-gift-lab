@@ -13,6 +13,8 @@ import * as Curtain from './shared/curtain';
 import { tell, mountStory } from './shared/story';
 import { go } from './shared/flow';
 import { irisOut } from './shared/transition';
+import { mountSurprise } from './shared/surprise/kit';
+import { setLang as setSharedLang } from './shared/i18n';
 // v03e: this page reveals the shared loading curtain itself (after the first frames), never on the auto timer
 Curtain.manual();
 // journey arrival: the night stage's kawaii flip closed its iris on pink, so the curtain arrives pink (its colour is handed
@@ -248,3 +250,6 @@ boot().catch((e) => { console.error(e); UI.showFail(); Curtain.fail(e); });
 
 mountStory();
 setTimeout(() => tell('story.jelly.in'), 1600);
+// lab: 惊喜 / 跳过 / 收集. This page runs its own i18n, so its language switch is mirrored into the shared one the dock reads.
+I18N.onLang(l => setSharedLang(l));
+mountSurprise({ stage: 'jelly', skip: at => void go('sea', () => irisOut(at.x, at.y, 800, '#0d2c3b')) });

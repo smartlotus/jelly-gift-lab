@@ -1,6 +1,6 @@
 // Stage 1 · Meadow - bright Cat-Mario-style pixel platformer -> heart fountain -> door -> /shop/ (docs/GIFT_PLAN.md §5.1).
 // main.ts = page shell: chrome (zh/EN + sound), start card, HUD (heart counter), hints, the "Day 200" caption, exit.
-import { handleStageParam, markReached, reached, go, prefetchNext, params, dev } from '../../shared/flow';
+import { handleStageParam, markReached, go, prefetchNext, params, dev } from '../../shared/flow';
 import { register, t, onLang, apply } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
 import { irisIn, irisOut } from '../../shared/transition';
@@ -10,6 +10,7 @@ import { mountTouch } from '../../shared/pixel/touch';
 import { startMeadow } from './game';
 import { music } from './sfx';
 import { tell } from '../../shared/story';
+import { mountSurprise } from '../../shared/surprise/kit';
 import * as dict from './dict';
 import './style.css';
 
@@ -36,12 +37,8 @@ if (!handleStageParam()) {
   const cap = document.createElement('div'); cap.className = 'm-cap';
   cap.innerHTML = `<p class="m-cap-k" data-i18n="meadow.day"></p><p class="m-cap-l" data-i18n="meadow.line"></p>`;
   document.body.appendChild(cap);
-  // replaying (she has been further before): a discreet skip
-  if (reached() >= 1) {
-    const sk = document.createElement('button'); sk.type = 'button'; sk.className = 'm-skip'; sk.dataset.i18n = 'ui.skip';
-    sk.addEventListener('pointerdown', e => e.stopPropagation()); sk.addEventListener('click', () => { music(false); void go(undefined, () => irisOut()); });
-    document.body.appendChild(sk);
-  }
+  // lab: 惊喜 / 跳过 / 收集 on every stage (replaces the old replay-only skip). 跳过 leaves exactly like the door does.
+  mountSurprise({ stage: 'meadow', skip: at => { music(false); const snap = stashCanvas(game.screen.canvas); void go('shop', () => irisOut(at.x, at.y, 700, snap?.color || '#5EC4FF', snap?.img)); } });
   apply(); onLang(() => apply());
 
   mountTouch();

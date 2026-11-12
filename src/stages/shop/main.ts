@@ -6,6 +6,7 @@ import { markReached, go, prefetchNext, warm, params, from } from '../../shared/
 import { stashCanvas, peekCarry, clearCarry } from '../../shared/curtain';
 import { register, t, onLang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
+import { mountSurprise } from '../../shared/surprise/kit';
 import { irisIn, irisOut, dissolve } from '../../shared/transition';
 import { hold, progress as curtainProgress } from '../../shared/curtain';
 import { blip } from '../../shared/audio';
@@ -202,5 +203,11 @@ const begin = () => {
   if (viewerOnly) void viewerP.then(() => openInspect('figure-pig'));
   if (backEx) viewerP.then(() => viewer!.load(backEx.id)).then(() => openInspect(backEx.id)).catch(() => { /* model unavailable: stay in the shop */ });
 };
+// lab: 跳过 = the dark back door (same iris, same colour hand-off)
+mountSurprise({ stage: 'shop', skip: at => {
+  if (leaving) return; leaving = true; input.enabled = false; card.show(null);
+  const snap = stashCanvas(scr.canvas);
+  void go('night', () => irisOut(at.x, at.y, 900, snap?.color || '#0b0b0c', snap?.img));
+} });
 begin(); // v03g: no title card — the door bell rings as the cat walks in
 setTimeout(() => tell('story.shop.in'), 1400);

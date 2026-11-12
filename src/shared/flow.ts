@@ -14,8 +14,8 @@
 // vite base is './' so every URL here is RELATIVE (works at a domain root or any subpath, including a future Pages URL).
 import { cover } from './curtain';
 import { whoosh } from './sfx';
-export type StageId = 'meadow' | 'flower' | 'mushroom' | 'shop' | 'night' | 'jelly' | 'sea' | 'sky' | 'coop' | 'home' | 'ar';
-export const STAGES: readonly StageId[] = ['meadow', 'shop', 'night', 'jelly', 'sea', 'sky', 'coop', 'flower', 'mushroom', 'home'];
+import { STAGES, type StageId } from './stage-list';
+export { STAGES, type StageId };
 const PATH: Record<StageId, string> = { meadow: '', flower: 'flower/', mushroom: 'mushroom/', shop: 'shop/', night: 'night/', jelly: 'jelly/', sea: 'sea/', sky: 'sky/', coop: 'coop/', home: 'home/', ar: 'ar/' };
 /** query params that survive page hops (language + dev switches) */
 const CARRY = ['lang', 'dev', 'sound', 'skip'];

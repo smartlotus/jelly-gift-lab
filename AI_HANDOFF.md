@@ -1,4 +1,75 @@
-# AI handoff — story edition WIP (read this first)
+# AI handoff — **jelly-gift-lab** (experimental copy; read this first)
+
+**Lab pass (t7):** Thursday 12 November 2026, Asia/Shanghai — branch `lab/surprise-collect`, PR to `main` (not merged, not deployed).
+
+This repo, `smartlotus/jelly-gift-lab`, is a full copy of the stable v2 story edition (`smartlotus/jelly-gift-story` `main` @ `1598fc4`), made for experiments.
+**Never push to, deploy to, or modify `smartlotus/jelly-gift-story` or `smartlotus/jelly-gift` from here.** `scripts/deploy_pages.sh` only publishes to this repo's own `gh-pages` (https://smartlotus.github.io/jelly-gift-lab/). It refuses those two repos and any other target, and it needs `GIFT_DEPLOY=1`. Nothing has been deployed from the lab yet.
+
+The rest of this file below the lab section is the inherited story-edition handoff. Its repo paths and "live" hashes describe `jelly-gift-story`, not this repo.
+
+## Lab feature: 惊喜 / 跳过 / 收集 (hidden-object hunt)
+
+On every journey stage (meadow → shop → night → jelly → sea → sky → coop → flower → mushroom → home), a small dock carries three buttons, skinned to that stage's art:
+
+- **惊喜**: plays a stage-specific animation, then a hidden thing appears somewhere on the page. Tapping it collects it, and it flies into the pouch. One thing per stage, 10 in total.
+- **跳过**: goes to the next stage with that stage's own exit, so the colour handoff, iris and canvas stash are kept. On home it moves the phase forward: approach → room → (save) → film → closing card.
+- **pouch `n/10`**: opens the collection list. Each row shows the stage, the thing (a grey silhouette until found) and a hint, plus 回去找 to jump back to that stage.
+
+After the ending film, the closing card (再看一遍 / 继续布置 / 从头再来, unchanged) is followed by one of two things:
+
+- **Something missing:** the list slides up by itself after `LIST_DELAY_S` and says how many are left.
+- **All 10 found:** a small card appears ("全找到了…", 等一下 / 打开 with a 4.2 s fuse) and then opens the secret page. It fires at `SECRET_DELAY_S`.
+
+再看一遍 and 继续布置 cancel whatever is pending. 从头再来 also clears the collection.
+
+| What | Where |
+| --- | --- |
+| State (pure, node-testable) | `src/shared/surprise/collect.ts` — localStorage `gift.collect.v1` = `{v:1, found:{stage:ts}, revealed:{stage:ts}}`; `endRoute()` decides secret vs list |
+| Config | `src/shared/surprise/config.ts` — **`SECRET_PAGE`** (the one URL for the secret page; relative `secret/` or an absolute https URL), `SECRET_DELAY_S`, `LIST_DELAY_S` |
+| Copy (all new strings) | `src/shared/surprise/dict.ts` (zh + en): buttons, toasts, list, hints `gs.hint.<stage>`, item names `gs.item.<stage>`, secret page `secret.*` |
+| Dock / item / toast | `src/shared/surprise/kit.ts` → `mountSurprise({stage, skip})`, mounted by each stage's `main.ts` (jelly: `src/main.ts`) |
+| Per-stage animations | `src/shared/surprise/anims/<stage>.ts` (lazy-loaded chunk per stage; Web Animations API on DOM/pixel SVG; reduced-motion → a short spark only) |
+| Hidden things + positions | `src/shared/surprise/items.ts` (portrait / landscape positions as viewport fractions) |
+| Button skins | `src/shared/surprise/surprise.css` (`.gs-dock[data-stage=…]`) + glyphs in `icons.ts` |
+| List | `src/shared/surprise/panel.ts`; after-film logic `end.ts`; secret link `secret-link.ts` |
+| Secret page (placeholder) | `secret/index.html` + `src/secret/` — it says "coming soon" when everything is found, and "not yet" plus the list otherwise. Design it later. |
+| Shared stage order | `src/shared/stage-list.ts` (pure; `flow.ts` re-exports) |
+
+What each stage plays and hides:
+
+| Stage | Animation | Hidden thing |
+| --- | --- | --- |
+| meadow | a ? block drops and is bumped, a heart fountain, the pixel cat hops | golden heart (in the sky) |
+| shop | bunting unrolls, the bell rings, a gift box pops and the pixel pig and cat jump out | the little bell |
+| night | a VHS torchlight chase: the blocky pig monster stomps after the cat, loses her ("??") and drops something | spare battery |
+| jelly | jelly drops wobble down, a big jelly heart plops, a cherry rolls off | cherry |
+| sea | bubbles, a shoal of fish, a pixel whale | seashell (on the sand) |
+| sky | meteors, then a heart constellation is drawn; one star falls | a star |
+| coop | pig and cat high-five, star burst, hearts | game controller |
+| flower | a petal gust (rose and carnation), the stage's flowers grow, a butterfly lands | butterfly |
+| mushroom | dusk deepens, glowing mushrooms pop up like lamps, fireflies | a glowing mushroom |
+| home | warm glow, the garland lights come on, the couple walk across, hearts | the house key |
+
+Debug: `window.__surprise` (`surprise()`, `playing()`, …). The URL flag `?at=video` on home with no film manifest goes straight to the closing card, which is how the e2e reaches it.
+
+### Tests / tools (lab)
+
+- `npm run test:collect`: `tools/collect-test.ts`, 26 unit checks for the collection state and the end-of-film routing.
+- `npm run build && node tools/serve.mjs dist 8833 & BASE=http://127.0.0.1:8833 npm run test:lab`: `tools/lab-verify.mjs`, Chromium 390×844 e2e. It checks the dock and 跳过 on all stages, 惊喜 → item → tap → saved → reload → list → 回去找, end routing (list vs secret), cancellation by 再看一遍/继续布置, and the reset by 从头再来.
+- `BROWSERS=chromium BASE=… node tools/v03r-verify.mjs`: the inherited journey regression. The new `BROWSERS` env lets it run without WebKit. **WebKit could not run on the lab box** (missing system libraries, and the apt mirror was failing), so iPhone Safari is untested here. Test it on a real iPhone before deploying.
+- `node tools/lab-shots.mjs [stage…]` (env `OUT`, `VW`, `VH`): screenshots of dock / mid-animation / item / found for each stage.
+- `npm run copy`: `scripts/extract_copy.ts` writes **`docs/copy/copy.md`** and `copy.json`. They hold every user-visible string by stage in journey order, with file + key (dictionaries, curtain, plus a scan for hard-coded Chinese literals). Re-run it after editing copy.
+
+### Open / risky (lab)
+
+- WebKit/iOS Safari was not exercised by automation in the lab (see above).
+- Hint texts and item names are first drafts in `src/shared/surprise/dict.ts`; the owner plans to rewrite the copy.
+- The secret page is only a placeholder; `SECRET_PAGE` is the single switch to point elsewhere.
+- Old helper tools still name the story repo (`tools/story-finish.mjs`, `tools/art-shots.mjs`, `tools/v03m-*.mjs` output paths). They are not used by the lab, so don't run `story-finish.mjs` from here.
+
+---
+
+# Inherited: story edition handoff (jelly-gift-story)
 
 **Last checkpoint:** Saturday 7 November 2026, late evening, America/Los_Angeles (this file updates with each pushed increment).
 **Follow-up pass:** Sunday 8 November 2026 — pig companion, caption clearance, cottage, dollhouse polish (see §"v03n pass").

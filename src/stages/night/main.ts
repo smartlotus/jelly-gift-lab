@@ -8,11 +8,12 @@ import {
   AdditiveBlending, BufferGeometry, CanvasTexture, Color, DirectionalLight, Float32BufferAttribute, FogExp2, Group, HemisphereLight, LinearFilter,
   Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Points, PointsMaterial, Raycaster, Scene, Sprite, SpriteMaterial, Vector2, Vector3, WebGLRenderTarget, WebGLRenderer,
 } from 'three';
-import { markReached, params, dev, prefetchNext } from '../../shared/flow';
+import { markReached, params, dev, prefetchNext, go } from '../../shared/flow';
 import { register, t, apply, lang, onLang } from '../../shared/i18n';
 import { mountChrome, flashSound } from '../../shared/chrome';
+import { mountSurprise } from '../../shared/surprise/kit';
 import { soundOn, setSound, unlock, onSound } from '../../shared/audio';
-import { irisIn } from '../../shared/transition';
+import { irisIn, irisOut as gsIrisOut } from '../../shared/transition';
 import { hold, progress as curtainProgress } from '../../shared/curtain';
 import * as dict from './dict';
 import { tell } from '../../shared/story';
@@ -33,6 +34,8 @@ import './style.css';
 
 declare global { interface Window { __pause?: boolean; __steps?: number; __night?: unknown } }
 register(dict); mountChrome({ theme: 'dark' }); markReached();
+// lab: 跳过 = straight on to jelly through the same pink iris every night ending uses
+mountSurprise({ stage: 'night', skip: at => void go('jelly', () => gsIrisOut(at.x, at.y, 750, '#F9C6CF')) });
 const host = document.getElementById('game')!;
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const touch = matchMedia('(pointer: coarse)').matches;

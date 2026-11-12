@@ -7,6 +7,7 @@
 import * as A from 'astronomy-engine';
 import { register, t, onLang, apply, lang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
+import { mountSurprise } from '../../shared/surprise/kit';
 import { openCinema } from './cinema';
 import * as Sfx from '../../shared/sfx';
 import { irisIn } from '../../shared/transition';
@@ -406,3 +407,5 @@ function leavePost() {
   g.imageSmoothingEnabled = false; g.drawImage(pix, 0, 0, W, H);
 }
 setTimeout(() => tell('story.sky.in'), 1400);
+// lab: 跳过 = the onward button's own slow sink to the horizon and on to /coop/ (works before that button has faded in)
+mountSurprise({ stage: 'sky', skip: () => next.click() });

@@ -1,0 +1,3732 @@
+{
+  "generated": "2026-11-12T13:28:53.878Z",
+  "total": 509,
+  "order": [
+    "shared",
+    "surprise",
+    "meadow",
+    "shop",
+    "ar",
+    "night",
+    "jelly",
+    "sea",
+    "sky",
+    "coop",
+    "flower",
+    "mushroom",
+    "home",
+    "secret"
+  ],
+  "sections": [
+    {
+      "id": "shared",
+      "name": "通用（每页都有：语言、声音、加载幕布） · Shared chrome",
+      "entries": [
+        {
+          "key": "ui.lang",
+          "zh": "语言",
+          "en": "Language",
+          "file": "src/shared/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ui.sound.on",
+          "zh": "声音开",
+          "en": "Sound on",
+          "file": "src/shared/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ui.sound.off",
+          "zh": "声音关",
+          "en": "Sound off",
+          "file": "src/shared/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ui.continue",
+          "zh": "继续",
+          "en": "Continue",
+          "file": "src/shared/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ui.skip",
+          "zh": "跳过",
+          "en": "Skip",
+          "file": "src/shared/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ui.tap",
+          "zh": "轻触开始",
+          "en": "Tap to start",
+          "file": "src/shared/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ui.press",
+          "zh": "按任意键开始",
+          "en": "Press any key",
+          "file": "src/shared/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ui.rotate",
+          "zh": "横过手机，视野更大",
+          "en": "Turn your phone sideways for a bigger view",
+          "file": "src/shared/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ctl.left",
+          "zh": "向左",
+          "en": "Left",
+          "file": "src/shared/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ctl.right",
+          "zh": "向右",
+          "en": "Right",
+          "file": "src/shared/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ctl.jump",
+          "zh": "跳",
+          "en": "Jump",
+          "file": "src/shared/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ctl.act",
+          "zh": "看看",
+          "en": "Look",
+          "file": "src/shared/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "TXT.wait",
+          "zh": "马上就好",
+          "en": "one moment",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        },
+        {
+          "key": "TXT.slow",
+          "zh": "还在努力加载…",
+          "en": "still loading…",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        },
+        {
+          "key": "TXT.oops",
+          "zh": "哎呀，这一页卡住了",
+          "en": "oops, this page got stuck",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        },
+        {
+          "key": "TXT.retry",
+          "zh": "再试一次",
+          "en": "try again",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        },
+        {
+          "key": "TXT.skip",
+          "zh": "跳到下一站",
+          "en": "skip ahead",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        },
+        {
+          "key": "line 13",
+          "zh": "中",
+          "en": "",
+          "file": "src/shared/chrome.ts",
+          "line": 13,
+          "kind": "hard-coded"
+        }
+      ]
+    },
+    {
+      "id": "surprise",
+      "name": "惊喜 / 跳过 / 收集（通用部分） · Surprise layer (shared)",
+      "entries": [
+        {
+          "key": "gs.surprise",
+          "zh": "惊喜",
+          "en": "Surprise",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.skip",
+          "zh": "跳过",
+          "en": "Skip",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.entry",
+          "zh": "收集",
+          "en": "Collection",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.hidden",
+          "zh": "有东西藏起来了，找找看。",
+          "en": "Something just hid. Can you find it?",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.found",
+          "zh": "找到了：{item}",
+          "en": "Found it: {item}",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.list.title",
+          "zh": "小东西",
+          "en": "Little things",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.list.count",
+          "zh": "{n} / {total}",
+          "en": "{n} / {total}",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.list.done",
+          "zh": "都找到了。",
+          "en": "All found.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.list.missing",
+          "zh": "还有 {n} 个藏着。",
+          "en": "{n} still hiding.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.list.after",
+          "zh": "再找到 {n} 个，最后的彩蛋就开了。",
+          "en": "{n} more, and the last surprise opens.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.list.go",
+          "zh": "回去找",
+          "en": "Go look",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.list.here",
+          "zh": "就在这一页",
+          "en": "It’s on this page",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.list.close",
+          "zh": "关上",
+          "en": "Close",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.list.notyet",
+          "zh": "还没找到",
+          "en": "Not found yet",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.hint.first",
+          "zh": "先在那里点一下「惊喜」。",
+          "en": "Tap “Surprise” there first.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.end.all",
+          "zh": "都找到了。还有一个彩蛋。",
+          "en": "You found them all. One more surprise.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.end.open",
+          "zh": "打开",
+          "en": "Open it",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.end.stay",
+          "zh": "等一下",
+          "en": "Not yet",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        }
+      ]
+    },
+    {
+      "id": "meadow",
+      "name": "1 草地 · Meadow",
+      "entries": [
+        {
+          "key": "gs.stage.meadow",
+          "zh": "草地",
+          "en": "Meadow",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.item.meadow",
+          "zh": "一颗金色爱心",
+          "en": "A golden heart",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.hint.meadow",
+          "zh": "在天上，云旁边。",
+          "en": "Up in the sky, by a cloud.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "story.meadow.out",
+          "zh": "这些花瓣好像在请我们再往前走走。",
+          "en": "These petals seem to be asking us to keep walking.",
+          "file": "src/shared/story-dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "meadow.meta.title",
+          "zh": "给 lushiva · 第一章 · 草地",
+          "en": "For lushiva · I · The Meadow",
+          "file": "src/stages/meadow/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "meadow.kicker",
+          "zh": "第一章 · 草地",
+          "en": "I · The Meadow",
+          "file": "src/stages/meadow/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "meadow.title",
+          "zh": "出发吧，小猫",
+          "en": "Off you go, little cat",
+          "file": "src/stages/meadow/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "meadow.sub",
+          "zh": "一直往右走，尽头有东西等你。",
+          "en": "Keep walking right. Something is waiting at the end.",
+          "file": "src/stages/meadow/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "meadow.hearts",
+          "zh": "爱心",
+          "en": "Hearts",
+          "file": "src/stages/meadow/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "meadow.hint.keys",
+          "zh": "← →  走     空格  跳",
+          "en": "← →  walk     Space  jump",
+          "file": "src/stages/meadow/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "meadow.hint.touch",
+          "zh": "按住 ▶ 走 · 轻点 ▲ 跳",
+          "en": "Hold ▶ to walk · tap ▲ to jump",
+          "file": "src/stages/meadow/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "meadow.day",
+          "zh": "第 200 天",
+          "en": "Day 200",
+          "file": "src/stages/meadow/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "meadow.line",
+          "zh": "每一颗，都是给你的。",
+          "en": "Every one of them, for you.",
+          "file": "src/stages/meadow/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "CURTAIN_STAGES.meadow",
+          "zh": "草地",
+          "en": "the meadow",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "name": "2 小店 · Shop",
+      "entries": [
+        {
+          "key": "gs.stage.shop",
+          "zh": "小店",
+          "en": "Little shop",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.item.shop",
+          "zh": "小铃铛",
+          "en": "The little bell",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.hint.shop",
+          "zh": "高处，架子那边。",
+          "en": "Up high, near the shelf.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "story.shop.in",
+          "zh": "你做的那些，都还在这儿。",
+          "en": "Everything you made is still here.",
+          "file": "src/shared/story-dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.meta.title",
+          "zh": "给 lushiva · 第二章 · 小店",
+          "en": "For lushiva · II · The Shop",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.kicker",
+          "zh": "第二章 · 小店",
+          "en": "II · The Shop",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.title",
+          "zh": "我为你做的小东西",
+          "en": "Things I made for you",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.sub",
+          "zh": "亲手建模，彩色打印。",
+          "en": "Modelled by hand, printed in colour.",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.ex.figure-pig",
+          "zh": "小猪 · 敲电脑",
+          "en": "Pig, at the laptop",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.ex.figure-cat",
+          "zh": "小猫 · 捧着书",
+          "en": "Cat, with a book",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.ex.magnet-pig",
+          "zh": "小猪 · 冰箱贴",
+          "en": "Pig, fridge magnet",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.ex.magnet-cat",
+          "zh": "小猫 · 冰箱贴",
+          "en": "Cat, fridge magnet",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.note.figure-pig",
+          "zh": "在小台灯下敲电脑，头顶两个黄色的“??”。",
+          "en": "Typing away under a little desk lamp, two yellow “??” overhead.",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.note.figure-cat",
+          "zh": "捧着写着“Eblana!”的书，头顶冒出一个“!!”。",
+          "en": "Holding a book that says “Eblana!”, with a “!!” of surprise.",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.note.magnet-pig",
+          "zh": "敲电脑的小猪，压成浮雕，贴在薄荷色底板上。",
+          "en": "The pig at the laptop, pressed into a relief on a mint plate.",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.note.magnet-cat",
+          "zh": "捧着书的小猫，浮雕在薰衣草色底板上。",
+          "en": "The cat with the book, in relief on a lavender plate.",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.kind.figure",
+          "zh": "立体手办",
+          "en": "Figure",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.kind.magnet",
+          "zh": "冰箱贴",
+          "en": "Fridge magnet",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.kind.pair",
+          "zh": "情侣拼合",
+          "en": "Couple set",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.ex.pair",
+          "zh": "小猪和小猫，在一起",
+          "en": "Pig & cat, together",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.ex.pig-fig",
+          "zh": "小猪敲电脑 · Lotus30",
+          "en": "Pig at the laptop · Lotus30",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.ex.cat-fig",
+          "zh": "猫猫看书 · Lotus30",
+          "en": "Cat with a book · Lotus30",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.ex.pig-relief",
+          "zh": "小猪浮雕冰箱贴 · Lotus30",
+          "en": "Pig relief magnet · Lotus30",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.ex.cat-relief",
+          "zh": "猫猫浮雕冰箱贴 · Lotus30",
+          "en": "Cat relief magnet · Lotus30",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.note.pig-fig",
+          "zh": "Notion 完整版：吊杆麦克风、「??」、小盆栽——拆开看每一色。",
+          "en": "The complete Notion build: boom mic, “??”, pot — explode to see every colour.",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.note.cat-fig",
+          "zh": "Notion 完整版：书、手机、多肉、「!!」——拆开看每一色。",
+          "en": "The complete Notion build: book, phone, succulent, “!!” — explode the colours.",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.note.pig-relief",
+          "zh": "浮雕冰箱贴。拆色后翻到背面，能看到两个磁铁槽。",
+          "en": "Relief magnet. Split colours, then flip to see the two magnet pockets on the back.",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.note.cat-relief",
+          "zh": "浮雕冰箱贴。拆色后翻到背面，能看到两个磁铁槽。",
+          "en": "Relief magnet. Split colours, then flip to see the two magnet pockets on the back.",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.showcase",
+          "zh": "完整展厅 →",
+          "en": "Full studio →",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.note.pair",
+          "zh": "燕尾榫把它们扣在一起，接缝上的两个半颗心，合成一颗。",
+          "en": "A dovetail joins them; the two half hearts on the seam become one.",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.split.pair",
+          "zh": "分开",
+          "en": "Pull apart",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.parts",
+          "zh": "{n} 种颜色",
+          "en": "{n} colours",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.mat",
+          "zh": "PLA · 多色打印",
+          "en": "PLA · multi-colour print",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.look",
+          "zh": "看看",
+          "en": "Look closer",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.reset",
+          "zh": "复位",
+          "en": "Reset",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.flip",
+          "zh": "看背面",
+          "en": "Flip back",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.split",
+          "zh": "分色拆解",
+          "en": "Split colours",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.spin",
+          "zh": "自动转",
+          "en": "Turn",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.close",
+          "zh": "关闭",
+          "en": "Close",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.ar",
+          "zh": "放到桌上",
+          "en": "On your table",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.light0",
+          "zh": "光 · 影棚",
+          "en": "Light · studio",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.light1",
+          "zh": "光 · 窗边",
+          "en": "Light · window",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.light2",
+          "zh": "光 · 傍晚",
+          "en": "Light · evening",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.prev",
+          "zh": "上一件",
+          "en": "Previous",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.next",
+          "zh": "下一件",
+          "en": "Next",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.all",
+          "zh": "全部颜色",
+          "en": "All colours",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.colours",
+          "zh": "打印用色",
+          "en": "Filament colours",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.hint.touch",
+          "zh": "拖动旋转 · 双指缩放 · 双击复位 · 轻点会 Q 弹",
+          "en": "Drag to turn · pinch to zoom · double-tap to reset · tap for a wobble",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.i.hint.mouse",
+          "zh": "拖动旋转 · 滚轮缩放 · 双击复位 · 单击会 Q 弹",
+          "en": "Drag to turn · scroll to zoom · double-click to reset · click for a wobble",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.door",
+          "zh": "外面天黑了。",
+          "en": "It’s dark outside.",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.canvas",
+          "zh": "一间像素小店。小猫走过五件 3D 打印的小东西，走向一扇黑黑的后门。",
+          "en": "A small pixel shop. The cat walks past five 3D-printed pieces towards a dark back door.",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "CURTAIN_STAGES.shop",
+          "zh": "小店",
+          "en": "the shop",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        },
+        {
+          "key": "black.zh",
+          "zh": "软黑",
+          "en": "Soft black",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 28,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "logo.zh",
+          "zh": "石板灰",
+          "en": "Slate",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 29,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "snout.zh",
+          "zh": "深粉",
+          "en": "Deep pink",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 30,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "blush.zh",
+          "zh": "腮红粉",
+          "en": "Blush",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 31,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "yellow.zh",
+          "zh": "暖黄",
+          "en": "Sunny yellow",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 32,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "leaf.zh",
+          "zh": "多肉绿",
+          "en": "Succulent",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 33,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "metal.zh",
+          "zh": "缎银",
+          "en": "Satin silver",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 34,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "pink.zh",
+          "zh": "浅粉",
+          "en": "Pastel pink",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 35,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "laptop.zh",
+          "zh": "浅灰",
+          "en": "Light grey",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 36,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "lampw.zh",
+          "zh": "暖白",
+          "en": "Warm white",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 37,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "pot.zh",
+          "zh": "蜜桃",
+          "en": "Peach",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 38,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "wood.zh",
+          "zh": "原木",
+          "en": "Light wood",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 39,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "plate.zh",
+          "zh": "薄荷",
+          "en": "Mint",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 40,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "whisker.zh",
+          "zh": "暖灰",
+          "en": "Warm grey",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 41,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "text.zh",
+          "zh": "藏青",
+          "en": "Navy",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 42,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "heart.zh",
+          "zh": "玫红",
+          "en": "Rose",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 43,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "pins.zh",
+          "zh": "银",
+          "en": "Silver",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 44,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "pinkacc.zh",
+          "zh": "点缀粉",
+          "en": "Accent pink",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 45,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "chip.zh",
+          "zh": "电路绿",
+          "en": "PCB green",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 46,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "cream.zh",
+          "zh": "奶油白",
+          "en": "Cream",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 47,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "pages.zh",
+          "zh": "象牙",
+          "en": "Ivory",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 48,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "cover.zh",
+          "zh": "书封蓝",
+          "en": "Book blue",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 49,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "薰衣草",
+          "en": "Lavender",
+          "file": "src/stages/shop/exhibits.ts",
+          "line": 53,
+          "kind": "hard-coded"
+        }
+      ]
+    },
+    {
+      "id": "ar",
+      "name": "2b 桌上（小店的 AR 支线） · AR side room",
+      "entries": [
+        {
+          "key": "story.ar.in",
+          "zh": "放到桌上看看……看完我们再回去。",
+          "en": "Let’s set them on the table… then we’ll go back.",
+          "file": "src/shared/story-dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ar.meta.title",
+          "zh": "放在桌上",
+          "en": "On your table",
+          "file": "src/stages/ar/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ar.place",
+          "zh": "放到桌上",
+          "en": "Put it on the table",
+          "file": "src/stages/ar/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ar.exit",
+          "zh": "完成",
+          "en": "Done",
+          "file": "src/stages/ar/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ar.back",
+          "zh": "回到小店",
+          "en": "Back to the shop",
+          "file": "src/stages/ar/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ar.m.figure-pig",
+          "zh": "小猪",
+          "en": "Pig",
+          "file": "src/stages/ar/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ar.m.figure-cat",
+          "zh": "小猫",
+          "en": "Cat",
+          "file": "src/stages/ar/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ar.m.pair",
+          "zh": "小猪和小猫",
+          "en": "Pig & cat",
+          "file": "src/stages/ar/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "CURTAIN_STAGES.ar",
+          "zh": "桌上",
+          "en": "on the table",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        }
+      ]
+    },
+    {
+      "id": "night",
+      "name": "3 夜路 · Night road",
+      "entries": [
+        {
+          "key": "gs.stage.night",
+          "zh": "夜路",
+          "en": "Night road",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.item.night",
+          "zh": "一节电池",
+          "en": "A spare battery",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.hint.night",
+          "zh": "暗的地方，低一点。",
+          "en": "In the dark, low down.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "story.night.in",
+          "zh": "牵着手走吧，这条夜路我陪你。",
+          "en": "Let’s walk it together. I’ll stay with you on this night path.",
+          "file": "src/shared/story-dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.meta.title",
+          "zh": "给 lushiva · 第三章 · 夜路",
+          "en": "For lushiva · III · The Night",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.kicker",
+          "zh": "第三章 · 夜路",
+          "en": "III · The Night",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.title",
+          "zh": "别回头",
+          "en": "Don’t look back",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.sub",
+          "zh": "按住前进，挑一条路，别回头。",
+          "en": "Hold to walk. Choose a way. Don’t look back.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.sound",
+          "zh": "建议打开声音",
+          "en": "Best with sound",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.sound.on",
+          "zh": "打开",
+          "en": "Turn on",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.hint.touch",
+          "zh": "按住屏幕前进 · 拖动环顾 · 点发光的 ??",
+          "en": "Hold the screen to walk · drag to look · tap a glowing ??",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.hint.key",
+          "zh": "按住 W / ↑ 前进 · 拖动环顾 · 点发光的 ?? · M 地图 · B 回头",
+          "en": "Hold W / ↑ to walk · drag to look · click a glowing ?? · M map · B turn back",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.run",
+          "zh": "跑！",
+          "en": "RUN!",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.dead",
+          "zh": "没路了……",
+          "en": "Dead end…",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.caught",
+          "zh": "抓到你啦！",
+          "en": "Gotcha!",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.caught.sub",
+          "zh": "一直跟着你的，是我呀。",
+          "en": "It was me all along.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.mush",
+          "zh": "照木牌上的顺序，碰一碰蘑菇。",
+          "en": "Tap the mushrooms in the sign’s order.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.mush.no",
+          "zh": "蘑菇缩了回去。",
+          "en": "The mushrooms shrink back.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.mush.hint",
+          "zh": "小的先。",
+          "en": "Smallest first.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.trail",
+          "zh": "路分成了三条。",
+          "en": "The path splits three ways.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.trail.no",
+          "zh": "那边只有风。",
+          "en": "Only wind that way.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.trail.hint",
+          "zh": "跟着蹄印走。",
+          "en": "Follow the hoofprints.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.gate",
+          "zh": "世界屁股日是什么时候？",
+          "en": "When is World Butt Day?",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.month",
+          "zh": "",
+          "en": "Month",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.day",
+          "zh": "",
+          "en": "Day",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.month.u",
+          "zh": "月",
+          "en": "",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.day.u",
+          "zh": "日",
+          "en": "",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.open",
+          "zh": "开锁",
+          "en": "Unlock",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.gate.no1",
+          "zh": "锁咔哒一声，没开。",
+          "en": "The lock clicks. Nothing.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.gate.no2",
+          "zh": "……身后好像有谁在偷笑。",
+          "en": "…something behind you giggles.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.gate.hint",
+          "zh": "提示：劳动节的第二天。",
+          "en": "Hint: the day after May Day.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.gate.hint2",
+          "zh": "提示：在五月。",
+          "en": "Hint: it’s in May.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.gate.auto",
+          "zh": "锁自己开了。",
+          "en": "The lock gives way on its own.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.ok",
+          "zh": "咔。",
+          "en": "Click.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.up",
+          "zh": "加一",
+          "en": "Up",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.down",
+          "zh": "减一",
+          "en": "Down",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.canvas",
+          "zh": "夜里的方块森林小路，透过摄像机看到的画面。",
+          "en": "A dark blocky forest path at night, seen through a camcorder.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.S",
+          "zh": "起点",
+          "en": "Start",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.F",
+          "zh": "岔路口",
+          "en": "The fork",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.W1",
+          "zh": "刻字的树",
+          "en": "Carved tree",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.W2",
+          "zh": "空心树",
+          "en": "Hollow tree",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.H0",
+          "zh": "门廊",
+          "en": "Porch",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.H1",
+          "zh": "走廊",
+          "en": "Hall",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.H2",
+          "zh": "音乐室",
+          "en": "Music room",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.H3",
+          "zh": "后门",
+          "en": "Back door",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.E1",
+          "zh": "墓园大门",
+          "en": "Graveyard gate",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.E2",
+          "zh": "地穴",
+          "en": "Crypt",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.E3",
+          "zh": "隧道口",
+          "en": "Tunnel mouth",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.G",
+          "zh": "大门",
+          "en": "The gate",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.G2",
+          "zh": "空地",
+          "en": "Clearing",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.BUS",
+          "zh": "公交站",
+          "en": "Bus stop",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.END",
+          "zh": "死路",
+          "en": "Dead end",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.place.TREE",
+          "zh": "树屋",
+          "en": "Tree house",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.s.1",
+          "zh": "继续走",
+          "en": "Onward",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.s.-1",
+          "zh": "回起点",
+          "en": "Back to the start",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.fw.1",
+          "zh": "进森林",
+          "en": "Into the forest",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.fw.-1",
+          "zh": "回岔路口",
+          "en": "Back to the fork",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.loop.1",
+          "zh": "窄窄的小道",
+          "en": "The narrow trail",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.loop.-1",
+          "zh": "窄窄的小道（另一头）",
+          "en": "The narrow trail (other end)",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.w12.1",
+          "zh": "跟着蹄印",
+          "en": "Follow the hoofprints",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.w12.-1",
+          "zh": "回刻字的树",
+          "en": "Back to the carved tree",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.w2g.1",
+          "zh": "沿着小溪",
+          "en": "Along the creek",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.w2g.-1",
+          "zh": "回空心树",
+          "en": "Back to the hollow tree",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.fh.1",
+          "zh": "老房子",
+          "en": "The old house",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.fh.-1",
+          "zh": "回岔路口",
+          "en": "Back to the fork",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.h01.1",
+          "zh": "进走廊",
+          "en": "Into the hall",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.h01.-1",
+          "zh": "出门廊",
+          "en": "Out to the porch",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.h12.1",
+          "zh": "音乐室",
+          "en": "The music room",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.h12.-1",
+          "zh": "回走廊",
+          "en": "Back to the hall",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.h23.1",
+          "zh": "锁着的门",
+          "en": "The locked door",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.h23.-1",
+          "zh": "回音乐室",
+          "en": "Back to the music room",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.h3g.1",
+          "zh": "穿过花园",
+          "en": "Through the garden",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.h3g.-1",
+          "zh": "回屋里",
+          "en": "Back into the house",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.fe.1",
+          "zh": "墓地",
+          "en": "The graveyard",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.fe.-1",
+          "zh": "回岔路口",
+          "en": "Back to the fork",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.e12.1",
+          "zh": "走进墓碑间",
+          "en": "Between the graves",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.e12.-1",
+          "zh": "回墓园大门",
+          "en": "Back to the graveyard gate",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.e23.1",
+          "zh": "经过地穴",
+          "en": "Past the crypt",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.e23.-1",
+          "zh": "回地穴",
+          "en": "Back to the crypt",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.tun.1",
+          "zh": "进隧道",
+          "en": "Into the tunnel",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.tun.-1",
+          "zh": "从隧道回去",
+          "en": "Back through the tunnel",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.gg.1",
+          "zh": "穿过大门",
+          "en": "Through the gate",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.gg.-1",
+          "zh": "回大门那边",
+          "en": "Back through the gate",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.bus.1",
+          "zh": "公交站",
+          "en": "The bus stop",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.bus.-1",
+          "zh": "回空地",
+          "en": "Back to the clearing",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.end.1",
+          "zh": "黑漆漆的小路",
+          "en": "The dark path",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.end.-1",
+          "zh": "回空地",
+          "en": "Back to the clearing",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.tree.1",
+          "zh": "粉色的光",
+          "en": "The pink glow",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.go.tree.-1",
+          "zh": "回空地",
+          "en": "Back to the clearing",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.ui.back",
+          "zh": "回头",
+          "en": "Turn back",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.ui.backish",
+          "zh": "回去",
+          "en": "back",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.ui.turned",
+          "zh": "转身了。",
+          "en": "Turned around.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.ui.map",
+          "zh": "地图",
+          "en": "Map",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.ui.map.hint",
+          "zh": "点一个去过的地方，快进过去。",
+          "en": "Tap a place you’ve been to fast-forward there.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.ui.map.no",
+          "zh": "现在不行。",
+          "en": "Not now.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.ui.close",
+          "zh": "关闭",
+          "en": "Close",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.ui.ff",
+          "zh": "▶▶ 快进",
+          "en": "▶▶ fast-forward",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.st.got",
+          "zh": "一张 ?? 贴纸！（{n}/5）",
+          "en": "A ?? sticker! ({n}/5)",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.st.all",
+          "zh": "五张 ?? 贴纸集齐了！大门后面有什么在发粉光……",
+          "en": "All five ?? stickers! Something pink is glowing past the gate…",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.got.note",
+          "zh": "一张撕开的纸条",
+          "en": "A torn note",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.got.note.0",
+          "zh": "“我们的第一天，月份写在前面……”",
+          "en": "“our first day, the month comes first…”",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.got.note.1",
+          "zh": "“……日子是零开头……”",
+          "en": "“…the day starts with a zero…”",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.got.note.2",
+          "zh": "“……最后是三。”",
+          "en": "“…and ends in three.”",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.got.candle",
+          "zh": "拿到一根蜡烛。隧道没那么黑了。",
+          "en": "Got a candle. The tunnel won’t be so dark now.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.lock.door",
+          "zh": "门锁着。这屋里的八音盒也许会唱首歌……",
+          "en": "The door is locked. The music box in here might know a song…",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.lock.dark",
+          "zh": "太黑了进不去。要是有根蜡烛就好了。",
+          "en": "Too dark to go in. A candle would help.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.lock.tree",
+          "zh": "一堵粉色的灌木墙，上面缺了几张 ?? 贴纸（{n}/5）。",
+          "en": "A wall of pink bushes. Its ?? stickers are missing ({n}/5).",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.lock.tree.say",
+          "zh": "灌木咯咯笑着把你推了回来。",
+          "en": "The bushes giggle and push you back.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.sc.owl",
+          "zh": "……是猫头鹰。只是猫头鹰。",
+          "en": "…an owl. Just an owl.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.sc.cup",
+          "zh": "派对！……原来只是柜子。",
+          "en": "PARTY! …it was just the cupboard.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.sc.portrait",
+          "zh": "画像……眨眼了？！",
+          "en": "The portrait winked?!",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.sc.ghost",
+          "zh": "床单小鬼害羞地挥了挥手。",
+          "en": "A bedsheet ghost waves. Shyly.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.sc.bats",
+          "zh": "蝙蝠！小小的、吱吱叫的蝙蝠。",
+          "en": "Bats! Tiny, squeaky bats.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.g2",
+          "zh": "又是三条路。其中一条在发粉光……",
+          "en": "Three ways again. One of them glows pink…",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.music",
+          "zh": "听八音盒唱一段，再照着弹出来。",
+          "en": "Listen to the music box, then play it back.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.music.again",
+          "zh": "再听一遍",
+          "en": "Listen again",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.music.next",
+          "zh": "下一段……",
+          "en": "Now the next bit…",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.music.no",
+          "zh": "不是这个音。",
+          "en": "Not that note.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.music.hint",
+          "zh": "跟着发光的键。",
+          "en": "Follow the glowing key.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.music.ok",
+          "zh": "八音盒唱起来了。哪里的门咔哒开了。",
+          "en": "The music box sings. A door clicks open somewhere.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.candles",
+          "zh": "把九根蜡烛全点亮。点一根，旁边的也会跟着变。",
+          "en": "Light all nine candles. Each flame lights its neighbours too.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.candles.hint",
+          "zh": "试试发光的那根。",
+          "en": "Try the glowing candle.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.candles.ok",
+          "zh": "九根都亮了。地穴打开了。",
+          "en": "All nine burning. The crypt opens.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.code",
+          "zh": "大门要我们的第一天。",
+          "en": "The gate wants our day one.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.code.no",
+          "zh": "咚。不是这天。",
+          "en": "Clunk. Wrong day.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.code.hint",
+          "zh": "撕开的纸条上有数字。",
+          "en": "The torn notes have the digits.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.code.hint2",
+          "zh": "先月份，再日子。",
+          "en": "Month first, then the day.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.code.hint3",
+          "zh": "零五……然后呢？",
+          "en": "Zero five… then?",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.code.ok",
+          "zh": "0503。当然啦。",
+          "en": "0503. Of course.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.pz.code.auto",
+          "zh": "大门替你记得：0503。",
+          "en": "The gate remembers for you: 0503.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.tap",
+          "zh": "点一下继续",
+          "en": "tap to continue",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.resume",
+          "zh": "上次停在：{p}",
+          "en": "You stopped at: {p}",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.restart",
+          "zh": "从头开始",
+          "en": "Start over",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.end.bus",
+          "zh": "赶上末班车！",
+          "en": "Last bus!",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.end.bus.sub",
+          "zh": "司机是我哦，上车吧。",
+          "en": "The driver was me. Hop on.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.end.bus.say",
+          "zh": "车门开了……是谁在开车？",
+          "en": "The bus doors open… who’s driving?",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.end.best",
+          "zh": "找到你啦！",
+          "en": "Found you!",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.end.best.sub",
+          "zh": "每一张 ?? 都是我。最好的结局，是你。",
+          "en": "Every ?? was me. The best ending is you.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.end.best.say",
+          "zh": "萤火虫在树屋周围围成了一颗心。",
+          "en": "Fireflies make a heart around the tree house.",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.end.tag.caught",
+          "zh": "结局 · 被抓到啦",
+          "en": "Ending · Caught",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.end.tag.bus",
+          "zh": "结局 · 末班车",
+          "en": "Ending · The last bus",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.end.tag.best",
+          "zh": "隐藏结局 · 树屋",
+          "en": "Best ending · The tree house",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.end.count",
+          "zh": "已发现 {n}/3",
+          "en": "{n}/3 found",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "night.end.more",
+          "zh": "?? 贴纸 {n}/5 —— 集齐有隐藏结局",
+          "en": "{n}/5 ?? stickers — collect them all for the hidden ending",
+          "file": "src/stages/night/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "CURTAIN_STAGES.night",
+          "zh": "夜路",
+          "en": "the night path",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        },
+        {
+          "key": "line 58",
+          "zh": "别回头",
+          "en": "",
+          "file": "src/stages/night/props.ts",
+          "line": 58,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "line 60",
+          "zh": "← 森林",
+          "en": "",
+          "file": "src/stages/night/props.ts",
+          "line": 60,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "line 60",
+          "zh": "老房子 ↑",
+          "en": "",
+          "file": "src/stages/night/props.ts",
+          "line": 60,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "line 60",
+          "zh": "墓地 →",
+          "en": "",
+          "file": "src/stages/night/props.ts",
+          "line": 60,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "line 63",
+          "zh": "末班车 23:59",
+          "en": "",
+          "file": "src/stages/night/props.ts",
+          "line": 63,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "line 64",
+          "zh": "我们的第一天？",
+          "en": "",
+          "file": "src/stages/night/props.ts",
+          "line": 64,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "line 180",
+          "zh": "200 路",
+          "en": "",
+          "file": "src/stages/night/props.ts",
+          "line": 180,
+          "kind": "hard-coded"
+        }
+      ]
+    },
+    {
+      "id": "jelly",
+      "name": "4 果冻标本 · Jelly",
+      "entries": [
+        {
+          "key": "gs.stage.jelly",
+          "zh": "果冻",
+          "en": "Jelly",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.item.jelly",
+          "zh": "一颗樱桃",
+          "en": "A cherry",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.hint.jelly",
+          "zh": "果冻旁边，靠右。",
+          "en": "Near the jelly, on the right.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "story.jelly.in",
+          "zh": "到这儿就安心了。要不要玩一会儿？",
+          "en": "It’s safe here. Want to play for a bit?",
+          "file": "src/shared/story-dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "meta.title",
+          "zh": "果冻标本",
+          "en": "Jelly Studies",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "meta.desc",
+          "zh": "三件可以拉扯的果冻标本：双髻鲨、小猪与猫，在浏览器里实时模拟。",
+          "en": "Three soft-body jelly studies — a hammerhead, a pig and a cat — simulated live in the browser.",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "kicker",
+          "zh": "果冻标本",
+          "en": "Jelly Studies",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "char.shark",
+          "zh": "鲨",
+          "en": "Shark",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "char.pig",
+          "zh": "猪",
+          "en": "Pig",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "char.cat",
+          "zh": "猫",
+          "en": "Cat",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "title.shark",
+          "zh": "双髻鲨",
+          "en": "Hammerhead",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "title.pig",
+          "zh": "小猪",
+          "en": "Piglet",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "title.cat",
+          "zh": "猫",
+          "en": "Cat",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "aria.canvas",
+          "zh": "果冻{name}。拖动拉伸，滚轮扭转。",
+          "en": "Jelly {name}. Drag to stretch, scroll to twist.",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "aria.chars",
+          "zh": "标本",
+          "en": "Study",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "aria.colours",
+          "zh": "颜色",
+          "en": "Colour",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "aria.lang",
+          "zh": "语言",
+          "en": "Language",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "aria.sound",
+          "zh": "声音",
+          "en": "Sound",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "aria.egg",
+          "zh": "惊喜",
+          "en": "Surprise",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "aria.grav",
+          "zh": "重力感应",
+          "en": "Gravity sensor",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "hint.mouse",
+          "zh": "拖动拉伸 · 滚轮扭转",
+          "en": "Drag to pull · Scroll to twist",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "hint.touch",
+          "zh": "拖动拉伸 · 双指扭转",
+          "en": "Drag to pull · Two fingers to twist",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ro.mass",
+          "zh": "质量",
+          "en": "Mass",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "ro.vol",
+          "zh": "体积",
+          "en": "Volume",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "m.fork",
+          "zh": "叉长",
+          "en": "Length",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "m.eyes",
+          "zh": "眼距",
+          "en": "Eye span",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "m.ears",
+          "zh": "耳距",
+          "en": "Ear span",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "m.snout",
+          "zh": "体长",
+          "en": "Length",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "m.whiskers",
+          "zh": "须宽",
+          "en": "Whiskers",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "u.g",
+          "zh": "g",
+          "en": "g",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "u.ml",
+          "zh": "ml",
+          "en": "ml",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "u.cm",
+          "zh": "cm",
+          "en": "cm",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "cw.steel",
+          "zh": "钢灰",
+          "en": "Steel",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "cw.amber",
+          "zh": "琥珀",
+          "en": "Amber",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "cw.gummy",
+          "zh": "钴蓝",
+          "en": "Cobalt",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "cw.strawberry",
+          "zh": "草莓",
+          "en": "Strawberry",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "cw.peach",
+          "zh": "蜜桃",
+          "en": "Peach",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "cw.milk",
+          "zh": "牛奶",
+          "en": "Milk",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "cw.cream",
+          "zh": "奶油",
+          "en": "Cream",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "cw.mint",
+          "zh": "薄荷",
+          "en": "Mint",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "cw.lavender",
+          "zh": "薰衣草",
+          "en": "Lavender",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "act.bait",
+          "zh": "投喂",
+          "en": "Feed",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "act.reset",
+          "zh": "复位",
+          "en": "Reset",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "colophon",
+          "zh": "{backend} · {tets} 个四面体",
+          "en": "{backend} · {tets} tetrahedra",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "backend.webgpu",
+          "zh": "WebGPU",
+          "en": "WebGPU",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "backend.webgl2",
+          "zh": "WebGL 2",
+          "en": "WebGL 2",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "fail.title",
+          "zh": "当前浏览器无法渲染。",
+          "en": "This browser can’t render the jelly.",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "fail.body",
+          "zh": "请用新版 Chrome、Safari 或 Edge 打开。",
+          "en": "Open in a recent Chrome, Safari or Edge.",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "egg.kicker",
+          "zh": "果冻标本",
+          "en": "Jelly Studies",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "egg.line",
+          "zh": "200 天纪念日快乐，{name}",
+          "en": "Happy 200 days, {name}.",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "egg.replay",
+          "zh": "重播",
+          "en": "Replay",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "egg.close",
+          "zh": "关闭",
+          "en": "Close",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "egg.sea",
+          "zh": "入海",
+          "en": "Into the sea",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "egg.aria",
+          "zh": "纪念日",
+          "en": "Anniversary",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "egg.sound",
+          "zh": "声音",
+          "en": "Sound",
+          "file": "src/i18n/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "CURTAIN_STAGES.jelly",
+          "zh": "果冻标本",
+          "en": "jelly studies",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        },
+        {
+          "key": "html line 31",
+          "zh": "中",
+          "en": "",
+          "file": "jelly/index.html",
+          "line": 31,
+          "kind": "html"
+        }
+      ]
+    },
+    {
+      "id": "sea",
+      "name": "5 海里 · Sea",
+      "entries": [
+        {
+          "key": "gs.stage.sea",
+          "zh": "海里",
+          "en": "Sea",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.item.sea",
+          "zh": "一枚贝壳",
+          "en": "A seashell",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.hint.sea",
+          "zh": "在海底的沙子上。",
+          "en": "Down on the sand.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "story.sea.in",
+          "zh": "那些一起看过的海，还记得吗。",
+          "en": "The seas we watched together — do you still remember?",
+          "file": "src/shared/story-dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sea.meta.title",
+          "zh": "入海",
+          "en": "Into the sea",
+          "file": "src/stages/sea/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "CURTAIN_STAGES.sea",
+          "zh": "海里",
+          "en": "the sea",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        },
+        {
+          "key": "zh",
+          "zh": "小果冻 → 礼物",
+          "en": "jelly → gift",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 302,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "男爵礼帽 → 浮标",
+          "en": "top hat → buoy",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 303,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "珍珠贝 → 钻石",
+          "en": "pearl shell → diamond",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 304,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "名画画框 → 格子窗",
+          "en": "painting frame → lattice window",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 305,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "佛前油灯 → 火花环",
+          "en": "oil lamp → spark ring",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 306,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "宝石 → 宫灯",
+          "en": "gem → palace lantern",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 307,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "铜钱 → 车票",
+          "en": "copper coin → train ticket",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 308,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "车厢 → 警车",
+          "en": "train car → police car",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 309,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "绿色草药 → 雾凇枝",
+          "en": "green herb → rime twig",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 310,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "冰凌 → 武士刀",
+          "en": "icicle → katana",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 311,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "雪球 → 火山浮石",
+          "en": "snowball → pumice",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 312,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "水滴 → 放大镜",
+          "en": "water drop → magnifier",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 313,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "镜子碎片 → 戒指",
+          "en": "mirror shard → ring",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 314,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "捧花 → 相片",
+          "en": "bouquet → photograph",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 315,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "zh",
+          "zh": "相册页 → 纸船",
+          "en": "album page → paper boat",
+          "file": "src/stages/sea/bridges.ts",
+          "line": 316,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "cat.zh",
+          "zh": "猫的报恩",
+          "en": "The Cat Returns",
+          "file": "src/stages/sea/scenes.ts",
+          "line": 66,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "thief.zh",
+          "zh": "纵横四海",
+          "en": "Once a Thief",
+          "file": "src/stages/sea/scenes.ts",
+          "line": 90,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "endgame.zh",
+          "zh": "复仇者联盟4",
+          "en": "Avengers: Endgame",
+          "file": "src/stages/sea/scenes.ts",
+          "line": 117,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "busan.zh",
+          "zh": "釜山行",
+          "en": "Train to Busan",
+          "file": "src/stages/sea/scenes.ts",
+          "line": 144,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "raccoon.zh",
+          "zh": "生化危机：爆发夜",
+          "en": "Resident Evil",
+          "file": "src/stages/sea/scenes.ts",
+          "line": 168,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "bill.zh",
+          "zh": "杀死比尔",
+          "en": "Kill Bill",
+          "file": "src/stages/sea/scenes.ts",
+          "line": 195,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "mad.zh",
+          "zh": "神探",
+          "en": "Mad Detective",
+          "file": "src/stages/sea/scenes.ts",
+          "line": 226,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "drama.zh",
+          "zh": "爱情抓马",
+          "en": "The Drama",
+          "file": "src/stages/sea/scenes.ts",
+          "line": 246,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "still.zh",
+          "zh": "寂静人生",
+          "en": "Still Life",
+          "file": "src/stages/sea/scenes.ts",
+          "line": 273,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "jinzhou.zh",
+          "zh": "锦州 · 笔架山",
+          "en": "Jinzhou · Bijia Mountain",
+          "file": "src/stages/sea/travel.ts",
+          "line": 52,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "yixian.zh",
+          "zh": "义县 · 奉国寺",
+          "en": "Yixian · Fengguo Temple",
+          "file": "src/stages/sea/travel.ts",
+          "line": 72,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "shenyang.zh",
+          "zh": "沈阳 · 故宫",
+          "en": "Shenyang · Mukden Palace",
+          "file": "src/stages/sea/travel.ts",
+          "line": 94,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "jilin.zh",
+          "zh": "吉林 · 松花湖",
+          "en": "Jilin · Songhua Lake",
+          "file": "src/stages/sea/travel.ts",
+          "line": 117,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "changbai.zh",
+          "zh": "长白山 · 天池",
+          "en": "Changbai Mountain · Tianchi",
+          "file": "src/stages/sea/travel.ts",
+          "line": 137,
+          "kind": "hard-coded"
+        },
+        {
+          "key": "changchun.zh",
+          "zh": "长春 · 南湖",
+          "en": "Changchun · South Lake",
+          "file": "src/stages/sea/travel.ts",
+          "line": 153,
+          "kind": "hard-coded"
+        }
+      ]
+    },
+    {
+      "id": "sky",
+      "name": "6 长春的天空 · Sky",
+      "entries": [
+        {
+          "key": "gs.stage.sky",
+          "zh": "天空",
+          "en": "Sky",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.item.sky",
+          "zh": "一颗掉下来的星星",
+          "en": "A fallen star",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.hint.sky",
+          "zh": "有一颗星星颜色不一样。",
+          "en": "One star is a different colour.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "story.sky.in",
+          "zh": "长春的天空。两百天，也都在这上面。",
+          "en": "The sky over Changchun. Two hundred days are up there too.",
+          "file": "src/shared/story-dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.meta.title",
+          "zh": "那一晚的天空",
+          "en": "The sky, that night",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.day",
+          "zh": "第 {n} 天",
+          "en": "Day {n}",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.moon",
+          "zh": "月",
+          "en": "Moon",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.below",
+          "zh": "在地平线下",
+          "en": "below the horizon",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.ph.0",
+          "zh": "新月",
+          "en": "New moon",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.ph.1",
+          "zh": "蛾眉月",
+          "en": "Waxing crescent",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.ph.2",
+          "zh": "上弦月",
+          "en": "First quarter",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.ph.3",
+          "zh": "盈凸月",
+          "en": "Waxing gibbous",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.ph.4",
+          "zh": "满月",
+          "en": "Full moon",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.ph.5",
+          "zh": "亏凸月",
+          "en": "Waning gibbous",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.ph.6",
+          "zh": "下弦月",
+          "en": "Last quarter",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.ph.7",
+          "zh": "残月",
+          "en": "Waning crescent",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.again",
+          "zh": "下一次同样的星空",
+          "en": "The same sky again",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.r.stars",
+          "zh": "同样的星星",
+          "en": "The same stars",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.r.moon",
+          "zh": "加上同样的月亮",
+          "en": "and the same moon",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.r.planets",
+          "zh": "连行星也一样",
+          "en": "and the same planets",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.in",
+          "zh": "还有 {n} 天",
+          "en": "in {n} days",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.ago",
+          "zh": "{n} 天前",
+          "en": "{n} days ago",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.today",
+          "zh": "就是今天",
+          "en": "today",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.never",
+          "zh": "{y} 年内不会",
+          "en": "not within {y} years",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.closest",
+          "zh": "最接近 {d}（偏 {e}°）",
+          "en": "closest {d} ({e}° off)",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.none",
+          "zh": "{y} 年内不会",
+          "en": "not within {y} years",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.N",
+          "zh": "北",
+          "en": "N",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.E",
+          "zh": "东",
+          "en": "E",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.S",
+          "zh": "南",
+          "en": "S",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.W",
+          "zh": "西",
+          "en": "W",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.p.Mercury",
+          "zh": "水星",
+          "en": "Mercury",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.p.Venus",
+          "zh": "金星",
+          "en": "Venus",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.p.Mars",
+          "zh": "火星",
+          "en": "Mars",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.p.Jupiter",
+          "zh": "木星",
+          "en": "Jupiter",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.p.Saturn",
+          "zh": "土星",
+          "en": "Saturn",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.gyro",
+          "zh": "用手机环视",
+          "en": "Look around with the phone",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.now",
+          "zh": "此刻",
+          "en": "Now",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.hideDay",
+          "zh": "隐去日光",
+          "en": "Hide daylight",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.next",
+          "zh": "一起玩",
+          "en": "Play together",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.computing",
+          "zh": "…",
+          "en": "…",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.film",
+          "zh": "我们的 200 天",
+          "en": "Our 200 days",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.film.play",
+          "zh": "轻触播放",
+          "en": "Tap to play",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "sky.film.cap",
+          "zh": "黑白手绘短片——那两百天，画给你看。",
+          "en": "A hand-drawn film of the two hundred days — black and white, made for you.",
+          "file": "src/stages/sky/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "CURTAIN_STAGES.sky",
+          "zh": "长春的天空",
+          "en": "the sky",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        },
+        {
+          "key": "place.zh",
+          "zh": "长春",
+          "en": "Changchun",
+          "file": "src/stages/sky/config.ts",
+          "line": 15,
+          "kind": "hard-coded"
+        }
+      ]
+    },
+    {
+      "id": "coop",
+      "name": "7 一起玩 · Play together",
+      "entries": [
+        {
+          "key": "gs.stage.coop",
+          "zh": "一起玩",
+          "en": "Play together",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.item.coop",
+          "zh": "小手柄",
+          "en": "A little gamepad",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.hint.coop",
+          "zh": "草里找找。",
+          "en": "Somewhere in the grass.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "story.coop.in",
+          "zh": "要不要一起再玩一回？",
+          "en": "Want to play a round together?",
+          "file": "src/shared/story-dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "coop.meta.title",
+          "zh": "我们俩",
+          "en": "Two of us",
+          "file": "src/stages/coop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "coop.duo",
+          "zh": "两部手机",
+          "en": "Two phones",
+          "file": "src/stages/coop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "coop.solo",
+          "zh": "一部手机",
+          "en": "One phone",
+          "file": "src/stages/coop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "coop.join",
+          "zh": "扫码",
+          "en": "Scan",
+          "file": "src/stages/coop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "coop.scanHer",
+          "zh": "扫她的码",
+          "en": "Scan hers",
+          "file": "src/stages/coop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "coop.back",
+          "zh": "返回",
+          "en": "Back",
+          "file": "src/stages/coop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "coop.linked",
+          "zh": "回到第一个页面",
+          "en": "Go back to the first page",
+          "file": "src/stages/coop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "coop.rotate",
+          "zh": "横过来",
+          "en": "Turn sideways",
+          "file": "src/stages/coop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "coop.again",
+          "zh": "再来",
+          "en": "Again",
+          "file": "src/stages/coop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "coop.lost",
+          "zh": "断开了",
+          "en": "Disconnected",
+          "file": "src/stages/coop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "coop.home",
+          "zh": "往前走走",
+          "en": "Keep walking",
+          "file": "src/stages/coop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "CURTAIN_STAGES.coop",
+          "zh": "一起玩",
+          "en": "together",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        }
+      ]
+    },
+    {
+      "id": "flower",
+      "name": "8 花林 · Flower wood",
+      "entries": [
+        {
+          "key": "gs.stage.flower",
+          "zh": "花林",
+          "en": "Flower wood",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.item.flower",
+          "zh": "一只蝴蝶",
+          "en": "A butterfly",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.hint.flower",
+          "zh": "停在花上。",
+          "en": "Resting on the flowers.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "story.flower.in",
+          "zh": "紫精灵和戴安娜……好像专门开给我们看的。",
+          "en": "The 紫精灵 carnations and the Dianas… as if they opened just for us.",
+          "file": "src/shared/story-dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "story.flower.out",
+          "zh": "林子深处开始亮起来了。",
+          "en": "Something is beginning to glow deeper in the woods.",
+          "file": "src/shared/story-dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "flower.meta.title",
+          "zh": "她的花林",
+          "en": "A wood of her flowers",
+          "file": "src/stages/flower/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "flower.hint.keys",
+          "zh": "← →  漫步     再往前走还有东西",
+          "en": "← →  stroll     something waits further on",
+          "file": "src/stages/flower/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "flower.hint.touch",
+          "zh": "按住或拖动就能走 · 慢慢看",
+          "en": "Hold or drag to walk · take your time",
+          "file": "src/stages/flower/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "CURTAIN_STAGES.flower",
+          "zh": "花林",
+          "en": "the flower wood",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        }
+      ]
+    },
+    {
+      "id": "mushroom",
+      "name": "9 蘑菇林 · Mushroom wood",
+      "entries": [
+        {
+          "key": "gs.stage.mushroom",
+          "zh": "蘑菇林",
+          "en": "Mushroom wood",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.item.mushroom",
+          "zh": "一朵会发光的小蘑菇",
+          "en": "A glowing mushroom",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.hint.mushroom",
+          "zh": "蘑菇中间，亮亮的。",
+          "en": "Among the caps, glowing.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "story.mushroom.in",
+          "zh": "天暗了下来。这些蘑菇，一盏一盏的。",
+          "en": "It’s gotten dark. The mushrooms are lighting the way, one by one.",
+          "file": "src/shared/story-dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "story.mushroom.out",
+          "zh": "前面有暖光。窗子亮着。",
+          "en": "There’s a warm light ahead. A window is glowing.",
+          "file": "src/shared/story-dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "mushroom.meta.title",
+          "zh": "她的蘑菇林",
+          "en": "A wood of mushrooms",
+          "file": "src/stages/mushroom/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "mushroom.hint.keys",
+          "zh": "← →  漫步     跟着微光继续走",
+          "en": "← →  stroll     the glow leads on",
+          "file": "src/stages/mushroom/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "mushroom.hint.touch",
+          "zh": "按住或拖动就能走 · 跟着微光",
+          "en": "Hold or drag to walk · follow the glow",
+          "file": "src/stages/mushroom/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "CURTAIN_STAGES.mushroom",
+          "zh": "蘑菇林",
+          "en": "the mushroom wood",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        }
+      ]
+    },
+    {
+      "id": "home",
+      "name": "10 小家 · Home（含片尾）",
+      "entries": [
+        {
+          "key": "gs.stage.home",
+          "zh": "小家",
+          "en": "Home",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.item.home",
+          "zh": "家门钥匙",
+          "en": "The house key",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "gs.hint.home",
+          "zh": "门口附近看看。",
+          "en": "Look near the door.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.meta.title",
+          "zh": "我们的小家",
+          "en": "A house of our own",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.found",
+          "zh": "这里有一间空房子诶，我们可以布置一下",
+          "en": "Oh — an empty house. We could furnish it.",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.turn",
+          "zh": "把手机横过来，布置我们的小家",
+          "en": "Turn your phone sideways to furnish our little home",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.turn.skip",
+          "zh": "先这样看看",
+          "en": "That’s okay, I’ll try it like this",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.save",
+          "zh": "保存布局",
+          "en": "Save layout",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.undo",
+          "zh": "撤销",
+          "en": "Undo",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.reset",
+          "zh": "重置",
+          "en": "Reset",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.flip",
+          "zh": "翻转",
+          "en": "Flip",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.rotate",
+          "zh": "旋转",
+          "en": "Rotate",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.remove",
+          "zh": "拿掉",
+          "en": "Remove",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.hint",
+          "zh": "先选一件，再点地板放下。拖动摆位置 · 旋转 90° · 拿掉",
+          "en": "Pick something, then tap the floor. Drag to move · rotate 90° · remove",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.edit",
+          "zh": "继续布置",
+          "en": "Keep decorating",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.migrate",
+          "zh": "之前的布置是平面贴纸，和新的立体房间对不上，已经为你清空。请重新摆放。",
+          "en": "Your earlier layout was flat stickers and cannot map into this room, so it was cleared. Please place things again.",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.nowebgl",
+          "zh": "这台设备无法打开立体房间。你可以保存空房间，直接观看后面的短片。",
+          "en": "This device cannot open the little 3D room. You can save an empty layout and still watch the film.",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.transform",
+          "zh": "也许有一天，也许会是第 2000 天，我们已经拥有了一个自己的家。",
+          "en": "Maybe one day, maybe on day 2000, we will already have a home of our own.",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.film.play",
+          "zh": "轻触播放",
+          "en": "Tap to play",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.film.loading",
+          "zh": "影片载入中……",
+          "en": "Loading the film…",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.finale",
+          "zh": "我们已经有属于自己的两百天了，\n我想第两千天可能也并不遥远吧。\n\n也许有一天，也许会是第 2000 天，\n我们已经拥有了一个自己的家。\n\n我的小臭猫。",
+          "en": "We already have two hundred days that belong to us,\nand I don’t think day two thousand is that far away.\n\nMaybe one day, maybe on day 2000,\nwe will already have a home of our own.\n\nMy little stinky cat.",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.skip",
+          "zh": "跳过",
+          "en": "Skip",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.replay",
+          "zh": "再看一遍",
+          "en": "Play this again",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.again",
+          "zh": "从头再来",
+          "en": "From the start",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.sofa",
+          "zh": "沙发",
+          "en": "Sofa",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.armchair",
+          "zh": "单人椅",
+          "en": "Armchair",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.coffee",
+          "zh": "茶几",
+          "en": "Coffee table",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.rug",
+          "zh": "地毯",
+          "en": "Rug",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.lamp",
+          "zh": "落地灯",
+          "en": "Floor lamp",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.shelf",
+          "zh": "书架",
+          "en": "Bookshelf",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.tv",
+          "zh": "电视",
+          "en": "Television",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.table",
+          "zh": "餐桌",
+          "en": "Dining table",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.chair",
+          "zh": "椅子",
+          "en": "Chair",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.bed",
+          "zh": "床",
+          "en": "Bed",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.night",
+          "zh": "床头柜",
+          "en": "Nightstand",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.roses",
+          "zh": "戴安娜粉玫瑰",
+          "en": "Diana roses",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.lisi",
+          "zh": "云南紫精灵",
+          "en": "Zijingling carnations",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.cattree",
+          "zh": "猫爬架",
+          "en": "Cat tree",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.dogbed",
+          "zh": "狗窝",
+          "en": "Dog bed",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.frame",
+          "zh": "相框",
+          "en": "Picture",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.lights",
+          "zh": "灯串",
+          "en": "String lights",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.side",
+          "zh": "边几",
+          "en": "Side table",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.cushion",
+          "zh": "坐垫",
+          "en": "Cushion",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "home.item.wardrobe",
+          "zh": "衣柜",
+          "en": "Wardrobe",
+          "file": "src/stages/home/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "CURTAIN_STAGES.home",
+          "zh": "小家",
+          "en": "our home",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        }
+      ]
+    },
+    {
+      "id": "secret",
+      "name": "彩蛋页（占位） · Secret page (placeholder)",
+      "entries": [
+        {
+          "key": "secret.meta.title",
+          "zh": "一个小彩蛋",
+          "en": "A little surprise",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "secret.soon",
+          "zh": "这一页还在做。",
+          "en": "This page is still being made.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "secret.locked",
+          "zh": "还没有全部找到哦。",
+          "en": "Not everything is found yet.",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "secret.back",
+          "zh": "回到小家",
+          "en": "Back home",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "secret.list",
+          "zh": "看看还差什么",
+          "en": "See what’s missing",
+          "file": "src/shared/surprise/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "CURTAIN_STAGES.secret",
+          "zh": "彩蛋",
+          "en": "a surprise",
+          "file": "src/shared/curtain-inline.ts",
+          "kind": "curtain"
+        }
+      ]
+    }
+  ]
+}
