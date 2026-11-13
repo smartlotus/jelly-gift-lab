@@ -1,0 +1,8 @@
+{
+  "v": 1,
+  "src": "media/future-home.mp4",
+  "poster": "media/future-home-poster.jpg",
+  "audio": true,
+  "burned": { "transform": [0.5, 7.7], "finale": 77.4 },
+  "film": "future-home-2000 v4 web 1080p (candidate on the dev branch, under review)"
+}
