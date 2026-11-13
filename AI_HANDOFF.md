@@ -2,8 +2,21 @@
 
 **Lab pass (t7):** Thursday 12 November 2026, Asia/Shanghai — branch `lab/surprise-collect`, PR to `main` (not merged, not deployed).
 
+**横屏 / 转屏 pass (t11)：** 2026-11-13（北京时间），同一分支 `lab/surprise-collect`，PR #1 仍未合并；这一轮按用户要求**部署到了本仓库自己的 Pages**（https://smartlotus.github.io/jelly-gift-lab/）。中文说明见下面「横屏与转屏」和 [`docs/CHANGELOG.md`](docs/CHANGELOG.md)。
+
+### 横屏与转屏（t11，中文）
+
+- **不锁方向。** 所有页面（十关 + AR 侧室 + 秘密页）横竖都能用。
+- **转屏过渡** `src/shared/orient.ts` + `orient.css`：由 `mountChrome()` 和 `mountSurprise()` 各调一次（幂等），所以每页都有。手机一转，一层带本关色调的柔光幕（背景虚化 16px + 本关主色光晕 + 一个转 90° 的小手机图标）盖上；等浏览器不再连发 resize（≥160ms 无 resize，至少 300ms）后补发一次 `resize`，让各关的画布 / 渲染器按最终尺寸重排；然后柔光幕放大淡出（0.6s）。`prefers-reduced-motion`：只做约 0.2s 纯淡入淡出。色调表在 `THEMES`（按页面路径取）。还会把 `html[data-orientation]`、`html[data-stage-id]` 写上，CSS 可以按关调整。测试钩子 `window.__orient`（`runs()`、`phase()`、`hold(p)`、`release()`）。
+- **横屏台词**（`src/shared/story.css`）：横屏矮屏（高 ≤ 520px）时台词变成顶部居中的小胶囊（贴着文字宽度，最宽 46vw），把底边留给各关的按钮和拇指；两人小局放左上角（顶部中间站着像素猪猫），果冻页在宽横屏（≥760px）放底部中间（顶部中间是猪 / 猫 / 鲨的切换）。
+- **惊喜坞横屏**（`surprise.css` 末尾）：天空关移到顶部 chrome 下方（不再压住右侧工具列）；两人小局改为右侧竖排（不压像素猪猫）。收集清单在横屏铺满高度、两侧让出刘海，「关上」钉在卡片底部（以前要滚到底才看得到）。
+- **藏起来的东西**（`kit.ts` `where()`）：位置按安全区夹紧（`safeInsets()` 用 env() 探针测量），横屏时不会落进刘海那一侧。
+- 语言切换「中 / EN」按钮最小宽度 24px（以前 16px 宽，难点）。
+- **测试**：`tools/lab-verify.mjs` 第 4 部分（`LANDSCAPE=0` 跳过，`LANDSCAPE_ONLY=1` 只跑这部分，`SHOTS=/dir` 存截图）：12 个页面 × 844×390 / 932×430 / 667×375，用 CDP `Emulation.setSafeAreaInsetsOverride` 模拟 iPhone 安全区（横屏左右 47、底 21；竖屏顶 47、底 34）；检查惊喜坞 + chrome 在安全区内、未被遮挡、≥24px，画布缓冲比例与显示比例一致、无横向滚动；横屏下藏起来的东西、收集清单、结尾卡片；7 个页面竖→横转屏：过渡出现并结束、主画布重新铺满（天空关用减弱动态效果验证纯淡入淡出）。`tools/landscape-audit.mjs` 是更宽的审计（每页 × 4 视口截图 + 出界 / 安全区 / 遮挡 / 过小元素 JSON）。
+- **SwiftShader 很慢**：无头 Chrome 下 resize 事件要几秒才处理，所以测试里的等待都放宽到 30s；真机上过渡总长约 0.9s。
+
 This repo, `smartlotus/jelly-gift-lab`, is a full copy of the stable v2 story edition (`smartlotus/jelly-gift-story` `main` @ `1598fc4`), made for experiments.
-**Never push to, deploy to, or modify `smartlotus/jelly-gift-story` or `smartlotus/jelly-gift` from here.** `scripts/deploy_pages.sh` only publishes to this repo's own `gh-pages` (https://smartlotus.github.io/jelly-gift-lab/). It refuses those two repos and any other target, and it needs `GIFT_DEPLOY=1`. Nothing has been deployed from the lab yet.
+**Never push to, deploy to, or modify `smartlotus/jelly-gift-story` or `smartlotus/jelly-gift` from here.** `scripts/deploy_pages.sh` only publishes to this repo's own `gh-pages` (https://smartlotus.github.io/jelly-gift-lab/). It refuses those two repos and any other target, and it needs `GIFT_DEPLOY=1`. The lab was first deployed on 2026-11-13 (t11, the user asked for it) from `lab/surprise-collect`.
 
 The rest of this file below the lab section is the inherited story-edition handoff. Its repo paths and "live" hashes describe `jelly-gift-story`, not this repo.
 
@@ -55,7 +68,7 @@ Debug: `window.__surprise` (`surprise()`, `playing()`, …). The URL flag `?at=v
 ### Tests / tools (lab)
 
 - `npm run test:collect`: `tools/collect-test.ts`, 26 unit checks for the collection state and the end-of-film routing.
-- `npm run build && node tools/serve.mjs dist 8833 & BASE=http://127.0.0.1:8833 npm run test:lab`: `tools/lab-verify.mjs`, Chromium 390×844 e2e. It checks the dock and 跳过 on all stages, 惊喜 → item → tap → saved → reload → list → 回去找, end routing (list vs secret), cancellation by 再看一遍/继续布置, and the reset by 从头再来.
+- `npm run build && node tools/serve.mjs dist 8833 & BASE=http://127.0.0.1:8833 PLAYWRIGHT=<path to playwright(-core)/index.mjs> npm run test:lab`: `tools/lab-verify.mjs`, Chromium 390×844 e2e plus the landscape part (§ 横屏与转屏). It checks the dock and 跳过 on all stages, 惊喜 → item → tap → saved → reload → list → 回去找, end routing (list vs secret), cancellation by 再看一遍/继续布置, and the reset by 从头再来.
 - `BROWSERS=chromium BASE=… node tools/v03r-verify.mjs`: the inherited journey regression. The new `BROWSERS` env lets it run without WebKit. **WebKit could not run on the lab box** (missing system libraries, and the apt mirror was failing), so iPhone Safari is untested here. Test it on a real iPhone before deploying.
 - `node tools/lab-shots.mjs [stage…]` (env `OUT`, `VW`, `VH`): screenshots of dock / mid-animation / item / found for each stage.
 - `npm run copy`: `scripts/extract_copy.ts` writes **`docs/copy/copy.md`** and `copy.json`. They hold every user-visible string by stage in journey order, with file + key (dictionaries, curtain, plus a scan for hard-coded Chinese literals). Re-run it after editing copy.

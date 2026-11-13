@@ -1,6 +1,8 @@
 # jelly-gift-lab
 
-> **Experimental copy** of the story edition (stable v2). Work here, not in `jelly-gift-story` / `jelly-gift`. Deploys (only when asked) go to this repo's own Pages: https://smartlotus.github.io/jelly-gift-lab/ via `GIFT_DEPLOY=1 scripts/deploy_pages.sh`. Lab notes: top of [`AI_HANDOFF.md`](AI_HANDOFF.md). All visible copy: [`docs/copy/copy.md`](docs/copy/copy.md) (`npm run copy`).
+> **Experimental copy** of the story edition (stable v2). Work here, not in `jelly-gift-story` / `jelly-gift`. Deploys (only when asked; first one 2026-11-13) go to this repo's own Pages: https://smartlotus.github.io/jelly-gift-lab/ via `GIFT_DEPLOY=1 scripts/deploy_pages.sh`. Lab notes: top of [`AI_HANDOFF.md`](AI_HANDOFF.md). All visible copy: [`docs/copy/copy.md`](docs/copy/copy.md) (`npm run copy`).
+>
+> **中文更新记录：** [`docs/CHANGELOG.md`](docs/CHANGELOG.md)。2026-11-13：所有页面支持手机横屏（安全区、横屏台词位置、惊喜坞 / 清单 / 藏起来的东西），转屏时有按关配色的柔光过渡（不锁方向，减弱动态效果时只淡入淡出）；集齐后跳到相册 https://smartlotus.github.io/rhine-album/?from=jelly 。实验版在线：https://smartlotus.github.io/jelly-gift-lab/ （只部署到本仓库自己的 Pages）。
 
 ---
 

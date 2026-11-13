@@ -210,3 +210,16 @@ body.hm-decorating .gs-dock[data-stage="home"] { --gs-top: 104px; }
   .gs-btn, .gs-item-art, .gs-dock * { animation: none !important; }
   .gs-toast, .gs-panel, .gs-card, .gs-end { transition: none; }
 }
+
+/* ── landscape phones (short + wide) ─────────────────────────────── */
+@media (orientation: landscape) and (max-height: 520px) {
+  /* sky: the dock moves up under the chrome, clear of the sky tools column and the day tabs */
+  .gs-dock[data-stage="sky"] { top: calc(env(safe-area-inset-top, 0px) + 62px); bottom: auto; }
+  /* coop: the pixel pair stands at the top centre → the dock stacks down the right edge */
+  .gs-dock[data-stage="coop"] { flex-direction: column; align-items: flex-end; gap: 10px; }
+  /* the list: the card takes the full height, the notch sides stay clear, 关上 stays pinned at the bottom of the card */
+  .gs-panel { padding: calc(env(safe-area-inset-top, 0px) + 10px) calc(env(safe-area-inset-right, 0px) + 16px) calc(env(safe-area-inset-bottom, 0px) + 10px) calc(env(safe-area-inset-left, 0px) + 16px); }
+  .gs-card { width: min(100%, 520px); padding-top: 10px; padding-bottom: 0; }
+  .gs-card header { padding-bottom: 6px; }
+  .gs-card footer { position: sticky; bottom: 0; background: #F8F2E7; padding: 6px 0 8px; margin-top: 4px; }
+}

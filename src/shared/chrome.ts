@@ -6,6 +6,7 @@ import { apply, lang, onLang, setLang, t, type Lang } from './i18n';
 import { onSound, setSound, soundOn, unlock, markGesture } from './audio';
 import { mountStory } from './story';
 import * as Sfx from './sfx';
+import { mountOrient } from './orient';
 
 export function mountChrome(opts: { sound?: boolean; theme?: 'light' | 'dark' } = {}) {
   document.documentElement.dataset.theme = opts.theme ?? 'light';
@@ -14,6 +15,7 @@ export function mountChrome(opts: { sound?: boolean; theme?: 'light' | 'dark' } 
     <div class="gc-lang" role="group" data-i18n-aria="ui.lang"><button type="button" data-lang="zh" lang="zh-CN">中</button><span aria-hidden="true">/</span><button type="button" data-lang="en" lang="en">EN</button></div>`;
   document.body.appendChild(bar);
   mountStory();
+  mountOrient();
   const sync = () => {
     bar.querySelectorAll<HTMLButtonElement>('[data-lang]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
     const s = bar.querySelector<HTMLButtonElement>('.gc-sound');

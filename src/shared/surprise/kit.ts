@@ -15,9 +15,18 @@ import { ITEMS } from './items';
 import { ICONS, POUCH } from './icons';
 import { foundCount, isFound, isRevealed, markFound, markRevealed, subscribe, onStorage, TOTAL } from './collect';
 import { openPanel } from './panel';
+import { mountOrient } from '../orient';
 import type { Anim, Ctx } from './fx';
 
 register(dict);
+
+let probe: HTMLElement | null = null;
+/** env(safe-area-inset-*) in px (measured from a hidden probe; 0 where unsupported). */
+export function safeInsets() {
+  if (!probe) { probe = document.createElement('div'); probe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)'; document.body.appendChild(probe); }
+  const cs = getComputedStyle(probe);
+  return { top: parseFloat(cs.paddingTop) || 0, right: parseFloat(cs.paddingRight) || 0, bottom: parseFloat(cs.paddingBottom) || 0, left: parseFloat(cs.paddingLeft) || 0 };
+}
 
 type HuntStage = Exclude<StageId, 'ar'>;
 const ANIMS: Record<HuntStage, () => Promise<{ default: Anim }>> = {
@@ -50,6 +59,7 @@ function guard(e: HTMLElement) { for (const k of ['pointerdown', 'pointerup', 'm
 const txt = (key: string, vars?: Record<string, string | number>) => t(key, vars);
 
 export function mountSurprise(o: SurpriseOpts): SurpriseApi {
+  mountOrient();
   if (api) return api;
   const { stage } = o;
   const ic = ICONS[stage];
@@ -80,7 +90,13 @@ export function mountSurprise(o: SurpriseOpts): SurpriseApi {
   // ── the hidden thing ───────────────────────────────────────────────
   const spec = ITEMS[stage];
   let item: HTMLButtonElement | null = null;
-  const where = () => { const p = innerWidth > innerHeight ? spec.landscape : spec.portrait; return { x: Math.round(p[0] * innerWidth), y: Math.round(p[1] * innerHeight) }; };
+  // centre of the hidden thing, kept inside the notch / home-indicator safe area (landscape phones put the notch on a side)
+  const where = () => {
+    const p = innerWidth > innerHeight ? spec.landscape : spec.portrait;
+    const ins = safeInsets(), half = Math.max(24, spec.size / 2 + 8) + 6;
+    const clamp = (v: number, lo: number, hi: number) => Math.round(Math.min(Math.max(v, lo), Math.max(lo, hi)));
+    return { x: clamp(p[0] * innerWidth, ins.left + half, innerWidth - ins.right - half), y: clamp(p[1] * innerHeight, ins.top + half, innerHeight - ins.bottom - half) };
+  };
   const place = () => { if (!item) return; const p = where(); item.style.left = `${p.x}px`; item.style.top = `${p.y}px`; };
   function showItem(fresh: boolean) {
     if (item || isFound(stage)) return;

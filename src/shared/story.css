@@ -31,3 +31,22 @@ html[data-theme="dark"] .gift-whisper { background: rgba(8, 12, 16, 0.52); color
     font-size: clamp(12px, 2.2vw, 15px);
   }
 }
+/* Landscape phones (short + wide): thumbs and every stage's controls live along the bottom edge, so the spoken line
+   becomes a small pill at the top centre, between the left corner art and the chrome / dock on the right. It hugs its
+   text and stays inside the notch-safe area. Coop keeps its pixel pair at the top centre → its line sits top-left. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .gift-whisper {
+    left: 50%; right: auto; top: calc(10px + env(safe-area-inset-top, 0px)); bottom: auto;
+    width: max-content; max-width: min(46vw, 26em);
+    transform: translate(-50%, -6px);
+  }
+  .gift-whisper.on { transform: translate(-50%, 0); }
+  html[data-stage-id="coop"] .gift-whisper { left: calc(14px + env(safe-area-inset-left, 0px)); max-width: min(30vw, 15em); text-align: left; transform: translateY(-6px); }
+  html[data-stage-id="coop"] .gift-whisper.on { transform: none; }
+}
+/* jelly on wider landscape phones: the species tabs take the top centre → the line hugs the bottom, between the colour
+   swatches and 复位 / 入海 */
+@media (orientation: landscape) and (max-height: 520px) and (min-width: 760px) {
+  html[data-stage-id="jelly"] .gift-whisper { top: auto; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); max-width: min(38vw, 22em); transform: translate(-50%, 6px); }
+  html[data-stage-id="jelly"] .gift-whisper.on { transform: translate(-50%, 0); }
+}

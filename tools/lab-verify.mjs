@@ -5,6 +5,10 @@
 // Checks: every stage has the dock (惊喜 / 跳过 / pouch, touch-sized) and 跳过 reaches the next stage; 惊喜 reveals the
 // hidden thing, a tap collects it, it survives a reload and shows in the list; the list's 回去找 goes back; after the
 // ending film: something missing → list, everything found → the secret page; 再看一遍/继续布置 cancel it; 从头再来 resets.
+// 横屏（t11）: every page incl. AR + secret at 844×390 / 932×430 / 667×375 with iPhone-like safe areas — dock and
+// chrome inside the safe area and uncovered, canvases keep their buffer ratio; list / hidden thing / closing card in
+// landscape; portrait ⇄ landscape shows the themed veil and re-fits the canvas (reduced motion: plain fade).
+// LANDSCAPE=0 skips that part; SHOTS=/dir saves landscape + mid-transition screenshots.
 const { chromium } = await import(process.env.PLAYWRIGHT || 'file:///workspace/jelly/pw/node_modules/playwright/index.mjs');
 const BASE = (process.env.BASE || 'http://127.0.0.1:8833').replace(/\/$/, '');
 const KEY = 'gift.collect.v1';
@@ -16,12 +20,15 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 let pass = 0, fail = 0; const errors = [];
 const log = (name, ok, x) => { ok ? pass++ : fail++; console.log(`${ok ? '  ok ' : '  FAIL'} ${name}${ok || x === undefined ? '' : '  ' + JSON.stringify(x)}`); };
 const b = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox', '--disable-dev-shm-usage', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--autoplay-policy=no-user-gesture-required'] });
-const newCtx = () => b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+const newCtx = (vp = { width: 390, height: 844 }, extra = {}) => b.newContext({ viewport: vp, deviceScaleFactor: 2, isMobile: true, hasTouch: true, ...extra });
+const SAFE = (w, h) => (w > h ? { top: 0, left: 47, right: 47, bottom: 21 } : { top: 47, left: 0, right: 0, bottom: 34 });
+const SHOTS = process.env.SHOTS || '';
 const state = found => JSON.stringify({ v: 1, found: Object.fromEntries(found.map(id => [id, 1])), revealed: Object.fromEntries(found.map(id => [id, 1])) });
 async function page(ctx, tag) { const p = await ctx.newPage(); p.on('pageerror', e => errors.push(`${tag}: ${e.message}`)); return p; }
 const stageOf = url => { const m = new URL(url).pathname.replace(/\/index\.html$/, '/').match(/\/([a-z]+)\/$/); return m ? m[1] : 'meadow'; };
 
 console.log('lab-verify', BASE);
+if (process.env.LANDSCAPE_ONLY !== '1') {
 // 1. dock + 跳过 on every stage
 {
   const ctx = await newCtx();
@@ -149,6 +156,100 @@ async function endCase(found, tag) {
   const txt = await p.evaluate(() => document.body.innerText);
   log('secret page opened early: says it is still locked and offers the list / way home', txt.length > 0 && !!(await p.$('a[href*="home"], button')), txt.slice(0, 120));
   await ctx.close();
+}
+
+}
+// 4. 横屏 / landscape + orientation change
+if (process.env.LANDSCAPE !== '0') {
+  const LVIEWS = [[844, 390], [932, 430], [667, 375]];
+  const PAGES = [...ALL.slice(0, 2), 'ar', ...ALL.slice(2), 'secret'];
+  const safeOn = async (p, w, h) => { const c = await p.context().newCDPSession(p); await c.send('Emulation.setSafeAreaInsetsOverride', { insets: SAFE(w, h) }).catch(() => {}); return c; };
+  const settle = p => p.evaluate(() => { for (const a of document.getAnimations()) { try { if (a.effect?.getTiming().iterations !== Infinity && !a.effect?.target?.closest?.('.gs-orient')) a.finish(); } catch { /* */ } } });
+  const shoot = async (p, name) => { if (!SHOTS) return; await settle(p).catch(() => {}); await p.screenshot({ path: `${SHOTS}/${name}.png`, timeout: 300000 }).catch(() => {}); };
+  const audit = (p, ins) => p.evaluate(ins => {
+    const shown = e => { const r = e.getBoundingClientRect(); if (r.width < 2 || r.height < 2) return false; for (let a = e; a; a = a.parentElement) { const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.15) return false; } return !e.closest('[hidden],[inert],[aria-hidden="true"]'); };
+    const ctl = [...document.querySelectorAll('.gs-dock .gs-btn, .gift-chrome button')].filter(shown).map(e => {
+      const r = e.getBoundingClientRect(); const c = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return { t: e.textContent.trim().slice(0, 10), r: [r.left, r.top, r.right, r.bottom].map(Math.round), safe: r.left >= ins.left - 1 && r.right <= innerWidth - ins.right + 1 && r.top >= ins.top - 1 && r.bottom <= innerHeight - ins.bottom + 1, top: !!c && (e.contains(c) || c.contains(e)), h: r.height };
+    });
+    const canv = [...document.querySelectorAll('canvas')].filter(shown).map(c => { const r = c.getBoundingClientRect(); return { css: [Math.round(r.width), Math.round(r.height)], ok: Math.abs((c.width / c.height) / (r.width / r.height) - 1) < 0.04 }; });
+    return { ctl, canv, overflowX: document.documentElement.scrollWidth > innerWidth + 1 };
+  }, ins);
+  for (const st of PAGES) for (const [w, h] of LVIEWS) {
+    const ctx = await newCtx({ width: w, height: h });
+    const p = await page(ctx, `${st}@${w}x${h}`);
+    await safeOn(p, w, h);
+    await p.goto(`${BASE}/${st === 'meadow' ? '' : st + '/'}?lang=zh`, { waitUntil: 'load' });
+    if (ALL.includes(st)) await p.waitForSelector(`.gs-dock[data-stage="${st}"]`, { timeout: 20000 }).catch(() => {});
+    await sleep(st === 'home' ? 2500 : 3500);
+    const a = await audit(p, SAFE(w, h));
+    const dock = a.ctl.filter(c => !/^(中|EN|声音)/.test(c.t));
+    const bad = a.ctl.filter(c => !c.safe || !c.top || c.h < 24);
+    log(`${st} ${w}×${h}: ${ALL.includes(st) ? 'dock (3) + ' : ''}chrome inside the safe area, uncovered`, bad.length === 0 && (!ALL.includes(st) || dock.length === 3), bad.length ? bad : dock.length);
+    log(`${st} ${w}×${h}: canvases keep their buffer ratio, no sideways scroll`, a.canv.every(c => c.ok) && !a.overflowX, a);
+    if (w === 844) await shoot(p, `${st}-844x390`);
+    await ctx.close();
+  }
+  // the list, a hidden thing and the closing card in landscape
+  {
+    const ctx = await newCtx({ width: 844, height: 390 });
+    const p = await page(ctx, 'land-list');
+    await safeOn(p, 844, 390);
+    await p.goto(`${BASE}/night/?lang=zh`); await p.waitForSelector('.gs-dock'); await sleep(2500);
+    await p.evaluate(k => localStorage.removeItem(k), KEY);
+    await p.click('.gs-surprise', { force: true });
+    await p.waitForSelector('.gs-item', { timeout: 20000 }).catch(() => {});
+    await sleep(1200);
+    const it = await p.evaluate(ins => { const e = document.querySelector('.gs-item'); if (!e) return null; const r = e.getBoundingClientRect(); const c = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return { r: [r.left, r.top, r.width, r.height].map(Math.round), ok: r.left >= ins.left && r.right <= innerWidth - ins.right && r.top >= 0 && r.bottom <= innerHeight - ins.bottom && r.width >= 44 && !!c?.closest('.gs-item') }; }, SAFE(844, 390));
+    log('landscape night: the hidden thing is inside the safe area, ≥44px, uncovered', it?.ok, it);
+    await shoot(p, 'night-844x390-item');
+    if (it) { await p.tap('.gs-item').catch(() => {}); await sleep(1400); }
+    await p.click('.gs-entry', { force: true });
+    await p.waitForSelector('.gs-panel .gs-row', { timeout: 6000 }).catch(() => {});
+    await sleep(700);
+    const pn = await p.evaluate(ins => { const card = document.querySelector('.gs-panel .gs-card'); const cl = document.querySelector('.gs-panel .gs-close'); if (!card) return null; const r = card.getBoundingClientRect(); const c = cl?.getBoundingClientRect(); const sc = [...card.querySelectorAll('*')].find(e => /auto|scroll/.test(getComputedStyle(e).overflowY) && e.scrollHeight > e.clientHeight) || (/auto|scroll/.test(getComputedStyle(card).overflowY) ? card : null); return { card: [r.left, r.top, r.right, r.bottom].map(Math.round), inView: r.top >= -1 && r.bottom <= innerHeight + 1 && r.left >= -1 && r.right <= innerWidth + 1, close: !!c && c.left >= ins.left - 1 && c.right <= innerWidth - ins.right + 1 && c.top >= 0 && c.bottom <= innerHeight, rows: card.querySelectorAll('.gs-row').length, scrolls: !!sc }; }, SAFE(844, 390));
+    log('landscape list: the card fits the screen, close in the safe area, 10 rows reachable (scrolls)', pn && pn.inView && pn.close && pn.rows === 10 && pn.scrolls, pn);
+    await shoot(p, 'list-844x390');
+    await ctx.close();
+  }
+  {
+    const ctx = await newCtx({ width: 844, height: 390 });
+    await ctx.addInitScript(([k, v]) => { if (!sessionStorage.getItem('lab.seeded')) { localStorage.setItem(k, v); sessionStorage.setItem('lab.seeded', '1'); } }, [KEY, state(['meadow', 'night'])]);
+    const p = await page(ctx, 'land-end');
+    await safeOn(p, 844, 390);
+    await p.route(/media\/ending-film\.json/, r => r.fulfill({ status: 404, body: '' }));
+    await p.goto(`${BASE}/home/?lang=zh&at=video`);
+    await p.waitForFunction(() => window.__home?.phase() === 'end', null, { timeout: 20000 }).catch(() => {});
+    await sleep(1200);
+    const end = await p.evaluate(ins => ['.hm-replay', '.hm-edit', '.hm-again'].map(s => { const e = document.querySelector(s); if (!e) return null; if (getComputedStyle(e).display === 'none') return 'n/a (no film)'; const r = e.getBoundingClientRect(); return r.left >= ins.left - 1 && r.right <= innerWidth - ins.right + 1 && r.top >= 0 && r.bottom <= innerHeight - ins.bottom + 1 && r.height >= 32; }), SAFE(844, 390));
+    log('landscape closing card: 再看一遍 / 继续布置 / 从头再来 (those shown) inside the safe area', end.every(Boolean) && end.filter(x => x === true).length >= 2, end);
+    await shoot(p, 'home-844x390-end');
+    await ctx.close();
+  }
+  // portrait → landscape → portrait
+  for (const [st, reduced] of [['meadow', false], ['night', false], ['sea', false], ['home', false], ['jelly', false], ['secret', false], ['sky', true]]) {
+    const ctx = await newCtx({ width: 390, height: 844 }, { reducedMotion: reduced ? 'reduce' : 'no-preference' });
+    const p = await page(ctx, `rotate-${st}`);
+    const cdp = await safeOn(p, 390, 844);
+    await p.goto(`${BASE}/${st === 'meadow' ? '' : st + '/'}?lang=zh`, { waitUntil: 'load' });
+    await sleep(3500);
+    const big = () => p.evaluate(() => { const c = [...document.querySelectorAll('canvas')].map(c => ({ c, r: c.getBoundingClientRect() })).filter(x => x.r.width > 2).sort((a, b) => b.r.width * b.r.height - a.r.width * a.r.height)[0]; return c ? { w: Math.round(c.r.width), h: Math.round(c.r.height), bw: c.c.width, bh: c.c.height } : null; });
+    const before = await big();
+    if (SHOTS && !reduced) await shoot(p, `rotate-${st}-0-portrait`);
+    await cdp.send('Emulation.setSafeAreaInsetsOverride', { insets: SAFE(844, 390) }).catch(() => {});
+    if (SHOTS && !reduced) await p.evaluate(() => window.__orient?.hold(0.7)); // events land late under SwiftShader
+    await p.setViewportSize({ width: 844, height: 390 });
+    const seen = await p.waitForFunction(() => window.__orient?.runs() > 0, null, { timeout: 30000 }).then(() => p.evaluate(() => document.querySelector('.gs-orient').className), () => null);
+    log(`${st}: rotating shows the ${reduced ? 'plain fade (reduced motion)' : 'themed veil'}`, !!seen && (reduced ? /\brm\b/.test(seen) : /cover/.test(seen)), seen);
+    if (SHOTS && !reduced) { await p.evaluate(() => window.__orient.hold(0.7)); await p.screenshot({ path: `${SHOTS}/rotate-${st}-1-mid.png`, timeout: 300000 }).catch(() => {}); await p.evaluate(() => window.__orient.release()); }
+    const idle = await p.waitForFunction(() => window.__orient.phase() === 'idle', null, { timeout: 30000 }).then(() => true, () => false);
+    await sleep(3000);
+    const after = await big();
+    const ok = !before || (after && Math.abs(after.bw / after.bh - after.w / after.h) / (after.w / after.h) < 0.04 && (before.w < 380 * 0.9 || after.w >= 844 * 0.9 || after.h >= 390 * 0.9));
+    log(`${st}: veil clears, the main canvas re-fits the landscape viewport`, idle && ok, { before, after });
+    if (SHOTS && !reduced) await shoot(p, `rotate-${st}-2-landscape`);
+    await ctx.close();
+  }
 }
 await b.close();
 if (errors.length) { fail++; console.log('  FAIL page errors:\n    ' + errors.join('\n    ')); } else console.log('  ok  no page errors');

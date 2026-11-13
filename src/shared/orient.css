@@ -1,0 +1,29 @@
+/* 横竖屏过渡幕（src/shared/orient.ts）。颜色来自每关的 --or-tint / --or-ink / --or-glow。 */
+.gs-orient {
+  position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; visibility: hidden; display: grid; place-items: center;
+  background: radial-gradient(120% 90% at 50% 50%, color-mix(in srgb, var(--or-glow) 22%, transparent), transparent 70%), var(--or-tint);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1); backdrop-filter: blur(16px) saturate(1.1);
+  color: var(--or-ink);
+}
+.gs-orient.on { visibility: visible; }
+.gs-or-glyph { width: 56px; height: 56px; filter: drop-shadow(0 0 14px color-mix(in srgb, var(--or-glow) 70%, transparent)); }
+.gs-or-glyph svg { width: 100%; height: 100%; display: block; }
+.gs-orient.cover { animation: gs-or-in .3s cubic-bezier(.22,.7,.18,1) both; }
+.gs-orient.cover.to-land .gs-or-glyph { animation: gs-or-turn-l .5s cubic-bezier(.3,1.3,.5,1) both; }
+.gs-orient.cover.to-port .gs-or-glyph { animation: gs-or-turn-p .5s cubic-bezier(.3,1.3,.5,1) both; }
+.gs-orient.reveal { animation: gs-or-out .6s cubic-bezier(.22,.7,.18,1) both; }
+.gs-orient.reveal .gs-or-glyph { animation: gs-or-glyph-out .35s ease both; }
+.gs-orient.to-land.reveal .gs-or-glyph svg { transform: rotate(90deg); }
+@keyframes gs-or-in { from { opacity: 0; -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0); } }
+@keyframes gs-or-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0); transform: scale(1.04); }
+}
+@keyframes gs-or-turn-l { from { transform: rotate(0) scale(.8); opacity: 0; } 30% { opacity: 1; } to { transform: rotate(90deg) scale(1); } }
+@keyframes gs-or-turn-p { from { transform: rotate(90deg) scale(.8); opacity: 0; } 30% { opacity: 1; } to { transform: rotate(0) scale(1); } }
+@keyframes gs-or-glyph-out { to { opacity: 0; transform: scale(.85); } }
+/* reduced motion: plain short fade, no rotation, no scale */
+.gs-orient.rm { opacity: 0; transition: opacity .2s linear; animation: none; }
+.gs-orient.rm.cover { opacity: 1; transition-duration: .12s; }
+.gs-orient.rm .gs-or-glyph { animation: none !important; }
+.gs-orient.to-land.rm .gs-or-glyph svg { transform: rotate(90deg); }
