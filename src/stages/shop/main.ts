@@ -65,6 +65,8 @@ let viewer: Viewer | null = null, inspect: Inspect | null = null;
 const firstEx = (backEx ?? EXHIBITS.reduce((a, e) => (Math.abs(e.x - startX) < Math.abs(a.x - startX) ? e : a))).id;
 const viewerP = import('./viewer').then(m => {
   viewer = new m.Viewer(glHost); inspect = new Inspect(viewer); (window as unknown as { __shopViewer: unknown }).__shopViewer = viewer;
+  // test hook (tools/ar-verify.mjs): show the inspector's panel for an exhibit (UI only, the 3D view is not moved)
+  (window as unknown as { __shop: unknown }).__shop = { inspect: (id: ExhibitId) => inspect?.show(id) };
   inspect.onClose = closeInspect;
   viewer.onJoin = () => { blip(1318, 0.08, 'sine', 0.08); setTimeout(() => blip(1760, 0.16, 'sine', 0.06), 70); }; viewer.onClosed = () => { input.enabled = started && !leaving; actLock = true; };
   viewer.setFocus(startX); viewer.onLoadState = loadUi;

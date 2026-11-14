@@ -52,13 +52,15 @@ export class Inspect {
         <div class="si-swatches" role="group" data-i18n-aria="shop.i.colours"></div>
         <nav class="si-bar">
           <button type="button" class="si-prev" data-i18n-aria="shop.i.prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <div class="si-tools">
           <button type="button" class="si-btn" data-k="reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4v3.5H8"/></svg></button>
           <button type="button" class="si-btn" data-k="split" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1"/><rect x="14" y="14" width="6.5" height="6.5" rx="1"/></svg></button>
           <button type="button" class="si-btn" data-k="spin" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="8.5" ry="3.6"/><path d="M15.5 6.6l2.6 1.9-2.4 2"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg></button>
           <button type="button" class="si-btn si-light" data-k="light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6"/></svg><i></i></button>
-          <button type="button" class="si-btn" data-k="flip" hidden data-i18n="shop.i.flip">Flip</button>
+          <button type="button" class="si-btn" data-k="flip" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a8 4 0 0 1 16 0"/><path d="M17 6.5L20 9l-3.2 1.6"/><rect x="7" y="11" width="10" height="8.5" rx="1.5"/></svg><span class="si-t" data-i18n="shop.i.flip">Flip</span></button>
           <a class="si-btn si-out" data-k="showcase" href="https://smartlotus.github.io/lotus30-figures-web/" target="_blank" rel="noopener" hidden aria-label="lotus30-figures-web"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
           <button type="button" class="si-btn si-ar" data-k="ar" hidden>${AR_ICON}</button>
+          </div>
           <button type="button" class="si-next" data-i18n-aria="shop.i.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 5l7 7-7 7"/></svg></button>
         </nav>
       </footer>`;
@@ -114,7 +116,7 @@ export class Inspect {
       if (b.dataset.k === 'showcase') return; // its words were deleted (2026-11-14): an outbound-link icon with its own aria-label
       const k = b.dataset.k!, l = k === 'ar' ? t('shop.i.ar') : k === 'light' ? t(`shop.i.light${this.v.mood}`) : t(`shop.i.${k}`);
       b.setAttribute('aria-label', l); b.title = l;
-      if (b.dataset.i18n) b.textContent = t(b.dataset.i18n); // the inspector is built after the page's i18n pass (看背面 showed as “Flip”)
+      b.querySelectorAll<HTMLElement>('[data-i18n]').forEach(x => { x.textContent = t(x.dataset.i18n!); }); // built after the page's i18n pass (看背面 showed as “Flip”)
     });
   }
   sync() {

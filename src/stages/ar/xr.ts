@@ -24,8 +24,20 @@ export async function runXR(renderer: WebGLRenderer, camera: PerspectiveCamera, 
   const m = new Matrix4(), p = new Vector3(), q = new Quaternion(), s = new Vector3(), camPos = new Vector3();
   session.addEventListener('select', () => {
     if (!reticle.visible) return;
-    reticle.matrix.decompose(p, q, s); fig.position.copy(p);
-    renderer.xr.getCamera().getWorldPosition(camPos); fig.rotation.set(0, Math.atan2(camPos.x - p.x, camPos.z - p.z), 0); fig.visible = true;
+    reticle.matrix.decompose(p, q, s);
+    // 2026-11-15: a fridge magnet tapped onto a wall / the fridge door (vertical plane: the hit pose's +Y is the wall normal)
+    // hangs flat on it, upright, centred on the reticle; everything else stands on the surface facing the phone
+    const nrm = new Vector3(0, 1, 0).applyQuaternion(q);
+    if (figure.userData.magnet && Math.abs(nrm.y) < 0.5) {
+      const z = nrm.clone().setY(0).normalize(), y = new Vector3(0, 1, 0), x = new Vector3().crossVectors(y, z);
+      fig.quaternion.setFromRotationMatrix(new Matrix4().makeBasis(x, y, z));
+      fig.position.copy(p).addScaledVector(y, -size.y * UNIT_M / 2).addScaledVector(z, size.z * UNIT_M / 2);
+      blob.visible = false;
+    } else {
+      fig.position.copy(p); blob.visible = true;
+      renderer.xr.getCamera().getWorldPosition(camPos); fig.rotation.set(0, Math.atan2(camPos.x - p.x, camPos.z - p.z), 0);
+    }
+    fig.visible = true;
   });
   return new Promise(res => {
     session.addEventListener('end', () => { renderer.setAnimationLoop(null); renderer.xr.enabled = false; res(); });

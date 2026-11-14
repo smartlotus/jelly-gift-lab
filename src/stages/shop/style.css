@@ -52,15 +52,15 @@ html[lang="zh-CN"] .shop-whisper { font-family: var(--serif); font-style: normal
 .si-bar button:hover { color: var(--ink); }
 .si-bar button[aria-pressed="true"] { color: var(--ink); background: rgba(20,20,20,.07); }
 .si-bar svg { width: 20px; height: 20px; }
-.si-bar .si-prev, .si-bar .si-next { width: 40px; }
+.si-bar .si-prev, .si-bar .si-next { width: 44px; }
 /* v03i: text pills (Flip / Studio link) match the icon buttons — no browser-blue underline */
 .si-bar a.si-btn, .si-bar button[data-k="flip"] { width: auto; min-width: 44px; height: 44px; padding: 0 10px; border-radius: 999px; display: grid; place-items: center; color: var(--ink-2); text-decoration: none; font-size: 13px; letter-spacing: .06em; }
-.si-bar a.si-btn[hidden] { display: none; }
+.si-bar a.si-btn[hidden], .si-bar button[data-k="flip"][hidden] { display: none; } /* 2026-11-15: 看背面 showed on every model */
 .si-bar a.si-btn:hover { color: var(--ink); }
 .si-light i { position: absolute; right: 9px; bottom: 9px; width: 5px; height: 5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px rgba(20,20,20,.25); transition: background .3s var(--ease); }
 .si-light[data-mood="1"] i { background: #9CC8EE; } .si-light[data-mood="2"] i { background: #F2B25C; }
 .si-sw { opacity: .85; }
-@media (max-width: 520px) { .si-sw { width: 24px; height: 24px; } .si-bar button { width: 42px; height: 42px; } }
+@media (max-width: 520px) { .si-sw { width: 24px; height: 24px; } .si-bar button { width: 44px; height: 44px; } }
 @media (max-height: 520px) and (orientation: landscape) { .si-foot { flex-direction: column-reverse; gap: 6px; } }
 body.shop-inspecting .touchpad { opacity: 0; pointer-events: none; }
 body.shop-inspecting .touchpad .tp-group { pointer-events: none; }
@@ -87,3 +87,16 @@ body.shop-inspecting .touchpad .tp-group { pointer-events: none; }
 @media (pointer: fine) { .shop-load { bottom: calc(var(--sab, 0px) + 24px); } }
 @media (orientation: landscape) and (max-height: 520px) { .shop-load { bottom: calc(var(--sab, 0px) + 18px); max-width: calc(100vw - 420px); } }
 body.shop-inspecting .shop-load { display: none; }
+
+/* 2026-11-15 · every model has AR now: the tool buttons sit in .si-tools (display: contents = the old single row). The flip
+   button is an icon + 看背面; on phones (≤ 520 px) the words hide (aria-label keeps them), every button is 44 × 44 and the tools
+   wrap into a second row between the fixed ‹ › instead of running off a 360 px screen. */
+.si-tools { display: contents; }
+.si-bar button[data-k="flip"] { display: inline-flex; align-items: center; gap: 4px; }
+.si-bar button[data-k="flip"] svg { width: 18px; height: 18px; }
+@media (max-width: 520px) {
+  .si-bar { gap: 0; padding: 2px; max-width: calc(100vw - 12px - var(--sal) - var(--sar)); border-radius: 26px; }
+  .si-tools { display: flex; flex-wrap: wrap; justify-content: center; min-width: 0; }
+  .si-bar button, .si-bar .si-prev, .si-bar .si-next, .si-bar a.si-btn, .si-bar button[data-k="flip"] { width: 44px; min-width: 44px; height: 44px; padding: 0; justify-content: center; flex-shrink: 0; }
+  .si-bar .si-t { display: none; }
+}

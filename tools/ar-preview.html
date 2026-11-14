@@ -1,0 +1,18 @@
+<!doctype html><meta charset="utf-8"><title>AR GLB preview</title>
+<!-- 2026-11-15 · look at public/models/ar/*.glb as Scene Viewer would place them (front = +Z toward the camera, y = 0 floor).
+     python3 -m http.server 8840 (repo root) → http://127.0.0.1:8840/tools/ar-preview.html?m=magnet-pig -->
+<style>html,body{margin:0;background:#eeece8}</style>
+<script type="importmap">{"imports":{"three":"../node_modules/three/build/three.module.js","three/addons/":"../node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as T from 'three'; import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+const id = new URLSearchParams(location.search).get('m') || 'figure-pig';
+const r = new T.WebGLRenderer({ antialias: true }); r.setSize(innerWidth, innerHeight); document.body.appendChild(r.domElement);
+const s = new T.Scene(); s.background = new T.Color('#eeece8');
+s.add(new T.HemisphereLight(0xffffff, 0x887766, 2.2)); const d = new T.DirectionalLight(0xffffff, 1.5); d.position.set(0.3, 1, 0.8); s.add(d);
+s.add(new T.GridHelper(0.3, 30, 0x999999, 0xcccccc));
+const g = (await new GLTFLoader().loadAsync(`../public/models/ar/${id}.glb`)).scene; s.add(g);
+const b = new T.Box3().setFromObject(g), z = b.getSize(new T.Vector3());
+const cam = new T.PerspectiveCamera(35, innerWidth / innerHeight, 0.001, 10);
+const D = Math.max(z.x, z.y) * 2.4; cam.position.set(D * 0.35, z.y * 0.6 + D * 0.25, D); cam.lookAt(0, z.y / 2, 0);
+r.render(s, cam); window.__done = { size: z.toArray().map(v => +(v * 1000).toFixed(1)), min: b.min.toArray().map(v => +(v * 1000).toFixed(1)) };
+</script>
