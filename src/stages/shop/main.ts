@@ -61,20 +61,47 @@ const doorBox = { x: BACKDOOR.x + 10, y: BACKDOOR.y, w: 12, h: BACKDOOR.h };
 cam.snap(cat.x, cat.y, scr.w, scr.h);
 
 let viewer: Viewer | null = null, inspect: Inspect | null = null;
+// the exhibit nearest to where the cat starts loads first (and is what the curtain waits for)
+const firstEx = (backEx ?? EXHIBITS.reduce((a, e) => (Math.abs(e.x - startX) < Math.abs(a.x - startX) ? e : a))).id;
 const viewerP = import('./viewer').then(m => {
   viewer = new m.Viewer(glHost); inspect = new Inspect(viewer); (window as unknown as { __shopViewer: unknown }).__shopViewer = viewer;
   inspect.onClose = closeInspect;
   viewer.onJoin = () => { blip(1318, 0.08, 'sine', 0.08); setTimeout(() => blip(1760, 0.16, 'sine', 0.06), 70); }; viewer.onClosed = () => { input.enabled = started && !leaving; actLock = true; };
-  viewer.load('figure-pig').catch(() => { /* offline or aborted by leaving the page: the curtain still opens after its timeout */ });
+  viewer.setFocus(startX); viewer.onLoadState = loadUi;
+  // then the rest in the background, nearest the cat first, two at a time (the queue re-sorts as she walks)
+  viewer.load(firstEx).then(() => setTimeout(() => { for (const e of EXHIBITS) void viewer!.load(e.id); }, 400), () => { /* error state + retry button; the curtain still opens after its timeout */ });
   return viewer;
 });
+viewerP.catch(e => { console.warn('[shop] 3D viewer unavailable', e); noGl = true; loadUi(); });
+
+// 2026-11-14 · the 3D loading status chip: progress when an on-screen piece takes a while, a retry button when one failed,
+// a note when WebGL is missing or the context was lost. Lives in the free band above the touch pad (see style.css).
+let noGl = false, slowSince = 0;
+const chip = document.createElement('button'); chip.type = 'button'; chip.className = 'shop-load'; chip.hidden = true; document.body.appendChild(chip);
+chip.addEventListener('click', () => { if (viewer && viewer.retry()) { blip(988, 0.08, 'sine', 0.06); loadUi(); } });
+function loadUi() {
+  let txt = '', kind = '';
+  if (noGl) { txt = t('shop.load.nogl'); kind = 'note'; }
+  else if (viewer?.lost) { txt = t('shop.load.lost'); kind = 'note'; }
+  else if (viewer && EXHIBITS.some(e => viewer!.failed(e.id))) { txt = t('shop.load.err'); kind = 'err'; }
+  else if (viewer && started && !leaving) {
+    const vis = EXHIBITS.filter(e => viewer!.pending(e.id) && onScreen(clientRect(e)));
+    if (!vis.length) slowSince = 0; else if (!slowSince) slowSince = performance.now();
+    if (vis.length && performance.now() - slowSince > 3500) { const p = Math.round(100 * Math.min(...vis.map(e => viewer!.progress(e.id)))); txt = t('shop.load.slow').replace('{p}', String(p)); kind = 'slow'; }
+  }
+  if (leaving || (viewer && viewer.mode !== 'display')) txt = '';
+  chip.hidden = !txt; if (txt && chip.textContent !== txt) chip.textContent = txt; chip.dataset.kind = kind; chip.disabled = kind !== 'err';
+}
+setInterval(loadUi, 500); onLang(loadUi);
+window.addEventListener('online', () => viewer?.retry());
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') viewer?.retry(); });
 
 // v03e: the loading curtain waits (with a progress bar) for three.js + the first figure, at most ~8 s, then the iris opens
 {
   const release = hold(), since = performance.now();
   const poll = () => {
-    const p = viewer ? viewer.progress('figure-pig') : 0; curtainProgress(0.15 + 0.85 * p);
-    if ((viewer && viewer.ready('figure-pig')) || performance.now() - since > 8000) { curtainProgress(1); release(); } else setTimeout(poll, 80);
+    const p = viewer ? viewer.progress(firstEx) : 0; curtainProgress(0.15 + 0.85 * p);
+    if ((viewer && (viewer.ready(firstEx) || viewer.failed(firstEx))) || performance.now() - since > 8000) { curtainProgress(1); release(); } else setTimeout(poll, 80);
   };
   curtainProgress(0.08); poll(); viewerP.catch(() => release());
 }
@@ -149,7 +176,7 @@ startLoop(dt => {
   if (near && input.hit('act') && !actLock) openInspect(near.id);
   viewer?.setPairJoined(!!near && near.id === 'pair' || cx > 860);
   // lazy-load models as the cat approaches
-  if (viewer) for (const e of EXHIBITS) if (Math.abs(cx - e.x) < 380) void viewer.load(e.id);
+  if (viewer) { viewer.setFocus(cx); for (const e of EXHIBITS) if (Math.abs(cx - e.x) < 380) void viewer.load(e.id); }
   // the back door: lights flicker twice, then the dark
   if (!flickered && cx > BACKDOOR.x - 110) { flickered = true; flicker = 1.4; blip(110, 0.25, 'sawtooth', 0.05, -40); }
   if (!prefetched && cx > BACKDOOR.x - 240) { prefetched = true; warm('night'); prefetchNext(); }
@@ -166,7 +193,7 @@ startLoop(dt => {
   g.drawImage(bg, ox, oy);
   // flicker pattern: two quick dips
   const f = flicker, dark = f > 1.15 ? 0.55 : f > 0.95 ? 0 : f > 0.75 ? 0.62 : f > 0.55 ? 0.1 : 0;
-  const loading = viewer ? EXHIBITS.filter(e => !viewer!.ready(e.id) && viewer!.progress(e.id) > 0).map(e => ({ x: e.x, y: e.kind === 'magnet' ? e.y : e.y - 3, w: e.kind === 'magnet' ? 16 : 24, p: viewer!.progress(e.id) })) : [];
+  const loading = viewer ? EXHIBITS.filter(e => viewer!.pending(e.id)).map(e => ({ x: e.x, y: e.kind === 'magnet' ? e.y : e.y - 3, w: e.kind === 'magnet' ? 16 : 24, p: viewer!.progress(e.id) })) : [];
   // soft floor shadow under the cat
   g.fillStyle = 'rgba(110,70,40,0.18)'; g.fillRect(Math.round(cat.x - 1 + ox), FLOOR_Y + oy, cat.w + 2, 1);
   drawDynamic(g, ox, oy, t0, { flicker: dark, loading });

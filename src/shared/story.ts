@@ -2,6 +2,7 @@
 import { register, t } from './i18n';
 import * as dict from './story-dict';
 import './story.css';
+import { settleSoon, settleAll } from './layout';
 
 register(dict);
 
@@ -26,6 +27,7 @@ export function tell(key: string, hold = 4400, once = true) {
   el.dataset.i18n = key;
   el.textContent = t(key);
   el.classList.add('on');
+  settleSoon(30); setTimeout(settleAll, 1400); // step clear of this stage's controls (layout.ts), again once it has slid in
   // Stage hints (walk keys, "keep going") sit near the same bottom edge; let them step aside while a line is spoken.
   document.body.classList.add('gift-telling');
   clearTimeout(hideT);

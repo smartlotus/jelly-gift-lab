@@ -35,13 +35,18 @@ const CARRY = 'gift.carry';
 export function stashCanvas(canvas: HTMLCanvasElement | null): { img: string; color: string } | null {
   if (!canvas || canvas.width < 4 || canvas.height < 4) return null;
   try {
+    // 2026-11-14 (Android): a full-DPR WebGL buffer (e.g. 786×1746) copied + JPEG-encoded on the main thread was a
+    // 100–300 ms hitch right as the iris starts; the hand-off picture only needs to cover the veil, so cap it at
+    // 720 px (480 px on the low tier). Pixel stages (≤ ~400 px buffers) are unchanged and stay crisp.
+    const cap = document.documentElement.dataset.perf === 'low' ? 480 : 720;
+    const k = Math.min(1, cap / Math.max(canvas.width, canvas.height));
     const tmp = document.createElement('canvas');
-    tmp.width = canvas.width;
-    tmp.height = canvas.height;
+    tmp.width = Math.max(1, Math.round(canvas.width * k));
+    tmp.height = Math.max(1, Math.round(canvas.height * k));
     const g = tmp.getContext('2d');
     if (!g) return null;
-    g.imageSmoothingEnabled = false;
-    g.drawImage(canvas, 0, 0);
+    g.imageSmoothingEnabled = k < 1;
+    g.drawImage(canvas, 0, 0, tmp.width, tmp.height);
     const pix = g.getImageData(Math.floor(tmp.width * 0.5), Math.floor(tmp.height * 0.55), 1, 1).data;
     const color = '#' + [pix[0], pix[1], pix[2]].map(v => v.toString(16).padStart(2, '0')).join('');
     const img = tmp.toDataURL('image/jpeg', 0.74);

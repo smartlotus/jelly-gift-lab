@@ -1,0 +1,30 @@
+/* 2026-11-14 · ≥ 44 px tap targets on touch screens (desktop keeps the original sizes). The drawn size stays close to
+   the original: icons and dots grow their box (not their art), text buttons get min sizes, the chrome pill trades its
+   vertical padding for taller buttons. Selectors carry an extra class so they win over each stage's own sheet. */
+@media (pointer: coarse) {
+  .gift-chrome.gift-chrome { padding-top: 0; padding-bottom: 0; gap: 2px; }
+  .gift-chrome.gift-chrome button { min-height: 44px; min-width: 44px; padding: 0 4px; }
+  .gift-chrome .gc-lang.gc-lang { gap: 0; }
+  .gift-chrome .gc-lang.gc-lang button { min-width: 44px; }
+  /* jelly top bar: species tabs, language, sound, gravity */
+  .topright .characters { gap: 0; }
+  .topright .char, .topright .lang button, .topright .lang .snd { min-height: 44px; min-width: 44px; display: inline-grid; place-items: center; padding: 0 4px; }
+  .topright .char::after { left: 50%; right: auto; width: 1.2em; margin-left: -.6em; bottom: 8px; }
+  .topright .lang { gap: 0; padding-left: 10px; }
+  .topright .grav { width: 44px; height: 44px; margin-left: -6px; }
+  /* jelly colour swatches + actions */
+  button.cw { min-width: 44px; min-height: 44px; }
+  /* night map / back */
+  button.nv-map { width: 44px; height: 44px; }
+  button.nv-back { min-height: 44px; }
+  /* sky time segments */
+  .sk-seg button { min-height: 44px; display: inline-flex; align-items: center; }
+  /* ar model dots: bigger box, same dot */
+  .ar-dots.ar-dots button { width: 44px; height: 44px; }
+  .ar-dots.ar-dots { gap: 0; }
+  button.sk-gyro.sk-gyro, button.sk-sun.sk-sun { width: 44px; height: 44px; }
+  button.sk-next.sk-next { min-height: 44px; }
+  button.act.act { min-height: 44px; }
+  /* small text buttons elsewhere in the journey */
+  button.cp-join, button.hm-skip, button.sc-list, a.sc-back { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
+}

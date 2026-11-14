@@ -1,6 +1,6 @@
 {
-  "generated": "2026-11-12T13:28:53.878Z",
-  "total": 509,
+  "generated": "2026-11-14T09:58:35.082Z",
+  "total": 510,
   "order": [
     "shared",
     "surprise",
@@ -142,11 +142,11 @@
           "kind": "curtain"
         },
         {
-          "key": "line 13",
+          "key": "line 26",
           "zh": "中",
           "en": "",
           "file": "src/shared/chrome.ts",
-          "line": 13,
+          "line": 26,
           "kind": "hard-coded"
         }
       ]
@@ -317,22 +317,22 @@
         },
         {
           "key": "meadow.meta.title",
-          "zh": "给 lushiva · 第一章 · 草地",
-          "en": "For lushiva · I · The Meadow",
+          "zh": "草地",
+          "en": "The Meadow",
           "file": "src/stages/meadow/dict.ts",
           "kind": "dict"
         },
         {
           "key": "meadow.kicker",
-          "zh": "第一章 · 草地",
-          "en": "I · The Meadow",
+          "zh": "草地",
+          "en": "The Meadow",
           "file": "src/stages/meadow/dict.ts",
           "kind": "dict"
         },
         {
           "key": "meadow.title",
-          "zh": "出发吧，小猫",
-          "en": "Off you go, little cat",
+          "zh": "出发吧，小臭猫",
+          "en": "Off you go, stinky little cat",
           "file": "src/stages/meadow/dict.ts",
           "kind": "dict"
         },
@@ -373,8 +373,8 @@
         },
         {
           "key": "meadow.line",
-          "zh": "每一颗，都是给你的。",
-          "en": "Every one of them, for you.",
+          "zh": "BOOM!",
+          "en": "BOOM!",
           "file": "src/stages/meadow/dict.ts",
           "kind": "dict"
         },
@@ -414,22 +414,22 @@
         },
         {
           "key": "story.shop.in",
-          "zh": "你做的那些，都还在这儿。",
-          "en": "Everything you made is still here.",
+          "zh": "走过路过不要错过哟",
+          "en": "Roll up, roll up — don’t miss it!",
           "file": "src/shared/story-dict.ts",
           "kind": "dict"
         },
         {
           "key": "shop.meta.title",
-          "zh": "给 lushiva · 第二章 · 小店",
-          "en": "For lushiva · II · The Shop",
+          "zh": "小店",
+          "en": "The Shop",
           "file": "src/stages/shop/dict.ts",
           "kind": "dict"
         },
         {
           "key": "shop.kicker",
-          "zh": "第二章 · 小店",
-          "en": "II · The Shop",
+          "zh": "小店",
+          "en": "The Shop",
           "file": "src/stages/shop/dict.ts",
           "kind": "dict"
         },
@@ -742,9 +742,37 @@
           "kind": "dict"
         },
         {
+          "key": "shop.load.slow",
+          "zh": "3D 小摆件加载中 · {p}%",
+          "en": "Loading the 3D pieces · {p}%",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.load.err",
+          "zh": "有小摆件没加载出来 · 点这里重试",
+          "en": "Some 3D pieces didn’t load · tap to retry",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.load.lost",
+          "zh": "3D 画面暂停了 · 马上回来",
+          "en": "The 3D view paused · it will come back",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
+          "key": "shop.load.nogl",
+          "zh": "这个浏览器打不开 3D 小摆件",
+          "en": "This browser can’t show the 3D pieces",
+          "file": "src/stages/shop/dict.ts",
+          "kind": "dict"
+        },
+        {
           "key": "shop.canvas",
-          "zh": "一间像素小店。小猫走过五件 3D 打印的小东西，走向一扇黑黑的后门。",
-          "en": "A small pixel shop. The cat walks past five 3D-printed pieces towards a dark back door.",
+          "zh": "一间小店。小臭猫走过五件小东西，走向一扇黑黑的后门。",
+          "en": "A little shop. The stinky little cat walks past five little things towards a dark back door.",
           "file": "src/stages/shop/dict.ts",
           "kind": "dict"
         },
@@ -947,8 +975,8 @@
       "entries": [
         {
           "key": "story.ar.in",
-          "zh": "放到桌上看看……看完我们再回去。",
-          "en": "Let’s set them on the table… then we’ll go back.",
+          "zh": "放到桌上看看吧",
+          "en": "Let’s set them on the table.",
           "file": "src/shared/story-dict.ts",
           "kind": "dict"
         },
@@ -1044,15 +1072,15 @@
         },
         {
           "key": "night.meta.title",
-          "zh": "给 lushiva · 第三章 · 夜路",
-          "en": "For lushiva · III · The Night",
+          "zh": "夜路",
+          "en": "The Night",
           "file": "src/stages/night/dict.ts",
           "kind": "dict"
         },
         {
           "key": "night.kicker",
-          "zh": "第三章 · 夜路",
-          "en": "III · The Night",
+          "zh": "夜路",
+          "en": "The Night",
           "file": "src/stages/night/dict.ts",
           "kind": "dict"
         },
@@ -2520,8 +2548,8 @@
         },
         {
           "key": "story.sea.in",
-          "zh": "那些一起看过的海，还记得吗。",
-          "en": "The seas we watched together — do you still remember?",
+          "zh": "游啊游啊",
+          "en": "Swimming, swimming along…",
           "file": "src/shared/story-dict.ts",
           "kind": "dict"
         },
@@ -2677,8 +2705,8 @@
         },
         {
           "key": "endgame.zh",
-          "zh": "复仇者联盟4",
-          "en": "Avengers: Endgame",
+          "zh": "复仇者联盟",
+          "en": "Avengers",
           "file": "src/stages/sea/scenes.ts",
           "line": 117,
           "kind": "hard-coded"
@@ -3066,27 +3094,6 @@
           "kind": "dict"
         },
         {
-          "key": "sky.film",
-          "zh": "我们的 200 天",
-          "en": "Our 200 days",
-          "file": "src/stages/sky/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "sky.film.play",
-          "zh": "轻触播放",
-          "en": "Tap to play",
-          "file": "src/stages/sky/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "sky.film.cap",
-          "zh": "黑白手绘短片——那两百天，画给你看。",
-          "en": "A hand-drawn film of the two hundred days — black and white, made for you.",
-          "file": "src/stages/sky/dict.ts",
-          "kind": "dict"
-        },
-        {
           "key": "CURTAIN_STAGES.sky",
           "zh": "长春的天空",
           "en": "the sky",
@@ -3123,8 +3130,8 @@
         },
         {
           "key": "gs.hint.coop",
-          "zh": "草里找找。",
-          "en": "Somewhere in the grass.",
+          "zh": "按钮下面，靠右。",
+          "en": "Below the buttons, on the right.",
           "file": "src/shared/surprise/dict.ts",
           "kind": "dict"
         },
@@ -3248,8 +3255,8 @@
         },
         {
           "key": "story.flower.in",
-          "zh": "紫精灵和戴安娜……好像专门开给我们看的。",
-          "en": "The 紫精灵 carnations and the Dianas… as if they opened just for us.",
+          "zh": "哇好多花",
+          "en": "Wow, so many flowers!",
           "file": "src/shared/story-dict.ts",
           "kind": "dict"
         },
@@ -3379,8 +3386,8 @@
         },
         {
           "key": "gs.hint.home",
-          "zh": "门口附近看看。",
-          "en": "Look near the door.",
+          "zh": "左下角，贴着地面。",
+          "en": "Low on the left, near the floor.",
           "file": "src/shared/surprise/dict.ts",
           "kind": "dict"
         },

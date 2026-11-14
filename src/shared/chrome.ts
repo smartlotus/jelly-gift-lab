@@ -8,6 +8,18 @@ import { mountStory } from './story';
 import * as Sfx from './sfx';
 import { mountOrient } from './orient';
 
+// 2026-11-14 · stale-HTML guard: a page served from cache after a redeploy may ask for a lazy chunk (e.g. the shop's
+// 3D viewer) whose hashed file is gone. Vite reports that as 'vite:preloadError' — reload once (per page, per 5 min) so
+// the fresh HTML and its chunks are used, instead of a stage that silently never finishes loading.
+window.addEventListener('vite:preloadError', (ev) => {
+  try {
+    const k = `gift.reload.${location.pathname}`, t = Number(sessionStorage.getItem(k) || 0);
+    if (Date.now() - t < 5 * 60e3) return;
+    sessionStorage.setItem(k, String(Date.now())); ev.preventDefault();
+    const u = new URL(location.href); u.searchParams.set('r', Date.now().toString(36)); location.replace(u.href);
+  } catch { /* storage blocked: leave it to the page's own error state */ }
+});
+
 export function mountChrome(opts: { sound?: boolean; theme?: 'light' | 'dark' } = {}) {
   document.documentElement.dataset.theme = opts.theme ?? 'light';
   const bar = document.createElement('div'); bar.className = 'gift-chrome';
@@ -28,8 +40,12 @@ export function mountChrome(opts: { sound?: boolean; theme?: 'light' | 'dark' } 
   });
   onLang(sync); onSound(sync); apply(); sync();
   // invisible audio unlock: the very first gesture anywhere on the page creates/resumes the shared AudioContext (iOS rule)
-  const first = () => { markGesture(); unlock(); removeEventListener('pointerdown', first, true); removeEventListener('keydown', first, true); removeEventListener('touchend', first, true); };
-  addEventListener('pointerdown', first, true); addEventListener('keydown', first, true); addEventListener('touchend', first, true);
+  // Android Chrome / WebView: a touch pointerdown is not a user activation yet (touchend / pointerup / click are), so an
+  // AudioContext made there stays 'suspended'. Keep listening until the context really runs.
+  const evs = ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'];
+  const done = () => evs.forEach(e => removeEventListener(e, first, true));
+  const first = () => { markGesture(); const c = unlock(); if (c?.state === 'running') done(); else c?.resume().then(() => { if (c.state === 'running') done(); }, () => { /* no device */ }); };
+  evs.forEach(e => addEventListener(e, first, { capture: true, passive: true }));
   return bar;
 }
 

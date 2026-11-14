@@ -9,3 +9,4 @@ dist
 review/**/page@*.webm
 public/art/raw
 public/art/plates/debug-*.png
+dist-cf

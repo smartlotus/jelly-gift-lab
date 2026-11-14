@@ -46,8 +46,24 @@ git clone --branch gh-pages "$SELF_URL" "$WORKDIR" 2>/dev/null || {
   git -C "$WORKDIR" init -b gh-pages
   git -C "$WORKDIR" remote add origin "$SELF_URL"
 }
+# 2026-11-14: keep the PREVIOUS deploy's hashed chunks (assets/*) for one more generation. A phone that still has the old
+# HTML cached (Pages sends max-age=600; WeChat / X5 keeps pages much longer) would otherwise request a lazy chunk such as
+# viewer-<hash>.js that no longer exists, and the shop's 3D figurines would never appear. Older generations are pruned.
+OLDASSETS="$(mktemp -d)"
+if [ -d "$WORKDIR/assets" ]; then
+  KEEP="$(git -C "$WORKDIR" show HEAD:.assets-prev 2>/dev/null || true)"
+  cp -a "$WORKDIR/assets/." "$OLDASSETS/"
+  ( cd "$OLDASSETS" && for f in *; do
+      [ -e "$f" ] || continue
+      if git -C "$WORKDIR" cat-file -e "HEAD:assets/$f" 2>/dev/null && ! printf '%s\n' "$KEEP" | grep -qx "$f"; then :; else rm -f "$f"; fi
+    done )
+fi
 find "$WORKDIR" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
 cp -a dist/. "$WORKDIR/"
+mkdir -p "$WORKDIR/assets"
+# old chunks that the new build does not have, listed so the next deploy prunes them
+( cd "$OLDASSETS" && for f in *; do [ -e "$f" ] || continue; [ -e "$WORKDIR/assets/$f" ] || { cp -a "$f" "$WORKDIR/assets/"; echo "$f"; }; done ) > "$WORKDIR/.assets-prev"
+rm -rf "$OLDASSETS"
 cd "$WORKDIR"
 git add -A
 if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi

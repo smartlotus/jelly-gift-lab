@@ -13,6 +13,7 @@ import { tell } from '../../shared/story';
 import { mountSurprise } from '../../shared/surprise/kit';
 import * as dict from './dict';
 import './style.css';
+import { prefetchShopModels } from '../shop/models';
 
 if (!handleStageParam()) {
   register(dict); mountChrome(); markReached();
@@ -42,6 +43,8 @@ if (!handleStageParam()) {
   apply(); onLang(() => apply());
 
   mountTouch();
+  // 2026-11-14: warm the shop's first 3D figurine early (idle, low priority); the rest follow when the cat nears the exit
+  setTimeout(() => prefetchShopModels(['figure-pig']), 6000);
   const skip = params.has('skip');
   let resolveReady!: () => void; const ready = new Promise<void>(r => (resolveReady = r));
   const game = startMeadow(host, {
@@ -49,7 +52,7 @@ if (!handleStageParam()) {
     firstMove: () => setTimeout(() => hint.classList.add('out'), 1800),
     fountain: () => { hud.classList.add('glow'); hint.classList.add('out'); },
     caption: () => { cap.classList.add('on'); setTimeout(() => cap.classList.remove('on'), 4200); },
-    nearExit: () => { prefetchNext(); tell('story.meadow.out'); },
+    nearExit: () => { prefetchNext(); prefetchShopModels(); tell('story.meadow.out'); },
     exit: (x, y) => { music(false); const snap = stashCanvas(game.screen.canvas); void go('shop', () => irisOut(x, y, 700, snap?.color || '#5EC4FF', snap?.img)); },
   }, { ready, at: params.get('at'), dev });
 

@@ -9,6 +9,7 @@ import { loadLayout, persistLayout, type SavedItem } from '../save';
 import { placed, saved, wood } from '../sfx';
 import { demoLayout3, extents, FLOOR_KINDS, kind3, ROOM } from './catalog';
 import { buildItem, buildRoom, footprintMarker } from './meshes';
+import { capDpr, frameGate } from '../../../shared/perf';
 
 export interface DecorateApi {
   update(_dt: number): void;
@@ -174,7 +175,7 @@ export function createDecorate(host: HTMLElement): DecorateApi {
   renderer.domElement.setAttribute('aria-label', t('home.meta.title'));
 
   const resize = () => {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const dpr = capDpr(2);
     const scale = 0.62;
     const rw = Math.max(320, Math.round(innerWidth * dpr * scale));
     const rh = Math.max(180, Math.round(innerHeight * dpr * scale));
@@ -606,10 +607,11 @@ export function createDecorate(host: HTMLElement): DecorateApi {
   };
   document.addEventListener('visibilitychange', vis);
 
+  const gate = frameGate();
   const loop = () => {
     if (dead) return;
     raf = requestAnimationFrame(loop);
-    if (document.hidden) return;
+    if (document.hidden || !gate(performance.now())) return;
     setCam();
     renderer.render(scene, camera);
     if (focus) syncSel();

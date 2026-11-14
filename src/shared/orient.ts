@@ -4,6 +4,9 @@
 // 然后柔光幕以"由中心向外散开"的方式淡出。prefers-reduced-motion：只做 0.2s 的纯淡入淡出，不动、不缩放。
 // 由 mountChrome() / mountSurprise() / 秘密页各调用一次，重复调用无副作用。
 import './orient.css';
+import './perf.css';
+import './perf'; // 流畅度档位：写 <html data-perf>，并开始持续掉帧检测
+import './layout';
 
 type Theme = { tint: string; ink: string; glow: string };
 const THEMES: Record<string, Theme> = {
@@ -50,7 +53,15 @@ export function mountOrient() {
   addEventListener('resize', e => { if (e.isTrusted) lastResize = performance.now(); });
   const finish = () => { el.classList.remove('on', 'cover', 'reveal', 'rm', 'to-land', 'to-port'); el.dataset.phase = 'idle'; document.documentElement.classList.remove('gs-orienting'); };
   const refit = () => { mark(); dispatchEvent(new Event('resize')); visualViewport?.dispatchEvent?.(new Event('resize')); };
+  // Android: an on-screen keyboard (night's number lock) shrinks the viewport on older WebViews and flips
+  // (orientation: landscape) without the phone turning. Use screen.orientation when there is one and skip the veil while typing.
+  const typing = () => { const a = document.activeElement as HTMLElement | null; return !!a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable); };
+  const screenLand = () => { const t = screen.orientation?.type; return t ? t.startsWith('landscape') : null; };
+  let lastScreen = screenLand();
   function run() {
+    const sl = screenLand();
+    if (typing() && sl === lastScreen) { mark(); return; }
+    lastScreen = sl;
     runs++; mark(); clearTimeout(timer);
     const rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
     el.className = `gs-orient on ${mq.matches ? 'to-land' : 'to-port'}${rm ? ' rm' : ' cover'}`;

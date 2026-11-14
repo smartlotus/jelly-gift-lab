@@ -114,7 +114,7 @@ export const FILMS: Scene[] = [
   },
   { // 3 · Avengers: Endgame — portals open in sparks; the heroes come through and line up behind the shark (armour,
     //     gauntlet); the purple titan and his army wait ahead — the shark snaps: a white flash, and they drift away as dust
-    id: 'endgame', zh: '复仇者联盟4', en: 'Avengers: Endgame', year: 2019, top: '#141a3a', bot: '#3c2a4a', sand: '#5a4a5a', env: { reef: 0.6, kelp: 0.3 }, wipe: 'portal', wipeCol: '#ff9a3c', form: 'endgame', beat: { at: 0.28, dur: 9 },
+    id: 'endgame', zh: '复仇者联盟', en: 'Avengers', year: 2019, top: '#141a3a', bot: '#3c2a4a', sand: '#5a4a5a', env: { reef: 0.6, kelp: 0.3 }, wipe: 'portal', wipeCol: '#ff9a3c', form: 'endgame', beat: { at: 0.28, dur: 9 },
     back(c) {
       const { g, h, floor, t, bt } = c;
       for (let i = 0; i < 8; i++) { const x = c.x0 + hash(i) * c.L, ht = 10 + hash(i + 4) * 24; R(g, x, floor - ht, 10 + hash(i + 8) * 12, ht, '#2a2238'); R(g, x + 3, floor - ht - 4, 3, 4, '#2a2238'); } // ruined compound

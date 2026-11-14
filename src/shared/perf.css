@@ -1,0 +1,6 @@
+/* 流畅度档位（src/shared/perf.ts）。high 不变；low = 低端机或持续掉帧后：去掉画布上方的实时模糊和大面积滤镜。 */
+html[data-perf="low"] *, html[data-perf="low"] *::before, html[data-perf="low"] *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+html[data-perf="low"] .shop-back.dim { filter: none !important; opacity: .55; }
+html[data-perf="low"] .gs-or-glyph { filter: none; }
+/* without the blur the veil needs more body to hide the canvas re-fit underneath */
+html[data-perf="low"] .gs-orient::before { content: ""; position: absolute; inset: 0; background: var(--or-tint); z-index: -1; }

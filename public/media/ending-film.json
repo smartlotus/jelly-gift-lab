@@ -1,7 +1,17 @@
 {
   "v": 1,
-  "src": "media/anniv-200.mp4",
-  "poster": "media/anniv-200-poster.jpg",
+  "src": "media/anniv-200-720.mp4",
+  "poster": "media/anniv-200-poster-720.jpg",
   "audio": true,
-  "film": "anniv-200 (the complete 200-day film, v2 成片 from the Notion project, 1920×1080 30fps 67.712 s) as the /home/ ending — no burned lines; the page shows only the end-card finale (t35: no pre-film text)"
+  "film": "anniv-200 (the complete 200-day film, v2 成片, 67.712 s). 2026-11-14: re-encoded for phones — 720p H.264 High CRF 24 ≤1.6 Mbps + AAC 128k (13.7 MB) and 480p ≤0.8 Mbps + AAC 96k (7.3 MB), keyframe every 2 s, faststart; the 58 MB 1080p master is no longer shipped. The page picks 480p on slow / data-saver connections or a small film box.",
+  "sources": [
+    {
+      "src": "media/anniv-200-720.mp4",
+      "h": 720
+    },
+    {
+      "src": "media/anniv-200-480.mp4",
+      "h": 480
+    }
+  ]
 }

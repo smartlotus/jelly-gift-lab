@@ -31,6 +31,7 @@ import { makeProps, beside } from './props';
 import { makeUI, openMap } from './ui';
 import { load, store, fresh, hasProgress, type Save } from './save';
 import './style.css';
+import { capDpr, frameGate } from '../../shared/perf';
 
 declare global { interface Window { __pause?: boolean; __steps?: number; __night?: unknown } }
 register(dict); mountChrome({ theme: 'dark' }); markReached();
@@ -52,7 +53,7 @@ async function boot() {
   try { renderer = new WebGLRenderer({ antialias: false, powerPreference: 'high-performance' }); }
   catch { showKawaii(); return; }
   const release = hold(); curtainProgress(0.05);
-  const DPR = Math.min(devicePixelRatio || 1, 1.5);
+  let DPR = capDpr(1.5);
   renderer.setPixelRatio(DPR); renderer.setSize(innerWidth, innerHeight); renderer.autoClear = false;
   const cv = renderer.domElement; cv.className = 'n-canvas'; cv.setAttribute('role', 'img'); cv.dataset.i18nAria = 'night.canvas'; host.appendChild(cv);
   const black = document.createElement('div'); black.className = 'n-black'; host.appendChild(black);
@@ -111,8 +112,8 @@ async function boot() {
 
   const resize = () => {
     const w = innerWidth, h = innerHeight, a = w / h;
-    renderer.setSize(w, h);
-    const rh = Math.round(Math.min(560, Math.max(260, h * Math.min(devicePixelRatio || 1, 2) * 0.62)));
+    DPR = capDpr(1.5); renderer.setPixelRatio(DPR); renderer.setSize(w, h);
+    const rh = Math.round(Math.min(560, Math.max(260, h * capDpr(2) * 0.62)));
     rt.setSize(Math.round(rh * a), rh);
     cam.aspect = a; cam.fov = a < 0.75 ? 82 : a < 1.2 ? 76 : 68; cam.updateProjectionMatrix(); hand.resize(a);
     post.u.uRes.value.set(w * DPR, h * DPR);
@@ -422,8 +423,10 @@ async function boot() {
 
   // ---- loop -------------------------------------------------------------------------------------------------------
   let raf = 0, last = performance.now(), frames = 0, fpsT = last;
+  const gate = frameGate();
   const frame = (now: number) => {
     raf = requestAnimationFrame(frame);
+    if (!window.__pause && !gate(now)) return;
     let dt = Math.min(0.05, (now - last) / 1000); last = now;
     if (window.__pause) { dt = 0; if (window.__steps) { window.__steps--; dt = 1 / 60; } }
     if (dt > 0) update(dt * TS);

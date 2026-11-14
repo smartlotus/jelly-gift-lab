@@ -8,7 +8,8 @@
 // 横屏（t11）: every page incl. AR + secret at 844×390 / 932×430 / 667×375 with iPhone-like safe areas — dock and
 // chrome inside the safe area and uncovered, canvases keep their buffer ratio; list / hidden thing / closing card in
 // landscape; portrait ⇄ landscape shows the themed veil and re-fits the canvas (reduced motion: plain fade).
-// LANDSCAPE=0 skips that part; SHOTS=/dir saves landscape + mid-transition screenshots.
+// 布局（2026-11-14）: tools/overlap-audit.mjs on 12 pages × 8 viewports (360×640 … tablet), no overlapping controls, taps ≥ 44 px;
+// OVERLAP=0 skips it. LANDSCAPE=0 skips the landscape part; SHOTS=/dir saves landscape + mid-transition screenshots.
 const { chromium } = await import(process.env.PLAYWRIGHT || 'file:///workspace/jelly/pw/node_modules/playwright/index.mjs');
 const BASE = (process.env.BASE || 'http://127.0.0.1:8833').replace(/\/$/, '');
 const KEY = 'gift.collect.v1';
@@ -220,7 +221,9 @@ if (process.env.LANDSCAPE !== '0') {
     await p.route(/media\/ending-film\.json/, r => r.fulfill({ status: 404, body: '' }));
     await p.goto(`${BASE}/home/?lang=zh&at=video`);
     await p.waitForFunction(() => window.__home?.phase() === 'end', null, { timeout: 20000 }).catch(() => {});
-    await sleep(1200);
+    // the card's buttons come in with the finale line (~1.5–3 s after 'end'), not at once
+    await p.waitForFunction(() => document.body.classList.contains('hm-on-finale'), null, { timeout: 10000 }).catch(() => {});
+    await sleep(600);
     const end = await p.evaluate(ins => ['.hm-replay', '.hm-edit', '.hm-again'].map(s => { const e = document.querySelector(s); if (!e) return null; if (getComputedStyle(e).display === 'none') return 'n/a (no film)'; const r = e.getBoundingClientRect(); return r.left >= ins.left - 1 && r.right <= innerWidth - ins.right + 1 && r.top >= 0 && r.bottom <= innerHeight - ins.bottom + 1 && r.height >= 32; }), SAFE(844, 390));
     log('landscape closing card: 再看一遍 / 继续布置 / 从头再来 (those shown) inside the safe area', end.every(Boolean) && end.filter(x => x === true).length >= 2, end);
     await shoot(p, 'home-844x390-end');
@@ -250,6 +253,11 @@ if (process.env.LANDSCAPE !== '0') {
     if (SHOTS && !reduced) await shoot(p, `rotate-${st}-2-landscape`);
     await ctx.close();
   }
+}
+// 5. adaptive control layout (2026-11-14): 12 pages × 8 viewports, no overlapping controls, taps ≥ 44 px (tools/overlap-audit.mjs)
+if (process.env.OVERLAP !== '0') {
+  const { audit } = await import('./overlap-audit.mjs');
+  await audit(b, BASE, { log, shots: SHOTS });
 }
 await b.close();
 if (errors.length) { fail++; console.log('  FAIL page errors:\n    ' + errors.join('\n    ')); } else console.log('  ok  no page errors');

@@ -36,6 +36,14 @@ export function unlock(): AudioContext | null {
   }
   return ctx;
 }
+// Hidden tab / screen off: let the music fade (~0.2 s), then suspend the shared context so the synth stops waking the
+// audio hardware (Android keeps a running AudioContext's output stream open even when silent). Resume on return.
+if (typeof document !== 'undefined') document.addEventListener('visibilitychange', () => {
+  if (!ctx) return;
+  if (document.hidden) setTimeout(() => { if (document.hidden && ctx?.state === 'running') ctx.suspend().catch(() => { /* */ }); }, 450);
+  else if (ctx.state === 'suspended' && mayUnlock()) ctx.resume().catch(() => { /* */ });
+});
+if (typeof window !== 'undefined') (window as unknown as { __audioState?: () => string | null }).__audioState = () => ctx?.state ?? null; // test hook
 export const out = () => master;
 /** one chiptune-ish note: blip(660, .08, 'square') */
 export function blip(freq: number, dur = 0.08, type: OscillatorType = 'square', vol = 0.18, slide = 0) {

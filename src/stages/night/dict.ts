@@ -1,7 +1,7 @@
 // Stage 3 copy. Keys prefixed 'night.'.
 export const en = {
-  'night.meta.title': 'For lushiva · III · The Night',
-  'night.kicker': 'III · The Night',
+  'night.meta.title': 'The Night',
+  'night.kicker': 'The Night',
   'night.title': 'Don’t look back',
   "night.sub": "Hold to walk. Choose a way. Don’t look back.",
   'night.sound': 'Best with sound',
@@ -138,8 +138,8 @@ export const en = {
   "night.end.more": "{n}/5 ?? stickers — collect them all for the hidden ending",
 };
 export const zh: Record<keyof typeof en, string> = {
-  'night.meta.title': '给 lushiva · 第三章 · 夜路',
-  'night.kicker': '第三章 · 夜路',
+  'night.meta.title': '夜路',
+  'night.kicker': '夜路',
   'night.title': '别回头',
   "night.sub": "按住前进，挑一条路，别回头。",
   'night.sound': '建议打开声音',

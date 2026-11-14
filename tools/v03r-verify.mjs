@@ -164,7 +164,7 @@ async function routeTests(browser, tag) {
       const f = document.querySelector('.sk-film');
       return f && getComputedStyle(f).display !== 'none';
     });
-    log('sky film control present (optional)', !!filmOn, {});
+    log('sky has no film control (the film is only the ending)', !filmOn, {});
     await p.click('.sk-next');
   }, /\/coop\//);
 
@@ -532,7 +532,7 @@ async function realFilm(browser, tag) {
     L('no H.264 in this browser build: real manifest ignored, closing card instead (fallback)', st.phase === 'end' && !st.video && st.finale, st);
     const fb = await page.evaluate(() => ({ text: document.querySelector('.hm-finale').textContent, last: document.querySelector('.hm-finale .hm-fs-last')?.textContent, line: document.querySelector('.hm-line').classList.contains('on') }));
     L('fallback closing card: the four sentences in the order 2·3·1·4, 我的小臭猫。 as its own last line, no separate first line', fb.text === FINALE_ZH && fb.last === '我的小臭猫。' && !fb.line, fb);
-    L('fallback requests no film MP4 at all (neither anniv-200 nor future-home)', !reqs.some(u => /anniv-200\.mp4|future-home\.mp4/.test(u)), {});
+    L('fallback requests no film MP4 at all (neither anniv-200 nor future-home)', !reqs.some(u => /anniv-200(-\d+)?\.mp4|future-home\.mp4/.test(u)), {});
     console.log(`NOTE [${tag}] real-film playback not runnable: canPlayType(H.264 High) empty`);
     await ctx.close();
     return;
@@ -556,9 +556,9 @@ async function realFilm(browser, tag) {
     await sleep(2500);
     const p2 = await probe(page);
     await page.screenshot({ path: `${OUT}/${tag}-real-film-playing-3s.png` });
-    L('the three media files load from the site base (ending-film.json, anniv-200 poster, anniv-200.mp4 range)', ['/media/ending-film.json', '/media/anniv-200-poster.jpg', '/media/anniv-200.mp4'].every(u => net.some(n => n.url.endsWith(u) && n.status < 400)), { net: net.slice(0, 6) });
+    L('the media files load from the site base (ending-film.json, 720p poster, a 720p / 480p film range)', ['/media/ending-film.json', '/media/anniv-200-poster-720.jpg'].every(u => net.some(n => n.url.endsWith(u) && n.status < 400)) && net.some(n => /\/media\/anniv-200-(720|480)\.mp4$/.test(n.url) && n.status < 400), { net: net.slice(0, 6) });
     L('/home/ no longer requests the v4 future-home film', !reqs.some(u => /future-home\.(mp4|json)|future-home-poster/.test(u)), {});
-    L('H.264 1920×1080 (t36: the complete 200-day film, v2 成片 67.712 s) decodes and plays: currentTime and decoded frames advance, picture is not blank', p1 && p2 && p2.err === null && p2.w === 1920 && p2.h === 1080 && Math.abs((p2.dur ?? 67.712) - 67.712) < 0.1 && /anniv-200\.mp4$/.test(p2.src) && p2.t > p1.t + 1.5 && p2.frames > p1.frames + 30 && p2.spread > 40 && !p2.paused, { p1, p2 });
+    L('H.264 1280×720 or 854×480 (2026-11-14 phone encodes of the complete 200-day film, 67.712 s) decodes and plays: currentTime and decoded frames advance, picture is not blank', p1 && p2 && p2.err === null && ((p2.w === 1280 && p2.h === 720) || (p2.w === 854 && p2.h === 480)) && Math.abs((p2.dur ?? 67.712) - 67.712) < 0.1 && /anniv-200-(720|480)\.mp4$/.test(p2.src) && p2.t > p1.t + 1.5 && p2.frames > p1.frames + 30 && p2.spread > 40 && !p2.paused, { p1, p2 });
     L('t35: no words before the film (save → paper → film, no 也许有一天… line)', !lineOn, { lineOn });
     const quiet = await page.evaluate(() => !document.querySelector('.hm-line')?.classList.contains('on') && !document.querySelector('.hm-finale').classList.contains('on'));
     L('no page text over the playing film', quiet, { quiet });
@@ -701,7 +701,7 @@ async function homeFilm(browser, tag) {
     await sleep(3600);
     const st = await page.evaluate(() => ({ phase: window.__home.phase(), film: window.__home.film(), video: !!document.querySelector('video'), replayVisible: getComputedStyle(document.querySelector('.hm-replay')).display !== 'none', finale: document.querySelector('.hm-finale')?.classList.contains('on'), editVisible: getComputedStyle(document.querySelector('.hm-edit')).display !== 'none' }));
     L('without a committed film: save → end card, no <video>, no 再看一遍', st.phase === 'end' && !st.video && !st.replayVisible && st.finale && st.editVisible, st);
-    L('without a manifest no film MP4 is requested by /home/', !reqs.some(u => /anniv-200\.mp4|future-home\.mp4/.test(u)), { n: reqs.filter(u => /\.mp4/.test(u)).length });
+    L('without a manifest no film MP4 is requested by /home/', !reqs.some(u => /anniv-200(-\d+)?\.mp4|future-home\.mp4/.test(u)), { n: reqs.filter(u => /\.mp4/.test(u)).length });
     await page.screenshot({ path: `${OUT}/${tag}-endcard-no-film.png` });
     await page.click('.hm-edit');
     await page.waitForFunction(() => window.__home.phase() === 'room' && !!window.__homeRoom?.items, { timeout: 12000 });
