@@ -14,6 +14,10 @@ export class Tilt {
   shake = [0, 0, 0];
   private aLow = [0, 0, 0]; private aRaw = [0, 0, 0]; private gotMotion = false;
   private rawDown = [0, -1, 0]; lastEvent = 0;
+  /** in-plane gravity direction on the screen (x right, y up), unit; test hook */
+  inPlane = [0, -1];
+  /** true while gravity points up the screen (the sim then gets a ceiling at the top of the view) */
+  get upward() { return this.on && this.inPlane[1] > 0.2; }
 
   private onOri = (e: DeviceOrientationEvent) => {
     if (e.beta == null || e.gamma == null) return;
@@ -45,7 +49,15 @@ export class Tilt {
     for (let i = 0; i < 3; i++) this.down[i] += (this.rawDown[i] - this.down[i]) * kd;
     // forward/back: relative to a neutral that follows her grip over ~4 s, so holding the phone at 40° isn't a slope
     this.depth0 += (this.down[2] - this.depth0) * (1 - Math.exp(-dt / 4));
-    let hx = this.down[0] * 1.5, hz = -(this.down[2] - this.depth0) * 1.2; // screen-right / into-the-screen components (in G)
+    // 2026-11-14 fix: the in-plane direction of "down" now uses BOTH screen components. Before, only down[0] (screen-right)
+    // and the forward/back depth were read and the vertical share was always "less of the floor's G", so turning the phone
+    // so its top points down could never pull the jelly UP. ex/ey = unit in-plane down; near-flat phones (little in-plane
+    // gravity, direction unreliable) blend back to the plain floor so lying on a table never makes it float.
+    const px = this.down[0], py = this.down[1], pl = Math.hypot(px, py);
+    const w = Math.min(1, Math.max(0, (pl - 0.12) / 0.33));
+    let ex = pl > 1e-6 ? px / pl * w : 0, ey = pl > 1e-6 ? py / pl * w - (1 - w) : -1; const el = Math.hypot(ex, ey) || 1; ex /= el; ey /= el;
+    this.inPlane[0] = ex; this.inPlane[1] = ey;
+    let hx = ex * Math.min(1, pl) * 1.5, hz = -(this.down[2] - this.depth0) * 1.2; // screen-right / into-the-screen components (in G)
     const hl = Math.hypot(hx, hz), HMAX = 0.9; if (hl > HMAX) { hx *= HMAX / hl; hz *= HMAX / hl; }
     // shake: high-pass (remove slow bias / gravity), dead zone, smooth a little, pseudo-force opposite to the phone's motion
     const kl = 1 - Math.exp(-dt / 0.35), ks = 1 - Math.exp(-dt / 0.03), sh = [0, 0, 0];
@@ -60,7 +72,9 @@ export class Tilt {
     // world: lateral along camera-right, depth along −back (into the screen), up = +y; "toward the user" = +back
     const fwd = [-back[0], -back[2]];
     out[0] = G * (hx * right[0] + hz * fwd[0]) + sx * right[0] + sz * back[0];
-    out[1] = sy + G * (1 - Math.sqrt(Math.max(0, 1 - Math.min(1, hx * hx + hz * hz) * 0.6))); // tilt shares G between down and sideways
+    // vertical: upright (ey = −1) → the floor's G as before; sideways (ey ≈ 0) → little; top pointing down (ey = +1) → up
+    const vert = ey * Math.sqrt(Math.max(0, 1 - Math.min(1, hx * hx + hz * hz) * 0.6));
+    out[1] = sy + G * (1 + vert); // the sim already applies −G·ŷ
     out[2] = G * (hx * right[2] + hz * fwd[1]) + sx * right[2] + sz * back[2];
   }
 }

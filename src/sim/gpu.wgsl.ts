@@ -9,7 +9,7 @@ struct Sim {
   spin: vec4f, spinC: vec4f,
   axes: array<vec4f, 4>,
   beads: array<vec4f, 16>,
-  acc: vec4f, box: vec4f, boxE: vec4f,   // gravity sensor: extra acceleration; walls (cx, cz, rx, rz) + (wx, wz, on, -)
+  acc: vec4f, box: vec4f, boxE: vec4f,   // gravity sensor: extra acceleration; walls (cx, cz, rx, rz) + (wx, wz, on, ceiling y)
 };
 struct Range { offset: u32, count: u32, pad0: u32, pad1: u32 };
 
@@ -146,6 +146,9 @@ fn contacts(@builtin(global_invocation_id) gid: vec3u) {
     let lim = sim.boxE.xy - vec2f(sim.nodeR);
     let c = clamp(uw, -lim, lim);
     if (any(c != uw)) { p.x = sim.box.x + c.x * sim.box.z - c.y * sim.box.w; p.z = sim.box.y + c.x * sim.box.w + c.y * sim.box.z; }
+  }
+  if (sim.boxE.z > 0.0 && sim.boxE.w > 0.0 && p.y > sim.boxE.w - sim.nodeR) { // ceiling (sensor on, phone upside down)
+    p.y = sim.boxE.w - sim.nodeR; p.x = mix(p.x, pp.x, 0.3); p.z = mix(p.z, pp.z, 0.3);
   }
   if (p.y < 0.0) {
     let pen = -p.y; p.y = 0.0;
