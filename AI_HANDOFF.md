@@ -6,6 +6,8 @@
 
 **安卓流畅度与适配 pass (t12)：** 2026-11-14（北京时间），同一分支 `lab/surprise-collect`，PR #1 仍未合并；部署到本仓库自己的 GitHub Pages，另外直传到 Cloudflare Pages 项目 `jelly-gift-lab`（https://jelly-gift-lab.pages.dev/）。
 
+**文案删除 (t13)：** 2026-11-14 晚，用户确认表格里清空的 38 格是删除：中英文一起从 `meadow/dict.ts`、`shop/dict.ts`、`night/dict.ts`、`story-dict.ts` 删掉；草地的 `.m-hint` 和 `.m-cap-k`、夜路的 `.n-hint`（换成不挂到页面上的占位元素，原来的显示 / 隐藏调用不用改）、夜路开场 `tell('story.night.in')` 都去掉了；小店「完整展厅」链接改成外链图标（`aria-label="lotus30-figures-web"`）；拼合件拆分按钮用 `shop.i.split`。见 `docs/CHANGELOG.md`。
+
 ### 安卓流畅度与适配（t12，中文）
 
 - **性能档位** `src/shared/perf.ts` + `perf.css`：`tier()` 返回 high / mid / low（设备内存、核数、saveData、微信 / X5 / 厂商浏览器、`?perf=` 强制）；`capDpr()`（mid 1.5、low 1.25，high 不变）和 `frameGate()`（高刷屏限 60 帧）已接进各关渲染循环；`html[data-perf]` 供 CSS 关掉低档的模糊、毛玻璃、大阴影。页面隐藏时停循环（`audio.ts` 也挂起 AudioContext）。高档外观与以前一致。

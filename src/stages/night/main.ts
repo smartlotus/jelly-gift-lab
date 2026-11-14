@@ -57,7 +57,8 @@ async function boot() {
   renderer.setPixelRatio(DPR); renderer.setSize(innerWidth, innerHeight); renderer.autoClear = false;
   const cv = renderer.domElement; cv.className = 'n-canvas'; cv.setAttribute('role', 'img'); cv.dataset.i18nAria = 'night.canvas'; host.appendChild(cv);
   const black = document.createElement('div'); black.className = 'n-black'; host.appendChild(black);
-  const hint = document.createElement('p'); hint.className = 'n-hint'; hint.dataset.i18n = touch ? 'night.hint.touch' : 'night.hint.key'; host.appendChild(hint);
+  // 2026-11-14: the walking hint was deleted from the copy sheet; a detached stand-in keeps the show / hide calls harmless
+  const hint = document.createElement('p');
   const say = document.createElement('p'); say.className = 'n-say'; host.appendChild(say);
   apply(host);
   const hud = makeHud(host); const ui = makeUI(host);
@@ -460,4 +461,4 @@ async function boot() {
     setTimeout(() => { r.classList.add('on'); }, 900); setTimeout(() => { r.classList.remove('on'); setTimeout(() => r.remove(), 900); }, 8500);
   }
 }
-setTimeout(() => tell('story.night.in'), 1400);
+// (the night's opening line was deleted from the copy sheet on 2026-11-14 — no empty bubble)
