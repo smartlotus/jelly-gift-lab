@@ -18,7 +18,9 @@ const MOVERS: [string, Dir][] = [['.gs-dock', 'down'], ['.gift-whisper.on', 'aut
 function shown(el: Element) {
   for (let e: Element | null = el; e && e !== document.documentElement; e = e.parentElement) {
     const cs = getComputedStyle(e);
-    if (cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) < 0.05) return false;
+    if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+    // a control that is fading in (opacity transition running) already counts, so the dock moves before it is visible
+    if (Number(cs.opacity) < 0.05 && !e.getAnimations?.().some(a => (a as CSSTransition).transitionProperty === 'opacity')) return false;
   }
   return true;
 }
@@ -99,6 +101,8 @@ export function mountLayout() {
   addEventListener('orientationchange', () => settleSoon(400), { passive: true });
   try { document.fonts?.ready.then(() => settleSoon()); } catch { /* */ }
   [300, 1500, 4000].forEach(t => setTimeout(settleAll, t));
+  // a stage control switching on (class change, e.g. sky's 一起玩 fading in) → re-settle at once, not on the next tick
+  try { let lastMo = 0; new MutationObserver(() => { const t = performance.now(); if (t - lastMo > 250) { lastMo = t; settleSoon(30); } }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class', 'hidden'] }); } catch { /* */ }
   setInterval(() => { if (document.visibilityState === 'visible') settleAll(); }, 700);
   (window as unknown as { __layout: unknown }).__layout = { settleAll };
 }

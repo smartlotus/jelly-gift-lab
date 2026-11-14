@@ -38,7 +38,7 @@ register(dict); mountChrome({ theme: 'dark' }); markReached();
 // lab: 跳过 = straight on to jelly through the same pink iris every night ending uses
 mountSurprise({ stage: 'night', skip: at => void go('jelly', () => gsIrisOut(at.x, at.y, 750, '#F9C6CF')) });
 // 2026-11-14: once she has been walking a while, fetch the jelly page's big asset in the background (idle, low priority)
-setTimeout(() => prefetchNext(), 9000);
+setTimeout(() => prefetchNext(), 6000);
 const host = document.getElementById('game')!;
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const touch = matchMedia('(pointer: coarse)').matches;

@@ -6,6 +6,8 @@
 
 **安卓流畅度与适配 pass (t12)：** 2026-11-14（北京时间），同一分支 `lab/surprise-collect`，PR #1 仍未合并；部署到本仓库自己的 GitHub Pages，另外直传到 Cloudflare Pages 项目 `jelly-gift-lab`（https://jelly-gift-lab.pages.dev/）。
 
+**果冻重力 + 加载 (t14)：** 2026-11-14 夜。重力感应原来只能左 / 右 / 下：`tilt.ts` 竖直分量只会减小地板重力，没有屏幕 y 分量，也没有顶部边界；现在四个方向都能动（`engine.ts` 的 `box[7]` 是顶，CPU / GPU 两个求解器都处理）。测试 `tools/jelly-tilt-verify.mjs`（lab-verify 第 6 部分，`TILT=0` 跳过）。加载：`src/shared/jellyAsset.ts` 统一下载 / 进度 / 解压，夜路 6 s 后预取；Cloudflare 版用 `.bin.gz`（`VITE_JELLY_GZ=1`，`scripts/build_cloudflare.sh`）。测量 `tools/jelly-load.mjs`。
+
 **文案删除 (t13)：** 2026-11-14 晚，用户确认表格里清空的 38 格是删除：中英文一起从 `meadow/dict.ts`、`shop/dict.ts`、`night/dict.ts`、`story-dict.ts` 删掉；草地的 `.m-hint` 和 `.m-cap-k`、夜路的 `.n-hint`（换成不挂到页面上的占位元素，原来的显示 / 隐藏调用不用改）、夜路开场 `tell('story.night.in')` 都去掉了；小店「完整展厅」链接改成外链图标（`aria-label="lotus30-figures-web"`）；拼合件拆分按钮用 `shop.i.split`。见 `docs/CHANGELOG.md`。
 
 ### 安卓流畅度与适配（t12，中文）
@@ -22,7 +24,7 @@
   - `tools/shop-models-verify.mjs`（11 项：快网 / 慢网 / 卡住 / 失败重试 / 分块 404 / 上下文丢失）。
   - `tools/overlap-audit.mjs`（8 视口 × 12 页，安卓 UA，`--sab:24px` 模拟手势条；`SHOTS`、`ALLSHOTS=1`、`PAGES`、`VPS`）；`tools/lab-verify.mjs` 第 5 部分调用它（`OVERLAP=0` 跳过）。
 - **Cloudflare**：`scripts/build_cloudflare.sh` → `dist-cf/`（base `/`，`VITE_SECRET_PAGE=https://rhine-album.pages.dev/?from=jelly`，去掉未用的 future-home 影片（超过 25 MiB 单文件上限）和 sourcemap，写 `_headers`）。部署：在仓库目录里 `set -a; . ~/.secrets/cloudflare.env; set +a; CLOUDFLARE_ACCOUNT_ID=… ~/.local/bin/wrangler pages deploy dist-cf --project-name jelly-gift-lab --branch main`。**令牌不要打印、不要进仓库。** GitHub 版的秘密页仍是 `https://smartlotus.github.io/rhine-album/?from=jelly`（`config.ts` 读 `VITE_SECRET_PAGE`，没有就用这个）。
-- **文案表**（2026-11-14 用户改过的表格）：用户直接改了「当前文字」列，没有填「修改后文字」。已应用 14 处替换并同步英文；38 个被清空的格子**没有删**，等用户确认（`/workspace/英文同步对照表.xlsx` 第二页）。
+- **文案表**（2026-11-14 用户改过的表格）：用户直接改了「当前文字」列，没有填「修改后文字」。已应用 14 处替换并同步英文；38 个被清空的格子用户已确认删除，已删（见下方「文案删除 (t13)」和 `/workspace/英文同步对照表.xlsx` 第二页）。
 - **限制**：没有真机，数据来自无头 Chromium + SwiftShader（软件 GPU，画布越大越慢，所以帧时间只作相对参考）。
 
 ### 横屏与转屏（t11，中文）

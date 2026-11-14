@@ -2,6 +2,16 @@
 
 只记实验版（本仓库）的改动；故事版 / 稳定版不受影响。时间为北京时间。
 
+## 2026-11-14（夜）· 果冻重力四个方向 + 果冻页加载提速（t14）
+
+- **重力感应不能往上的原因**（`src/app/tilt.ts`）：旧算法只取「向下」向量在屏幕右方向的分量（左右）和前后倾，竖直方向永远是「地板重力减一点」，所以 out[1] 只能 ≥ −G 的一部分、不会变成向上；物理里也只有地板没有顶。修法：屏幕平面内的重力方向用 x、y 两个分量一起算（近乎平放时平滑回到普通地板，放桌上不会飘），手机倒过来时竖直分量变为向上；`engine.ts` 给模拟加一个顶（`box[7]`，在可视范围内、不压到惊喜坞），`cpu.ts` / `gpu.wgsl.ts` 都处理顶部碰撞。仍保留原来的指数平滑。横屏（90° / 270°）沿用 `screen.orientation.angle` 的映射。
+- **新测试** `tools/jelly-tilt-verify.mjs`（`npm run test:tilt`，也是 lab-verify 第 6 部分）：模拟 deviceorientation / devicemotion，竖屏 + 横屏 90 / 270，左 / 右 / 上 / 下都要移动、左右对称、上下能靠到边界。
+- **果冻页加载**（`src/shared/jellyAsset.ts`）：主要耗时是 tet-mesh 资源（~2.2 MB）。
+  - 果冻页一打开就开始下载，和 WebGPU 初始化并行；只下载真正会用的档位（先问一次 WebGPU adapter，结果存会话，避免下载两份）。
+  - 夜路走 6 秒后空闲低优先级预取果冻资源和果冻页（省流量 / 2G 不预取）。
+  - Cloudflare 版附带预压缩的 `.bin.gz`，浏览器用 DecompressionStream 解压（Pages 不压缩二进制），并加 1 小时缓存头；GitHub Pages 本身会 gzip。
+  - 实测（无头 Chrome，慢 4G + CPU 4× 降速，`tools/jelly-load.mjs`，`npm run perf:jelly-load`）：改前冷启动果冻可动 15.4 s；GitHub 版冷启动 15.5 s（瓶颈是网络），Cloudflare 版冷启动 9.6 s；从夜路过来（停留 30 s）改前 13.3 s → 改后 GitHub 1.0 s / Cloudflare 1.2 s，幕布消失 14.9 s → 2.6 / 3.3 s。数据在 `/workspace/lab-shots/android/jelly-load/`。
+
 ## 2026-11-14（晚）· 文案表里清空的 38 条按删除处理（t13）
 
 - 用户确认：表格里被清空的格子就是要删掉。中文和对应英文一起删，共 38 条（清单与处理见 `/workspace/英文同步对照表.xlsx` 第二页）。
