@@ -8,7 +8,7 @@
 //
 // The film checks never touch a real film: they serve a synthetic ffmpeg test pattern through Playwright's
 // request routing (generated into the OS temp dir at run time). Nothing is added to public/.
-import { chromium, webkit } from 'file:///workspace/jelly/pw/node_modules/playwright/index.mjs';
+const { chromium, webkit } = await import(process.env.PLAYWRIGHT || 'file:///workspace/jelly/pw/node_modules/playwright/index.mjs');
 import { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync, renameSync, rmSync } from 'fs';
 import { spawnSync } from 'child_process';
 import os from 'os';
