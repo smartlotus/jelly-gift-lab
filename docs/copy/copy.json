@@ -1,6 +1,6 @@
 {
-  "generated": "2026-11-14T09:58:35.082Z",
-  "total": 510,
+  "generated": "2026-11-14T13:09:53.599Z",
+  "total": 474,
   "order": [
     "shared",
     "surprise",
@@ -337,37 +337,9 @@
           "kind": "dict"
         },
         {
-          "key": "meadow.sub",
-          "zh": "一直往右走，尽头有东西等你。",
-          "en": "Keep walking right. Something is waiting at the end.",
-          "file": "src/stages/meadow/dict.ts",
-          "kind": "dict"
-        },
-        {
           "key": "meadow.hearts",
           "zh": "爱心",
           "en": "Hearts",
-          "file": "src/stages/meadow/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "meadow.hint.keys",
-          "zh": "← →  走     空格  跳",
-          "en": "← →  walk     Space  jump",
-          "file": "src/stages/meadow/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "meadow.hint.touch",
-          "zh": "按住 ▶ 走 · 轻点 ▲ 跳",
-          "en": "Hold ▶ to walk · tap ▲ to jump",
-          "file": "src/stages/meadow/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "meadow.day",
-          "zh": "第 200 天",
-          "en": "Day 200",
           "file": "src/stages/meadow/dict.ts",
           "kind": "dict"
         },
@@ -430,195 +402,6 @@
           "key": "shop.kicker",
           "zh": "小店",
           "en": "The Shop",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.title",
-          "zh": "我为你做的小东西",
-          "en": "Things I made for you",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.sub",
-          "zh": "亲手建模，彩色打印。",
-          "en": "Modelled by hand, printed in colour.",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.ex.figure-pig",
-          "zh": "小猪 · 敲电脑",
-          "en": "Pig, at the laptop",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.ex.figure-cat",
-          "zh": "小猫 · 捧着书",
-          "en": "Cat, with a book",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.ex.magnet-pig",
-          "zh": "小猪 · 冰箱贴",
-          "en": "Pig, fridge magnet",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.ex.magnet-cat",
-          "zh": "小猫 · 冰箱贴",
-          "en": "Cat, fridge magnet",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.note.figure-pig",
-          "zh": "在小台灯下敲电脑，头顶两个黄色的“??”。",
-          "en": "Typing away under a little desk lamp, two yellow “??” overhead.",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.note.figure-cat",
-          "zh": "捧着写着“Eblana!”的书，头顶冒出一个“!!”。",
-          "en": "Holding a book that says “Eblana!”, with a “!!” of surprise.",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.note.magnet-pig",
-          "zh": "敲电脑的小猪，压成浮雕，贴在薄荷色底板上。",
-          "en": "The pig at the laptop, pressed into a relief on a mint plate.",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.note.magnet-cat",
-          "zh": "捧着书的小猫，浮雕在薰衣草色底板上。",
-          "en": "The cat with the book, in relief on a lavender plate.",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.kind.figure",
-          "zh": "立体手办",
-          "en": "Figure",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.kind.magnet",
-          "zh": "冰箱贴",
-          "en": "Fridge magnet",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.kind.pair",
-          "zh": "情侣拼合",
-          "en": "Couple set",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.ex.pair",
-          "zh": "小猪和小猫，在一起",
-          "en": "Pig & cat, together",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.ex.pig-fig",
-          "zh": "小猪敲电脑 · Lotus30",
-          "en": "Pig at the laptop · Lotus30",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.ex.cat-fig",
-          "zh": "猫猫看书 · Lotus30",
-          "en": "Cat with a book · Lotus30",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.ex.pig-relief",
-          "zh": "小猪浮雕冰箱贴 · Lotus30",
-          "en": "Pig relief magnet · Lotus30",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.ex.cat-relief",
-          "zh": "猫猫浮雕冰箱贴 · Lotus30",
-          "en": "Cat relief magnet · Lotus30",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.note.pig-fig",
-          "zh": "Notion 完整版：吊杆麦克风、「??」、小盆栽——拆开看每一色。",
-          "en": "The complete Notion build: boom mic, “??”, pot — explode to see every colour.",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.note.cat-fig",
-          "zh": "Notion 完整版：书、手机、多肉、「!!」——拆开看每一色。",
-          "en": "The complete Notion build: book, phone, succulent, “!!” — explode the colours.",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.note.pig-relief",
-          "zh": "浮雕冰箱贴。拆色后翻到背面，能看到两个磁铁槽。",
-          "en": "Relief magnet. Split colours, then flip to see the two magnet pockets on the back.",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.note.cat-relief",
-          "zh": "浮雕冰箱贴。拆色后翻到背面，能看到两个磁铁槽。",
-          "en": "Relief magnet. Split colours, then flip to see the two magnet pockets on the back.",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.showcase",
-          "zh": "完整展厅 →",
-          "en": "Full studio →",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.note.pair",
-          "zh": "燕尾榫把它们扣在一起，接缝上的两个半颗心，合成一颗。",
-          "en": "A dovetail joins them; the two half hearts on the seam become one.",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.i.split.pair",
-          "zh": "分开",
-          "en": "Pull apart",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.parts",
-          "zh": "{n} 种颜色",
-          "en": "{n} colours",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.mat",
-          "zh": "PLA · 多色打印",
-          "en": "PLA · multi-colour print",
           "file": "src/stages/shop/dict.ts",
           "kind": "dict"
         },
@@ -717,20 +500,6 @@
           "key": "shop.i.colours",
           "zh": "打印用色",
           "en": "Filament colours",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.i.hint.touch",
-          "zh": "拖动旋转 · 双指缩放 · 双击复位 · 轻点会 Q 弹",
-          "en": "Drag to turn · pinch to zoom · double-tap to reset · tap for a wobble",
-          "file": "src/stages/shop/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "shop.i.hint.mouse",
-          "zh": "拖动旋转 · 滚轮缩放 · 双击复位 · 单击会 Q 弹",
-          "en": "Drag to turn · scroll to zoom · double-click to reset · click for a wobble",
           "file": "src/stages/shop/dict.ts",
           "kind": "dict"
         },
@@ -1064,13 +833,6 @@
           "kind": "dict"
         },
         {
-          "key": "story.night.in",
-          "zh": "牵着手走吧，这条夜路我陪你。",
-          "en": "Let’s walk it together. I’ll stay with you on this night path.",
-          "file": "src/shared/story-dict.ts",
-          "kind": "dict"
-        },
-        {
           "key": "night.meta.title",
           "zh": "夜路",
           "en": "The Night",
@@ -1109,20 +871,6 @@
           "key": "night.sound.on",
           "zh": "打开",
           "en": "Turn on",
-          "file": "src/stages/night/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "night.hint.touch",
-          "zh": "按住屏幕前进 · 拖动环顾 · 点发光的 ??",
-          "en": "Hold the screen to walk · drag to look · tap a glowing ??",
-          "file": "src/stages/night/dict.ts",
-          "kind": "dict"
-        },
-        {
-          "key": "night.hint.key",
-          "zh": "按住 W / ↑ 前进 · 拖动环顾 · 点发光的 ?? · M 地图 · B 回头",
-          "en": "Hold W / ↑ to walk · drag to look · click a glowing ?? · M map · B turn back",
           "file": "src/stages/night/dict.ts",
           "kind": "dict"
         },
