@@ -87,7 +87,7 @@ export async function audit(browser, BASE, { log, shots = '', pages = PAGES, vie
       const ok = !r.err && (r.veil || (!r.overlaps.length && !r.small.length && !r.outside.length));
       results.push({ vp: vp.name, st, ...r });
       if (log) log(`layout ${vp.name} ${st}: no overlaps, taps ≥ 44 px, inside the screen${r.veil ? ' (rotation veil up)' : ''}`, ok, ok ? undefined : { overlaps: r.overlaps?.slice(0, 4), small: r.small?.slice(0, 4), outside: r.outside?.slice(0, 3), err: r.err });
-      if (shots && !ok && r.overlaps) { await p.evaluate(mark, r.overlaps); await p.screenshot({ path: `${shots}/${tag}${st}-${vp.width}x${vp.height}.png` }); }
+      if (shots && (!ok || process.env.ALLSHOTS === '1') && r.overlaps) { await p.evaluate(mark, r.overlaps); await p.screenshot({ path: `${shots}/${tag}${st}-${vp.width}x${vp.height}.png` }); }
       await p.close();
     }
     await ctx.close();

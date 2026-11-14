@@ -59,12 +59,15 @@ function shift(el: HTMLElement, d: 'up' | 'down', m: number) {
 }
 function attempt(el: HTMLElement, d: 'up' | 'down') {
   el.style.marginTop = ''; el.style.marginBottom = '';
-  let r = el.getBoundingClientRect(), m = 0;
+  // the dock's 惊喜 button does a short nudge (−4 px, ×1.06): keep that much air above it
+  const pad = el.matches('.gs-dock') ? 5 : 0;
+  const box = () => { const b = el.getBoundingClientRect(); return pad ? new DOMRect(b.x, b.y - pad, b.width, b.height + pad) : b; };
+  let r = box(), m = 0;
   for (let i = 0; i < 6; i++) {
     const hits = obstacles(el).filter(o => hit(r, o)); if (!hits.length) return m;
     m += d === 'up' ? r.bottom - Math.min(...hits.map(h => h.top)) + GAP : Math.max(...hits.map(h => h.bottom)) - r.top + GAP;
     shift(el, d, m);
-    r = el.getBoundingClientRect();
+    r = box();
     if (r.top < 0 || r.bottom > innerHeight) break;
   }
   return -1;

@@ -4,6 +4,25 @@
 
 **横屏 / 转屏 pass (t11)：** 2026-11-13（北京时间），同一分支 `lab/surprise-collect`，PR #1 仍未合并；这一轮按用户要求**部署到了本仓库自己的 Pages**（https://smartlotus.github.io/jelly-gift-lab/）。中文说明见下面「横屏与转屏」和 [`docs/CHANGELOG.md`](docs/CHANGELOG.md)。
 
+**安卓流畅度与适配 pass (t12)：** 2026-11-14（北京时间），同一分支 `lab/surprise-collect`，PR #1 仍未合并；部署到本仓库自己的 GitHub Pages，另外直传到 Cloudflare Pages 项目 `jelly-gift-lab`（https://jelly-gift-lab.pages.dev/）。
+
+### 安卓流畅度与适配（t12，中文）
+
+- **性能档位** `src/shared/perf.ts` + `perf.css`：`tier()` 返回 high / mid / low（设备内存、核数、saveData、微信 / X5 / 厂商浏览器、`?perf=` 强制）；`capDpr()`（mid 1.5、low 1.25，high 不变）和 `frameGate()`（高刷屏限 60 帧）已接进各关渲染循环；`html[data-perf]` 供 CSS 关掉低档的模糊、毛玻璃、大阴影。页面隐藏时停循环（`audio.ts` 也挂起 AudioContext）。高档外观与以前一致。
+- **安卓兼容**：12 个 HTML 的 viewport 都加 `interactive-widget=resizes-visual`；`orient.ts` 打字时（输入框聚焦）不弹转屏幕；`chrome.ts` 首次触摸解锁音频，并监听 `vite:preloadError`（部署后旧 HTML 引用已删除的分块 → 自动刷新一次，5 分钟内每页最多一次，URL 带 `?r=`）。`scripts/deploy_pages.sh` 会保留上一次部署的 `assets/*` 一代（`.assets-prev` 记录），更早的才删。
+- **天空关不再放影片**（删了 `cinema.ts`），影片只在结尾。结尾影片 `src/shared/endingFilm.ts`：`media/ending-film.json` 的 `sources` = 720p（13,655,167 B，1.61 Mbps）+ 480p（7,272,030 B，0.86 Mbps），海报 `anniv-200-poster-720.jpg`；带 `playsinline`、`webkit-playsinline`、`x5-playsinline`、`x5-video-player-type=h5-page`。`tools/v03r-verify.mjs` 已改成认 720/480。
+- **家的惊喜动画** `src/shared/surprise/anims/home.ts`：魔术纸箱（落下、晃、开盖，家具按抛物线飞出，相框歪着落下再摆正，箱子折平溜走，台灯亮、相框里出现小房子），只用 transform / opacity，没有人物。
+- **商店模型** `src/stages/shop/models.ts`（`fetchGlb` 流式 + 9 s 无进展中断 + 3 次退避重试 + `cache:'reload'`；`prefetchShopModels` 空闲低优先级预取，省流量 / 2G 跳过；测试参数 `?glbstall=`、`?glbfail=`、`?glbstallms=`）和 `viewer.ts`（下载队列：第一个模型到之前只 1 路，之后 2 路，由近到远 `setFocus(x)`；`failed()` / `pending()` / `retry()` / `onLoadState`；`parseAsync`；WebGL context lost / restored）。`main.ts` 的状态条 `.shop-load`（慢 → 百分比，失败 → 重试按钮，上下文丢失 / 没有 WebGL → 提示）。草地 6 s 后预取小猪，接近出口时预取全部商店模型。AR 侧室也走 `fetchGlb`。GLB 已经是 meshopt + 量化，gltfpack 再压只省约 3%，没改。
+- **布局解析器** `src/shared/layout.ts`（orient.ts 引入，所以每页都有）：只移动共享浮层（`.gs-dock` 向下、`.gift-whisper.on` 自动、`.shop-load` 向上），用 margin（先探测是 top 还是 bottom 定位，按元素自身 CSS margin 叠加），先试首选方向再试反方向取较小位移，放不下就不动。resize / 转屏 / 字体加载 / 300、1500、4000 ms / 每 700 ms 复查；`story.ts` 出台词时调用。测试钩子 `window.__layout.settleAll()`。`layout.css`（只在 `pointer: coarse`）把各关按钮补到 ≥ 44 px。
+- **测试 / 工具**：
+  - `tools/android-perf.mjs`（4× CPU 降速、DPR 2.75 的安卓模拟，每关测帧间隔、画布像素、长任务、隐藏后占用；`TAG`、`OUT`、`STAGES`）。
+  - `tools/android-compat.mjs`（26 项：键盘、手势条、转屏、音频解锁、微信 UA、字体等）。
+  - `tools/shop-models-verify.mjs`（11 项：快网 / 慢网 / 卡住 / 失败重试 / 分块 404 / 上下文丢失）。
+  - `tools/overlap-audit.mjs`（8 视口 × 12 页，安卓 UA，`--sab:24px` 模拟手势条；`SHOTS`、`ALLSHOTS=1`、`PAGES`、`VPS`）；`tools/lab-verify.mjs` 第 5 部分调用它（`OVERLAP=0` 跳过）。
+- **Cloudflare**：`scripts/build_cloudflare.sh` → `dist-cf/`（base `/`，`VITE_SECRET_PAGE=https://rhine-album.pages.dev/?from=jelly`，去掉未用的 future-home 影片（超过 25 MiB 单文件上限）和 sourcemap，写 `_headers`）。部署：在仓库目录里 `set -a; . ~/.secrets/cloudflare.env; set +a; CLOUDFLARE_ACCOUNT_ID=… ~/.local/bin/wrangler pages deploy dist-cf --project-name jelly-gift-lab --branch main`。**令牌不要打印、不要进仓库。** GitHub 版的秘密页仍是 `https://smartlotus.github.io/rhine-album/?from=jelly`（`config.ts` 读 `VITE_SECRET_PAGE`，没有就用这个）。
+- **文案表**（2026-11-14 用户改过的表格）：用户直接改了「当前文字」列，没有填「修改后文字」。已应用 14 处替换并同步英文；38 个被清空的格子**没有删**，等用户确认（`/workspace/英文同步对照表.xlsx` 第二页）。
+- **限制**：没有真机，数据来自无头 Chromium + SwiftShader（软件 GPU，画布越大越慢，所以帧时间只作相对参考）。
+
 ### 横屏与转屏（t11，中文）
 
 - **不锁方向。** 所有页面（十关 + AR 侧室 + 秘密页）横竖都能用。

@@ -23,6 +23,7 @@
   .ar-dots.ar-dots button { width: 44px; height: 44px; }
   .ar-dots.ar-dots { gap: 0; }
   button.sk-gyro.sk-gyro, button.sk-sun.sk-sun { width: 44px; height: 44px; }
+  button.sk-next.sk-next { min-height: 44px; }
   button.act.act { min-height: 44px; }
   /* small text buttons elsewhere in the journey */
   button.cp-join, button.hm-skip, button.sc-list, a.sc-back { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }

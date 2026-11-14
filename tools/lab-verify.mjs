@@ -221,7 +221,9 @@ if (process.env.LANDSCAPE !== '0') {
     await p.route(/media\/ending-film\.json/, r => r.fulfill({ status: 404, body: '' }));
     await p.goto(`${BASE}/home/?lang=zh&at=video`);
     await p.waitForFunction(() => window.__home?.phase() === 'end', null, { timeout: 20000 }).catch(() => {});
-    await sleep(1200);
+    // the card's buttons come in with the finale line (~1.5–3 s after 'end'), not at once
+    await p.waitForFunction(() => document.body.classList.contains('hm-on-finale'), null, { timeout: 10000 }).catch(() => {});
+    await sleep(600);
     const end = await p.evaluate(ins => ['.hm-replay', '.hm-edit', '.hm-again'].map(s => { const e = document.querySelector(s); if (!e) return null; if (getComputedStyle(e).display === 'none') return 'n/a (no film)'; const r = e.getBoundingClientRect(); return r.left >= ins.left - 1 && r.right <= innerWidth - ins.right + 1 && r.top >= 0 && r.bottom <= innerHeight - ins.bottom + 1 && r.height >= 32; }), SAFE(844, 390));
     log('landscape closing card: 再看一遍 / 继续布置 / 从头再来 (those shown) inside the safe area', end.every(Boolean) && end.filter(x => x === true).length >= 2, end);
     await shoot(p, 'home-844x390-end');
