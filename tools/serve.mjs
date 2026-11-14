@@ -29,6 +29,6 @@ http.createServer((req, res) => {
       }
     }
   }
-  res.writeHead(200, { 'content-type': type, 'accept-ranges': 'bytes', 'content-length': st.size, 'cache-control': 'no-cache' });
+  res.writeHead(200, { 'content-type': type, 'accept-ranges': 'bytes', 'content-length': st.size, 'cache-control': process.env.SERVE_CACHE ? `public, max-age=${process.env.SERVE_CACHE}` : 'no-cache' }); // SERVE_CACHE=600 ≈ GitHub Pages
   fs.createReadStream(f).pipe(res);
 }).listen(port, () => console.log('serving', root, 'on', port));

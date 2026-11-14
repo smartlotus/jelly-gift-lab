@@ -8,9 +8,26 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; cd "$ROOT"
 ALBUM_URL="${ALBUM_URL:-https://rhine-album.pages.dev/?from=jelly}"
 rm -rf dist-cf
-VITE_SECRET_PAGE="$ALBUM_URL" npx vite build --outDir dist-cf --emptyOutDir
+# gzip the jelly tet-mesh assets first (their sizes go into the build for the progress bar)
+rm -rf /tmp/jelly-gz && mkdir -p /tmp/jelly-gz
+GZ_SIZES="$(python3 - <<'PY'
+import gzip, json, os
+src, out, sizes = 'public/jelly/assets', '/tmp/jelly-gz', {}
+for cid in sorted(os.listdir(src)):
+    for f in sorted(os.listdir(os.path.join(src, cid))):
+        if not f.endswith('.bin'): continue
+        os.makedirs(os.path.join(out, cid), exist_ok=True)
+        data = gzip.compress(open(os.path.join(src, cid, f), 'rb').read(), compresslevel=9, mtime=0)
+        open(os.path.join(out, cid, f + '.gz'), 'wb').write(data); sizes[f"{cid}/{f[:-4]}"] = len(data)
+print(json.dumps(sizes, separators=(',', ':')))
+PY
+)"
+VITE_JELLY_GZ_SIZES="$GZ_SIZES" VITE_JELLY_GZ=1 VITE_SECRET_PAGE="$ALBUM_URL" npx vite build --outDir dist-cf --emptyOutDir
 rm -f dist-cf/media/future-home.mp4 dist-cf/media/future-home.json dist-cf/media/future-home-poster.jpg
 find dist-cf -name '*.map' -delete
+# Pages does not compress application/octet-stream: ship the jelly tet-mesh assets gzipped too (the page inflates them with
+# DecompressionStream; the plain .bin stays for browsers without it). 2.2 MB → 1.05 MB for the phone level.
+cp -r /tmp/jelly-gz/. dist-cf/jelly/assets/
 # byte sizes for the Range function (functions/media/[[path]].js): Pages' asset responses carry no Content-Length
 python3 - <<'PY'
 import json, os
@@ -30,6 +47,8 @@ cat > dist-cf/_headers <<'H'
   Cache-Control: public, max-age=2592000
 /models/*
   Cache-Control: public, max-age=604800
+/jelly/assets/*
+  Cache-Control: public, max-age=3600
 /art/*
   Cache-Control: public, max-age=604800
 H
