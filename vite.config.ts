@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'node:path';
+import { readdirSync, statSync } from 'node:fs';
 import { DICT } from './src/i18n/dict.ts';
 import { en as sharedEn } from './src/shared/dict.ts';
 import { en as meadowEn } from './src/stages/meadow/dict.ts';
@@ -23,6 +24,11 @@ import { curtainMarkup } from './src/shared/curtain-inline.ts';
 // v03e: the loading curtain is inlined right after <body> on every page (first paint, before any CSS/JS loads)
 const curtain = () => ({ name: 'gift-curtain', transformIndexHtml: (html: string) => html.replace(/<body([^>]*)>/, (m) => m + curtainMarkup()) });
 const page = (p: string) => resolve(import.meta.dirname, p);
+// decoded byte sizes of the jelly page's tet-mesh assets (progress bar; see src/shared/jellyAsset.ts)
+const jellySizes: Record<string, number> = {};
+for (const id of readdirSync(page('public/jelly/assets'))) for (const f of readdirSync(page(`public/jelly/assets/${id}`)))
+  if (f.endsWith('.bin')) jellySizes[`${id}/${f.slice(0, -4)}`] = statSync(page(`public/jelly/assets/${id}/${f}`)).size;
+process.env.VITE_JELLY_SIZES = JSON.stringify(jellySizes);
 export default defineConfig({
   base: './',
   plugins: [i18nHtml(), curtain()],

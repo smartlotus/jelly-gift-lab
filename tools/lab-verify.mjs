@@ -9,7 +9,7 @@
 // chrome inside the safe area and uncovered, canvases keep their buffer ratio; list / hidden thing / closing card in
 // landscape; portrait ⇄ landscape shows the themed veil and re-fits the canvas (reduced motion: plain fade).
 // 布局（2026-11-14）: tools/overlap-audit.mjs on 12 pages × 8 viewports (360×640 … tablet), no overlapping controls, taps ≥ 44 px;
-// OVERLAP=0 skips it. LANDSCAPE=0 skips the landscape part; SHOTS=/dir saves landscape + mid-transition screenshots.
+// OVERLAP=0 skips it. Part 6 = jelly gravity sensor in four directions (TILT=0 skips). LANDSCAPE=0 skips the landscape part; SHOTS=/dir saves landscape + mid-transition screenshots.
 const { chromium } = await import(process.env.PLAYWRIGHT || 'file:///workspace/jelly/pw/node_modules/playwright/index.mjs');
 const BASE = (process.env.BASE || 'http://127.0.0.1:8833').replace(/\/$/, '');
 const KEY = 'gift.collect.v1';
@@ -258,6 +258,13 @@ if (process.env.LANDSCAPE !== '0') {
 if (process.env.OVERLAP !== '0') {
   const { audit } = await import('./overlap-audit.mjs');
   await audit(b, BASE, { log, shots: SHOTS });
+}
+// 6. jelly gravity sensor (2026-11-14): left / right / up / down in portrait + landscape 90 / 270 (tools/jelly-tilt-verify.mjs)
+if (process.env.TILT !== '0') {
+  const { spawnSync } = await import('node:child_process');
+  const r = spawnSync(process.execPath, [new URL('./jelly-tilt-verify.mjs', import.meta.url).pathname], { env: { ...process.env, BASE }, encoding: 'utf8', timeout: 600000 });
+  for (const line of (r.stdout || '').split('\n')) { const m = /^  (ok |FAIL) (.*)$/.exec(line); if (m) log(`tilt · ${m[2].replace(/  \{.*$/, '')}`, m[1] === 'ok ', m[1] === 'ok ' ? undefined : m[2].slice(0, 200)); }
+  if (r.status === null || !/jelly-tilt-verify:/.test(r.stdout || '')) log('tilt · the tilt check ran to the end', false, (r.stderr || '').slice(-300));
 }
 await b.close();
 if (errors.length) { fail++; console.log('  FAIL page errors:\n    ' + errors.join('\n    ')); } else console.log('  ok  no page errors');

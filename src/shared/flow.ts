@@ -77,6 +77,8 @@ export function warm(id: StageId, extra: Record<string, string> = {}) {
 export function prefetchNext(id: StageId = here) {
   const n = nextStage(id); if (!n) return;
   warm(n);
+  // the jelly page's tet-mesh asset is its whole load time (~2.2 MB): warm the HTTP cache from the night (2026-11-14)
+  if (n === 'jelly') void import('./jellyAsset').then(m => m.prefetchJelly()).catch(() => {});
   // Decode the next stage's ground plate now so the first painted frame is the forest, not an empty body colour.
   const plates: Partial<Record<StageId, string>> = {
     flower: 'art/plates/flower-ground-wide.jpg',

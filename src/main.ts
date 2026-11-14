@@ -16,6 +16,7 @@ import { irisOut } from './shared/transition';
 import { mountSurprise } from './shared/surprise/kit';
 import { setLang as setSharedLang } from './shared/i18n';
 import { perfTier } from './shared/perf';
+import { loadJellyAsset, guessLevel } from './shared/jellyAsset';
 // v03e: this page reveals the shared loading curtain itself (after the first frames), never on the auto timer
 Curtain.manual();
 // journey arrival: the night stage's kawaii flip closed its iris on pink, so the curtain arrives pink (its colour is handed
@@ -54,19 +55,6 @@ const ua = navigator.userAgent;
 const isWebKit = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   || (/AppleWebKit/i.test(ua) && !/Chrome|Chromium|Edg|OPR|Android/i.test(ua));
 
-async function fetchWithProgress(url: string, onP: (p: number) => void): Promise<ArrayBuffer> {
-  const res = await fetch(url);
-  if (!res.ok || !res.body) throw new Error(`asset ${url}: ${res.status}`);
-  const total = +(res.headers.get('content-length') || 0);
-  const reader = res.body.getReader(); const chunks: Uint8Array[] = []; let got = 0;
-  for (;;) {
-    const { done, value } = await reader.read(); if (done) break;
-    chunks.push(value); got += value.length; if (total) onP(got / total);
-  }
-  const out = new Uint8Array(got); let o = 0; for (const c of chunks) { out.set(c, o); o += c.length; }
-  return out.buffer;
-}
-
 async function tryWebGPU(): Promise<{ adapter: GPUAdapter; device: GPUDevice } | null> {
   const want = params.get('backend');
   if (want === 'webgl2') return null;
@@ -82,17 +70,15 @@ async function tryWebGPU(): Promise<{ adapter: GPUAdapter; device: GPUDevice } |
   } catch (e) { console.info('WebGPU unavailable:', e); return null; }
 }
 
-const assetCache = new Map<string, ArrayBuffer>();
-async function loadAsset(id: string, level: string, onP: (p: number) => void) {
-  const key = `${id}/${level}`;
-  if (!assetCache.has(key)) assetCache.set(key, await fetchWithProgress(`${import.meta.env.BASE_URL}assets/${key}.bin`, onP));
-  return assetCache.get(key)!;
-}
+// 2026-11-14: shared loader (src/shared/jellyAsset.ts): one in-flight download per asset, .bin.gz on Cloudflare, progress
+// that never runs past 100 %. The likely first asset starts downloading right away (below), not after the WebGPU probe.
+const loadAsset = (id: string, level: string, onP: (p: number) => void) => loadJellyAsset(id, level, onP);
 
 async function boot() {
   let canvas = document.getElementById('gl') as HTMLCanvasElement;
   const ready = CHARACTERS.filter(c => c.ready);
   let ch: CharacterEntry = ready.find(c => c.id === params.get('char')) ?? ready[0];
+  void guessLevel().then(l => loadJellyAsset(ch.id, l)).catch(() => {}); // start the big download now (in parallel with the WebGPU device / pipeline set-up)
   UI.setProgress(0.05);
   const gpu = await tryWebGPU();
   let path: Path | null = null; let level = '';
