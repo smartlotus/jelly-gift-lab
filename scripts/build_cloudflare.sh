@@ -11,8 +11,14 @@ rm -rf dist-cf
 VITE_SECRET_PAGE="$ALBUM_URL" npx vite build --outDir dist-cf --emptyOutDir
 rm -f dist-cf/media/future-home.mp4 dist-cf/media/future-home.json dist-cf/media/future-home-poster.jpg
 find dist-cf -name '*.map' -delete
-# Pages already sends the right Content-Type (video/mp4, model/gltf-binary …) and answers Range requests for static
-# files; rules must not overlap (overlapping rules append header values).
+# byte sizes for the Range function (functions/media/[[path]].js): Pages' asset responses carry no Content-Length
+python3 - <<'PY'
+import json, os
+d = 'dist-cf/media'
+json.dump({f: os.path.getsize(os.path.join(d, f)) for f in os.listdir(d) if os.path.isfile(os.path.join(d, f))}, open('functions/media/sizes.json', 'w'), indent=1)
+PY
+# Pages already sends the right Content-Type (video/mp4, model/gltf-binary …) but answers Range requests with a full 200 —
+# functions/media/[[path]].js turns those into 206; rules must not overlap (overlapping rules append header values).
 cat > dist-cf/_headers <<'H'
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
