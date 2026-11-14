@@ -9,6 +9,7 @@ import { Righting } from '../sim/righting';
 import type { Actuation } from '../core/character';
 import type { Colourway } from '../core/look';
 import { Tilt } from './tilt';
+import { capDpr, frameGate } from '../shared/perf';
 
 const KEY = [-0.28, 1.0, -0.62];
 export interface Readouts { massG: number; volumeMl: number; metrics: number[] }
@@ -85,13 +86,13 @@ export class Engine {
     return { ...c, absorb: L(p.absorb, c.absorb), back: L(p.back, c.back), finTip: L(p.finTip, c.finTip), belly: L(p.belly, c.belly), glow: L(p.glow, c.glow), bead: L(p.bead, c.bead), bgTop: L(p.bgTop, c.bgTop), bgBot: L(p.bgBot, c.bgBot), floor: L(p.floor, c.floor) };
   }
 
-  private raf = 0;
+  private raf = 0; private gate = frameGate();
   start() { if (this.running) return; this.running = true; this.last = performance.now(); cancelAnimationFrame(this.raf); this.raf = requestAnimationFrame(this.loop); }
   stop() { this.running = false; cancelAnimationFrame(this.raf); }
 
   resize() {
     const r = this.canvas.getBoundingClientRect();
-    this.dpr = Math.min(window.devicePixelRatio || 1, this.dprCap);
+    this.dpr = capDpr(this.dprCap);
     this.W = Math.max(2, Math.round(r.width * this.dpr)); this.H = Math.max(2, Math.round(r.height * this.dpr));
     this.path.resize(this.W, this.H);
     // free band between the top and bottom UI (portrait layouts frame the jelly inside it)
@@ -127,6 +128,7 @@ export class Engine {
   private loop = (t: number) => {
     if (!this.running) return;
     this.raf = requestAnimationFrame(this.loop);
+    if (!this.lockstep && !this.gate(t)) return;
     const t0 = performance.now();
     // lockstep (self-check only): advance exactly one 60 Hz frame per completed sim step,
     // so slow software GPUs reproduce real-time behaviour frame for frame

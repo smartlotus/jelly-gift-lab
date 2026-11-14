@@ -15,6 +15,7 @@ import { go } from './shared/flow';
 import { irisOut } from './shared/transition';
 import { mountSurprise } from './shared/surprise/kit';
 import { setLang as setSharedLang } from './shared/i18n';
+import { perfTier } from './shared/perf';
 // v03e: this page reveals the shared loading curtain itself (after the first frames), never on the auto timer
 Curtain.manual();
 // journey arrival: the night stage's kawaii flip closed its iris on pink, so the curtain arrives pink (its colour is handed
@@ -114,7 +115,8 @@ async function boot() {
   };
   const bootP = (p: number) => UI.setProgress(0.05 + p * 0.85);
   if (gpu) {
-    level = params.get('q') || (isMobile ? 'md' : 'hi'); kind = 'webgpu';
+    // perf tier (src/shared/perf.ts): low-end / already-slow Android phones take the light mesh on WebGPU too
+    level = params.get('q') || (isMobile ? (perfTier() === 'low' ? 'lo' : 'md') : 'hi'); kind = 'webgpu';
     try { path = await within(makePath(ch, bootP), 12000, 'WebGPU init'); } catch (e) {
       console.warn('WebGPU path failed, falling back to WebGL2:', e); path = null;
       // a canvas keeps its first context type: swap in a fresh element for WebGL2

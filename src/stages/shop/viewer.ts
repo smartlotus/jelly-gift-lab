@@ -18,6 +18,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { asset } from '../../shared/flow';
 import { EXHIBITS, PAIR_DX, partKey, type ExhibitId } from './exhibits';
+import { capDpr, perfTier } from '../../shared/perf';
+import { fetchGlb, FILES } from './models';
 
 export interface Rect { x: number; y: number; w: number; h: number }
 export interface Slot { id: ExhibitId; rect: Rect }
@@ -88,6 +90,7 @@ export class Viewer {
     T.k.lerp(new Color(m.k), a); T.kp.lerp(new Vector3(m.kp[0], m.kp[1], m.kp[2]), a); T.ki += (m.ki - T.ki) * a; T.env += (m.env - T.env) * a; T.exp += (m.exp - T.exp) * a;
     this.key.color.copy(T.k); this.key.position.copy(T.kp); this.key.intensity = T.ki; this.scene.environmentIntensity = T.env; this.renderer.toneMappingExposure = T.exp;
   }
+  lost = false;
   private lastTouch = 0;
   private clock = performance.now();
   onChange: () => void = () => {};       // UI hook (split/solo/spin state changed)
@@ -97,16 +100,21 @@ export class Viewer {
   setPairJoined(j: boolean) { const m = this.models.get('pair'); if (m && !(this.mode !== 'display' && this.current === 'pair')) m.split = j ? 0 : 1; }
 
   constructor(host: HTMLElement) {
-    const r = this.renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    r.setPixelRatio(Math.min(devicePixelRatio || 1, 2)); r.setSize(innerWidth, innerHeight);
+    const r = this.renderer = new WebGLRenderer({ antialias: perfTier() !== 'low', alpha: true, powerPreference: 'high-performance' });
+    r.setPixelRatio(capDpr(2)); r.setSize(innerWidth, innerHeight);
     r.setClearColor(0x000000, 0); r.autoClear = false; r.toneMapping = NeutralToneMapping; r.toneMappingExposure = 0.94;
     r.shadowMap.enabled = true; r.shadowMap.type = PCFShadowMap;
     this.canvas = r.domElement; this.canvas.className = 'shop-gl'; host.appendChild(this.canvas);
-    const pm = new PMREMGenerator(r); this.scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; this.scene.environmentIntensity = 0.5;
+    const env = () => { const pm = new PMREMGenerator(r); this.scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; pm.dispose(); };
+    env(); this.scene.environmentIntensity = 0.5;
+    // Android drops WebGL contexts (backgrounded tab, GPU memory pressure): keep the page alive, stop drawing, and when the
+    // context comes back three re-uploads geometry/textures by itself — only the PMREM environment (a render target) is rebuilt.
+    this.canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); this.lost = true; this.onLoadState(); }, false);
+    this.canvas.addEventListener('webglcontextrestored', () => { this.lost = false; try { env(); for (const m of this.models.values()) this.warm(m); } catch { /* */ } this.onLoadState(); }, false);
     const k = this.key = new DirectionalLight(new Color('#fff0dc'), 1.85);
     k.position.set(-2.2, 3.6, 3.0); k.castShadow = true;
     const sc = k.shadow.camera; sc.left = sc.bottom = -1.5; sc.right = sc.top = 1.5; sc.near = 1; sc.far = 10;
-    const small = matchMedia('(pointer: coarse)').matches; k.shadow.mapSize.set(small ? 1024 : 2048, small ? 1024 : 2048); k.shadow.radius = 3.5; k.shadow.bias = -0.0004; k.shadow.normalBias = 0.012;
+    const small = matchMedia('(pointer: coarse)').matches; const sm = perfTier() === 'low' ? 512 : small ? 1024 : 2048; k.shadow.mapSize.set(sm, sm); k.shadow.radius = 3.5; k.shadow.bias = -0.0004; k.shadow.normalBias = 0.012;
     this.scene.add(k, k.target);
     const rim = new DirectionalLight(new Color('#ffd9e2'), 0.55); rim.position.set(2.5, 1.5, -3); this.scene.add(rim);
     this.loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
@@ -117,34 +125,71 @@ export class Viewer {
     c.addEventListener('start', () => { this.lastTouch = performance.now(); this.tween = null; });
     c.addEventListener('change', () => { this.lastTouch = Math.max(this.lastTouch, performance.now() - 3600); });
     this.bindTaps();
-    window.addEventListener('resize', () => r.setSize(innerWidth, innerHeight));
+    window.addEventListener('resize', () => { r.setPixelRatio(capDpr(2)); r.setSize(innerWidth, innerHeight); });
   }
 
   // ---------- loading ----------
+  // 2026-11-14: a small priority queue (≤ 2 GLB downloads at once, the exhibit nearest the cat first) over fetchGlb()
+  // (stall timeout + retries + real progress), then GLTFLoader.parseAsync. A failed exhibit goes to the 'error' state;
+  // retry() re-queues every failed one (the page's retry button, coming back online, the tab becoming visible).
+  private state = new Map<ExhibitId, 'queued' | 'loading' | 'ready' | 'error'>();
+  private waiters = new Map<ExhibitId, { res: (m: Model) => void; rej: (e: unknown) => void }>();
+  private active = 0;
+  private focusX = 0;
+  lastError: unknown = null;
+  onLoadState: () => void = () => {};
   progress(id: ExhibitId) { return this.models.has(id) ? 1 : this.prog.get(id) ?? 0; }
   ready(id: ExhibitId) { return this.models.has(id); }
+  failed(id: ExhibitId) { return this.state.get(id) === 'error'; }
+  pending(id: ExhibitId) { const s = this.state.get(id); return s === 'queued' || s === 'loading'; }
   model(id: ExhibitId) { return this.models.get(id); }
+  /** world x the queue sorts by (the cat) */
+  setFocus(x: number) { this.focusX = x; }
   load(id: ExhibitId): Promise<Model> {
     let p = this.loading.get(id); if (p) return p;
-    this.prog.set(id, 0.02);
-    if (id === 'pair') {
-      const pr = [0.02, 0.02], one = (f: string, i: number) => new Promise<Object3D>((res, rej) => this.loader.load(asset(`models/${f}.glb`), g => res(g.scene),
-        e => { if (e.total) { pr[i] = e.loaded / e.total; this.prog.set(id, Math.max(0.02, (pr[0] + pr[1]) / 2) * 0.95); } }, rej));
-      p = Promise.all([one('pair-pig', 0), one('pair-cat', 1)]).then(([a, b]) => {
-        const grp = new Group(); b.position.x = PAIR_DX; b.userData.side = 1; a.userData.side = -1; grp.add(a, b);
-        const m = this.prepare(id, grp);
-        for (const pt of m.parts) { let o: Object3D | null = pt.mesh, side = 0; while (o && !side) { side = o.userData.side ?? 0; o = o.parent; } pt.dir.set(side * 0.11, 0, 0); }
-        m.split = 1; m.splitT = 1; this.models.set(id, m); this.prog.set(id, 1); this.warm(m); return m;
-      });
-      this.loading.set(id, p); p.catch(() => { /* see below */ }); return p;
+    this.prog.set(id, 0.02); this.state.set(id, 'queued');
+    p = new Promise<Model>((res, rej) => this.waiters.set(id, { res, rej }));
+    // fire-and-forget callers (lazy load each frame) must not leave an unhandled rejection; callers that await still see it
+    this.loading.set(id, p); p.catch(() => { /* handled: error state + retry button */ });
+    this.pump(); this.onLoadState(); return p;
+  }
+  /** re-queue every exhibit that failed */
+  retry() {
+    let n = 0;
+    for (const [id, s] of this.state) if (s === 'error') { this.loading.delete(id); this.state.delete(id); this.prog.delete(id); void this.load(id); n++; }
+    return n;
+  }
+  private pump() {
+    // one at a time until the first piece is in (so it isn't starved on a slow line), then two
+    while (this.active < (this.models.size ? 2 : 1)) {
+      let best: ExhibitId | null = null, bd = Infinity;
+      for (const [id, s] of this.state) {
+        if (s !== 'queued') continue;
+        const e = EXHIBITS.find(x => x.id === id); const d = e ? Math.abs(e.x - this.focusX) : 0;
+        if (d < bd) { bd = d; best = id; }
+      }
+      if (!best) return;
+      const id = best; this.state.set(id, 'loading'); this.active++;
+      void this.fetchOne(id).then(m => {
+        this.models.set(id, m); this.prog.set(id, 1); this.state.set(id, 'ready'); this.warm(m); this.waiters.get(id)?.res(m);
+      }, e => {
+        this.lastError = e; this.state.set(id, 'error'); console.warn('[shop] model failed', id, e); this.waiters.get(id)?.rej(e);
+      }).finally(() => { this.waiters.delete(id); this.active--; this.onLoadState(); this.pump(); });
     }
-    p = new Promise<Model>((res, rej) => this.loader.load(asset(`models/${id}.glb`), g => {
-      const m = this.prepare(id, g.scene); this.models.set(id, m); this.prog.set(id, 1); this.warm(m); res(m);
-    }, e => { if (e.total) this.prog.set(id, Math.max(0.02, e.loaded / e.total) * 0.95); }, rej));
-    // fire-and-forget callers (lazy load each frame) must not leave an unhandled rejection when a fetch fails —
-    // offline, or aborted because the page is being left (WebKit reports that as "access control checks").
-    // Callers that await still see the rejection; a failed exhibit stays empty, as before.
-    this.loading.set(id, p); p.catch(() => { /* handled: see above */ }); return p;
+  }
+  private async fetchOne(id: ExhibitId): Promise<Model> {
+    const files = FILES[id], pr = files.map(() => 0);
+    const parts = await Promise.all(files.map(async (f, i) => {
+      const buf = await fetchGlb(f, p => { pr[i] = p; this.prog.set(id, Math.max(0.02, pr.reduce((a, b) => a + b, 0) / files.length * 0.95)); });
+      const dir = asset('models/');
+      return (await this.loader.parseAsync(buf, dir)).scene;
+    }));
+    if (id !== 'pair') return this.prepare(id, parts[0]);
+    const [a, b] = parts;
+    const grp = new Group(); b.position.x = PAIR_DX; b.userData.side = 1; a.userData.side = -1; grp.add(a, b);
+    const m = this.prepare(id, grp);
+    for (const pt of m.parts) { let o: Object3D | null = pt.mesh, side = 0; while (o && !side) { side = o.userData.side ?? 0; o = o.parent; } pt.dir.set(side * 0.11, 0, 0); }
+    m.split = 1; m.splitT = 1; return m;
   }
 
   /** compile the model's shader programs right after it loads (during the title card for No.01), so its first
@@ -276,6 +321,7 @@ export class Viewer {
   }
   /** render a frame. slots = exhibits currently on screen (display mode). */
   render(slots: Slot[]) {
+    if (this.lost) return;
     const now = performance.now(), dt = Math.min(0.05, (now - this.clock) / 1000); this.clock = now;
     const r = this.renderer; this.stepMood(dt);
     r.setScissorTest(false); r.setViewport(0, 0, innerWidth, innerHeight); r.clear();

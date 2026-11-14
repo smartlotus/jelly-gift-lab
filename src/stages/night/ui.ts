@@ -4,6 +4,7 @@
 import { t, apply } from '../../shared/i18n';
 import { EDGES, NODES, type NodeId } from './map';
 import { sfx, pzSfx } from './sfx';
+import { capDpr } from '../../shared/perf';
 
 export interface Choice { key: string; label: string; ang: number; locked?: boolean; glow?: boolean; back?: boolean }
 const arrow = (deg: number) => `<svg viewBox="0 0 24 24" style="transform:rotate(${deg}deg)" aria-hidden="true"><path d="M12 20V5M5.5 11.5L12 5l6.5 6.5"/></svg>`;
@@ -50,7 +51,7 @@ export function openMap(cur: { x: number; z: number }, nodes: string[], edges: s
   el.innerHTML = `<div class="nv-mapin"><p class="nv-mapt"><span class="rec">● REC</span> <span data-i18n="night.ui.map"></span></p><canvas></canvas><p class="nv-maph" data-i18n="${canGo ? 'night.ui.map.hint' : 'night.ui.map.no'}"></p><button type="button" class="nv-mapx" data-i18n="night.ui.close"></button></div>`;
   document.body.appendChild(el); apply(el); stop(el);
   const cv = el.querySelector('canvas')!; const W = Math.min(innerWidth - 40, 420), H = Math.min(innerHeight - 220, 560);
-  const dpr = Math.min(2, devicePixelRatio || 1); cv.width = W * dpr; cv.height = H * dpr; cv.style.width = `${W}px`; cv.style.height = `${H}px`;
+  const dpr = capDpr(2); cv.width = W * dpr; cv.height = H * dpr; cv.style.width = `${W}px`; cv.style.height = `${H}px`;
   const g = cv.getContext('2d')!; g.scale(dpr, dpr);
   const xs = Object.values(NODES).map(n => n.x), zs = Object.values(NODES).map(n => n.z);
   const minX = Math.min(...xs) - 6, maxX = Math.max(...xs) + 6, minZ = Math.min(...zs) - 6, maxZ = Math.max(...zs) + 6;

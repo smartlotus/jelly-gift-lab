@@ -1,7 +1,7 @@
 // Stage 2 copy. Keys prefixed 'shop.'.
 export const en = {
-  'shop.meta.title': 'For lushiva · II · The Shop',
-  'shop.kicker': 'II · The Shop',
+  'shop.meta.title': 'The Shop',
+  'shop.kicker': 'The Shop',
   'shop.title': 'Things I made for you',
   'shop.sub': 'Modelled by hand, printed in colour.',
   'shop.ex.figure-pig': 'Pig, at the laptop', 'shop.ex.figure-cat': 'Cat, with a book',
@@ -30,11 +30,15 @@ export const en = {
   'shop.i.hint.touch': 'Drag to turn · pinch to zoom · double-tap to reset · tap for a wobble',
   'shop.i.hint.mouse': 'Drag to turn · scroll to zoom · double-click to reset · click for a wobble',
   'shop.door': 'It’s dark outside.',
-  'shop.canvas': 'A small pixel shop. The cat walks past five 3D-printed pieces towards a dark back door.',
+  'shop.load.slow': 'Loading the 3D pieces · {p}%',
+  'shop.load.err': 'Some 3D pieces didn’t load · tap to retry',
+  'shop.load.lost': 'The 3D view paused · it will come back',
+  'shop.load.nogl': 'This browser can’t show the 3D pieces',
+  'shop.canvas': 'A little shop. The stinky little cat walks past five little things towards a dark back door.',
 };
 export const zh: Record<keyof typeof en, string> = {
-  'shop.meta.title': '给 lushiva · 第二章 · 小店',
-  'shop.kicker': '第二章 · 小店',
+  'shop.meta.title': '小店',
+  'shop.kicker': '小店',
   'shop.title': '我为你做的小东西',
   'shop.sub': '亲手建模，彩色打印。',
   'shop.ex.figure-pig': '小猪 · 敲电脑', 'shop.ex.figure-cat': '小猫 · 捧着书',
@@ -63,5 +67,9 @@ export const zh: Record<keyof typeof en, string> = {
   'shop.i.hint.touch': '拖动旋转 · 双指缩放 · 双击复位 · 轻点会 Q 弹',
   'shop.i.hint.mouse': '拖动旋转 · 滚轮缩放 · 双击复位 · 单击会 Q 弹',
   'shop.door': '外面天黑了。',
-  'shop.canvas': '一间像素小店。小猫走过五件 3D 打印的小东西，走向一扇黑黑的后门。',
+  'shop.load.slow': '3D 小摆件加载中 · {p}%',
+  'shop.load.err': '有小摆件没加载出来 · 点这里重试',
+  'shop.load.lost': '3D 画面暂停了 · 马上回来',
+  'shop.load.nogl': '这个浏览器打不开 3D 小摆件',
+  'shop.canvas': '一间小店。小臭猫走过五件小东西，走向一扇黑黑的后门。',
 };

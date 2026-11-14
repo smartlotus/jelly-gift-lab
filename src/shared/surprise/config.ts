@@ -6,7 +6,9 @@
 // (another path in this site, e.g. 'bonus/', or a full https:// URL).
 // Now the album site (its own repo smartlotus/rhine-album, own GitHub Pages). ?from=jelly lets it greet the visit.
 // The old placeholder secret/ page stays in this build (it is what you see if you open it before finding everything).
-export const SECRET_PAGE = 'https://smartlotus.github.io/rhine-album/?from=jelly';
+// 2026-11-14: the Cloudflare Pages build (scripts/build_cloudflare.sh) sets VITE_SECRET_PAGE to the album's pages.dev
+// URL; the GitHub Pages build keeps the GitHub address.
+export const SECRET_PAGE: string = (import.meta as unknown as { env?: Record<string, string | undefined> }).env?.VITE_SECRET_PAGE || 'https://smartlotus.github.io/rhine-album/?from=jelly';
 /** seconds the closing card stays on screen before the secret page opens by itself (all found) */
 export const SECRET_DELAY_S = 9;
 /** seconds the closing card stays on screen before the collection list slides up (something missing) */

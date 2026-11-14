@@ -16,9 +16,6 @@ export const en = {
   'sky.gyro': 'Look around with the phone',
   'sky.now': 'Now', 'sky.hideDay': 'Hide daylight', 'sky.next': 'Play together',
   'sky.computing': '…',
-  'sky.film': 'Our 200 days',
-  'sky.film.play': 'Tap to play',
-  'sky.film.cap': 'A hand-drawn film of the two hundred days — black and white, made for you.',
 };
 
 export const zh: Record<keyof typeof en, string> = {
@@ -38,8 +35,5 @@ export const zh: Record<keyof typeof en, string> = {
   'sky.gyro': '用手机环视',
   'sky.now': '此刻', 'sky.hideDay': '隐去日光', 'sky.next': '一起玩',
   'sky.computing': '…',
-  'sky.film': '我们的 200 天',
-  'sky.film.play': '轻触播放',
-  'sky.film.cap': '黑白手绘短片——那两百天，画给你看。',
 };
 

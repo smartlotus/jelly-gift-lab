@@ -15,7 +15,7 @@ import { preloadArt } from '../../art/loader';
 import { clearLayout } from './save';
 import { startHomeAudio, toDream, leaveHome } from './sfx';
 import { stopTune, startMusic } from '../../shared/music';
-import { probeFutureFilm, createFilmPlayer, type FilmPlayer, type FilmManifest } from './endingFilm';
+import { probeFutureFilm, createFilmPlayer, prepareFilm, type FilmPlayer, type FilmManifest } from './endingFilm';
 import { mountSurprise } from '../../shared/surprise/kit';
 import { startEnding, cancelEnding } from '../../shared/surprise/end';
 import { resetCollection } from '../../shared/surprise/collect';
@@ -78,11 +78,13 @@ let endFromFilm = false;
 let player: FilmPlayer | null = null;
 let manifest: FilmManifest | null = null;
 let finaleInFilm = false;
-const manifestReady = probeFutureFilm().then(m => { manifest = m; document.body.classList.toggle('hm-has-film', !!m); return m; });
+// metadata now (a few KB); the whole film starts buffering once she is in the room, so it is ready when she saves
+const manifestReady = probeFutureFilm().then(m => { manifest = m; document.body.classList.toggle('hm-has-film', !!m); if (m) prepareFilm(m, phase === 'approach' ? 'metadata' : 'auto'); return m; });
 let spark: { x: number; y: number; vx: number; vy: number; life: number }[] = [];
 
 async function enterRoom() {
   phase = 'room';
+  void manifestReady.then(m => { if (m) prepareFilm(m, 'auto'); });
   document.body.classList.add('hm-decorating');
   document.body.classList.remove('hm-on-finale', 'hm-endcard');
   line.classList.remove('on');

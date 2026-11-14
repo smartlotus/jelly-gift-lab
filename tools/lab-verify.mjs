@@ -8,7 +8,8 @@
 // 横屏（t11）: every page incl. AR + secret at 844×390 / 932×430 / 667×375 with iPhone-like safe areas — dock and
 // chrome inside the safe area and uncovered, canvases keep their buffer ratio; list / hidden thing / closing card in
 // landscape; portrait ⇄ landscape shows the themed veil and re-fits the canvas (reduced motion: plain fade).
-// LANDSCAPE=0 skips that part; SHOTS=/dir saves landscape + mid-transition screenshots.
+// 布局（2026-11-14）: tools/overlap-audit.mjs on 12 pages × 8 viewports (360×640 … tablet), no overlapping controls, taps ≥ 44 px;
+// OVERLAP=0 skips it. LANDSCAPE=0 skips the landscape part; SHOTS=/dir saves landscape + mid-transition screenshots.
 const { chromium } = await import(process.env.PLAYWRIGHT || 'file:///workspace/jelly/pw/node_modules/playwright/index.mjs');
 const BASE = (process.env.BASE || 'http://127.0.0.1:8833').replace(/\/$/, '');
 const KEY = 'gift.collect.v1';
@@ -250,6 +251,11 @@ if (process.env.LANDSCAPE !== '0') {
     if (SHOTS && !reduced) await shoot(p, `rotate-${st}-2-landscape`);
     await ctx.close();
   }
+}
+// 5. adaptive control layout (2026-11-14): 12 pages × 8 viewports, no overlapping controls, taps ≥ 44 px (tools/overlap-audit.mjs)
+if (process.env.OVERLAP !== '0') {
+  const { audit } = await import('./overlap-audit.mjs');
+  await audit(b, BASE, { log, shots: SHOTS });
 }
 await b.close();
 if (errors.length) { fail++; console.log('  FAIL page errors:\n    ' + errors.join('\n    ')); } else console.log('  ok  no page errors');

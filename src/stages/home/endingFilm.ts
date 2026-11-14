@@ -20,7 +20,46 @@ import { apply } from '../../shared/i18n';
  * same words on top: no page caption for `transform`, and no second finale text on the end card once the film has
  * played past `finale`. Absent → the page shows both lines itself.
  */
-export interface FilmManifest { v: number; src: string; poster?: string; audio?: boolean; burned?: { transform?: [number, number]; finale?: number } }
+export interface FilmManifest { v: number; src: string; poster?: string; audio?: boolean; burned?: { transform?: [number, number]; finale?: number };
+  /** 2026-11-14: lighter encodes; the page picks one by screen size and connection (src stays the default) */
+  sources?: { src: string; h: number }[] }
+
+type Conn = { saveData?: boolean; effectiveType?: string; downlink?: number };
+/** 720p by default; 480p on a slow or data-saving connection, or when the film box is small on screen */
+export function pickFilmSource(m: FilmManifest): string {
+  const list = (m.sources ?? []).filter(s => typeof s.src === 'string' && s.src.endsWith('.mp4')).sort((a, b) => b.h - a.h);
+  if (!list.length) return m.src;
+  const c = (navigator as Navigator & { connection?: Conn }).connection;
+  const slow = !!c && (c.saveData === true || /(^|-)2g$|^3g$/.test(c.effectiveType || '') || (typeof c.downlink === 'number' && c.downlink > 0 && c.downlink < 2.5));
+  // device px height of a 16:9 film fitted into the viewport
+  const boxH = Math.min(innerHeight, innerWidth * 9 / 16) * Math.min(devicePixelRatio || 1, 2);
+  const want = slow ? 480 : boxH <= 560 ? 480 : 720;
+  return (list.find(s => s.h <= want) ?? list[list.length - 1]).src;
+}
+
+// One <video> per page, made early so it can buffer before the ending: prepareFilm(m, 'metadata') when the manifest
+// arrives, prepareFilm(m, 'auto') once the ending is near (the room / save step), then createFilmPlayer() adopts it.
+let warm: HTMLVideoElement | null = null;
+function makeVideo(m: FilmManifest): HTMLVideoElement {
+  const v = document.createElement('video');
+  v.className = 'hm-film-v';
+  v.setAttribute('playsinline', '');
+  v.setAttribute('webkit-playsinline', '');
+  // WeChat / QQ (X5 · XWeb) and UC otherwise lift the film into their own native player
+  v.setAttribute('x5-playsinline', ''); v.setAttribute('x5-video-player-type', 'h5-page'); v.setAttribute('t7-video-player-type', 'inline');
+  v.setAttribute('disablepictureinpicture', '');
+  v.setAttribute('controlslist', 'nodownload noplaybackrate');
+  v.muted = true; v.defaultMuted = true; v.setAttribute('muted', '');
+  v.preload = 'metadata';
+  if (m.poster) v.poster = asset(m.poster);
+  v.src = asset(pickFilmSource(m));
+  return v;
+}
+export function prepareFilm(m: FilmManifest, preload: 'metadata' | 'auto') {
+  warm ??= makeVideo(m);
+  if (preload === 'auto' && warm.preload !== 'auto') { warm.preload = 'auto'; try { warm.load(); } catch { /* */ } }
+  return warm;
+}
 
 export const FUTURE_FILM_MANIFEST = 'media/ending-film.json';
 
@@ -63,16 +102,9 @@ export function createFilmPlayer(m: FilmManifest, hooks: PlayerHooks): FilmPlaye
   let st: ReturnType<FilmPlayer['state']> = 'loading';
   const wrap = document.createElement('div');
   wrap.className = 'hm-film loading';
-  const v = document.createElement('video');
-  v.className = 'hm-film-v';
-  v.setAttribute('playsinline', '');
-  v.setAttribute('webkit-playsinline', '');
-  v.setAttribute('disablepictureinpicture', '');
-  v.setAttribute('controlslist', 'nodownload noplaybackrate');
+  const v = warm ?? makeVideo(m); warm = null;
   v.preload = 'auto';
-  if (m.poster) v.poster = asset(m.poster);
   v.muted = true;                     // a muted start is always allowed; sound follows the site switch once playing
-  v.src = asset(m.src);
   wrap.appendChild(v);
 
   const load = document.createElement('p');
@@ -97,6 +129,10 @@ export function createFilmPlayer(m: FilmManifest, hooks: PlayerHooks): FilmPlaye
     unlock();
     void v.play().then(() => { st = 'playing'; wrap.classList.remove('tap'); syncMute(); }).catch(() => { st = 'tap'; wrap.classList.add('tap'); });
   };
+  // WeChat (X5 · XWeb) only lets a muted inline video autoplay from inside its JS bridge callback
+  const wx = (window as unknown as { WeixinJSBridge?: { invoke: (n: string, a: object, cb: () => void) => void } });
+  const viaBridge = () => { try { wx.WeixinJSBridge?.invoke('getNetworkType', {}, () => { if (v.paused && st !== 'ended' && st !== 'closed') start(); }); } catch { /* */ } };
+  if (/MicroMessenger/i.test(navigator.userAgent)) { if (wx.WeixinJSBridge) viaBridge(); else document.addEventListener('WeixinJSBridgeReady', viaBridge, { once: true }); }
   tap.addEventListener('click', e => { e.stopPropagation(); start(); });
   wrap.addEventListener('click', () => { if (v.paused && st !== 'ended') start(); });
   v.addEventListener('waiting', () => wrap.classList.add('loading'));
