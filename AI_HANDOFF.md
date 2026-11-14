@@ -6,6 +6,13 @@
 
 **安卓流畅度与适配 pass (t12)：** 2026-11-14（北京时间），同一分支 `lab/surprise-collect`，PR #1 仍未合并；部署到本仓库自己的 GitHub Pages，另外直传到 Cloudflare Pages 项目 `jelly-gift-lab`（https://jelly-gift-lab.pages.dev/）。
 
+**AR 全部模型 (t15)：** 2026-11-15。小店 9 个模型都能 AR：
+- iOS：Quick Look，用 `public/models/<id>.usdz`；
+- 安卓：Chrome 支持时用 WebXR（`src/stages/ar/xr.ts`，冰箱贴可以贴墙），否则用 Scene Viewer 的 intent（`public/models/ar/<id>.glb`，不压缩、单位米）；
+- 微信或电脑：显示提示。
+
+重新生成 AR 文件：`ARTOOLS=/workspace/artools node tools/models/build_ar.mjs`，然后对每个模型跑 `/workspace/artools/venv/bin/python tools/models/glb_to_usdz.py public/models/ar/<id>.glb public/models/<id>.usdz`。前 3 个 USDZ 是以前用 Blender 做的，一直保留着。测试：`tools/ar-verify.mjs`（lab-verify 第 7 部分，`AR=0` 跳过）。
+
 **果冻重力 + 加载 (t14)：** 2026-11-14 夜。重力感应原来只能左 / 右 / 下：`tilt.ts` 竖直分量只会减小地板重力，没有屏幕 y 分量，也没有顶部边界；现在四个方向都能动（`engine.ts` 的 `box[7]` 是顶，CPU / GPU 两个求解器都处理）。测试 `tools/jelly-tilt-verify.mjs`（lab-verify 第 6 部分，`TILT=0` 跳过）。加载：`src/shared/jellyAsset.ts` 统一下载 / 进度 / 解压，夜路 6 s 后预取；Cloudflare 版用 `.bin.gz`（`VITE_JELLY_GZ=1`，`scripts/build_cloudflare.sh`）。测量 `tools/jelly-load.mjs`。
 
 **文案删除 (t13)：** 2026-11-14 晚，用户确认表格里清空的 38 格是删除：中英文一起从 `meadow/dict.ts`、`shop/dict.ts`、`night/dict.ts`、`story-dict.ts` 删掉；草地的 `.m-hint` 和 `.m-cap-k`、夜路的 `.n-hint`（换成不挂到页面上的占位元素，原来的显示 / 隐藏调用不用改）、夜路开场 `tell('story.night.in')` 都去掉了；小店「完整展厅」链接改成外链图标（`aria-label="lotus30-figures-web"`）；拼合件拆分按钮用 `shop.i.split`。见 `docs/CHANGELOG.md`。
