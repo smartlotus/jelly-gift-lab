@@ -1,13 +1,14 @@
 // /ar/ · the printed figures on a real table. Page = a calm turntable carousel (pig · cat · the couple set) + one AR button:
-// iOS -> AR Quick Look (USDZ, real printed size) · Android with WebXR -> immersive-ar (xr.ts) · otherwise the button hides
-// and the page stays a 3D viewer (drag to turn). ?m=figure-pig|figure-cat|pair picks the first model; ?ar=force shows the button.
+// iOS -> AR Quick Look (USDZ, real printed size) · Android with WebXR -> immersive-ar (xr.ts) · other Android -> Scene Viewer
+// (plain-glTF copy; its fallback URL comes back here with ?arfail=1) · WeChat & co / desktop -> a short note, the page stays a
+// 3D viewer (drag to turn). ?m=<any shop model> picks the first model and its family (figures / magnets); ?ar=force = WebXR path.
 import { WebGLRenderer, Scene, PerspectiveCamera, DirectionalLight, Mesh, PlaneGeometry, ShadowMaterial, PMREMGenerator, NeutralToneMapping, PCFShadowMap, Group, Color } from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { register, t, onLang, apply } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
 import { irisIn, dissolve } from '../../shared/transition';
 import { params, from, go } from '../../shared/flow';
-import { AR_IDS, AR_ICON, isArId, quickLook, webxrAR, openQuickLook, type ArId } from '../../shared/ar';
+import { AR_FAMILIES, AR_ICON, isArId, quickLook, webxrAR, openQuickLook, sceneViewerUrl, isAndroid, inAppBrowser, type ArId } from '../../shared/ar';
 import { loadFigure } from './models';
 import * as dict from './dict';
 import { tell } from '../../shared/story';
@@ -30,15 +31,19 @@ const stage = new Group(); scene.add(stage);
 window.addEventListener('resize', () => { r.setPixelRatio(capDpr(2)); r.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); });
 
 // ---------- UI: dots + one round AR button ----------
+const m0 = params.get('m') || '';
+const AR_IDS: ArId[] = AR_FAMILIES.find(f => (f as string[]).includes(m0)) ?? AR_FAMILIES[0];
 const ui = document.createElement('div'); ui.className = 'ar-ui';
-ui.innerHTML = `<button type="button" class="ar-btn" data-i18n-aria="ar.place" hidden>${AR_ICON}</button><nav class="ar-dots">${AR_IDS.map(id => `<button type="button" data-id="${id}" data-i18n-aria="ar.m.${id}"></button>`).join('')}</nav>
+ui.innerHTML = `<button type="button" class="ar-btn" data-i18n-aria="${AR_IDS === AR_FAMILIES[1] ? 'ar.place.m' : 'ar.place'}" hidden>${AR_ICON}</button><nav class="ar-dots">${AR_IDS.map(id => `<button type="button" data-id="${id}" data-i18n-aria="ar.m.${id}"></button>`).join('')}</nav>
 <div class="ar-overlay" hidden><button type="button" class="ar-exit" data-i18n-aria="ar.exit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`;
 document.body.appendChild(ui); apply(); onLang(() => apply());
 const btn = ui.querySelector<HTMLButtonElement>('.ar-btn')!, overlay = ui.querySelector<HTMLElement>('.ar-overlay')!;
 let idx = Math.max(0, AR_IDS.indexOf((params.get('m') || '') as ArId));
 const figs = new Map<ArId, Group>();
-let mode: 'ql' | 'xr' | null = null;
-void (async () => { mode = quickLook() ? 'ql' : (await webxrAR()) ? 'xr' : null; btn.hidden = !mode && params.get('ar') !== 'force'; })();
+let mode: 'ql' | 'xr' | 'sv' | 'app' | 'none' = 'none', noted = false;
+// the button is always there (every model has AR); where AR can't open, tapping it says why instead of doing nothing
+btn.hidden = false;
+void (async () => { mode = inAppBrowser ? 'app' : quickLook() ? 'ql' : (params.get('ar') === 'force' || await webxrAR()) ? 'xr' : isAndroid ? 'sv' : 'none'; (window as unknown as { __arMode?: string }).__arMode = mode; })();
 
 // ---------- carousel ----------
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches, cv = r.domElement;
@@ -62,6 +67,13 @@ btn.addEventListener('click', async () => {
   btn.classList.remove('ping'); void btn.offsetWidth; btn.classList.add('ping'); Sfx.place();
   const id = AR_IDS[idx];
   if (mode === 'ql') { openQuickLook(id); return; }
+  if (mode === 'app') { noted = true; tell('ar.note.app', 5200, false); return; }
+  if (mode === 'none') { noted = true; tell(isAndroid ? 'ar.note.none' : 'ar.note.desk', 5200, false); return; }
+  if (mode === 'sv') {
+    const back = new URL(location.href); back.searchParams.set('m', id); back.searchParams.set('arfail', '1');
+    const url = sceneViewerUrl(id, t(`ar.m.${id}`), back.href); (window as unknown as { __arIntent?: string }).__arIntent = url;
+    if (!params.has('arnoop')) location.href = url; return; // ?arnoop: tests read the intent without leaving
+  }
   if (mode === 'xr' && shown) {
     overlay.hidden = false; document.body.classList.add('ar-live');
     try { const { runXR } = await import('./xr'); await runXR(r, cam, shown, overlay); } catch (err) { console.warn('webxr', err); }
@@ -95,5 +107,6 @@ if (from === 'shop') {
   document.body.appendChild(back); apply();
   back.addEventListener('click', () => { Sfx.tap(); }); back.addEventListener('click', () => void go('shop', () => dissolve(1, 600, '#eeece8'), { ex: AR_IDS[idx] }));
 } else void irisIn(innerWidth / 2, innerHeight / 2, 700, '#eeece8');
-void t; void isArId;
-setTimeout(() => tell('story.ar.in'), 1400);
+void isArId;
+// back from Scene Viewer's fallback (no Google AR on this phone): say so instead of the usual line
+setTimeout(() => (params.has('arfail') ? tell('ar.note.none', 5200, false) : !noted && tell('story.ar.in')), 1400);

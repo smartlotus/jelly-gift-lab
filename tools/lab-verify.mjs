@@ -259,6 +259,13 @@ if (process.env.OVERLAP !== '0') {
   const { audit } = await import('./overlap-audit.mjs');
   await audit(b, BASE, { log, shots: SHOTS });
 }
+// 7. AR for every shop model (2026-11-15): AR files, MIME, Scene Viewer intent / Quick Look / notes, inspector button (tools/ar-verify.mjs; AR=0 skips)
+if (process.env.AR !== '0') {
+  const { spawnSync } = await import('node:child_process');
+  const r = spawnSync(process.execPath, [new URL('./ar-verify.mjs', import.meta.url).pathname], { env: { ...process.env, BASE }, encoding: 'utf8', timeout: 600000 });
+  for (const line of (r.stdout || '').split('\n')) { const m = /^  (ok |FAIL) (.*)$/.exec(line); if (m) log(`ar · ${m[2].replace(/  [\[{"].*$/, '')}`, m[1] === 'ok ', m[1] === 'ok ' ? undefined : m[2].slice(0, 200)); }
+  if (r.status === null || !/ar-verify:/.test(r.stdout || '')) log('ar · the AR check ran to the end', false, (r.stderr || '').slice(-300));
+}
 // 6. jelly gravity sensor (2026-11-14): left / right / up / down in portrait + landscape 90 / 270 (tools/jelly-tilt-verify.mjs)
 if (process.env.TILT !== '0') {
   const { spawnSync } = await import('node:child_process');

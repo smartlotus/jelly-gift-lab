@@ -14,6 +14,8 @@
     "test:collect": "tsx tools/collect-test.ts",
     "test:lab": "node tools/lab-verify.mjs",
     "test:tilt": "node tools/jelly-tilt-verify.mjs",
+    "test:ar": "node tools/ar-verify.mjs",
+    "ar:build": "node tools/models/build_ar.mjs",
     "perf:jelly-load": "node tools/jelly-load.mjs",
     "copy": "tsx scripts/extract_copy.ts"
   },
