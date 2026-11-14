@@ -1,6 +1,6 @@
 // Stage 1 · Meadow - bright Cat-Mario-style pixel platformer -> heart fountain -> door -> /shop/ (docs/GIFT_PLAN.md §5.1).
 // main.ts = page shell: chrome (zh/EN + sound), start card, HUD (heart counter), hints, the "Day 200" caption, exit.
-import { handleStageParam, markReached, reached, go, prefetchNext, params, dev } from '../../shared/flow';
+import { handleStageParam, markReached, go, prefetchNext, params, dev } from '../../shared/flow';
 import { register, t, onLang, apply } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
 import { irisIn, irisOut } from '../../shared/transition';
@@ -10,13 +10,14 @@ import { mountTouch } from '../../shared/pixel/touch';
 import { startMeadow } from './game';
 import { music } from './sfx';
 import { tell } from '../../shared/story';
+import { mountSurprise } from '../../shared/surprise/kit';
 import * as dict from './dict';
 import './style.css';
+import { prefetchShopModels } from '../shop/models';
 
 if (!handleStageParam()) {
   register(dict); mountChrome(); markReached();
   const host = document.getElementById('game')!;
-  const coarse = matchMedia('(pointer: coarse)').matches;
 
   // HUD: a pixel heart + counter (site serif, tabular figures)
   const hud = document.createElement('div'); hud.className = 'm-hud';
@@ -29,30 +30,26 @@ if (!handleStageParam()) {
     if (!roll) { hud.classList.remove('bump'); void hud.offsetWidth; hud.classList.add('bump'); }
     hud.classList.toggle('full', n >= 200);
   };
-  // hint (fades once she moves)
-  const hint = document.createElement('p'); hint.className = 'm-hint'; hint.dataset.i18n = coarse ? 'meadow.hint.touch' : 'meadow.hint.keys';
-  document.body.appendChild(hint);
+  // (2026-11-14: the controls hint and the "Day 200" kicker were deleted from the copy sheet — no empty element is drawn)
   // the fountain caption
   const cap = document.createElement('div'); cap.className = 'm-cap';
-  cap.innerHTML = `<p class="m-cap-k" data-i18n="meadow.day"></p><p class="m-cap-l" data-i18n="meadow.line"></p>`;
+  cap.innerHTML = `<p class="m-cap-l" data-i18n="meadow.line"></p>`;
   document.body.appendChild(cap);
-  // replaying (she has been further before): a discreet skip
-  if (reached() >= 1) {
-    const sk = document.createElement('button'); sk.type = 'button'; sk.className = 'm-skip'; sk.dataset.i18n = 'ui.skip';
-    sk.addEventListener('pointerdown', e => e.stopPropagation()); sk.addEventListener('click', () => { music(false); void go(undefined, () => irisOut()); });
-    document.body.appendChild(sk);
-  }
+  // lab: 惊喜 / 跳过 / 收集 on every stage (replaces the old replay-only skip). 跳过 leaves exactly like the door does.
+  mountSurprise({ stage: 'meadow', skip: at => { music(false); const snap = stashCanvas(game.screen.canvas); void go('shop', () => irisOut(at.x, at.y, 700, snap?.color || '#5EC4FF', snap?.img)); } });
   apply(); onLang(() => apply());
 
   mountTouch();
+  // 2026-11-14: warm the shop's first 3D figurine early (idle, low priority); the rest follow when the cat nears the exit
+  setTimeout(() => prefetchShopModels(['figure-pig']), 6000);
   const skip = params.has('skip');
   let resolveReady!: () => void; const ready = new Promise<void>(r => (resolveReady = r));
   const game = startMeadow(host, {
     hearts: setHearts,
-    firstMove: () => setTimeout(() => hint.classList.add('out'), 1800),
-    fountain: () => { hud.classList.add('glow'); hint.classList.add('out'); },
+    firstMove: () => {},
+    fountain: () => { hud.classList.add('glow'); },
     caption: () => { cap.classList.add('on'); setTimeout(() => cap.classList.remove('on'), 4200); },
-    nearExit: () => { prefetchNext(); tell('story.meadow.out'); },
+    nearExit: () => { prefetchNext(); prefetchShopModels(); tell('story.meadow.out'); },
     exit: (x, y) => { music(false); const snap = stashCanvas(game.screen.canvas); void go('shop', () => irisOut(x, y, 700, snap?.color || '#5EC4FF', snap?.img)); },
   }, { ready, at: params.get('at'), dev });
 
@@ -61,7 +58,7 @@ if (!handleStageParam()) {
   fit(); window.addEventListener('resize', fit);
 
   void irisIn();
-  const begin = () => { resolveReady(); hint.classList.add('on'); music(soundOn()); };
+  const begin = () => { resolveReady(); music(soundOn()); };
   begin(); // v03g: no title card — she lands straight in the level (audio unlocks on her first touch, see chrome.ts)
   onSound(v => music(v));
   void t;

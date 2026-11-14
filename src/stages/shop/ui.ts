@@ -57,7 +57,7 @@ export class Inspect {
           <button type="button" class="si-btn" data-k="spin" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="8.5" ry="3.6"/><path d="M15.5 6.6l2.6 1.9-2.4 2"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg></button>
           <button type="button" class="si-btn si-light" data-k="light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M5.6 18.4l1.6-1.6M16.8 7.2l1.6-1.6"/></svg><i></i></button>
           <button type="button" class="si-btn" data-k="flip" hidden data-i18n="shop.i.flip">Flip</button>
-          <a class="si-btn si-out" data-k="showcase" href="https://smartlotus.github.io/lotus30-figures-web/" target="_blank" rel="noopener" hidden data-i18n="shop.showcase">Studio</a>
+          <a class="si-btn si-out" data-k="showcase" href="https://smartlotus.github.io/lotus30-figures-web/" target="_blank" rel="noopener" hidden aria-label="lotus30-figures-web"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
           <button type="button" class="si-btn si-ar" data-k="ar" hidden>${AR_ICON}</button>
           <button type="button" class="si-next" data-i18n-aria="shop.i.next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 5l7 7-7 7"/></svg></button>
         </nav>
@@ -111,8 +111,10 @@ export class Inspect {
   private fill() {
     // icon-only controls: words live in aria-labels / tooltips only
     this.el.querySelectorAll<HTMLButtonElement>('.si-btn').forEach(b => {
-      const k = b.dataset.k!, l = k === 'ar' ? t('shop.i.ar') : k === 'light' ? t(`shop.i.light${this.v.mood}`) : k === 'split' && this.id === 'pair' ? t('shop.i.split.pair') : t(`shop.i.${k}`);
+      if (b.dataset.k === 'showcase') return; // its words were deleted (2026-11-14): an outbound-link icon with its own aria-label
+      const k = b.dataset.k!, l = k === 'ar' ? t('shop.i.ar') : k === 'light' ? t(`shop.i.light${this.v.mood}`) : t(`shop.i.${k}`);
       b.setAttribute('aria-label', l); b.title = l;
+      if (b.dataset.i18n) b.textContent = t(b.dataset.i18n); // the inspector is built after the page's i18n pass (看背面 showed as “Flip”)
     });
   }
   sync() {

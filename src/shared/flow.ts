@@ -14,8 +14,8 @@
 // vite base is './' so every URL here is RELATIVE (works at a domain root or any subpath, including a future Pages URL).
 import { cover } from './curtain';
 import { whoosh } from './sfx';
-export type StageId = 'meadow' | 'flower' | 'mushroom' | 'shop' | 'night' | 'jelly' | 'sea' | 'sky' | 'coop' | 'home' | 'ar';
-export const STAGES: readonly StageId[] = ['meadow', 'shop', 'night', 'jelly', 'sea', 'sky', 'coop', 'flower', 'mushroom', 'home'];
+import { STAGES, type StageId } from './stage-list';
+export { STAGES, type StageId };
 const PATH: Record<StageId, string> = { meadow: '', flower: 'flower/', mushroom: 'mushroom/', shop: 'shop/', night: 'night/', jelly: 'jelly/', sea: 'sea/', sky: 'sky/', coop: 'coop/', home: 'home/', ar: 'ar/' };
 /** query params that survive page hops (language + dev switches) */
 const CARRY = ['lang', 'dev', 'sound', 'skip'];
@@ -77,6 +77,8 @@ export function warm(id: StageId, extra: Record<string, string> = {}) {
 export function prefetchNext(id: StageId = here) {
   const n = nextStage(id); if (!n) return;
   warm(n);
+  // the jelly page's tet-mesh asset is its whole load time (~2.2 MB): warm the HTTP cache from the night (2026-11-14)
+  if (n === 'jelly') void import('./jellyAsset').then(m => m.prefetchJelly()).catch(() => {});
   // Decode the next stage's ground plate now so the first painted frame is the forest, not an empty body colour.
   const plates: Partial<Record<StageId, string>> = {
     flower: 'art/plates/flower-ground-wide.jpg',

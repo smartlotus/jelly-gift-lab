@@ -7,7 +7,7 @@
 import * as A from 'astronomy-engine';
 import { register, t, onLang, apply, lang } from '../../shared/i18n';
 import { mountChrome } from '../../shared/chrome';
-import { openCinema } from './cinema';
+import { mountSurprise } from '../../shared/surprise/kit';
 import * as Sfx from '../../shared/sfx';
 import { irisIn } from '../../shared/transition';
 import { drawDawn, DAWN_LINES } from '../../shared/dawn';
@@ -20,6 +20,7 @@ import LINES from './data/lines.json';
 import * as dict from './dict';
 import { tell } from '../../shared/story';
 import './style.css';
+import { capDpr, frameGate } from '../../shared/perf';
 
 register(dict); mountChrome({ theme: 'dark' }); // v03i: the switch is back here too (twinkles, dawn, and the film's own sound follow it)
 const host = document.getElementById('sky')!;
@@ -132,7 +133,7 @@ if (cameFrom === 'sea') {
 if (raise) view.alt = raise.a0;
 markReached();
 let W = 0, H = 0, dpr = 1;
-function resize() { dpr = Math.min(devicePixelRatio || 1, 2); W = cv.width = Math.round(innerWidth * dpr); H = cv.height = Math.round(innerHeight * dpr); cv.style.width = innerWidth + 'px'; cv.style.height = innerHeight + 'px'; }
+function resize() { dpr = capDpr(2); W = cv.width = Math.round(innerWidth * dpr); H = cv.height = Math.round(innerHeight * dpr); cv.style.width = innerWidth + 'px'; cv.style.height = innerHeight + 'px'; }
 window.addEventListener('resize', resize);
 const CY = 0.42;
 let F: V3 = [1, 0, 0], R: V3 = [0, -1, 0], U: V3 = [0, 0, 1], K = 1;
@@ -266,7 +267,7 @@ function drawMoon(v: V3, sun: V3, frac: number, day: number) {
 // ---------- UI ----------
 const ui = document.createElement('div'); ui.className = 'sk-ui';
 ui.innerHTML = `<header class="sk-head"><p class="sk-date"></p><p class="sk-place"></p><p class="sk-moon"></p></header>
-<footer class="sk-foot"><button type="button" class="sk-film" data-i18n="sky.film">Our film</button><button type="button" class="sk-next"><span data-i18n="sky.next"></span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M10 7l5 5-5 5"/></svg></button><div class="sk-seg" role="group"><button type="button" data-k="0"></button><button type="button" data-k="1"></button><button type="button" data-k="2"></button></div>
+<footer class="sk-foot"><button type="button" class="sk-next"><span data-i18n="sky.next"></span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M10 7l5 5-5 5"/></svg></button><div class="sk-seg" role="group"><button type="button" data-k="0"></button><button type="button" data-k="1"></button><button type="button" data-k="2"></button></div>
 <dl class="sk-rec"><dt data-i18n="sky.again" class="sk-rec-h"></dt><div><dt data-i18n="sky.r.stars"></dt><dd data-r="stars"></dd></div><div><dt data-i18n="sky.r.moon"></dt><dd data-r="moon"></dd></div><div><dt data-i18n="sky.r.planets"></dt><dd data-r="planets"></dd></div></dl></footer>
 <div class="sk-tools"><button type="button" class="sk-sun" data-i18n-aria="sky.hideDay" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6L18 18M6 18l1.4-1.4M16.6 7.4L18 6"/><path class="sk-slash" d="M4 20L20 4"/></svg></button>
 <button type="button" class="sk-gyro" data-i18n-aria="sky.gyro" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="8.5"/><path d="M12 5.5l2.2 6.5L12 18.5 9.8 12z"/></svg></button></div>`;
@@ -342,18 +343,27 @@ gbtn.addEventListener('click', async () => {
   if (D.requestPermission) { try { if (await D.requestPermission() !== 'granted') return; } catch { return; } }
   gyro = !gyro; gbtn.classList.toggle('on', gyro); Sfx.tap();
 });
+// Android Chrome / WebView: plain deviceorientation is relative (no compass); the compass comes as deviceorientationabsolute.
+// iOS gives webkitCompassHeading on the plain event. Once absolute events arrive, the relative ones only drive altitude.
+let absSeen = false;
+window.addEventListener('deviceorientationabsolute' as 'deviceorientation', (e: DeviceOrientationEvent) => {
+  if (!gyro || e.alpha == null) return; absSeen = true;
+  const head = 360 - e.alpha; view.az += (((head - view.az + 540) % 360) - 180) * 0.25;
+}, { passive: true });
 window.addEventListener('deviceorientation', e => {
   if (!gyro || e.beta == null) return;
-  const head = (e as DeviceOrientationEvent & { webkitCompassHeading?: number }).webkitCompassHeading ?? (e.absolute && e.alpha != null ? 360 - e.alpha : null);
+  const head = (e as DeviceOrientationEvent & { webkitCompassHeading?: number }).webkitCompassHeading ?? (!absSeen && e.absolute && e.alpha != null ? 360 - e.alpha : null);
   if (head != null) view.az += (((head - view.az + 540) % 360) - 180) * 0.25;
   view.alt += ((e.beta - 90) - view.alt) * 0.25; clampV();
-});
+}, { passive: true });
 
 // ---------- loop ----------
 resize();
 let last = performance.now();
+const gate = frameGate();
 function loop(now: number) {
   requestAnimationFrame(loop);
+  if (!gate(now)) return;
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   if (kT < 1) kT = Math.min(1, kT + dt / 1.8);
   leaveTick(dt);
@@ -366,9 +376,8 @@ requestAnimationFrame(loop);
 if (!still && !reduced && cameFrom !== 'jelly') void irisIn(innerWidth / 2, innerHeight / 2, 900, '#04060b'); // from the egg: already black, the stars rise out of it
 // onward -> the co-op finale: a slow fade through black, then the pixel iris opens there
 const next = $<HTMLButtonElement>('.sk-next');
-const film = $<HTMLButtonElement>('.sk-film');
-film.addEventListener('click', () => { Sfx.softChime(); openCinema(); });
-setTimeout(() => { next.classList.add('on'); film.classList.add('on'); }, still ? 0 : cameFrom === 'jelly' ? 9000 : 4000);
+// 2026-11-14: the 200-day film is only the ending's (home → ending-film.json); the sky no longer offers it.
+setTimeout(() => { next.classList.add('on'); }, still ? 0 : cameFrom === 'jelly' ? 9000 : 4000);
 next.addEventListener('click', () => {
   if (leave) return; raise = null; gyro = false;
   if (reduced) { void go('coop', undefined, { hz: '0.66' }); return; }
@@ -406,3 +415,5 @@ function leavePost() {
   g.imageSmoothingEnabled = false; g.drawImage(pix, 0, 0, W, H);
 }
 setTimeout(() => tell('story.sky.in'), 1400);
+// lab: 跳过 = the onward button's own slow sink to the horizon and on to /coop/ (works before that button has faded in)
+mountSurprise({ stage: 'sky', skip: () => next.click() });

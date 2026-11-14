@@ -15,7 +15,10 @@ import { preloadArt } from '../../art/loader';
 import { clearLayout } from './save';
 import { startHomeAudio, toDream, leaveHome } from './sfx';
 import { stopTune, startMusic } from '../../shared/music';
-import { probeFutureFilm, createFilmPlayer, type FilmPlayer, type FilmManifest } from './endingFilm';
+import { probeFutureFilm, createFilmPlayer, prepareFilm, type FilmPlayer, type FilmManifest } from './endingFilm';
+import { mountSurprise } from '../../shared/surprise/kit';
+import { startEnding, cancelEnding } from '../../shared/surprise/end';
+import { resetCollection } from '../../shared/surprise/collect';
 import * as dict from './dict';
 import './style.css';
 
@@ -75,11 +78,13 @@ let endFromFilm = false;
 let player: FilmPlayer | null = null;
 let manifest: FilmManifest | null = null;
 let finaleInFilm = false;
-const manifestReady = probeFutureFilm().then(m => { manifest = m; document.body.classList.toggle('hm-has-film', !!m); return m; });
+// metadata now (a few KB); the whole film starts buffering once she is in the room, so it is ready when she saves
+const manifestReady = probeFutureFilm().then(m => { manifest = m; document.body.classList.toggle('hm-has-film', !!m); if (m) prepareFilm(m, phase === 'approach' ? 'metadata' : 'auto'); return m; });
 let spark: { x: number; y: number; vx: number; vy: number; life: number }[] = [];
 
 async function enterRoom() {
   phase = 'room';
+  void manifestReady.then(m => { if (m) prepareFilm(m, 'auto'); });
   document.body.classList.add('hm-decorating');
   document.body.classList.remove('hm-on-finale', 'hm-endcard');
   line.classList.remove('on');
@@ -144,6 +149,7 @@ function toEndCard() {
   line.classList.remove('on');
   phase = 'end';
   endT = 0;
+  startEnding(); // lab: all found → the secret page; otherwise the collection list (src/shared/surprise/end.ts)
 }
 
 function enterMontage() {
@@ -166,6 +172,7 @@ skip.addEventListener('click', () => {
   else if (phase === 'end') endT = 4;
 });
 replay.addEventListener('click', () => {
+  cancelEnding();
   finale.classList.remove('on');
   document.body.classList.remove('hm-on-finale');
   if (FILM_ENABLED) { film?.replay(); return; }
@@ -176,11 +183,25 @@ replay.addEventListener('click', () => {
   startEndingFilm(manifest);
   player?.show();
 });
-again.addEventListener('click', () => { leaveHome(); void go('meadow', () => reducedMotion() ? Promise.resolve() : irisOut(innerWidth / 2, innerHeight / 2, 700, '#f3ebe0')); });
-edit.addEventListener('click', () => { void enterRoom(); });
+again.addEventListener('click', () => { cancelEnding(); resetCollection(); leaveHome(); void go('meadow', () => reducedMotion() ? Promise.resolve() : irisOut(innerWidth / 2, innerHeight / 2, 700, '#f3ebe0')); });
+edit.addEventListener('click', () => { cancelEnding(); void enterRoom(); });
+
+// lab: 惊喜 / 跳过 / 收集. 跳过 moves one step on: the walk → the room → (save) the film → the closing card.
+const gs = mountSurprise({ stage: 'home', skip: () => {
+  if (phase === 'approach') approach.skip();
+  else if (phase === 'room') { const r = (window as unknown as { __homeRoom?: { save?: () => void } }).__homeRoom; if (r?.save) r.save(); else leaveRoom(); }
+  else if (phase === 'transform' || phase === 'video' || phase === 'montage') skip.click();
+} });
+let gsPhase = '';
+const gsSync = () => {
+  if (phase === gsPhase) return; gsPhase = phase;
+  gs.setHidden(phase === 'video' || phase === 'transform' || phase === 'montage'); // the film has its own 跳过
+  gs.setButtonsHidden(phase === 'end');                                              // the closing card keeps only the pouch
+};
 
 const reduced = reducedMotion();
 startLoop(dt => {
+  gsSync();
   if (phase === 'approach') {
     approach.update(dt);
     line.classList.toggle('on', approach.lineOn);

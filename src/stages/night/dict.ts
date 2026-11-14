@@ -1,13 +1,11 @@
 // Stage 3 copy. Keys prefixed 'night.'.
 export const en = {
-  'night.meta.title': 'For lushiva · III · The Night',
-  'night.kicker': 'III · The Night',
+  'night.meta.title': 'The Night',
+  'night.kicker': 'The Night',
   'night.title': 'Don’t look back',
   "night.sub": "Hold to walk. Choose a way. Don’t look back.",
   'night.sound': 'Best with sound',
   'night.sound.on': 'Turn on',
-  "night.hint.touch": "Hold the screen to walk · drag to look · tap a glowing ??",
-  "night.hint.key": "Hold W / ↑ to walk · drag to look · click a glowing ?? · M map · B turn back",
   'night.run': 'RUN!',
   'night.dead': 'Dead end…',
   'night.caught': 'Gotcha!',
@@ -138,14 +136,12 @@ export const en = {
   "night.end.more": "{n}/5 ?? stickers — collect them all for the hidden ending",
 };
 export const zh: Record<keyof typeof en, string> = {
-  'night.meta.title': '给 lushiva · 第三章 · 夜路',
-  'night.kicker': '第三章 · 夜路',
+  'night.meta.title': '夜路',
+  'night.kicker': '夜路',
   'night.title': '别回头',
   "night.sub": "按住前进，挑一条路，别回头。",
   'night.sound': '建议打开声音',
   'night.sound.on': '打开',
-  "night.hint.touch": "按住屏幕前进 · 拖动环顾 · 点发光的 ??",
-  "night.hint.key": "按住 W / ↑ 前进 · 拖动环顾 · 点发光的 ?? · M 地图 · B 回头",
   'night.run': '跑！',
   'night.dead': '没路了……',
   'night.caught': '抓到你啦！',

@@ -13,10 +13,11 @@ import * as dict from './dict';
 import { tell } from '../../shared/story';
 import * as Sfx from '../../shared/sfx';
 import './style.css';
+import { capDpr, perfTier } from '../../shared/perf';
 
 register(dict); mountChrome(); // v03i: sound switch on (turntable / place / back sounds)
 const host = document.getElementById('ar')!;
-const r = new WebGLRenderer({ antialias: true, alpha: true }); r.setPixelRatio(Math.min(devicePixelRatio, 2)); r.setSize(innerWidth, innerHeight);
+const r = new WebGLRenderer({ antialias: perfTier() !== 'low', alpha: true }); r.setPixelRatio(capDpr(2)); r.setSize(innerWidth, innerHeight);
 r.toneMapping = NeutralToneMapping; r.toneMappingExposure = 0.95; r.shadowMap.enabled = true; r.shadowMap.type = PCFShadowMap; r.setClearColor(0, 0);
 host.appendChild(r.domElement);
 const scene = new Scene(), cam = new PerspectiveCamera(30, innerWidth / innerHeight, 0.05, 50);
@@ -26,7 +27,7 @@ const sc = key.shadow.camera; sc.left = sc.bottom = -1.5; sc.right = sc.top = 1.
 scene.add(key, new DirectionalLight(new Color('#ffd9e2'), 0.5).translateX(2.5).translateY(1.5).translateZ(-3));
 const floor = new Mesh(new PlaneGeometry(8, 8).rotateX(-Math.PI / 2), new ShadowMaterial({ opacity: 0.16 })); floor.receiveShadow = true; scene.add(floor);
 const stage = new Group(); scene.add(stage);
-window.addEventListener('resize', () => { r.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); });
+window.addEventListener('resize', () => { r.setPixelRatio(capDpr(2)); r.setSize(innerWidth, innerHeight); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); });
 
 // ---------- UI: dots + one round AR button ----------
 const ui = document.createElement('div'); ui.className = 'ar-ui';

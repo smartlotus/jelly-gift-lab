@@ -9,6 +9,7 @@ import { Righting } from '../sim/righting';
 import type { Actuation } from '../core/character';
 import type { Colourway } from '../core/look';
 import { Tilt } from './tilt';
+import { capDpr, frameGate } from '../shared/perf';
 
 const KEY = [-0.28, 1.0, -0.62];
 export interface Readouts { massG: number; volumeMl: number; metrics: number[] }
@@ -85,13 +86,13 @@ export class Engine {
     return { ...c, absorb: L(p.absorb, c.absorb), back: L(p.back, c.back), finTip: L(p.finTip, c.finTip), belly: L(p.belly, c.belly), glow: L(p.glow, c.glow), bead: L(p.bead, c.bead), bgTop: L(p.bgTop, c.bgTop), bgBot: L(p.bgBot, c.bgBot), floor: L(p.floor, c.floor) };
   }
 
-  private raf = 0;
+  private raf = 0; private gate = frameGate();
   start() { if (this.running) return; this.running = true; this.last = performance.now(); cancelAnimationFrame(this.raf); this.raf = requestAnimationFrame(this.loop); }
   stop() { this.running = false; cancelAnimationFrame(this.raf); }
 
   resize() {
     const r = this.canvas.getBoundingClientRect();
-    this.dpr = Math.min(window.devicePixelRatio || 1, this.dprCap);
+    this.dpr = capDpr(this.dprCap);
     this.W = Math.max(2, Math.round(r.width * this.dpr)); this.H = Math.max(2, Math.round(r.height * this.dpr));
     this.path.resize(this.W, this.H);
     // free band between the top and bottom UI (portrait layouts frame the jelly inside it)
@@ -127,6 +128,7 @@ export class Engine {
   private loop = (t: number) => {
     if (!this.running) return;
     this.raf = requestAnimationFrame(this.loop);
+    if (!this.lockstep && !this.gate(t)) return;
     const t0 = performance.now();
     // lockstep (self-check only): advance exactly one 60 Hz frame per completed sim step,
     // so slow software GPUs reproduce real-time behaviour frame for frame
@@ -184,7 +186,10 @@ export class Engine {
     for (const px of [lo[0], hi[0]]) for (const pz of [lo[2], hi[2]]) { hu = Math.max(hu, Math.abs((px - cx) * rt[0] + (pz - cz) * rt[2])); hw = Math.max(hw, Math.abs((px - cx) * bx[0] + (pz - cz) * bx[2])); }
     const seen = Math.max(0, this.fitR - 0.2) * this.fitTh * 0.92; // half-width visible at the target's depth
     const wx = Math.max(hu * 1.3, Math.min(seen, hu * 2.4)), wz = Math.max(hw * 1.25, Math.min(wx * 0.9, hw * 2.4));
-    this.box.set([cx, cz, rt[0], rt[2], wx, wz, 1, 0]);
+    // ceiling (2026-11-14): with the phone's top pointing down the jelly falls UP — the top of the view is solid too
+    const seenV = Math.max(0, this.fitR - 0.2) * Math.tan(this.cam.fov / 2) * 0.92, hy = Math.max(0.05, this.rest.hi[1]);
+    const ceil = Math.max(hy * 1.6, Math.min(seenV * 1.5, hy * 3.0));
+    this.box.set([cx, cz, rt[0], rt[2], wx, wz, 1, ceil]);
   }
 
   // ------------------------------------------------------------------------------ camera

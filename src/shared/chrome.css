@@ -8,8 +8,8 @@
 :root {
   --ink: #141414; --ink-2: rgba(20,20,20,.64); --ink-3: rgba(20,20,20,.40); --hair: rgba(20,20,20,.2);
   --paper: #eeece8;
-  --serif: 'Source Serif', 'Noto Serif SC Sub', 'Songti SC', 'STSong', 'Noto Serif CJK SC', Georgia, serif;
-  --display: 'Playfair', 'Noto Serif SC Sub', 'Songti SC', serif;
+  --serif: 'Source Serif', 'Noto Serif SC Sub', 'Songti SC', 'STSong', 'Noto Serif CJK SC', 'Source Han Serif SC', 'Noto Serif SC', Georgia, serif;
+  --display: 'Playfair', 'Noto Serif SC Sub', 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', serif;
   --pad: clamp(18px, 3.2vw, 44px);
   --ease: cubic-bezier(.22,.7,.18,1);
   --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px);
@@ -37,7 +37,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .gift-chrome button { padding: 6px 2px; transition: color .3s var(--ease); color: #2a2420; }
 .gift-chrome button:hover { color: #141414; }
 .gift-chrome [aria-pressed="true"] { color: #141414; }
-.gc-lang { display: flex; align-items: center; gap: 6px; } .gc-lang [aria-pressed="false"] { color: rgba(42, 36, 32, 0.45); }
+.gc-lang { display: flex; align-items: center; gap: 6px; } .gc-lang button { min-width: 24px; text-align: center; } .gc-lang [aria-pressed="false"] { color: rgba(42, 36, 32, 0.45); }
 .gc-sep { width: 1px; height: 12px; background: rgba(42, 36, 32, 0.22); }
 
 .gift-card { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: var(--pad); background: color-mix(in srgb, var(--paper) 72%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: opacity .6s var(--ease); }

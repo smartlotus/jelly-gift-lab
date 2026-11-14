@@ -10,7 +10,12 @@
     "fonts": "python3 tools/fonts.py",
     "serve": "node tools/serve.mjs",
     "shoot": "node tools/shoot.mjs",
-    "record": "node tools/record.mjs"
+    "record": "node tools/record.mjs",
+    "test:collect": "tsx tools/collect-test.ts",
+    "test:lab": "node tools/lab-verify.mjs",
+    "test:tilt": "node tools/jelly-tilt-verify.mjs",
+    "perf:jelly-load": "node tools/jelly-load.mjs",
+    "copy": "tsx scripts/extract_copy.ts"
   },
   "keywords": [],
   "author": "",

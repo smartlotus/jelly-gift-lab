@@ -43,11 +43,12 @@ export const CURTAIN_STAGES: Record<string, [string, string, string]> = {
   coop: ['#5EC4FF', '一起玩', 'together'],
   home: ['#f3ebe0', '小家', 'our home'],
   ar: ['#eeece8', '桌上', 'on the table'],
+  secret: ['#2a1e2a', '彩蛋', 'a surprise'],   // lab: the bonus page after the hunt (not on the journey)
 };
-const NEXT: Record<string, string> = { meadow: 'shop/', shop: 'night/', night: 'jelly/', jelly: 'sea/', sea: 'sky/', sky: 'coop/', coop: 'flower/', flower: 'mushroom/', mushroom: 'home/', home: '', ar: 'shop/' };
+const NEXT: Record<string, string> = { meadow: 'shop/', shop: 'night/', night: 'jelly/', jelly: 'sea/', sea: 'sky/', sky: 'coop/', coop: 'flower/', flower: 'mushroom/', mushroom: 'home/', home: '', ar: 'shop/', secret: 'home/' };
 /** the pig only appears if the page takes longer than this to be ready */
 export const LATE_MS = 700;
-const TXT = {
+export const TXT = {
   zh: { wait: '马上就好', slow: '还在努力加载…', oops: '哎呀，这一页卡住了', retry: '再试一次', skip: '跳到下一站' },
   en: { wait: 'one moment', slow: 'still loading…', oops: 'oops, this page got stuck', retry: 'try again', skip: 'skip ahead' },
 };

@@ -7,6 +7,7 @@ import { startWander } from '../wander/engine';
 import { preloadArt } from '../../art/loader';
 import { startFlowerAudio, leaveFlower, rustle } from './sfx';
 import { tell } from '../../shared/story';
+import { mountSurprise } from '../../shared/surprise/kit';
 import * as dict from './dict';
 import './style.css';
 
@@ -28,6 +29,13 @@ const wood = startWander({
     void go('mushroom', () => reducedMotion() ? Promise.resolve() : irisOut(x, y, 720, snap?.color || '#5a4038', snap?.img));
   },
 });
+// lab: 跳过 = the path's own exit (iris + canvas hand-off), from wherever she is
+mountSurprise({ stage: 'flower', skip: at => {
+  if (left) return; left = true;
+  const snap = stashCanvas(wood.screen.canvas);
+  leaveFlower();
+  void go('mushroom', () => reducedMotion() ? Promise.resolve() : irisOut(at.x, at.y, 720, snap?.color || '#5a4038', snap?.img));
+} });
 const fit = () => wood.screen.configure(innerHeight > innerWidth ? { minW: 176, minH: 248 } : { minW: 300, minH: 168 });
 fit(); window.addEventListener('resize', fit);
 const carry = peekCarry();

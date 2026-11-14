@@ -8,11 +8,12 @@ import {
   AdditiveBlending, BufferGeometry, CanvasTexture, Color, DirectionalLight, Float32BufferAttribute, FogExp2, Group, HemisphereLight, LinearFilter,
   Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Points, PointsMaterial, Raycaster, Scene, Sprite, SpriteMaterial, Vector2, Vector3, WebGLRenderTarget, WebGLRenderer,
 } from 'three';
-import { markReached, params, dev, prefetchNext } from '../../shared/flow';
+import { markReached, params, dev, prefetchNext, go } from '../../shared/flow';
 import { register, t, apply, lang, onLang } from '../../shared/i18n';
 import { mountChrome, flashSound } from '../../shared/chrome';
+import { mountSurprise } from '../../shared/surprise/kit';
 import { soundOn, setSound, unlock, onSound } from '../../shared/audio';
-import { irisIn } from '../../shared/transition';
+import { irisIn, irisOut as gsIrisOut } from '../../shared/transition';
 import { hold, progress as curtainProgress } from '../../shared/curtain';
 import * as dict from './dict';
 import { tell } from '../../shared/story';
@@ -30,9 +31,14 @@ import { makeProps, beside } from './props';
 import { makeUI, openMap } from './ui';
 import { load, store, fresh, hasProgress, type Save } from './save';
 import './style.css';
+import { capDpr, frameGate } from '../../shared/perf';
 
 declare global { interface Window { __pause?: boolean; __steps?: number; __night?: unknown } }
 register(dict); mountChrome({ theme: 'dark' }); markReached();
+// lab: 跳过 = straight on to jelly through the same pink iris every night ending uses
+mountSurprise({ stage: 'night', skip: at => void go('jelly', () => gsIrisOut(at.x, at.y, 750, '#F9C6CF')) });
+// 2026-11-14: once she has been walking a while, fetch the jelly page's big asset in the background (idle, low priority)
+setTimeout(() => prefetchNext(), 6000);
 const host = document.getElementById('game')!;
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const touch = matchMedia('(pointer: coarse)').matches;
@@ -49,11 +55,12 @@ async function boot() {
   try { renderer = new WebGLRenderer({ antialias: false, powerPreference: 'high-performance' }); }
   catch { showKawaii(); return; }
   const release = hold(); curtainProgress(0.05);
-  const DPR = Math.min(devicePixelRatio || 1, 1.5);
+  let DPR = capDpr(1.5);
   renderer.setPixelRatio(DPR); renderer.setSize(innerWidth, innerHeight); renderer.autoClear = false;
   const cv = renderer.domElement; cv.className = 'n-canvas'; cv.setAttribute('role', 'img'); cv.dataset.i18nAria = 'night.canvas'; host.appendChild(cv);
   const black = document.createElement('div'); black.className = 'n-black'; host.appendChild(black);
-  const hint = document.createElement('p'); hint.className = 'n-hint'; hint.dataset.i18n = touch ? 'night.hint.touch' : 'night.hint.key'; host.appendChild(hint);
+  // 2026-11-14: the walking hint was deleted from the copy sheet; a detached stand-in keeps the show / hide calls harmless
+  const hint = document.createElement('p');
   const say = document.createElement('p'); say.className = 'n-say'; host.appendChild(say);
   apply(host);
   const hud = makeHud(host); const ui = makeUI(host);
@@ -108,8 +115,8 @@ async function boot() {
 
   const resize = () => {
     const w = innerWidth, h = innerHeight, a = w / h;
-    renderer.setSize(w, h);
-    const rh = Math.round(Math.min(560, Math.max(260, h * Math.min(devicePixelRatio || 1, 2) * 0.62)));
+    DPR = capDpr(1.5); renderer.setPixelRatio(DPR); renderer.setSize(w, h);
+    const rh = Math.round(Math.min(560, Math.max(260, h * capDpr(2) * 0.62)));
     rt.setSize(Math.round(rh * a), rh);
     cam.aspect = a; cam.fov = a < 0.75 ? 82 : a < 1.2 ? 76 : 68; cam.updateProjectionMatrix(); hand.resize(a);
     post.u.uRes.value.set(w * DPR, h * DPR);
@@ -419,8 +426,10 @@ async function boot() {
 
   // ---- loop -------------------------------------------------------------------------------------------------------
   let raf = 0, last = performance.now(), frames = 0, fpsT = last;
+  const gate = frameGate();
   const frame = (now: number) => {
     raf = requestAnimationFrame(frame);
+    if (!window.__pause && !gate(now)) return;
     let dt = Math.min(0.05, (now - last) / 1000); last = now;
     if (window.__pause) { dt = 0; if (window.__steps) { window.__steps--; dt = 1 / 60; } }
     if (dt > 0) update(dt * TS);
@@ -454,4 +463,4 @@ async function boot() {
     setTimeout(() => { r.classList.add('on'); }, 900); setTimeout(() => { r.classList.remove('on'); setTimeout(() => r.remove(), 900); }, 8500);
   }
 }
-setTimeout(() => tell('story.night.in'), 1400);
+// (the night's opening line was deleted from the copy sheet on 2026-11-14 — no empty bubble)

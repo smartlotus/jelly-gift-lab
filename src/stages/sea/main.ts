@@ -26,6 +26,7 @@ import * as dict from './dict';
 import { tell } from '../../shared/story';
 import { sfx } from './sfx';
 import { onSound } from '../../shared/audio';
+import { mountSurprise } from '../../shared/surprise/kit';
 import './style.css';
 
 register(dict); markReached('sea'); mountChrome({ theme: 'dark' }); // v03d: the sound switch is back (sfx.ts; muted by default)
@@ -300,3 +301,5 @@ function drawWipe(s: Scene, k: number, cx: number, cy: number) {
 }
 startLoop(update, render);
 setTimeout(() => tell('story.sea.in'), 1400);
+// lab: 跳过 = the same hop up to the sky the end of the swim makes (horizon handed over in ?hz)
+mountSurprise({ stage: 'sea', skip: () => { if (left) return; left = true; sfx.fade(); void go('sky', () => new Promise(r => setTimeout(r, 60)), { hz: '0.55' }); } });

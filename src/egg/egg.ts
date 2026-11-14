@@ -7,6 +7,7 @@ import { t, lang } from '../i18n/i18n';
 import { go } from '../shared/flow';
 import * as Audio from '../shared/audio';
 import * as Sfx from '../shared/sfx';
+import { capDpr } from '../shared/perf';
 
 type Celebrant = { celebrate?: (times?: number, gap?: number) => void };
 const NAME = 'lushiva';
@@ -46,9 +47,9 @@ const sfx = {
 /** one canvas does both acts: the salvo, then the slow motes (until stopped) */
 function sky(cv: HTMLCanvasElement) {
   const ctx = cv.getContext('2d')!;
-  const dpr = Math.min(1.75, devicePixelRatio || 1);
+  let dpr = capDpr(1.75);
   let W = 0, H = 0;
-  const size = () => { W = innerWidth; H = innerHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
+  const size = () => { dpr = capDpr(1.75); W = innerWidth; H = innerHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
   size(); addEventListener('resize', size);
   const parts: P[] = []; const rockets: Rocket[] = []; const flashes: Flash[] = []; const motes: Mote[] = [];
   let t0 = performance.now(), last = t0, launched = 0, raf = 0, moteAlpha = 0;
