@@ -192,6 +192,9 @@ export class CpuSolver {
           x[3 * i] = B[0] + u * B[2] - w2 * B[3]; x[3 * i + 2] = B[1] + u * B[3] + w2 * B[2];
         }
       }
+      if (this.box[6] && this.box[7] > 0 && x[3 * i + 1] > this.box[7] - nr) { // ceiling (sensor on, phone upside down)
+        x[3 * i + 1] = this.box[7] - nr; x[3 * i] += (p[3 * i] - x[3 * i]) * 0.3; x[3 * i + 2] += (p[3 * i + 2] - x[3 * i + 2]) * 0.3;
+      }
       const y = x[3 * i + 1];
       if (y < 0) {
         const fs = this.a.fric[i];

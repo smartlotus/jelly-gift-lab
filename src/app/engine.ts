@@ -186,7 +186,10 @@ export class Engine {
     for (const px of [lo[0], hi[0]]) for (const pz of [lo[2], hi[2]]) { hu = Math.max(hu, Math.abs((px - cx) * rt[0] + (pz - cz) * rt[2])); hw = Math.max(hw, Math.abs((px - cx) * bx[0] + (pz - cz) * bx[2])); }
     const seen = Math.max(0, this.fitR - 0.2) * this.fitTh * 0.92; // half-width visible at the target's depth
     const wx = Math.max(hu * 1.3, Math.min(seen, hu * 2.4)), wz = Math.max(hw * 1.25, Math.min(wx * 0.9, hw * 2.4));
-    this.box.set([cx, cz, rt[0], rt[2], wx, wz, 1, 0]);
+    // ceiling (2026-11-14): with the phone's top pointing down the jelly falls UP — the top of the view is solid too
+    const seenV = Math.max(0, this.fitR - 0.2) * Math.tan(this.cam.fov / 2) * 0.92, hy = Math.max(0.05, this.rest.hi[1]);
+    const ceil = Math.max(hy * 1.6, Math.min(seenV * 1.5, hy * 3.0));
+    this.box.set([cx, cz, rt[0], rt[2], wx, wz, 1, ceil]);
   }
 
   // ------------------------------------------------------------------------------ camera
